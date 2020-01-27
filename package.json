@@ -1,7 +1,8 @@
 {
-  "name": "@brightspace/d2l-content-store",
+  "name": "d2l-content-store",
   "description": "d2l-content-store",
   "repository": "https://github.com/Brightspace/d2l-content-store.git",
+  "version": "0.0.1",
   "publishConfig": {
     "access": "public"
   },

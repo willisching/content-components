@@ -1,8 +1,8 @@
 # d2l-content-store
 
-[![NPM version](https://img.shields.io/npm/v/@brightspace/d2l-content-store.svg)](https://www.npmjs.org/package/@brightspace/d2l-content-store)
+[![NPM version](https://img.shields.io/npm/v/Brightspace/d2l-content-store.svg)](https://www.npmjs.org/package/Brightspace/d2l-content-store)
 [![Greenkeeper badge](https://badges.greenkeeper.io/Brightspace/d2l-content-store.svg)](https://greenkeeper.io/)
-[![Build status](https://travis-ci.com/@brightspace/d2l-content-store.svg?branch=master)](https://travis-ci.com/@brightspace/d2l-content-store)
+[![Build status](https://travis-ci.com/Brightspace/d2l-content-store.svg?branch=master)](https://travis-ci.com/Brightspace/d2l-content-store)
 
 d2l-content-store
 
@@ -11,14 +11,14 @@ d2l-content-store
 To install from NPM:
 
 ```shell
-npm install @brightspace/d2l-content-store
+npm install Brightspace/d2l-content-store
 ```
 
 ## Usage
 
 ```html
 <script type="module">
-    import '@brightspace/d2l-content-store/d2l-content-store.js';
+    import 'Brightspace/d2l-content-store/d2l-content-store.js';
 </script>
 <d2l-content-store>My element</d2l-content-store>
 ```
