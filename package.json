@@ -1,8 +1,13 @@
 {
-  "name": "<%= packageName %>",
-  "description": "<%= description %>",
-  "repository": "https://github.com/<%= githubOrg %>/<%= shortName %>.git",
-  <%= publishInfo %>,
+  "name": "@brightspace/d2l-content-store",
+  "description": "d2l-content-store",
+  "repository": "https://github.com/Brightspace/d2l-content-store.git",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "d2l-content-store.js"
+  ],
   "scripts": {
     "lint": "eslint . --ext .js,.html",
     "test": "npm run lint && npm run test:local",
