@@ -6,9 +6,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "files": [
-    "d2l-content-store.js"
-  ],
   "scripts": {
     "lint": "eslint . --ext .js,.html",
     "test": "npm run lint && npm run test:local",
