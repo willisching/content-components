@@ -33,7 +33,11 @@
   },
   "dependencies": {
     "@brightspace-ui/core": "^1",
+    "@polymer/polymer": "3.2.0",
     "@webcomponents/webcomponentsjs": "^2",
-    "lit-element": "^2"
+    "lit-element": "^2",
+    "pwa-helpers": "^0.9.1",
+    "redux": "^4.0.5",
+    "redux-thunk": "^2.3.0"
   }
 }
