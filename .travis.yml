@@ -17,14 +17,4 @@ after_success:
 env:
   global:
   - SAUCE_USERNAME: Desire2Learn
-  - REPO_NAME=d2l-content-store
-  - OWNER_NAME=Brightspace
-deploy:
-  - provider: npm
-    email: d2ltravisdeploy@d2l.com
-    skip_cleanup: true
-    api_key:
-      # d2l-travis-deploy: ...
-    on:
-      tags: true
-      repo: Brightspace/d2l-content-store
+
