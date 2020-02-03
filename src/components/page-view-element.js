@@ -6,7 +6,7 @@ import { NavigationMixin } from '../mixins/navigation-mixin.js';
 export class PageViewElement extends InternalLocalizeMixin(NavigationMixin(LitElement)) {
 	static get properties() {
 		return {
-			active: { type: Boolean },
+			active: { type: Boolean }
 		};
 	}
 

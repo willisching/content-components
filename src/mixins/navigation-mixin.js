@@ -19,6 +19,7 @@ export const navigationMixin = superClass => class extends connect(store)(superC
 		if (queryStringCollection) {
 			qs = `?${querystring.stringify(queryStringCollection)}`;
 		}
+
 		return qs;
 	}
 };

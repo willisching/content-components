@@ -7,11 +7,11 @@ export const UPDATE_PAGE = 'UPDATE_PAGE';
 export const navigate = path => dispatch => {
 	let pageWithQs = path;
 	if (path.includes(basePath)) {
-		pageWithQs = path.substring(basePath.length + 1);
+		pageWithQs = path.slice(basePath.length + 1);
 	}
 
-	const page = pageWithQs.includes('?') ? pageWithQs.substring(0, pageWithQs.indexOf('?')) : pageWithQs;
-	const queryString = pageWithQs.includes('?') ? pageWithQs.substring(pageWithQs.indexOf('?') + 1) : '';
+	const page = pageWithQs.includes('?') ? pageWithQs.slice(0, pageWithQs.indexOf('?')) : pageWithQs;
+	const queryString = pageWithQs.includes('?') ? pageWithQs.slice(pageWithQs.indexOf('?') + 1) : '';
 	const queryParams = querystring.parse(queryString);
 
 	window.scrollTo(0, 0);
@@ -21,6 +21,8 @@ export const navigate = path => dispatch => {
 
 const loadPage = (page, queryParams) => dispatch => {
 	switch (page) {
+		// Load Polyfills
+		/* eslint-disable no-unused-expressions */
 		case 'some-other-page':
 			page = 'some-other-page';
 			import('../some-other-page.js');
@@ -29,6 +31,7 @@ const loadPage = (page, queryParams) => dispatch => {
 			page = '404';
 			import('../d2l-content-store-404.js');
 			break;
+		/* eslint-enable no-unused-expressions */
 	}
 
 	dispatch(updatePage(page, queryParams));
@@ -37,5 +40,5 @@ const loadPage = (page, queryParams) => dispatch => {
 const updatePage = (page, queryParams) => ({
 	type: UPDATE_PAGE,
 	page,
-	queryParams,
+	queryParams
 });

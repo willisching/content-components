@@ -6,16 +6,15 @@ import { navigate } from './actions/app.js';
 import { store } from './store.js';
 
 class D2lContentStoreApp extends connect(store)(InternalLocalizeMixin(LitElement)) {
-
 	static get properties() {
 		return {
 			_page: { type: String },
 			prop1: { type: String },
 			token: {
-				type: Object,
+				type: Object
 			},
 			someStringAttribute: { type: String },
-			someBooleanAttribute: { type: Boolean },
+			someBooleanAttribute: { type: Boolean }
 		};
 	}
 
@@ -40,7 +39,7 @@ class D2lContentStoreApp extends connect(store)(InternalLocalizeMixin(LitElement
 		super();
 
 		this.prop1 = 'd2l-content-store';
-		installRouter((location) => this.handleNavigation(location));
+		installRouter(location => this.handleNavigation(location));
 		this.loading = true;
 	}
 
@@ -58,7 +57,6 @@ class D2lContentStoreApp extends connect(store)(InternalLocalizeMixin(LitElement
 	handleNavigation(location) {
 		store.dispatch(navigate(`${location.pathname}${location.search}`));
 	}
-
 }
 
 customElements.define('d2l-content-store-app', D2lContentStoreApp);

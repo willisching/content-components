@@ -4,10 +4,9 @@ import {
 	compose,
 	createStore
 } from 'redux';
-
-import app from './reducers/app.js';
 import { lazyReducerEnhancer } from 'pwa-helpers/lazy-reducer-enhancer.js';
 import thunk from 'redux-thunk';
+import app from './reducers/app.js';
 
 const devCompose = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 window.process = { env: { NODE_ENV: 'production' } };
