@@ -9,8 +9,11 @@ const internalLocalizeMixin = superClass => class extends LocalizeMixin(superCla
 			let translations;
 			switch (lang) {
 				case 'en':
+					// eslint-disable-next-line no-await-in-loop
 					translations = await import('../../locales/en.js');
 					break;
+				default:
+					continue;
 			}
 
 			if (translations && translations.val) {
@@ -20,6 +23,7 @@ const internalLocalizeMixin = superClass => class extends LocalizeMixin(superCla
 				};
 			}
 		}
+
 		return null;
 	}
 };

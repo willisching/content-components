@@ -1,15 +1,14 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 
 class D2lContentStore extends LitElement {
-
 	static get properties() {
 		return {
 			prop1: { type: String },
 			token: {
-				type: Object,
+				type: Object
 			},
 			someStringAttribute: { type: String },
-			someBooleanAttribute: { type: Boolean },
+			someBooleanAttribute: { type: Boolean }
 		};
 	}
 
@@ -29,6 +28,7 @@ class D2lContentStore extends LitElement {
 
 		this.prop1 = 'd2l-content-store';
 		window.process = { env: { NODE_ENV: 'production' } };
+		// eslint-disable-next-line no-unused-expressions
 		import('./d2l-content-store-app.js');
 	}
 

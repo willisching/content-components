@@ -10,7 +10,7 @@ class D2lContentStore404 extends PageViewElement {
 	}
 
 	navigateToSomeOtherPage() {
-		this._navigate('some-other-page', {stringQueryParam: 'hello', anotherQueryParam: 1234});
+		this._navigate('some-other-page', { stringQueryParam: 'hello', anotherQueryParam: 1234 });
 	}
 }
 
