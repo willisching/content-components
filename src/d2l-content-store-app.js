@@ -56,7 +56,7 @@ class D2lContentStoreApp extends connect(store)(InternalLocalizeMixin(LitElement
 	}
 
 	handleNavigation(location) {
-		store.dispatch(navigate(location.pathname))
+		store.dispatch(navigate(location.pathname));
 	}
 
 }
