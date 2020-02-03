@@ -1,3 +1,5 @@
+import * as querystring from '@chaitin/querystring';
+
 const basePath = '/d2l/contentstore';
 
 export const UPDATE_PAGE = 'UPDATE_PAGE';
@@ -9,8 +11,12 @@ export const navigate = path => dispatch => {
 	}
 
 	const page = pageWithQs.includes('?') ? pageWithQs.substring(0, pageWithQs.indexOf('?')) : pageWithQs;
+	const queryString = pageWithQs.includes('?') ? pageWithQs.substring(pageWithQs.indexOf('?') + 1) : '';
+	const queryParams = querystring.parse(queryString);
 
-	dispatch(loadPage(page, {}));
+	window.scrollTo(0, 0);
+
+	dispatch(loadPage(page, queryParams));
 };
 
 const loadPage = (page, queryParams) => dispatch => {

@@ -1,3 +1,4 @@
+import * as querystring from '@chaitin/querystring';
 import { connect } from 'pwa-helpers/connect-mixin.js';
 import { dedupingMixin } from '@polymer/polymer/lib/utils/mixin.js';
 import { navigate } from '../actions/app.js';
@@ -6,11 +7,19 @@ import { store } from '../store.js';
 /* @polymerMixin */
 export const navigationMixin = superClass => class extends connect(store)(superClass) {
 	_navigate(path, queryStringCollection) {
+		const pathWithQs = `${path}${this.__stringifyQueryStringCollection(queryStringCollection)}`;
 
-		console.log('>> pushing to history with path:', path, queryStringCollection);
-		window.history.pushState({}, '', path);
+		window.history.pushState({}, '', pathWithQs);
 		store.dispatch(
-			navigate(`${path}`));
+			navigate(pathWithQs));
+	}
+
+	__stringifyQueryStringCollection(queryStringCollection) {
+		let qs = '';
+		if (queryStringCollection) {
+			qs = `?${querystring.stringify(queryStringCollection)}`;
+		}
+		return qs;
 	}
 };
 

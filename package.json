@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "@brightspace-ui/core": "^1",
+    "@chaitin/querystring": "^1.1.0",
     "@polymer/polymer": "3.2.0",
     "@webcomponents/webcomponentsjs": "^2",
     "lit-element": "^2",
