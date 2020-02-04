@@ -9,7 +9,7 @@ import thunk from 'redux-thunk';
 import app from './reducers/app.js';
 
 const devCompose = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-window.process = { env: { NODE_ENV: 'production' } };
+
 export const store = createStore(
 	state => state,
 	devCompose(
