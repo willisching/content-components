@@ -19,3 +19,5 @@ env:
   - SAUCE_USERNAME: Desire2Learn
   - REPO_NAME=d2l-content-store
   - OWNER_NAME=Brightspace
+
+# missing GITHUB_RELEASE_TOKEN

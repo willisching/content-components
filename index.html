@@ -4,8 +4,11 @@
 		<link rel="stylesheet" href="node_modules/@brightspace-ui/core/components/demo/styles.css" type="text/css">
 		<script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
 		<script type="module">
+			/* Polyfills */
+			/* eslint-disable import/no-unassigned-import */
 			import '@brightspace-ui/core/components/demo/demo-page.js';
-			import './d2l-content-store.js';
+			import './src/d2l-content-store.js';
+			/* eslint-enable import/no-unassigned-import */
 		</script>
 		<title>d2l-content-store</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">

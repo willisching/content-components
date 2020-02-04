@@ -7,7 +7,7 @@
     "access": "public"
   },
   "scripts": {
-    "lint": "eslint . --ext .js,.html",
+    "lint": "xo",
     "test": "npm run lint && npm run test:local",
     "test:local": "polymer test --skip-plugin sauce",
     "test:sauce": "polymer test --skip-plugin local",
@@ -20,7 +20,6 @@
     "axe-core": "^3",
     "babel-eslint": "^10",
     "chai": "^4",
-    "eslint": "^6",
     "eslint-config-brightspace": "^0.6",
     "eslint-plugin-html": "^6",
     "eslint-plugin-lit": "^1",
@@ -29,11 +28,54 @@
     "mocha": "^6",
     "polymer-cli": "^1",
     "puppeteer": "^1",
-    "wct-mocha": "^1"
+    "wct-mocha": "^1",
+    "xo": "^0.25.3"
   },
   "dependencies": {
     "@brightspace-ui/core": "^1",
+    "@chaitin/querystring": "^1.1.0",
+    "@polymer/polymer": "3.2.0",
     "@webcomponents/webcomponentsjs": "^2",
-    "lit-element": "^2"
+    "lit-element": "^2",
+    "pwa-helpers": "^0.9.1",
+    "redux": "^4.0.5",
+    "redux-thunk": "^2.3.0"
+  },
+  "xo": {
+    "env": [
+      "es6",
+      "mocha"
+    ],
+    "extends": "brightspace/lit-config",
+    "extensions": [
+      "html"
+    ],
+    "overrides": [
+      {
+        "files": "test/**/*.html",
+        "extends": "brightspace/wct-lit-config"
+      }
+    ],
+    "parser": "babel-eslint",
+    "parserOptions": {
+      "sourceType": "module"
+    },
+    "plugins": [
+      "html"
+    ],
+    "ignores": [],
+    "rules": {
+      "capitalized-comments": "off",
+      "import/extensions": [
+        "error",
+        "always"
+      ],
+      "new-cap": "off",
+      "object-curly-spacing": [
+        "error",
+        "always"
+      ],
+      "sort-imports": "off"
+    }
   }
 }
