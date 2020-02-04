@@ -8,6 +8,7 @@
   },
   "scripts": {
     "lint": "xo",
+    "start": "polymer serve",
     "test": "npm run lint && npm run test:local",
     "test:local": "polymer test --skip-plugin sauce",
     "test:sauce": "polymer test --skip-plugin local",
