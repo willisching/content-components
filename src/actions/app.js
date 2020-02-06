@@ -3,12 +3,6 @@ import * as querystring from '@chaitin/querystring';
 const stripBasePath = path => path.replace(/^\/(d2l\/contentstore\/)?/, '');
 
 export const UPDATE_PAGE = 'UPDATE_PAGE';
-export const LOAD_CONFIG = 'LOAD_CONFIG';
-
-export const loadConfig = ({ ...config }) => ({
-	type: LOAD_CONFIG,
-	...config
-});
 
 export const navigate = path => dispatch => {
 	const pageWithQs = stripBasePath(path);
