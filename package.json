@@ -40,6 +40,7 @@
     "d2l-fetch": "Brightspace/d2l-fetch.git#semver:^2",
     "d2l-fetch-auth": "^1.5.2",
     "lit-element": "^2",
+    "page": "^1.11.5",
     "pwa-helpers": "^0.9.1"
   },
   "xo": {
