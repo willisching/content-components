@@ -37,8 +37,8 @@
     "@chaitin/querystring": "^1.1.0",
     "@polymer/polymer": "^3.2.0",
     "@webcomponents/webcomponentsjs": "^2",
-    "d2l-fetch": "git://github.com/Brightspace/d2l-fetch.git#semver:^2",
-    "d2l-fetch-auth": "git://github.com/Brightspace/d2l-fetch-auth.git#semver:^1",
+    "d2l-fetch": "Brightspace/d2l-fetch.git#semver:^2",
+    "d2l-fetch-auth": "^1.5.2",
     "lit-element": "^2",
     "pwa-helpers": "^0.9.1"
   },
