@@ -1,11 +1,7 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
-import { connect } from 'pwa-helpers/connect-mixin.js';
-import { installRouter } from 'pwa-helpers/router.js';
 import { InternalLocalizeMixin } from './mixins/internal-localize-mixin.js';
-import { navigate } from './actions/app.js';
-import { store } from './store.js';
 
-class D2lContentStoreApp extends connect(store)(InternalLocalizeMixin(LitElement)) {
+class D2lContentStoreApp extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
 			_page: { type: String },
@@ -36,7 +32,6 @@ class D2lContentStoreApp extends connect(store)(InternalLocalizeMixin(LitElement
 		super();
 
 		this.prop1 = 'd2l-content-store';
-		installRouter(location => this.handleNavigation(location));
 		this.loading = true;
 	}
 
@@ -46,14 +41,11 @@ class D2lContentStoreApp extends connect(store)(InternalLocalizeMixin(LitElement
 
 	render() {
 		return html`
+			Welcome to the content store.
 			<my-objects ?active=${this._page === 'my-objects'} class="page"></my-objects>
 			<some-other-page class="page" ?active=${this._page === 'some-other-page'}></some-other-page>
 			<d2l-content-store-404 class="page" ?active=${this._page === '404'}></d2l-content-store-404>
 		`;
-	}
-
-	handleNavigation(location) {
-		store.dispatch(navigate(`${location.pathname}${location.search}`));
 	}
 }
 
