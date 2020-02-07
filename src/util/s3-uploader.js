@@ -45,7 +45,7 @@ export class S3Uploader {
 					reject(new Error(`Filed to upload file ${file.name}: ${xhr.status} ${xhr.statusText}`));
 				}
 			});
-			xhr.addEventListenver('error', () => {
+			xhr.addEventListener('error', () => {
 				reject(new Error(`XHR error for ${file.name}: ${xhr.status} ${xhr.statusText}`));
 			});
 			xhr.upload.addEventListener('progress', event => {
