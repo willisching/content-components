@@ -24,7 +24,12 @@ export default class ContentServiceClient {
 	}) {
 		const request = new Request(this._url(path, query), {
 			method,
-			...body && { body: JSON.stringify(body) }
+			...body && {
+				body: JSON.stringify(body),
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			}
 		});
 
 		const response = await d2lfetch.fetch(request);
