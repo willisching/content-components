@@ -5,23 +5,23 @@ import { S3Uploader } from '../util/s3-uploader.js';
 
 class FileUploader extends DependencyRequester(LitElement) {
 	async handleFilesAdded(event) {
-		await Promise.all(event.detail.files.map(async (file) => {
+		await Promise.all(event.detail.files.map(async file => {
 			const content = await this.apiClient.createContent();
 			const revision = await this.apiClient.createRevision(content.id, {
 				type: 'Scorm',
 				title: file.name,
-				extension: file.extension,
+				extension: file.extension
 			});
 			const context = await this.apiClient.getUploadContext({
 				contentId: content.id,
-				revisionId: revision.id,
+				revisionId: revision.id
 			});
 			const uploader = new S3Uploader({
 				file,
 				key: context.key,
-				signRequest: this.signRequest.bind(this),
+				signRequest: this.signRequest.bind(this)
 			});
-			const result = await uploader.upload();
+			await uploader.upload();
 		}));
 	}
 

@@ -1,6 +1,6 @@
 import * as querystring from '@chaitin/querystring';
-import { d2lfetch } from 'd2l-fetch/src/index.js';
 import auth from 'd2l-fetch-auth/src/unframed/index.js';
+import { d2lfetch } from 'd2l-fetch/src/index.js';
 
 d2lfetch.use({ name: 'auth', fn: auth });
 
@@ -20,7 +20,7 @@ export default class ContentServiceClient {
 		method = 'GET',
 		query,
 		body,
-		extractJsonBody = true,
+		extractJsonBody = true
 	}) {
 		const request = new Request(this._url(path, query), {
 			method,
@@ -67,7 +67,7 @@ export default class ContentServiceClient {
 		revisionId
 	}) {
 		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/upload/context`,
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/upload/context`
 		});
 	}
 
@@ -77,12 +77,12 @@ export default class ContentServiceClient {
 		contentDisposition
 	}) {
 		return this._fetch({
-			path: `/api/s3/sign`,
+			path: '/api/s3/sign',
 			query: {
 				fileName,
 				contentType,
-				contentDisposition,
-			},
+				contentDisposition
+			}
 		});
 	}
 }

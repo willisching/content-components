@@ -1,5 +1,6 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import page from 'page/page.mjs';
+
 import { InternalLocalizeMixin } from './mixins/internal-localize-mixin.js';
 
 const BASE_PATH = '/d2l/contentstore/';

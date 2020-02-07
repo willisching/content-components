@@ -1,6 +1,6 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
-import { DependencyProvider } from './mixins/dependency-provider-mixin.js';
 import ContentServiceClient from './util/content-service-client.js';
+import { DependencyProvider } from './mixins/dependency-provider-mixin.js';
 
 class D2lContentStore extends DependencyProvider(LitElement) {
 	static get properties() {

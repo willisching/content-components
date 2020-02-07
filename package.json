@@ -68,6 +68,7 @@
     "ignores": [],
     "rules": {
       "capitalized-comments": "off",
+      "import/no-unassigned-import": "off",
       "import/extensions": [
         "error",
         "always"

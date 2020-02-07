@@ -1,6 +1,7 @@
 import { html } from 'lit-element/lit-element.js';
-import { PageViewElement } from './components/page-view-element.js';
+
 import { DependencyRequester } from './mixins/dependency-requester-mixin.js';
+import { PageViewElement } from './components/page-view-element.js';
 
 import './components/file-uploader.js';
 
@@ -21,7 +22,7 @@ class MyObjects extends DependencyRequester(PageViewElement) {
 			<h2>My Objects</h2>
 			<p>API endpoint: ${this.apiClient.endpoint}</p>
 			<p>Tenant: ${this.apiClient.tenantId}</p>
-			<file-uploader />
+			<file-uploader></file-uploader>
 		`;
 	}
 }

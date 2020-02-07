@@ -4,24 +4,24 @@ export class S3Uploader {
 		key,
 		signRequest = () => {},
 		onProgress = () => {},
-		onError = () => {},
+		onError = () => {}
 	} = {}) {
-		this.file = file,
-		this.key = key,
+		this.file = file;
+		this.key = key;
 		this.signRequest = signRequest;
 		this.onProgress = onProgress;
 		this.onError = onError;
 	}
 
-	createRequest(method, url, opts) {
-		var opts = opts || {};
-		var xhr = new XMLHttpRequest();
+	createRequest(method, url, opts = {}) {
+		const xhr = new XMLHttpRequest();
 		xhr.open(method, url, true);
-		if (opts.withCredentials != null) {
+		if (opts.withCredentials !== null) {
 			xhr.withCredentials = opts.withCredentials;
 		}
+
 		return xhr;
-	};
+	}
 
 	_getErrorRequestContext(xhr) {
 		return {
@@ -33,37 +33,36 @@ export class S3Uploader {
 	}
 
 	async upload() {
-		const file = this.file;
-		const key = this.key;
+		const { file, key } = this;
 		const signResult = await this.signRequest({ file, key });
-		const xhr = this.createRequest('PUT', signResult.signedUrl);
-
 		return new Promise((resolve, reject) => {
-			xhr.onload = function() {
+			const xhr = this.createRequest('PUT', signResult.signedUrl);
+			xhr.addEventListener('load', () => {
 				if (xhr.status >= 200 && xhr.status <= 299) {
 					this.onProgress(100);
 					resolve();
 				} else {
 					reject(new Error(`Filed to upload file ${file.name}: ${xhr.status} ${xhr.statusText}`));
 				}
-			}.bind(this);
-			xhr.onerror = function() {
+			});
+			xhr.addEventListenver('error', () => {
 				reject(new Error(`XHR error for ${file.name}: ${xhr.status} ${xhr.statusText}`));
-			}.bind(this);
-			xhr.upload.onprogress = function(e) {
-				if (e.lengthComputable) {
-					const percentLoaded = Math.round((e.loaded / e.total) * 100);
+			});
+			xhr.upload.addEventListener('progress', event => {
+				if (event.lengthComputable) {
+					const percentLoaded = Math.round((event.loaded / event.total) * 100);
 					return this.onProgress(percentLoaded);
 				}
-			}.bind(this);
+			});
 			xhr.setRequestHeader('Content-Type', file.type);
-			var headers = signResult.headers
+			const { headers } = signResult;
 			if (headers) {
-				Object.keys(headers).forEach(function(key) {
-					var val = headers[key];
+				Object.keys(headers).forEach(key => {
+					const val = headers[key];
 					xhr.setRequestHeader(key, val);
-				})
+				});
 			}
+
 			xhr.setRequestHeader('x-amz-acl', 'private');
 			this.httprequest = xhr;
 			xhr.send(file);
@@ -71,6 +70,8 @@ export class S3Uploader {
 	}
 
 	abort() {
-		this.httprequest && this.httprequest.abort();
+		if (this.httprequest) {
+			this.httprequest.abort();
+		}
 	}
 }
