@@ -1,25 +1,30 @@
-import { html } from 'lit-element/lit-element.js';
 import * as querystring from '@chaitin/querystring';
-import { d2lfetch } from 'd2l-fetch/src/index.js';
 import auth from 'd2l-fetch-auth/src/unframed/index.js';
+import { d2lfetch } from 'd2l-fetch/src/index.js';
 
 d2lfetch.use({ name: 'auth', fn: auth });
 
 export default class ContentServiceClient {
 	constructor({ endpoint, tenantId }) {
-		this._endpoint = endpoint;
-		this._tenantId = tenantId;
+		this.endpoint = endpoint;
+		this.tenantId = tenantId;
 	}
 
-	_url(path, queryParams) {
-		const qs = queryParams ? `?${querystring.stringify(queryParams)}` : '';
-		return `${this._endpoint}/api/${this._tenantId}/${path}${qs}`;
+	_url(path, query) {
+		const qs = query ? `?${querystring.stringify(query)}` : '';
+		return `${this.endpoint}${path}${qs}`;
 	}
 
-	async _fetch({ path, method = 'GET', queryParams, bodyParams, extractJsonBody = true }) {
-		const request = new Request(this._url(path, queryParams), {
+	async _fetch({
+		path,
+		method = 'GET',
+		query,
+		body,
+		extractJsonBody = true
+	}) {
+		const request = new Request(this._url(path, query), {
 			method,
-			...bodyParams && { body: JSON.stringify(bodyParams) }
+			...body && { body: JSON.stringify(body) }
 		});
 
 		const response = await d2lfetch.fetch(request);
@@ -36,12 +41,48 @@ export default class ContentServiceClient {
 
 	listContent({ ids = null } = {}) {
 		return this._fetch({
-			path: 'content',
+			path: `/api/${this.tenantId}/content`,
 			...ids && { queryParams: ids.join(',') }
 		});
 	}
 
-	get dump() {
-		return html`<p>Content Service Client: ${this._endpoint} / ${this._tenantId}</p>`;
+	createContent(body) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/`,
+			method: 'POST',
+			body
+		});
+	}
+
+	createRevision(contentId, body) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions`,
+			method: 'POST',
+			body
+		});
+	}
+
+	getUploadContext({
+		contentId,
+		revisionId
+	}) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/upload/context`
+		});
+	}
+
+	signUploadRequest({
+		fileName,
+		contentType,
+		contentDisposition
+	}) {
+		return this._fetch({
+			path: '/api/s3/sign',
+			query: {
+				fileName,
+				contentType,
+				contentDisposition
+			}
+		});
 	}
 }
