@@ -3,7 +3,22 @@ import { DependencyRequester } from '../mixins/dependency-requester-mixin.js';
 
 import { S3Uploader } from '../util/s3-uploader.js';
 
+import '@brightspace-ui/core/components/meter/meter-linear.js';
+
 class FileUploader extends DependencyRequester(LitElement) {
+	static get properties() {
+		return {
+			uploading: { type: Boolean },
+			progress: { type: Number }
+		};
+	}
+
+	constructor() {
+		super();
+		this.progress = 0;
+		this.uploading = false;
+	}
+
 	async handleFilesAdded(event) {
 		await Promise.all(event.detail.files.map(async file => {
 			const content = await this.apiClient.createContent();
@@ -12,15 +27,21 @@ class FileUploader extends DependencyRequester(LitElement) {
 				title: file.name,
 				extension: file.extension
 			});
-			const context = await this.apiClient.getUploadContext({
-				contentId: content.id,
-				revisionId: revision.id
-			});
 			const uploader = new S3Uploader({
 				file,
-				key: context.key,
-				signRequest: this.signRequest.bind(this)
+				key: revision.s3Key,
+				signRequest: this.signRequest.bind(this),
+				onProgress: progress => {
+					this.progress = progress;
+				},
+				onComplete: () => {
+					this.uploading = false;
+				},
+				onError: () => {
+					this.uploading = false;
+				}
 			});
+			this.uploading = true;
 			await uploader.upload();
 		}));
 	}
@@ -46,6 +67,7 @@ class FileUploader extends DependencyRequester(LitElement) {
 				@d2l-file-uploader-files-added=${this.handleFilesAdded}
 			>
 			</d2l-labs-file-uploader>
+			${this.uploading ? html`<d2l-meter-linear value=${this.progress} max="100"></d2l-meter-linear>` : ''}
 		`;
 	}
 }
