@@ -12,16 +12,6 @@ export class PageViewElement extends InternalLocalizeMixin(NavigationMixin(LitEl
 
 	static get styles() {
 		return css`
-			.loading-overlay {
-				align-items: center;
-				background-color: white;
-				display: flex;
-				height: 100%;
-				justify-content: center;
-				position: absolute;
-				width: 100%;
-				z-index: 1000;
-			}
 		`;
 	}
 
