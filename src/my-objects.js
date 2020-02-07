@@ -6,6 +6,12 @@ class MyObjects extends DependencyRequester(PageViewElement) {
 	connectedCallback() {
 		super.connectedCallback();
 		this.apiClient = this.requestDependency('content-service-client');
+		this.testFetch();
+	}
+
+	async testFetch() {
+		const r = await this.apiClient.listContent();
+		console.log('response', r);
 	}
 
 	render() {

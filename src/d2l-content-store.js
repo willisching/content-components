@@ -5,7 +5,8 @@ import ContentServiceClient from './util/content-service-client.js';
 class D2lContentStore extends DependencyProvider(LitElement) {
 	static get properties() {
 		return {
-			apiEndpoint: { type: String, attribute: 'api-endpoint' }
+			apiEndpoint: { type: String, attribute: 'api-endpoint' },
+			tenantId: { type: String, attribute: 'tenant-id' }
 		};
 	}
 
@@ -30,7 +31,10 @@ class D2lContentStore extends DependencyProvider(LitElement) {
 	firstUpdated() {
 		super.firstUpdated();
 
-		const apiClient = new ContentServiceClient(this.apiEndpoint);
+		const apiClient = new ContentServiceClient({
+			endpoint: this.apiEndpoint,
+			tenantId: this.tenantId
+		});
 		this.provideDependency('content-service-client', apiClient);
 	}
 
