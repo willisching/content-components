@@ -6,13 +6,18 @@ import auth from 'd2l-fetch-auth/src/unframed/index.js';
 d2lfetch.use({ name: 'auth', fn: auth });
 
 export default class ContentServiceClient {
-	constructor(endpoint) {
-		this.endpoint = endpoint;
+	constructor({ endpoint, tenantId }) {
+		this._endpoint = endpoint;
+		this._tenantId = tenantId;
+	}
+
+	_url(path, queryParams) {
+		const qs = queryParams ? `?${querystring.stringify(queryParams)}` : '';
+		return `${this._endpoint}/api/${this._tenantId}/${path}${qs}`;
 	}
 
 	async _fetch({ path, method = 'GET', queryParams, bodyParams, extractJsonBody = true }) {
-		const qs = queryParams ? `?${querystring.stringify(queryParams)}` : '';
-		const request = new Request(`${this.endpoint}${path}${qs}`, {
+		const request = new Request(this._url(path, queryParams), {
 			method,
 			...bodyParams && { body: JSON.stringify(bodyParams) }
 		});
@@ -29,7 +34,14 @@ export default class ContentServiceClient {
 		return response;
 	}
 
+	listContent({ ids = null } = {}) {
+		return this._fetch({
+			path: 'content',
+			...ids && { queryParams: ids.join(',') }
+		});
+	}
+
 	get dump() {
-		return html`<p>Content Service Client: ${this.endpoint}</p>`;
+		return html`<p>Content Service Client: ${this._endpoint} / ${this._tenantId}</p>`;
 	}
 }
