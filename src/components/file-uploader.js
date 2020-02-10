@@ -1,4 +1,4 @@
-import { html, LitElement } from 'lit-element';
+import { LitElement } from 'lit-element';
 import { DependencyRequester } from '../mixins/dependency-requester-mixin.js';
 
 import { S3Uploader } from '../util/s3-uploader.js';
@@ -8,42 +8,56 @@ import '@brightspace-ui/core/components/meter/meter-linear.js';
 class FileUploader extends DependencyRequester(LitElement) {
 	static get properties() {
 		return {
-			uploading: { type: Boolean },
-			progress: { type: Number }
+			_uploads: { type: Array }
 		};
 	}
 
 	constructor() {
 		super();
-		this.progress = 0;
-		this.uploading = false;
+		this._uploads = [];
 	}
 
-	async handleFilesAdded(event) {
-		await Promise.all(event.detail.files.map(async file => {
-			const content = await this.apiClient.createContent();
-			const revision = await this.apiClient.createRevision(content.id, {
-				type: 'Scorm',
-				title: file.name,
-				extension: file.extension
-			});
-			const uploader = new S3Uploader({
+	async uploadFile(file) {
+		const content = await this.apiClient.createContent();
+		const revision = await this.apiClient.createRevision(content.id, {
+			type: 'Scorm',
+			title: file.name,
+			extension: file.extension
+		});
+		const uploader = new S3Uploader({
+			file,
+			key: revision.s3Key,
+			signRequest: this.signRequest.bind(this),
+			onProgress: progress => {
+				const upload = this._uploads.find(item => item.file === file);
+				upload.progress = progress;
+			},
+			onComplete: () => {
+				this._uploads = this._uploads.filter(item => item.file !== file);
+				this.dispatchEvent(new CustomEvent('upload-completed', {
+					detail: { file },
+					bubbles: true,
+					cancelable: true,
+					composed: true
+				}));
+			},
+			onError: () => {
+				this.uploading = false;
+			}
+		});
+		await uploader.upload();
+	}
+
+	enqueueFiles(files) {
+		const uploads = files.map(file => {
+			return {
 				file,
-				key: revision.s3Key,
-				signRequest: this.signRequest.bind(this),
-				onProgress: progress => {
-					this.progress = progress;
-				},
-				onComplete: () => {
-					this.uploading = false;
-				},
-				onError: () => {
-					this.uploading = false;
-				}
-			});
-			this.uploading = true;
-			await uploader.upload();
-		}));
+				progress: 0,
+				promise: this.uploadFile(file)
+			};
+		});
+
+		this._uploads = this._uploads.concat(uploads);
 	}
 
 	async signRequest({ file, key }) {
@@ -58,17 +72,6 @@ class FileUploader extends DependencyRequester(LitElement) {
 	connectedCallback() {
 		super.connectedCallback();
 		this.apiClient = this.requestDependency('content-service-client');
-	}
-
-	render() {
-		return html`
-			<d2l-labs-file-uploader
-				multiple
-				@d2l-file-uploader-files-added=${this.handleFilesAdded}
-			>
-			</d2l-labs-file-uploader>
-			${this.uploading ? html`<d2l-meter-linear value=${this.progress} max="100"></d2l-meter-linear>` : ''}
-		`;
 	}
 }
 
