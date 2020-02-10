@@ -14,6 +14,9 @@ class D2lContentStore extends DependencyProvider(LitElement) {
 		return css`
 			:host {
 				display: inline-block;
+				height: 100%;
+				overflow: auto;
+				width: 100%;
 			}
 			:host([hidden]) {
 				display: none;

@@ -5,12 +5,12 @@ class D2lContentStore404 extends PageViewElement {
 	render() {
 		return html`
 			<p>Page not found</p>
-			<button @click=${this.navigateToSomeOtherPage}>click this to navigate</button>
+			<a href="" @click=${this.navigateToHome}>Go back to the home page.</a>
 		`;
 	}
 
-	navigateToSomeOtherPage() {
-		this._navigate('some-other-page', { stringQueryParam: 'hello', anotherQueryParam: 1234 });
+	navigateToHome() {
+		this._navigate('manage');
 	}
 }
 
