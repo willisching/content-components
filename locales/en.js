@@ -1,3 +1,7 @@
 export const val = {
-	myLangTerm: 'I am a dynamically imported localized string!'
+	createANewItem: 'Create a new item',
+	menu: 'Menu',
+	myContent: 'My Content',
+	new: 'New',
+	trash: 'Trash'
 };
