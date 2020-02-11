@@ -60,15 +60,15 @@ class D2lContentStoreManage extends PageViewElement {
 		return html`
 		<div class="menu-container">
 			<d2l-dropdown>
-				<d2l-button class="d2l-dropdown-opener dropdown-opener-button" primary>
-					<div class="new-button-container">
-						<div>${this.localize('new')}</div>
-						<div><d2l-icon class="new-button-icon" icon="tier1:chevron-down"></d2l-icon></div>
-					</div>
-				</d2l-button>
-				<d2l-dropdown-content>
-					<p>${this.localize('createANewItem')}</p>
-				</d2l-dropdown-content>
+				<d2l-dropdown-button text="${this.localize('new')}" primary>
+					<d2l-dropdown-menu>
+						<d2l-menu>
+							<d2l-menu-item text="${this.localize('createANewItem')}" @click=${this.handleFileUploadClick} ></d2l-menu-item>
+						</d2l-menu>
+					</d2l-dropdown-menu>
+				</d2l-dropdown-button>
+				<input type="file" id="fileInput" @change=${this.handleFileChange} style="display:none" multiple />
+				<file-uploader id="uploader" files=${this.files} @upload-completed=${this.handleUploadCompleted}></file-uploader>
 			</d2l-dropdown>
 			<div class="menu-container-item">
 				<d2l-menu label="${this.localize('menu')}">
@@ -100,6 +100,24 @@ class D2lContentStoreManage extends PageViewElement {
 				</two-column-layout>
 			</div>
 		`;
+	}
+
+	handleFileUploadClick() {
+		this.shadowRoot.querySelector('#fileInput').click();
+	}
+
+	handleFileChange(event) {
+		const files = [];
+		for (let i = 0; i < event.target.files.length; i++) {
+			files[i] = event.target.files[i];
+		}
+
+		const uploader = this.shadowRoot.querySelector('#uploader');
+		uploader.enqueueFiles(files);
+	}
+
+	handleUploadCompleted(event) {
+		console.log(event);
 	}
 
 	goToFilesView() {
