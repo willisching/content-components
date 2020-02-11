@@ -1,9 +1,12 @@
 import { css, html } from 'lit-element/lit-element.js';
-import { heading2Styles } from '@brightspace-ui/core/components/typography/styles.js';
+import { heading2Styles, bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { PageViewElement } from './components/page-view-element.js';
 import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/colors/colors.js';
 import '@brightspace-ui/core/components/icons/icon.js';
+import '@brightspace-ui/core/components/list/list.js';
+import '@brightspace-ui/core/components/list/list-item.js';
+import '@brightspace-ui/core/components/list/list-item-content.js';
 import 'd2l-dropdown/d2l-dropdown.js';
 import 'd2l-dropdown/d2l-dropdown-content.js';
 import './components/two-column-layout.js';
@@ -16,7 +19,7 @@ class D2lContentStoreManage extends PageViewElement {
 	}
 
 	static get styles() {
-		return [heading2Styles, css`
+		return [heading2Styles, bodyStandardStyles, css`
 			:host {
 				display: block;
 			}
@@ -32,33 +35,32 @@ class D2lContentStoreManage extends PageViewElement {
 			.h2-custom {
 				margin-top: 0 !important;
 			}
-			.menu-container {
+			.sidebar-container {
 				display: flex;
 				flex-direction: column;
 			}
-			.new-button-container {
+			.list-container {
+				margin-top: 1.1rem;
+			}
+			.list-item-container {
 				align-items: center;
 				display: flex;
 				flex-wrap: nowrap;
-				justify-content: flex-start;
 			}
-			.new-button-icon {
-				color: white;
-				padding-left: 0.5rem;
+			.list-item-label {
+				color: var(--d2l-color-ferrite) !important;
+				padding-left: 0.75rem;
 			}
-			:host([dir="rtl"]) .new-button-icon {
+			:host([dir="rtl"]) .list-item-label {
 				padding-left: 0;
-				padding-right: 0.5rem;
-			}
-			.menu-container-item {
-				margin-top: 0.5rem;
+				padding-right: 0.75rem;
 			}
 		`];
 	}
 
 	renderSidebar() {
 		return html`
-		<div class="menu-container">
+		<div class="sidebar-container">
 			<d2l-dropdown>
 				<d2l-dropdown-button text="${this.localize('new')}" primary>
 					<d2l-dropdown-menu>
@@ -70,11 +72,19 @@ class D2lContentStoreManage extends PageViewElement {
 				<input type="file" id="fileInput" @change=${this.handleFileChange} style="display:none" multiple />
 				<file-uploader id="uploader" files=${this.files} @upload-completed=${this.handleUploadCompleted}></file-uploader>
 			</d2l-dropdown>
-			<div class="menu-container-item">
-				<d2l-menu label="${this.localize('menu')}">
-					<d2l-menu-item text="${this.localize('myContent')}" @click=${this.goToFilesView}></d2l-menu-item>
-					<d2l-menu-item text="${this.localize('trash')}" @click=${this.goToRecycleBin}></d2l-menu-item>
-				</d2l-menu>
+			<div class="list-container">
+				<d2l-list separators="between">
+					<d2l-list-item href="javascript:void(0)" @click=${this.goToFilesView}>
+						<d2l-list-item-content class="list-item-container">
+							<d2l-icon icon="tier2:content"></d2l-icon><span class="list-item-label">${this.localize('myContent')}</span>
+						</d2l-list-item-content>
+					</d2l-list-item>
+					<d2l-list-item href="javascript:void(0)" @click=${this.goToRecycleBin}>
+						<d2l-list-item-content class="list-item-container">
+							<d2l-icon icon="tier2:delete"></d2l-icon><span class="list-item-label">${this.localize('trash')}</span>
+						</d2l-list-item-content>
+					</d2l-list-item>
+				</d2l-list>
 			</div>
 		</div>
 		`;

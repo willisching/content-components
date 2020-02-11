@@ -1,4 +1,5 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
+import { bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import ContentServiceClient from './util/content-service-client.js';
 import { DependencyProvider } from './mixins/dependency-provider-mixin.js';
 
@@ -11,7 +12,7 @@ class D2lContentStore extends DependencyProvider(LitElement) {
 	}
 
 	static get styles() {
-		return css`
+		return [bodyStandardStyles, css`
 			:host {
 				display: inline-block;
 				height: 100%;
@@ -21,7 +22,7 @@ class D2lContentStore extends DependencyProvider(LitElement) {
 			:host([hidden]) {
 				display: none;
 			}
-		`;
+		`];
 	}
 
 	constructor() {
@@ -42,7 +43,7 @@ class D2lContentStore extends DependencyProvider(LitElement) {
 	}
 
 	render() {
-		return html`<d2l-content-store-app></d2l-content-store-app>`;
+		return html`<d2l-content-store-app class="d2l-body-standard"></d2l-content-store-app>`;
 	}
 }
 
