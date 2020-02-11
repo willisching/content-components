@@ -43,7 +43,7 @@ class D2lContentStore extends DependencyProvider(LitElement) {
 	}
 
 	render() {
-		return html`<d2l-content-store-app class="bodyStandardStyles"></d2l-content-store-app>`;
+		return html`<d2l-content-store-app class="d2l-body-standard"></d2l-content-store-app>`;
 	}
 }
 
