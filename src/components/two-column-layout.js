@@ -30,8 +30,6 @@ class TwoColumnLayout extends RtlMixin(LitElement) {
 				padding: 1.5rem 1.5rem;
 			}
 			.column {
-				display: flex;
-				flex-direction: column;
 				height: 100%;
 			}
 			.sidebar-header {
