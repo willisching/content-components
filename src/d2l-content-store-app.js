@@ -1,21 +1,16 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import page from 'page/page.mjs';
+import { MobxReactionUpdate } from '@adobe/lit-mobx';
 
 import './components/file-uploader.js';
 import { InternalLocalizeMixin } from './mixins/internal-localize-mixin.js';
 import { NavigationMixin } from './mixins/navigation-mixin.js';
+import { rootStore } from './state/root-store.js';
+import { BASE_PATH } from './state/routing-store.js';
 
-const BASE_PATH = '/d2l/contentstore';
-const stripBasePath = path => path.replace(/^\/(d2l\/contentstore\/)?/, '');
-
-class D2lContentStoreApp extends NavigationMixin(InternalLocalizeMixin(LitElement)) {
+class D2lContentStoreApp extends NavigationMixin(InternalLocalizeMixin(MobxReactionUpdate(LitElement))) {
 	static get properties() {
 		return {
-			_page: { type: String },
-			_subView: { type: String },
-			prop1: { type: String },
-			someStringAttribute: { type: String },
-			someBooleanAttribute: { type: Boolean }
 		};
 	}
 
@@ -56,13 +51,9 @@ class D2lContentStoreApp extends NavigationMixin(InternalLocalizeMixin(LitElemen
 	}
 
 	setupPage(ctx) {
-		const pathNameWithoutBase = ctx && ctx.pathname && stripBasePath(ctx.pathname);
-		let page = pathNameWithoutBase.includes('/') ?
-			pathNameWithoutBase.slice(0, pathNameWithoutBase.indexOf('/')) :
-			pathNameWithoutBase;
-		const subView = pathNameWithoutBase.includes('/') ?
-			pathNameWithoutBase.slice(pathNameWithoutBase.indexOf('/') + 1) :
-			'';
+		rootStore.routingStore.setRouteCtx(ctx);
+		const { page } = rootStore.routingStore;
+
 		switch (page) {
 			/* eslint-disable no-unused-expressions */
 			case '':
@@ -75,26 +66,22 @@ class D2lContentStoreApp extends NavigationMixin(InternalLocalizeMixin(LitElemen
 				import('./my-objects.js');
 				break;
 			default:
-				page = '404';
+				rootStore.routingStore.setPage('404');
 				import('./d2l-content-store-404.js');
 				break;
 			/* eslint-enable no-unused-expressions */
 		}
-
-		this._subView = subView;
-		this._page = page;
 	}
 
 	render() {
 		return html`
 		<main id="main" role="main">
-			<my-objects ?active=${this._page === 'my-objects'} class="page"></my-objects>
+			<my-objects ?active=${rootStore.routingStore.page === 'my-objects'} class="page"></my-objects>
 			<d2l-content-store-manage
 				class="page"
-				?active=${this._page === 'manage'}
-				subView=${this._subView}>
+				?active=${rootStore.routingStore.page === 'manage'}>
 			</d2l-content-store-manage>
-			<d2l-content-store-404 class="page" ?active=${this._page === '404'}></d2l-content-store-404>
+			<d2l-content-store-404 class="page" ?active=${rootStore.routingStore.page === '404'}></d2l-content-store-404>
 		</main>
 		`;
 	}

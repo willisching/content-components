@@ -10,7 +10,7 @@ class D2lContentStore404 extends PageViewElement {
 	}
 
 	navigateToHome() {
-		this._navigate('manage');
+		this._navigate('/manage');
 	}
 }
 
