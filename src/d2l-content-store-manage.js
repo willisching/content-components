@@ -1,5 +1,6 @@
 import { css, html } from 'lit-element/lit-element.js';
 import { heading2Styles, bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
+import { observe } from 'mobx';
 import { PageViewElement } from './components/page-view-element.js';
 import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/colors/colors.js';
@@ -14,7 +15,6 @@ import './components/two-column-layout.js';
 class D2lContentStoreManage extends PageViewElement {
 	static get properties() {
 		return {
-			subView: { type: String }
 		};
 	}
 
@@ -58,6 +58,29 @@ class D2lContentStoreManage extends PageViewElement {
 		`];
 	}
 
+	constructor() {
+		super();
+		observe(
+			this.rootStore.routingStore,
+			'subView',
+			change => {
+				if (this.rootStore.routingStore.page === 'manage') {
+					console.log(`Your sub view changed from ${change.oldValue} to ${change.newValue}`);
+				}
+			}
+		);
+
+		observe(
+			this.rootStore.routingStore,
+			'page',
+			change => {
+				if (this.rootStore.routingStore.page === 'manage') {
+					console.log(`Your page changed from ${change.oldValue} to ${change.newValue}`);
+				}
+			}
+		);
+	}
+
 	renderSidebar() {
 		return html`
 		<div class="sidebar-container">
@@ -93,7 +116,8 @@ class D2lContentStoreManage extends PageViewElement {
 	renderPrimary() {
 		return html`
 			<h2 class="d2l-heading-2 h2-custom">${this.localize('myContent')}</h2>
-			<p>Your current view placeholder is: ${this.subView}</p>
+			<p>Your current view placeholder is: ${this.rootStore.routingStore.getSubView()}</p>
+			${this.rootStore.routingStore.queryParams.page && html`<p>You're on page ${this.rootStore.routingStore.queryParams.page}</p>`}
 		`;
 	}
 
@@ -131,7 +155,7 @@ class D2lContentStoreManage extends PageViewElement {
 	}
 
 	goToFilesView() {
-		this._navigate('/manage/files');
+		this._navigate('/manage/files', { sortBy: 'date', page: Math.floor(Math.random() * 10) });
 	}
 
 	goToRecycleBin() {
