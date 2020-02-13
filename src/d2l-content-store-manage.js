@@ -1,6 +1,7 @@
 import { css, html } from 'lit-element/lit-element.js';
 import { heading2Styles, bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { observe } from 'mobx';
+import { DependencyRequester } from './mixins/dependency-requester-mixin.js';
 import { PageViewElement } from './components/page-view-element.js';
 import { navigationSharedStyle } from './styles/d2l-navigation-shared-styles.js';
 import { DependencyRequester } from './mixins/dependency-requester-mixin.js';
@@ -93,6 +94,11 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 		);
 	}
 
+	connectedCallback() {
+		super.connectedCallback();
+		this.apiClient = this.requestDependency('content-service-client');
+	}
+
 	renderSidebar() {
 		return html`
 		<div class="sidebar-container d2l-navigation-gutters">
@@ -100,7 +106,9 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 				<d2l-dropdown-button text="${this.localize('new')}" primary>
 					<d2l-dropdown-menu class="dropdown-menu">
 						<d2l-menu>
-							<d2l-menu-item text="${this.localize('createANewItem')}" @click=${this.handleFileUploadClick} ></d2l-menu-item>
+							<d2l-menu-item text="${this.localize('createANewItem')}" @click=${this.handleFileUploadClick}></d2l-menu-item>
+							<d2l-menu-item text="${this.localize('googleDrive')}" @click=${this.handleThirdPartyUpload('GoogleDrive')}></d2l-menu-item>
+							<d2l-menu-item text="${this.localize('oneDrive')}" @click=${this.handleThirdPartyUpload('Office365')}></d2l-menu-item>
 						</d2l-menu>
 					</d2l-dropdown-menu>
 				</d2l-dropdown-button>
@@ -156,6 +164,31 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 
 	handleFileUploadClick() {
 		this.shadowRoot.querySelector('#fileInput').click();
+	}
+
+	handleThirdPartyUpload(type) {
+		return () => {
+			const openerName = type === 'GoogleDrive' ?
+				'D2L.ContentStore.AddGoogleDriveLinkDialogOpener' :
+				'D2L.ContentStore.AddOneDriveLinkDialogOpener';
+
+			const opener = D2L.LP.Web.UI.ObjectRepository.TryGet(openerName);
+			if (!opener) {
+				return;
+			}
+
+			const event = opener();
+			event.AddListener(async e => {
+				const content = await this.apiClient.createContent();
+				if (content) {
+					await this.apiClient.createRevision(content.id, {
+						type,
+						title: e.m_title,
+						link: e.m_url
+					});
+				}
+			});
+		};
 	}
 
 	handleFileChange(event) {
