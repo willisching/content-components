@@ -2,11 +2,12 @@ import { css, html, LitElement } from 'lit-element/lit-element.js';
 import page from 'page/page.mjs';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
 
-import './components/file-uploader.js';
 import { InternalLocalizeMixin } from './mixins/internal-localize-mixin.js';
 import { NavigationMixin } from './mixins/navigation-mixin.js';
 import { rootStore } from './state/root-store.js';
 import { BASE_PATH } from './state/routing-store.js';
+
+import './components/upload-status-dialog.js';
 
 class D2lContentStoreApp extends NavigationMixin(InternalLocalizeMixin(MobxReactionUpdate(LitElement))) {
 	static get properties() {
@@ -27,6 +28,12 @@ class D2lContentStoreApp extends NavigationMixin(InternalLocalizeMixin(MobxReact
 
 			.page[active] {
 				display: block;
+			}
+
+			upload-status-dialog {
+				position: absolute;
+				bottom: 10px;
+				right: 10px;
 			}
 		`];
 	}
@@ -82,6 +89,7 @@ class D2lContentStoreApp extends NavigationMixin(InternalLocalizeMixin(MobxReact
 				?active=${rootStore.routingStore.page === 'manage'}>
 			</d2l-content-store-manage>
 			<d2l-content-store-404 class="page" ?active=${rootStore.routingStore.page === '404'}></d2l-content-store-404>
+			<upload-status-dialog></upload-status-dialog>
 		</main>
 		`;
 	}

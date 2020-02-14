@@ -3,16 +3,12 @@ export class S3Uploader {
 		file,
 		key,
 		signRequest = () => {},
-		onProgress = () => {},
-		onComplete = () => {},
-		onError = () => {}
+		onProgress = () => {}
 	} = {}) {
 		this.file = file;
 		this.key = key;
 		this.signRequest = signRequest;
 		this.onProgress = onProgress;
-		this.onComplete = onComplete;
-		this.onError = onError;
 	}
 
 	createRequest(method, url, opts = {}) {
@@ -42,10 +38,9 @@ export class S3Uploader {
 			xhr.addEventListener('load', () => {
 				if (xhr.status >= 200 && xhr.status <= 299) {
 					this.onProgress(100);
-					this.onComplete();
 					resolve();
 				} else {
-					reject(new Error(`Filed to upload file ${file.name}: ${xhr.status} ${xhr.statusText}`));
+					reject(new Error(`Failed to upload file ${file.name}: ${xhr.status} ${xhr.statusText}`));
 				}
 			});
 			xhr.addEventListener('error', () => {
