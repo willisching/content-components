@@ -27,7 +27,6 @@ class TwoColumnLayout extends RtlMixin(LitElement) {
 			.content {
 				flex-grow: 1;
 				overflow-y: auto;
-				padding: 1.5rem 1.5rem;
 			}
 			.column {
 				height: 100%;
@@ -36,11 +35,8 @@ class TwoColumnLayout extends RtlMixin(LitElement) {
 				flex-shrink: 0;
 				height: var(--primary-header-height, auto);
 			}
-			.sidebar-content {
-				padding: 2rem;
-			}
 			.sidebar {
-				background-color: var(--sidebar-background-color);
+				background-color: var(--sidebar-background-color, transparent);
 				border-right: 1px solid var(--d2l-color-gypsum);
 				box-sizing: border-box;
 				flex-shrink: 0;

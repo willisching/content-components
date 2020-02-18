@@ -2,6 +2,7 @@ import { css, html } from 'lit-element/lit-element.js';
 import { heading2Styles, bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { observe } from 'mobx';
 import { PageViewElement } from './components/page-view-element.js';
+import { navigationSharedStyle } from './styles/d2l-navigation-shared-styles.js';
 import { DependencyRequester } from './mixins/dependency-requester-mixin.js';
 import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/colors/colors.js';
@@ -20,7 +21,7 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 	}
 
 	static get styles() {
-		return [heading2Styles, bodyStandardStyles, css`
+		return [heading2Styles, bodyStandardStyles, navigationSharedStyle, css`
 			:host {
 				display: block;
 			}
@@ -30,18 +31,21 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 			d2l-menu-item {
 				background-color: transparent;
 			}
-			two-column-layout {
-				--sidebar-background-color: var(--d2l-color-regolith);
-			}
 			.h2-custom {
 				margin-top: 0 !important;
 			}
 			.sidebar-container {
 				display: flex;
 				flex-direction: column;
+				padding-top: 1.5rem;
+				padding-bottom: 1.5rem;
+			}
+			.primary-container {
+				padding: 1.5rem;
 			}
 			.list-container {
-				margin-top: 1.1rem;
+				margin-top: 0.75rem;
+				padding: 0 0.5rem;
 			}
 			.list-item-container {
 				align-items: center;
@@ -55,6 +59,13 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 			:host([dir="rtl"]) .list-item-label {
 				padding-left: 0;
 				padding-right: 0.75rem;
+			}
+			.dropdown-menu {
+				left: 0.75rem !important;
+			}
+			:host([dir="rtl"]) .dropdown-menu {
+				right: 0.75rem !important;
+				left: 0 !important;
 			}
 		`];
 	}
@@ -84,10 +95,10 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 
 	renderSidebar() {
 		return html`
-		<div class="sidebar-container">
+		<div class="sidebar-container d2l-navigation-gutters">
 			<d2l-dropdown>
 				<d2l-dropdown-button text="${this.localize('new')}" primary>
-					<d2l-dropdown-menu>
+					<d2l-dropdown-menu class="dropdown-menu">
 						<d2l-menu>
 							<d2l-menu-item text="${this.localize('createANewItem')}" @click=${this.handleFileUploadClick} ></d2l-menu-item>
 						</d2l-menu>
@@ -115,9 +126,11 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 
 	renderPrimary() {
 		return html`
-			<h2 class="d2l-heading-2 h2-custom">${this.localize('myContent')}</h2>
-			<p>Your current view placeholder is: ${this.rootStore.routingStore.getSubView()}</p>
-			${this.rootStore.routingStore.queryParams.page && html`<p>You're on page ${this.rootStore.routingStore.queryParams.page}</p>`}
+			<div class="primary-container">
+				<h2 class="d2l-heading-2 h2-custom">${this.localize('myContent')}</h2>
+				<p>Your current view placeholder is: ${this.rootStore.routingStore.getSubView()}</p>
+				${this.rootStore.routingStore.queryParams.page && html`<p>You're on page ${this.rootStore.routingStore.queryParams.page}</p>`}
+			</div>
 		`;
 	}
 

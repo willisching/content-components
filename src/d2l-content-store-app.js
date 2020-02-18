@@ -20,6 +20,8 @@ class D2lContentStoreApp extends NavigationMixin(InternalLocalizeMixin(MobxReact
 			main {
 				display: block;
 				height: 100%;
+				margin: 0 auto;
+				max-width: 1230px;
 			}
 
 			.page {
