@@ -63,6 +63,17 @@ export const typeLocalizationKey = type => {
 	}
 };
 
+export const getPreviewLink = rev => {
+	const { type, link } = rev;
+	switch (type.toLowerCase()) {
+		case 'googledrive':
+		case 'office365':
+			return link;
+		default:
+			return '';
+	}
+};
+
 const fullKey = key => `contentType${key}`;
 
 export default {
