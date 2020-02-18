@@ -24,8 +24,8 @@ class ContentIcon extends LitElement {
 		`];
 	}
 
-	firstUpdated() {
-		super.firstUpdated();
+	connectedCallback() {
+		super.connectedCallback();
 		const [bg, fg] = Type.toColors(this.type);
 		this.icon = `tier1:${Type.toIcon(this.type)}`;
 		this.colorStyle = [

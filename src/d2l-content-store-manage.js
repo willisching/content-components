@@ -4,7 +4,6 @@ import { observe } from 'mobx';
 import { DependencyRequester } from './mixins/dependency-requester-mixin.js';
 import { PageViewElement } from './components/page-view-element.js';
 import { navigationSharedStyle } from './styles/d2l-navigation-shared-styles.js';
-import { DependencyRequester } from './mixins/dependency-requester-mixin.js';
 import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/colors/colors.js';
 import '@brightspace-ui/core/components/icons/icon.js';
@@ -97,6 +96,7 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 	connectedCallback() {
 		super.connectedCallback();
 		this.apiClient = this.requestDependency('content-service-client');
+		this.uploader = this.requestDependency('uploader');
 	}
 
 	renderSidebar() {
@@ -107,8 +107,8 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 					<d2l-dropdown-menu class="dropdown-menu">
 						<d2l-menu>
 							<d2l-menu-item text="${this.localize('createANewItem')}" @click=${this.handleFileUploadClick}></d2l-menu-item>
-							<d2l-menu-item text="${this.localize('googleDrive')}" @click=${this.handleThirdPartyUpload('GoogleDrive')}></d2l-menu-item>
-							<d2l-menu-item text="${this.localize('oneDrive')}" @click=${this.handleThirdPartyUpload('Office365')}></d2l-menu-item>
+							<d2l-menu-item text="${this.localize('googleDrive')}" @click=${this.openPicker('GoogleDrive')}></d2l-menu-item>
+							<d2l-menu-item text="${this.localize('oneDrive')}" @click=${this.openPicker('Office365')}></d2l-menu-item>
 						</d2l-menu>
 					</d2l-dropdown-menu>
 				</d2l-dropdown-button>
@@ -157,16 +157,19 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 		`;
 	}
 
-	connectedCallback() {
-		super.connectedCallback();
-		this.uploader = this.requestDependency('uploader');
-	}
-
 	handleFileUploadClick() {
 		this.shadowRoot.querySelector('#fileInput').click();
 	}
 
-	handleThirdPartyUpload(type) {
+	handleFileChange(event) {
+		for (let i = 0; i < event.target.files.length; i++) {
+			this.uploader.uploadFile(event.target.files[i]);
+		}
+
+		event.target.value = '';
+	}
+
+	openPicker(type) {
 		return () => {
 			const openerName = type === 'GoogleDrive' ?
 				'D2L.ContentStore.AddGoogleDriveLinkDialogOpener' :
@@ -189,14 +192,6 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 				}
 			});
 		};
-	}
-
-	handleFileChange(event) {
-		for (let i = 0; i < event.target.files.length; i++) {
-			this.uploader.uploadFile(event.target.files[i]);
-		}
-
-		event.target.value = '';
 	}
 
 	goToFilesView() {

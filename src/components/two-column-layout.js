@@ -26,6 +26,7 @@ class TwoColumnLayout extends RtlMixin(LitElement) {
 			}
 			.content {
 				flex-grow: 1;
+				height: 100%;
 				overflow-y: auto;
 			}
 			.column {
