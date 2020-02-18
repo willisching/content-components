@@ -5,9 +5,14 @@ import { d2lfetch } from 'd2l-fetch/src/index.js';
 d2lfetch.use({ name: 'auth', fn: auth });
 
 export default class ContentServiceClient {
-	constructor({ endpoint, tenantId }) {
+	constructor({
+		endpoint,
+		tenantId,
+		onUploadProgress
+	}) {
 		this.endpoint = endpoint;
 		this.tenantId = tenantId;
+		this.onUploadProgress = onUploadProgress;
 	}
 
 	_url(path, query) {
@@ -33,12 +38,12 @@ export default class ContentServiceClient {
 		});
 
 		const response = await d2lfetch.fetch(request);
+		if (!response.ok) {
+			throw new Error(response.statusText);
+		}
+
 		if (extractJsonBody) {
-			try {
-				return await response.json();
-			} catch (error) {
-				return { error: true };
-			}
+			return response.json();
 		}
 
 		return response;
