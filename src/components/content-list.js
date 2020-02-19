@@ -101,6 +101,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 		if (this.loading) {
 			return;
 		}
+
 		this.loading = true;
 		const searchResult = await this.apiClient.searchContent({ start: this.contentItems.length, size: this.resultSize, sort: 'updatedAt:desc' });
 		this.totalResults = searchResult.hits.total;
