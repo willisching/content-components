@@ -72,6 +72,9 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 		super();
 		this.contentItems = [];
 		this.contentItemsSelectable = true;
+		this.infiniteScrollThreshold = 400;
+		this.resultSize = 20;
+		this.totalResults = 0;
 	}
 
 	connectedCallback() {
@@ -81,7 +84,27 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 	}
 
 	async loadPage() {
-		this.contentItems = await this.apiClient.listContent();
+		await this.loadNext();
+		window.onscroll = this.onWindowScroll.bind(this);
+	}
+
+	onWindowScroll() {
+		const contentListElem = this.shadowRoot.querySelector('#d2l-content-store-list');
+		const bottom = contentListElem.getBoundingClientRect().top + window.pageYOffset + contentListElem.clientHeight;
+		const scrollY = window.pageYOffset + window.innerHeight;
+		if (bottom - scrollY < this.infiniteScrollThreshold && this.contentItems.length < this.totalResults) {
+			this.loadNext();
+		};
+	}
+
+	async loadNext() {
+		if (this.loading) { return; }
+		this.loading = true;
+		const searchResult = await this.apiClient.searchContent({ start: this.contentItems.length, size: this.resultSize, sort: 'updatedAt:desc' });
+		this.totalResults = searchResult.hits.total;
+		this.contentItems.push(...searchResult.hits.hits.map((item) => item._source));
+		this.update();
+		this.loading = false;
 	}
 
 	render() {
@@ -89,7 +112,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 			<d2l-list class="table-header" separators="none">
 				${this.renderTableHeader()}
 			</d2l-list>
-			<d2l-list>
+			<d2l-list id="d2l-content-store-list">
 				${this.contentItems.map(item => this.renderContentItem(item))}
 			</d2l-list>
 		`;
@@ -110,18 +133,17 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 	}
 
 	renderContentItem(item) {
-		const { createdAt, updatedAt } = item;
-		const revisions = item.revisions || [];
-		const rev = revisions[revisions.length - 1] || {};
-		const lkey = typeLocalizationKey(rev.type);
-		const type = lkey ? this.localize(lkey) : rev.type;
-		const previewLink = getPreviewLink(rev);
+		const { createdAt, updatedAt, lastRevType: type, lastRevTitle: title } = item;
+		const lkey = typeLocalizationKey(type);
+		const iconType = lkey ? this.localize(lkey) : type;
+		//TODO This logic needs to be revisited. We do not have access to link in the content seearch
+		const previewLink = getPreviewLink({ type });
 		return html`
 			<d2l-list-item class="d2l-body-compact" ?selectable=${this.contentItemsSelectable}>
-				<content-icon type="${rev.type}" slot="illustration"></content-icon>
+				<content-icon type="${iconType}" slot="illustration"></content-icon>
 				<div class="col-container">
 					<div class="col detail">
-						<div class="title">${rev.title}</div>
+						<div class="title">${title}</div>
 						<div class="type d2l-body-small">${type}</div>
 					</div>
 					<relative-date class="col created-at" value=${createdAt}></relative-date>
