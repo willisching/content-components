@@ -8,12 +8,12 @@ export class Uploader {
 		this.apiClient = apiClient;
 		this.uploadFile = flow(function * (file) {
 			/* eslint-disable no-invalid-this */
+			const extension = file.name.split('.').pop();
 			this.uploads.push({ file, progress: 0 });
 			const content = yield this.apiClient.createContent();
 			const revision = yield this.apiClient.createRevision(content.id, {
-				type: 'Scorm',
 				title: file.name,
-				extension: file.extension
+				extension
 			});
 			const uploader = new S3Uploader({
 				file,
