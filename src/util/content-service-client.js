@@ -49,6 +49,17 @@ export default class ContentServiceClient {
 		return response;
 	}
 
+	searchContent({ start = 0, size = 20, sort }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/search/content`,
+			query: {
+				start,
+				size,
+				sort
+			}
+		});
+	}
+
 	listContent({ ids = null } = {}) {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content`,
