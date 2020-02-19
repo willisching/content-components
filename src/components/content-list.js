@@ -85,7 +85,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 
 	async loadPage() {
 		await this.loadNext();
-		window.onscroll = this.onWindowScroll.bind(this);
+		window.addEventListener('scroll', this.onWindowScroll.bind(this));
 	}
 
 	onWindowScroll() {
@@ -94,15 +94,17 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 		const scrollY = window.pageYOffset + window.innerHeight;
 		if (bottom - scrollY < this.infiniteScrollThreshold && this.contentItems.length < this.totalResults) {
 			this.loadNext();
-		};
+		}
 	}
 
 	async loadNext() {
-		if (this.loading) { return; }
+		if (this.loading) {
+			return;
+		}
 		this.loading = true;
 		const searchResult = await this.apiClient.searchContent({ start: this.contentItems.length, size: this.resultSize, sort: 'updatedAt:desc' });
 		this.totalResults = searchResult.hits.total;
-		this.contentItems.push(...searchResult.hits.hits.map((item) => item._source));
+		this.contentItems.push(...searchResult.hits.hits.map(item => item._source));
 		this.update();
 		this.loading = false;
 	}
@@ -136,7 +138,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 		const { createdAt, updatedAt, lastRevType: type, lastRevTitle: title } = item;
 		const lkey = typeLocalizationKey(type);
 		const iconType = lkey ? this.localize(lkey) : type;
-		//TODO This logic needs to be revisited. We do not have access to link in the content seearch
+		// TODO This logic needs to be revisited. We do not have access to link in the content seearch
 		const previewLink = getPreviewLink({ type });
 		return html`
 			<d2l-list-item class="d2l-body-compact" ?selectable=${this.contentItemsSelectable}>
