@@ -15,7 +15,7 @@ import './relative-date.js';
 
 import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin.js';
 import { DependencyRequester } from '../mixins/dependency-requester-mixin.js';
-import { typeLocalizationKey } from '../util/content-type.js';
+import { typeLocalizationKey, getPreviewLink } from '../util/content-type.js';
 
 class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
@@ -90,7 +90,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 				${this.renderTableHeader()}
 			</d2l-list>
 			<d2l-list>
-				${this.contentItems.map(this.renderContentItem.bind(this))}
+				${this.contentItems.map(item => this.renderContentItem(item))}
 			</d2l-list>
 		`;
 	}
@@ -115,6 +115,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 		const rev = revisions[revisions.length - 1] || {};
 		const lkey = typeLocalizationKey(rev.type);
 		const type = lkey ? this.localize(lkey) : rev.type;
+		const previewLink = getPreviewLink(rev);
 		return html`
 			<d2l-list-item class="d2l-body-compact" ?selectable=${this.contentItemsSelectable}>
 				<content-icon type="${rev.type}" slot="illustration"></content-icon>
@@ -127,11 +128,19 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 					<relative-date class="col updated-at" value=${updatedAt || createdAt}></relative-date>
 				</div>
 				<div slot="actions">
-					<d2l-button-icon icon="tier1:preview"></d2l-button-icon>
-					<d2l-button-icon icon="tier1:more"></d2l-button-icon>
+					<d2l-button-icon
+						@click=${this.openPreview(previewLink)}
+						text="${this.localize('preview')}"
+						icon="tier1:preview"
+					></d2l-button-icon>
+					<d2l-button-icon text="${this.localize('more')}" icon="tier1:more"></d2l-button-icon>
 				</div>
 			</d2l-list-item>
 		`;
+	}
+
+	openPreview(link) {
+		return () => window.open(link);
 	}
 }
 

@@ -4,11 +4,13 @@ export const val = {
 	createANewItem: 'Create a new item',
 	created: 'Created',
 	googleDrive: 'Google Drive',
-	oneDrive: 'OneDrive',
 	menu: 'Menu',
 	modified: 'Modified',
+	more: 'More',
 	myContent: 'My Content',
 	name: 'Name',
 	new: 'New',
+	oneDrive: 'OneDrive',
+	preview: 'Preview',
 	trash: 'Trash'
 };
