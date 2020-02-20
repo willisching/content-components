@@ -2,16 +2,15 @@ import { css, html } from 'lit-element/lit-element.js';
 import { heading2Styles } from '@brightspace-ui/core/components/typography/styles.js';
 
 // Polyfills
-import './components/content-list.js';
+import '../components/content-list.js';
 
-import { PageViewElement } from './components/page-view-element.js';
+import { PageViewElement } from '../components/page-view-element.js';
 
-class MyObjects extends PageViewElement {
+class ContentPage extends PageViewElement {
 	static get styles() {
 		return [heading2Styles, css`
 			:host {
 				display: block;
-				padding: 0 1em;
 			}
 			:host([hidden]) {
 				display: none;
@@ -27,4 +26,4 @@ class MyObjects extends PageViewElement {
 	}
 }
 
-window.customElements.define('my-objects', MyObjects);
+window.customElements.define('content-page', ContentPage);

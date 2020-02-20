@@ -66,13 +66,10 @@ class D2lContentStoreApp extends NavigationMixin(InternalLocalizeMixin(MobxReact
 		switch (page) {
 			/* eslint-disable no-unused-expressions */
 			case '':
-				this._navigate('/manage/');
+				this._navigate('/manage');
 				return;
 			case 'manage':
 				import('./d2l-content-store-manage.js');
-				break;
-			case 'my-objects':
-				import('./my-objects.js');
 				break;
 			default:
 				rootStore.routingStore.setPage('404');
@@ -85,7 +82,6 @@ class D2lContentStoreApp extends NavigationMixin(InternalLocalizeMixin(MobxReact
 	render() {
 		return html`
 		<main id="main" role="main">
-			<my-objects ?active=${rootStore.routingStore.page === 'my-objects'} class="page"></my-objects>
 			<d2l-content-store-manage
 				class="page"
 				?active=${rootStore.routingStore.page === 'manage'}>
