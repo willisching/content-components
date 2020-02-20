@@ -17,6 +17,7 @@ import './components/two-column-layout.js';
 class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 	static get properties() {
 		return {
+			page: { type: String }
 		};
 	}
 
@@ -28,6 +29,13 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 			:host([hidden]) {
 				display: none;
 			}
+			.page {
+				display: none;
+			}
+			.page[active] {
+				display: block;
+			}
+
 			d2l-menu-item {
 				background-color: transparent;
 			}
@@ -77,7 +85,7 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 			'subView',
 			change => {
 				if (this.rootStore.routingStore.page === 'manage') {
-					console.log(`Your sub view changed from ${change.oldValue} to ${change.newValue}`);
+					this.loadSubView(change.newValue);
 				}
 			}
 		);
@@ -86,6 +94,10 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 			this.rootStore.routingStore,
 			'page',
 			change => {
+				if (change.newValue === 'manage') {
+					console.log(`Four page changed from ${change.oldValue} to ${change.newValue}`);
+				}
+
 				if (this.rootStore.routingStore.page === 'manage') {
 					console.log(`Your page changed from ${change.oldValue} to ${change.newValue}`);
 				}
@@ -97,6 +109,9 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 		super.connectedCallback();
 		this.apiClient = this.requestDependency('content-service-client');
 		this.uploader = this.requestDependency('uploader');
+		if (this.rootStore.routingStore.page === 'manage') {
+			this.loadSubView(this.rootStore.routingStore.subView);
+		}
 	}
 
 	renderSidebar() {
@@ -115,7 +130,7 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 			</d2l-dropdown>
 			<div class="list-container">
 				<d2l-list separators="between">
-					<d2l-list-item href="javascript:void(0)" @click=${this.goToFilesView}>
+					<d2l-list-item href="javascript:void(0)" @click=${this.goToContentPage}>
 						<d2l-list-item-content class="list-item-container">
 							<d2l-icon icon="tier2:content"></d2l-icon><span class="list-item-label">${this.localize('myContent')}</span>
 						</d2l-list-item-content>
@@ -135,11 +150,31 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 	renderPrimary() {
 		return html`
 			<div class="primary-container">
-				<h2 class="d2l-heading-2 h2-custom">${this.localize('myContent')}</h2>
-				<p>Your current view placeholder is: ${this.rootStore.routingStore.getSubView()}</p>
-				${this.rootStore.routingStore.queryParams.page && html`<p>You're on page ${this.rootStore.routingStore.queryParams.page}</p>`}
-			</div>
-		`;
+				<content-page class="page" ?active=${this.page === 'content'}></content-page>
+				<trash-page class="page" ?active=${this.page === 'trash'}></trash-page>
+			</div>`;
+	}
+
+	loadSubView(subView) {
+		switch (subView) {
+			/* eslint-disable no-unused-expressions */
+			case '':
+				this._navigate('/manage/content');
+				return;
+			case 'content':
+				import('./pages/content-page.js');
+				break;
+			case 'trash':
+				import('./pages/trash-page.js');
+				break;
+			default:
+				this.rootStore.routingStore.setPage('404');
+				import('./d2l-content-store-404.js');
+				return;
+			/* eslint-enable no-unused-expressions */
+		}
+
+		this.page = subView;
 	}
 
 	render() {
@@ -194,8 +229,8 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 		};
 	}
 
-	goToFilesView() {
-		this._navigate('/manage/files', { sortBy: 'date', page: Math.floor(Math.random() * 10) });
+	goToContentPage() {
+		this._navigate('/manage/content', { sortBy: 'date', page: Math.floor(Math.random() * 10) });
 	}
 
 	goToRecycleBin() {
