@@ -24,7 +24,6 @@ class ContentSkeleton extends LitElement {
 		`];
 	}
 
-
 	render() {
 		return html`<div class="skeleton"></div>`;
 	}
