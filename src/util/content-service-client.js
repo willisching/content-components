@@ -83,6 +83,25 @@ export default class ContentServiceClient {
 		});
 	}
 
+	processRevision({
+		contentId,
+		revisionId
+	}) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/process`,
+			method: 'POST'
+		});
+	}
+
+	getPreviewUrl({
+		contentId,
+		revisionId
+	}) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/preview-url`
+		});
+	}
+
 	getUploadContext({
 		contentId,
 		revisionId

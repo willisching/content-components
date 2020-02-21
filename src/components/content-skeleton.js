@@ -4,6 +4,7 @@ import '@brightspace-ui/core/components/colors/colors.js';
 class ContentSkeleton extends LitElement {
 	static get properties() {
 		return {
+			maxWidth: { type: String, attribute: 'max-width' },
 			width: { type: String, attribute: 'width' },
 			height: { type: String, attribute: 'height' },
 		};
@@ -31,10 +32,14 @@ class ContentSkeleton extends LitElement {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this.skeletonStyle = [
+		const skeletonStyles = [
 			`width: ${this.width}`,
 			`height: ${this.height}`
-		].join('; ');
+		];
+		if (this.maxWidth) {
+			skeletonStyles.push(`max-width: ${this.maxWidth}`);
+		}
+		this.skeletonStyle = skeletonStyles.join('; ');
 	}
 
 	render() {

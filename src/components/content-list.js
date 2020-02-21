@@ -16,7 +16,7 @@ import './content-skeleton.js';
 
 import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin.js';
 import { DependencyRequester } from '../mixins/dependency-requester-mixin.js';
-import { typeLocalizationKey, getPreviewLink } from '../util/content-type.js';
+import { typeLocalizationKey } from '../util/content-type.js';
 
 class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
@@ -138,11 +138,11 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 				<content-skeleton width="42px" height="42px" slot="illustration"></content-skeleton>
 				<div class="col-container">
 					<div class="col detail">
-						<content-skeleton class="title skeleton-text" width="300px" height="11.4px"></content-skeleton>
+						<content-skeleton class="title skeleton-text" width="95%" height="11.4px" max-width="300px"></content-skeleton>
 						<content-skeleton class="type skeleton-text" width="24px" height="10px"></content-skeleton>
 					</div>
-					<content-skeleton width="100px" height="11.4px" class="col created-at skeleton-text"></content-skeleton>
-					<content-skeleton width="100px" height="11.4px" class="col updated-at skeleton-text"></content-skeleton>
+					<content-skeleton class="col created-at skeleton-text" width="95%" height="11.4px" max-width="100px"></content-skeleton>
+					<content-skeleton class="col updated-at skeleton-text" width="95%" height="11.4px" max-width="100px"></content-skeleton>
 				</div>
 				<div slot="actions">
 					<d2l-button-icon
@@ -177,11 +177,16 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 	}
 
 	renderContentItem(item) {
-		const { createdAt, updatedAt, lastRevType: type, lastRevTitle: title } = item;
+		const {
+			createdAt,
+			updatedAt,
+			id,
+			lastRevId: revisionId,
+			lastRevType: type,
+			lastRevTitle: title
+		} = item;
 		const lkey = typeLocalizationKey(type);
 		const iconType = lkey ? this.localize(lkey) : type;
-		// TODO This logic needs to be revisited. We do not have access to link in the content seearch
-		const previewLink = getPreviewLink({ type });
 		return html`
 			<d2l-list-item class="d2l-body-compact" ?selectable=${this.contentItemsSelectable}>
 				<content-icon type="${iconType}" slot="illustration"></content-icon>
@@ -195,7 +200,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 				</div>
 				<div slot="actions">
 					<d2l-button-icon
-						@click=${this.openPreview(previewLink)}
+						@click=${this.openPreview(id, revisionId)}
 						text="${this.localize('preview')}"
 						icon="tier1:preview"
 					></d2l-button-icon>
@@ -205,8 +210,12 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 		`;
 	}
 
-	openPreview(link) {
-		return () => window.open(link);
+	openPreview(contentId, revisionId) {
+		return async() => {
+			const previewWindow = window.open('', '_blank');
+			const link = await this.apiClient.getPreviewUrl({ contentId, revisionId });
+			previewWindow.location.href = link;
+		};
 	}
 }
 
