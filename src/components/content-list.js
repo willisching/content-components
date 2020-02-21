@@ -159,6 +159,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 			</d2l-list-item>
 			`);
 		}
+
 		return skeletonTemplates;
 	}
 

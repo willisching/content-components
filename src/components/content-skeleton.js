@@ -6,7 +6,7 @@ class ContentSkeleton extends LitElement {
 		return {
 			maxWidth: { type: String, attribute: 'max-width' },
 			width: { type: String, attribute: 'width' },
-			height: { type: String, attribute: 'height' },
+			height: { type: String, attribute: 'height' }
 		};
 	}
 
@@ -39,6 +39,7 @@ class ContentSkeleton extends LitElement {
 		if (this.maxWidth) {
 			skeletonStyles.push(`max-width: ${this.maxWidth}`);
 		}
+
 		this.skeletonStyle = skeletonStyles.join('; ');
 	}
 
