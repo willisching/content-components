@@ -217,13 +217,15 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 
 			const event = opener();
 			event.AddListener(async e => {
-				const content = await this.apiClient.createContent();
-				if (content) {
-					await this.apiClient.createRevision(content.id, {
+				const { id: contentId } = await this.apiClient.createContent();
+				if (contentId) {
+					const { id: revisionId } = await this.apiClient.createRevision(contentId, {
 						type,
 						title: e.m_title,
 						link: e.m_url
 					});
+
+					await this.apiClient.processRevision({ contentId, revisionId });
 				}
 			});
 		};
