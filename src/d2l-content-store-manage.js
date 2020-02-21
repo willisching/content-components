@@ -48,12 +48,8 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 				padding-top: 1.5rem;
 				padding-bottom: 1.5rem;
 			}
-			.primary-container {
-				padding: 1.5rem;
-			}
 			.list-container {
 				margin-top: 0.75rem;
-				padding: 0 0.5rem;
 			}
 			.list-item-container {
 				align-items: center;
@@ -149,7 +145,7 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 
 	renderPrimary() {
 		return html`
-			<div class="primary-container">
+			<div class="d2l-navigation-gutters">
 				<content-page class="page" ?active=${this.page === 'content'}></content-page>
 				<trash-page class="page" ?active=${this.page === 'trash'}></trash-page>
 			</div>`;
