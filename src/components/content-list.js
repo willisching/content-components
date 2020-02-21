@@ -58,9 +58,36 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 				font-weight: bold;
 			}
 
-			.skeleton-text {
-				margin-top: 6px;
-				margin-bottom: 2px;
+			content-skeleton:not(.illustration) {
+				margin: 8px 0 4px 0;
+			}
+
+			.col.detail content-skeleton.title{
+				width: 95%;
+				height: 11.4px;
+				max-width: 300px;
+			}
+
+			.col.detail content-skeleton.type{
+				width: 24px;
+				height: 10px;
+			}
+
+			.col.created-at content-skeleton {
+				height: 11.4px;
+				max-width: 100px;
+				width: 95%;
+			}
+
+			.col.updated-at content-skeleton {
+				height: 11.4px;
+				max-width: 100px;
+				width: 95%;
+			}
+
+			content-skeleton.illustration {
+				width: 42px;
+				height: 42px;
 			}
 
 			d2l-list.table-header content-icon {
@@ -135,14 +162,18 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 		for (let i = 0; i < count; i++) {
 			skeletonTemplates.push(html`
 			<d2l-list-item class="d2l-body-compact" ?selectable=${this.contentItemsSelectable} disabled>
-				<content-skeleton width="42px" height="42px" slot="illustration"></content-skeleton>
+				<content-skeleton class="illustration" slot="illustration"></content-skeleton>
 				<div class="col-container">
 					<div class="col detail">
-						<content-skeleton class="title skeleton-text" width="95%" height="11.4px" max-width="300px"></content-skeleton>
-						<content-skeleton class="type skeleton-text" width="24px" height="10px"></content-skeleton>
+						<content-skeleton class="title"></content-skeleton>
+						<content-skeleton class="type"></content-skeleton>
 					</div>
-					<content-skeleton class="col created-at skeleton-text" width="95%" height="11.4px" max-width="100px"></content-skeleton>
-					<content-skeleton class="col updated-at skeleton-text" width="95%" height="11.4px" max-width="100px"></content-skeleton>
+					<div class="col created-at">
+						<content-skeleton></content-skeleton>
+					</div>
+					<div class="col updated-at">
+						<content-skeleton></content-skeleton>
+					</div>
 				</div>
 				<div slot="actions">
 					<d2l-button-icon
