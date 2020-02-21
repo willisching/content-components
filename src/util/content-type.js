@@ -63,21 +63,6 @@ export const typeLocalizationKey = type => {
 	}
 };
 
-// TODO change this code to work with the content search
-export const getPreviewLink = rev => {
-	const {
-		type
-		// link
-	} = rev;
-	switch (type.toLowerCase()) {
-		// case 'googledrive':
-		// case 'office365':
-		//	return link;
-		default:
-			return '';
-	}
-};
-
 const fullKey = key => `contentType${key}`;
 
 export default {
