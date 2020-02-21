@@ -64,7 +64,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 
 			.col.detail content-skeleton.title{
 				width: 95%;
-				height: 11.4px;
+				height: 11px;
 				max-width: 300px;
 			}
 
@@ -74,13 +74,13 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 			}
 
 			.col.created-at content-skeleton {
-				height: 11.4px;
+				height: 11px;
 				max-width: 100px;
 				width: 95%;
 			}
 
 			.col.updated-at content-skeleton {
-				height: 11.4px;
+				height: 11px;
 				max-width: 100px;
 				width: 95%;
 			}
