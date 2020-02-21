@@ -12,6 +12,7 @@ import '@brightspace-ui/core/components/button/button-icon.js';
 import '@brightspace-ui/core/components/icons/icon.js';
 import './content-icon.js';
 import './relative-date.js';
+import './content-skeleton.js';
 
 import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin.js';
 import { DependencyRequester } from '../mixins/dependency-requester-mixin.js';
@@ -20,7 +21,8 @@ import { typeLocalizationKey, getPreviewLink } from '../util/content-type.js';
 class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
-			contentItems: { type: Array, attribute: false }
+			contentItems: { type: Array, attribute: false },
+			loading: { type: Boolean, attribute: false }
 		};
 	}
 
@@ -56,6 +58,11 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 				font-weight: bold;
 			}
 
+			.skeleton-text {
+				margin-top: 6px;
+				margin-bottom: 2px;
+			}
+
 			d2l-list.table-header content-icon {
 				height: 0;
 				padding-left: 42px; /* total width of checkbox column */
@@ -75,6 +82,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 		this.infiniteScrollThreshold = 400;
 		this.resultSize = 20;
 		this.totalResults = 0;
+		this.loading = false;
 	}
 
 	connectedCallback() {
@@ -106,8 +114,8 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 		const searchResult = await this.apiClient.searchContent({ start: this.contentItems.length, size: this.resultSize, sort: 'updatedAt:desc' });
 		this.totalResults = searchResult.hits.total;
 		this.contentItems.push(...searchResult.hits.hits.map(item => item._source));
-		this.update();
 		this.loading = false;
+		this.update();
 	}
 
 	render() {
@@ -117,8 +125,41 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 			</d2l-list>
 			<d2l-list id="d2l-content-store-list">
 				${this.contentItems.map(item => this.renderContentItem(item))}
+				${this.loading ? this.renderContentItemSkeletons(5) : html``}
 			</d2l-list>
 		`;
+	}
+
+	renderContentItemSkeletons(count) {
+		const skeletonTemplates = [];
+		for (let i = 0; i < count; i++) {
+			skeletonTemplates.push(html`
+			<d2l-list-item class="d2l-body-compact" ?selectable=${this.contentItemsSelectable} disabled>
+				<content-skeleton width="42px" height="42px" slot="illustration"></content-skeleton>
+				<div class="col-container">
+					<div class="col detail">
+						<content-skeleton class="title skeleton-text" width="300px" height="11.4px"></content-skeleton>
+						<content-skeleton class="type skeleton-text" width="24px" height="10px"></content-skeleton>
+					</div>
+					<content-skeleton width="100px" height="11.4px" class="col created-at skeleton-text"></content-skeleton>
+					<content-skeleton width="100px" height="11.4px" class="col updated-at skeleton-text"></content-skeleton>
+				</div>
+				<div slot="actions">
+					<d2l-button-icon
+						text="${this.localize('preview')}"
+						icon="tier1:preview"
+						disabled
+					></d2l-button-icon>
+					<d2l-button-icon
+						text="${this.localize('more')}"
+						icon="tier1:more"
+						disabled
+					></d2l-button-icon>
+				</div>
+			</d2l-list-item>
+			`);
+		}
+		return skeletonTemplates;
 	}
 
 	renderTableHeader() {
