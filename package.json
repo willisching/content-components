@@ -51,6 +51,7 @@
     "d2l-fetch": "Brightspace/d2l-fetch.git#semver:^2",
     "d2l-fetch-auth": "^1.5.2",
     "d2l-resize-aware": "BrightspaceUI/resize-aware#semver:^1",
+    "file-drop-element": "^0",
     "lit-element": "^2",
     "mobx": "^5.15.4",
     "page": "^1.11.5",
@@ -71,7 +72,9 @@
         "extends": "brightspace/wct-lit-config"
       },
       {
-        "files": ["**/test/*.test.js"],
+        "files": [
+          "**/test/*.test.js"
+        ],
         "rules": {
           "no-unused-expressions": "off"
         }

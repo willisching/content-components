@@ -12,7 +12,7 @@ describe('upload-status-management', () => {
 	describe('accessibility', () => {
 		beforeEach(async() => {
 			element = await fixture(html`<upload-status-management id="upload-status-management"></upload-status-management>`);
-			element.show();
+			element.uploader.statusWindowVisible = true;
 			await element.updateComplete;
 		});
 

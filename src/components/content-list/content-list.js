@@ -15,7 +15,9 @@ import './content-list-item-ghost.js';
 import './content-list-header.js';
 import '../content-icon.js';
 import '../relative-date.js';
+import '../content-file-drop.js';
 
+import { navigationSharedStyle } from '../../styles/d2l-navigation-shared-styles.js';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { typeLocalizationKey } from '../../util/content-type.js';
@@ -29,13 +31,17 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 	}
 
 	static get styles() {
-		return [bodyCompactStyles, bodySmallStyles, labelStyles, css`
+		return [bodyCompactStyles, bodySmallStyles, labelStyles, navigationSharedStyle, css`
 			:host([hidden]) {
 				display: none;
 			}
 
 			.title {
 				word-break: break-word;
+			}
+
+			#d2l-content-store-list {
+				padding-top: 1px;
 			}
 		`];
 	}
@@ -100,11 +106,13 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 	render() {
 		return html`
 			<content-list-header @change-sort=${this.changeSort}></content-list-header>
-			<div id="d2l-content-store-list">
-				${this.renderNotFound()}
-				${this.contentItems.map(item => this.renderContentItem(item))}
-				${this.renderGhosts(this.loading ? 5 : 0)}
-			</div>
+			<content-file-drop>
+				<div id="d2l-content-store-list" class="d2l-navigation-gutters">
+					${this.renderNotFound()}
+					${this.contentItems.map(item => this.renderContentItem(item))}
+					${this.renderGhosts(this.loading ? 5 : 0)}
+				</div>
+			</content-file-drop>
 		`;
 	}
 

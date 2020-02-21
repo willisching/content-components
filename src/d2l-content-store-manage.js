@@ -146,7 +146,7 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 
 	renderPrimary() {
 		return html`
-			<div class="d2l-navigation-gutters">
+			<div>
 				<content-page class="page" ?active=${this.page === 'content'}></content-page>
 				<trash-page class="page" ?active=${this.page === 'trash'}></trash-page>
 			</div>`;
@@ -195,15 +195,7 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 	}
 
 	handleFileChange(event) {
-		const uploadStatusManagementElement = this.shadowRoot.querySelector('#upload-status-management');
-		if (uploadStatusManagementElement) {
-			uploadStatusManagementElement.show();
-		}
-
-		for (let i = 0; i < event.target.files.length; i++) {
-			this.uploader.uploadFile(event.target.files[i]);
-		}
-
+		this.uploader.uploadFiles(event.target.files);
 		event.target.value = '';
 	}
 
