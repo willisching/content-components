@@ -1,16 +1,10 @@
-<!DOCTYPE html>
-<script src="/node_modules/@polymer/test-fixture/test-fixture.js"></script>
-<script src="/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
-<script src="/node_modules/chai/chai.js"></script>
-<script src="/node_modules/mocha/mocha.js"></script>
-<script src="/node_modules/wct-mocha/wct-mocha.js"></script>
+import { expect } from '@open-wc/testing';
 
-<script type="module">
 import {
 	formatRelativeDate,
 	formatRelativeDateTime,
 	millisecondsPer
-} from '../../src/util/date-time.js';
+} from '../date-time.js';
 
 const { second, minute, hour, day } = millisecondsPer;
 
@@ -208,4 +202,3 @@ describe('fuzzyDateTime', () => {
 		}
 	});
 });
-</script>

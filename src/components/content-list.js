@@ -12,6 +12,7 @@ import '@brightspace-ui/core/components/button/button-icon.js';
 import '@brightspace-ui/core/components/icons/icon.js';
 import './content-icon.js';
 import './relative-date.js';
+import './content-skeleton.js';
 
 import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin.js';
 import { DependencyRequester } from '../mixins/dependency-requester-mixin.js';
@@ -20,7 +21,8 @@ import { typeLocalizationKey } from '../util/content-type.js';
 class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
-			contentItems: { type: Array, attribute: false }
+			contentItems: { type: Array, attribute: false },
+			loading: { type: Boolean, attribute: false }
 		};
 	}
 
@@ -56,6 +58,38 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 				font-weight: bold;
 			}
 
+			content-skeleton:not(.illustration) {
+				margin: 8px 0 4px 0;
+			}
+
+			.col.detail content-skeleton.title{
+				width: 95%;
+				height: 11px;
+				max-width: 300px;
+			}
+
+			.col.detail content-skeleton.type{
+				width: 24px;
+				height: 10px;
+			}
+
+			.col.created-at content-skeleton {
+				height: 11px;
+				max-width: 100px;
+				width: 95%;
+			}
+
+			.col.updated-at content-skeleton {
+				height: 11px;
+				max-width: 100px;
+				width: 95%;
+			}
+
+			content-skeleton.illustration {
+				width: 42px;
+				height: 42px;
+			}
+
 			d2l-list.table-header content-icon {
 				height: 0;
 				padding-left: 42px; /* total width of checkbox column */
@@ -75,6 +109,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 		this.infiniteScrollThreshold = 400;
 		this.resultSize = 20;
 		this.totalResults = 0;
+		this.loading = false;
 	}
 
 	connectedCallback() {
@@ -106,8 +141,8 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 		const searchResult = await this.apiClient.searchContent({ start: this.contentItems.length, size: this.resultSize, sort: 'updatedAt:desc' });
 		this.totalResults = searchResult.hits.total;
 		this.contentItems.push(...searchResult.hits.hits.map(item => item._source));
-		this.update();
 		this.loading = false;
+		this.update();
 	}
 
 	render() {
@@ -117,8 +152,46 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 			</d2l-list>
 			<d2l-list id="d2l-content-store-list">
 				${this.contentItems.map(item => this.renderContentItem(item))}
+				${this.loading ? this.renderContentItemSkeletons(5) : html``}
 			</d2l-list>
 		`;
+	}
+
+	renderContentItemSkeletons(count) {
+		const skeletonTemplates = [];
+		for (let i = 0; i < count; i++) {
+			skeletonTemplates.push(html`
+			<d2l-list-item class="d2l-body-compact" ?selectable=${this.contentItemsSelectable} disabled>
+				<content-skeleton class="illustration" slot="illustration"></content-skeleton>
+				<div class="col-container">
+					<div class="col detail">
+						<content-skeleton class="title"></content-skeleton>
+						<content-skeleton class="type"></content-skeleton>
+					</div>
+					<div class="col created-at">
+						<content-skeleton></content-skeleton>
+					</div>
+					<div class="col updated-at">
+						<content-skeleton></content-skeleton>
+					</div>
+				</div>
+				<div slot="actions">
+					<d2l-button-icon
+						text="${this.localize('preview')}"
+						icon="tier1:preview"
+						disabled
+					></d2l-button-icon>
+					<d2l-button-icon
+						text="${this.localize('more')}"
+						icon="tier1:more"
+						disabled
+					></d2l-button-icon>
+				</div>
+			</d2l-list-item>
+			`);
+		}
+
+		return skeletonTemplates;
 	}
 
 	renderTableHeader() {
