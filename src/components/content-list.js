@@ -245,8 +245,8 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 	openPreview(contentId, revisionId) {
 		return async() => {
 			const previewWindow = window.open('', '_blank');
-			const link = await this.apiClient.getPreviewUrl({ contentId, revisionId });
-			previewWindow.location.href = link;
+			const { previewUrl } = await this.apiClient.getPreviewUrl({ contentId, revisionId });
+			previewWindow.location.href = previewUrl;
 		};
 	}
 }
