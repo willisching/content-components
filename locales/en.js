@@ -12,5 +12,13 @@ export const val = {
 	new: 'New',
 	oneDrive: 'OneDrive',
 	preview: 'Preview',
-	trash: 'Trash'
+	trash: 'Trash',
+	hide: 'Hide',
+	show: 'Show',
+	uploadsInProgress: 'Uploading {uploadsInProgress} items',
+	uploadInProgress: 'Uploading 1 item',
+	uploadsCompleted: '{uploadsCompleted} uploads complete',
+	uploadCompleted: '1 upload complete',
+	uploadFailed: 'Upload failed',
+	close: 'Close'
 };

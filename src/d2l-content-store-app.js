@@ -7,8 +7,6 @@ import { NavigationMixin } from './mixins/navigation-mixin.js';
 import { rootStore } from './state/root-store.js';
 import { BASE_PATH } from './state/routing-store.js';
 
-import './components/upload-status-dialog.js';
-
 class D2lContentStoreApp extends NavigationMixin(InternalLocalizeMixin(MobxReactionUpdate(LitElement))) {
 	static get properties() {
 		return {
@@ -30,12 +28,6 @@ class D2lContentStoreApp extends NavigationMixin(InternalLocalizeMixin(MobxReact
 
 			.page[active] {
 				display: block;
-			}
-
-			upload-status-dialog {
-				position: absolute;
-				bottom: 10px;
-				right: 10px;
 			}
 		`];
 	}
@@ -87,7 +79,6 @@ class D2lContentStoreApp extends NavigationMixin(InternalLocalizeMixin(MobxReact
 				?active=${rootStore.routingStore.page === 'manage'}>
 			</d2l-content-store-manage>
 			<d2l-content-store-404 class="page" ?active=${rootStore.routingStore.page === '404'}></d2l-content-store-404>
-			<upload-status-dialog></upload-status-dialog>
 		</main>
 		`;
 	}

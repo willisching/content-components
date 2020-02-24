@@ -35,7 +35,24 @@ export const typeToIcon = type => {
 		case 'scorm':
 			return 'scorm';
 		case 'video':
+		case 'm4v':
+		case 'mp4':
+		case 'mov':
 			return 'file-video';
+		case 'audio':
+		case 'm4a':
+		case 'mp3':
+			return 'file-audio';
+		case 'gif':
+		case 'jpg':
+		case 'png':
+			return 'file-image';
+		case 'odp':
+		case 'pps':
+		case 'ppsx':
+		case 'ppt':
+		case 'pptx':
+			return 'file-presentation';
 		default:
 			return 'file-document';
 	}

@@ -13,6 +13,7 @@ import '@brightspace-ui/core/components/list/list-item-content.js';
 import 'd2l-dropdown/d2l-dropdown.js';
 import 'd2l-dropdown/d2l-dropdown-content.js';
 import './components/two-column-layout.js';
+import './components/upload-status-management.js';
 
 class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 	static get properties() {
@@ -184,6 +185,7 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 						${this.renderPrimary()}
 					</div>
 				</two-column-layout>
+				<upload-status-management id="upload-status-management"></upload-status-management>
 			</div>
 		`;
 	}
@@ -193,6 +195,11 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 	}
 
 	handleFileChange(event) {
+		const uploadStatusManagementElement = this.shadowRoot.querySelector('#upload-status-management');
+		if (uploadStatusManagementElement) {
+			uploadStatusManagementElement.show();
+		}
+
 		for (let i = 0; i < event.target.files.length; i++) {
 			this.uploader.uploadFile(event.target.files[i]);
 		}
