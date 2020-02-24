@@ -1,10 +1,14 @@
 import { LitElement, css, html } from 'lit-element';
 import '@brightspace-ui/core/components/colors/colors.js';
 
-class ContentSkeleton extends LitElement {
+class GhostBox extends LitElement {
 	static get styles() {
 		return [css`
-			.skeleton {
+			:host {
+				display: block;
+			}
+
+			.ghost {
 				border-radius: 4px;
 				width: 100%;
 				height: 100%;
@@ -25,8 +29,8 @@ class ContentSkeleton extends LitElement {
 	}
 
 	render() {
-		return html`<div class="skeleton"></div>`;
+		return html`<div class="ghost"></div>`;
 	}
 }
 
-window.customElements.define('content-skeleton', ContentSkeleton);
+window.customElements.define('ghost-box', GhostBox);
