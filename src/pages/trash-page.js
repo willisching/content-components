@@ -1,9 +1,5 @@
 import { css, html } from 'lit-element/lit-element.js';
 import { heading2Styles } from '@brightspace-ui/core/components/typography/styles.js';
-
-// Polyfills
-import '../components/content-list.js';
-
 import { PageViewElement } from '../components/page-view-element.js';
 
 class TrashPage extends PageViewElement {
