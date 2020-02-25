@@ -39,9 +39,10 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 	constructor() {
 		super();
 		this.contentItems = [];
-		this.contentItemsSelectable = true;
 		this.infiniteScrollThreshold = 400;
 		this.resultSize = 20;
+		this.dateField = 'updatedAt';
+		this.sortQuery = '';
 		this.totalResults = 0;
 		this.loading = false;
 	}
@@ -49,12 +50,6 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 	connectedCallback() {
 		super.connectedCallback();
 		this.apiClient = this.requestDependency('content-service-client');
-		this.loadPage();
-	}
-
-	async loadPage() {
-		await this.loadNext();
-		window.addEventListener('scroll', this.onWindowScroll.bind(this));
 	}
 
 	onWindowScroll() {
@@ -66,13 +61,32 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 		}
 	}
 
+	changeSort({ detail = {} }) {
+		if (/^(createdAt|updatedAt)$/.test(detail.sortKey)) {
+			this.dateField = detail.sortKey;
+		}
+
+		this.sortQuery = detail.sortQuery;
+		this.reloadPage();
+	}
+
+	async reloadPage() {
+		this.contentItems = [];
+		await this.loadNext();
+		window.addEventListener('scroll', this.onWindowScroll.bind(this));
+	}
+
 	async loadNext() {
 		if (this.loading) {
 			return;
 		}
 
 		this.loading = true;
-		const searchResult = await this.apiClient.searchContent({ start: this.contentItems.length, size: this.resultSize, sort: 'updatedAt:desc' });
+		const searchResult = await this.apiClient.searchContent({
+			start: this.contentItems.length,
+			size: this.resultSize,
+			sort: this.sortQuery
+		});
 		this.totalResults = searchResult.hits.total;
 		this.contentItems.push(...searchResult.hits.hits.map(item => item._source));
 		this.loading = false;
@@ -81,8 +95,9 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 
 	render() {
 		return html`
-			<content-list-header></content-list-header>
+			<content-list-header @change-sort=${this.changeSort}></content-list-header>
 			<d2l-list id="d2l-content-store-list">
+				${this.renderNotFound()}
 				${this.contentItems.map(item => this.renderContentItem(item))}
 				${this.renderGhosts(this.loading ? 5 : 0)}
 			</d2l-list>
@@ -97,12 +112,12 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 		<content-list-item
 			id=${item.id}
 			revision-id=${item.lastRevId}
-			?selectable=${this.contentItemsSelectable}
+			selectable
 		>
 			<content-icon type="${iconType}" slot="icon"></content-icon>
 			<div slot="title">${item.lastRevTitle}</div>
 			<div slot="type">${type}</div>
-			<relative-date slot="date" value=${item.createdAt}></relative-date>
+			<relative-date slot="date" value=${item[this.dateField]}></relative-date>
 		</content-list-item>
 		`;
 	}
@@ -111,6 +126,14 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 		return new Array(count).fill().map(() => html`
 			<content-list-item-ghost></content-list-item-ghost>
 		`);
+	}
+
+	renderNotFound() {
+		return !this.loading && this.contentItems.length === 0 ? html`
+			<d2l-list-item class="d2l-body-compact">
+				${this.localize('noResultsFound')}
+			</d2l-list-item>
+		` : html``;
 	}
 }
 

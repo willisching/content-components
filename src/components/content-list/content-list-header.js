@@ -5,17 +5,12 @@ import { labelStyles } from '@brightspace-ui/core/components/typography/styles.j
 import '@brightspace-ui/core/components/list/list.js';
 import '@brightspace-ui/core/components/list/list-item.js';
 import './content-list-columns.js';
+import '../column-header.js';
 import '../content-icon.js';
 
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 
 class ContentListHeader extends InternalLocalizeMixin(LitElement) {
-	static get properties() {
-		return {
-			loading: { type: Boolean, attribute: false }
-		};
-	}
-
 	static get styles() {
 		return [labelStyles, css`
 			:host {
@@ -38,30 +33,36 @@ class ContentListHeader extends InternalLocalizeMixin(LitElement) {
 		`];
 	}
 
-	constructor() {
-		super();
-		this.loading = false;
-	}
-
 	render() {
 		return html`
 		<d2l-list separators="none">
 			<d2l-list-item class="d2l-label-text">
 				<content-icon type="" slot="illustration"></content-icon>
 				<content-list-columns>
-					<div slot="detail" @click=${this.toggleSort('detail')}>${this.localize('name')}</div>
-					<div slot="date" @click=${this.toggleSort('date')}>${this.localize('created')}</div>
+					<column-header slot="detail" group="content-list">
+						<column-header-choice
+							label="${this.localize('name')}"
+							sort-key="lastRevTitle.keyword"
+						></column-header-choice>
+					</column-header>
+					<column-header slot="date" group="content-list">
+						<column-header-choice
+							current-sort-desc
+							label=${this.localize('created')}
+							sort-key="createdAt"
+						></column-header-choice>
+						<column-header-choice
+							current-sort
+							current-sort-desc
+							label=${this.localize('modified')}
+							sort-key="updatedAt"
+						></column-header-choice>
+					</column-header>
 				</content-list-columns>
 				<div slot="actions"></div>
 			</d2l-list-item>
 		</d2l-list>
 		`;
-	}
-
-	toggleSort(column) {
-		return async() => {
-			console.log('clicked', column);
-		};
 	}
 }
 
