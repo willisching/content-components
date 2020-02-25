@@ -5,14 +5,14 @@
   "tasks": [
     {
       "type": "shell",
-      "label": "Test Local",
-      "command": "./.npm-run test:local",
+      "label": "Test Headless",
+      "command": "./.npm-run test:headless",
       "group": "test"
     },
     {
       "type": "shell",
-      "label": "Test Local (Keep Open)",
-      "command": "./.npm-run test:local -- --persistent",
+      "label": "Test Headless (Watch)",
+      "command": "./.npm-run test:headless:watch",
       "group": "test"
     },
     {

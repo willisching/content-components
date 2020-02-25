@@ -10,6 +10,7 @@ export const val = {
 	myContent: 'My Content',
 	name: 'Name',
 	new: 'New',
+	noResultsFound: 'No results found',
 	oneDrive: 'OneDrive',
 	preview: 'Preview',
 	trash: 'Trash',
