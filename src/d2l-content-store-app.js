@@ -1,6 +1,7 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import page from 'page/page.mjs';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
+import { ResizeObserver } from 'd2l-resize-aware/resize-observer-module.js';
 
 import { InternalLocalizeMixin } from './mixins/internal-localize-mixin.js';
 import { NavigationMixin } from './mixins/navigation-mixin.js';
@@ -34,10 +35,15 @@ class D2lContentStoreApp extends NavigationMixin(InternalLocalizeMixin(MobxReact
 
 	constructor() {
 		super();
+		const documentObserver = new ResizeObserver(this._resized.bind(this));
+		documentObserver.observe(document.body, { attributes: true });
 
-		this.prop1 = 'd2l-content-store';
 		this.loading = true;
 		this._setupPageNavigation();
+	}
+
+	_resized() {
+		rootStore.appTop = this.offsetTop;
 	}
 
 	_setupPageNavigation() {

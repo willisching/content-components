@@ -69,6 +69,12 @@
       {
         "files": "test/**/*.html",
         "extends": "brightspace/wct-lit-config"
+      },
+      {
+        "files": ["**/test/*.test.js"],
+        "rules": {
+          "no-unused-expressions": "off"
+        }
       }
     ],
     "parser": "babel-eslint",

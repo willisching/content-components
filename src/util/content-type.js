@@ -80,6 +80,17 @@ export const typeLocalizationKey = type => {
 	}
 };
 
+export const useNewWindowForDownload = type => {
+	switch (type.toLowerCase()) {
+		case 'scorm':
+		case 'pdf':
+		case 'unprocessedfile':
+			return false;
+		default:
+			return true;
+	}
+};
+
 const fullKey = key => `contentType${key}`;
 
 export default {

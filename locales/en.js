@@ -21,5 +21,7 @@ export const val = {
 	uploadsCompleted: '{uploadsCompleted} uploads complete',
 	uploadCompleted: '1 upload complete',
 	uploadFailed: 'Upload failed',
-	close: 'Close'
+	close: 'Close',
+	moreActions: 'More actions',
+	download: 'Download'
 };
