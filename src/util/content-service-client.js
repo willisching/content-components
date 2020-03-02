@@ -134,4 +134,8 @@ export default class ContentServiceClient {
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/signedUrl`
 		});
 	}
+
+	getSupportedMimeTypes() {
+		return this._fetch({ path: '/api/conf/supported-mime-types' });
+	}
 }

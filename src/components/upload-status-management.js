@@ -1,7 +1,6 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
-import { ResizeObserver } from 'd2l-resize-aware/resize-observer-module.js';
 import { heading4Styles, bodySmallStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { DependencyRequester } from '../mixins/dependency-requester-mixin.js';
 import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin.js';
@@ -15,8 +14,6 @@ import '@brightspace-ui/core/components/list/list-item-content.js';
 import '@brightspace-ui/core/components/meter/meter-circle.js';
 import './content-icon.js';
 
-const rightOffset = '1.2rem';
-
 class UploadStatusManagement extends InternalLocalizeMixin(RtlMixin(MobxReactionUpdate(DependencyRequester(LitElement)))) {
 	static get properties() {
 		return {
@@ -28,7 +25,7 @@ class UploadStatusManagement extends InternalLocalizeMixin(RtlMixin(MobxReaction
 	static get styles() {
 		return [heading4Styles, bodySmallStyles, css`
 			:host {
-				display: none;
+				display: block;
 			}
 			:host([hidden]) {
 				display: none;
@@ -38,6 +35,7 @@ class UploadStatusManagement extends InternalLocalizeMixin(RtlMixin(MobxReaction
 				border-radius: 0.3rem;
 				border: 1px solid var(--d2l-color-mica);
 				bottom: 1.2rem;
+				right: 1.2rem;
 				box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.15);
 				box-sizing: border-box;
 				max-height: 300px;
@@ -45,6 +43,10 @@ class UploadStatusManagement extends InternalLocalizeMixin(RtlMixin(MobxReaction
 				position: fixed;
 				width: 360px;
 				z-index: 100;
+			}
+			:host([dir="rtl"]) .container {
+				right: auto;
+				left: 1.2rem;
 			}
 			.header {
 				align-items: center;
@@ -128,16 +130,12 @@ class UploadStatusManagement extends InternalLocalizeMixin(RtlMixin(MobxReaction
 
 	constructor() {
 		super();
-		const documentObserver = new ResizeObserver(this._resized.bind(this));
-		documentObserver.observe(document.body, { attributes: true });
-
 		this.toggleShowHideText = '';
 		this.toggleShowHideIcon = '';
 	}
 
 	firstUpdated() {
 		super.firstUpdated();
-		this._resized();
 
 		this.toggleShowHideText = this.localize('hide');
 		this.toggleShowHideIcon = 'd2l-tier1:chevron-down';
@@ -213,7 +211,7 @@ class UploadStatusManagement extends InternalLocalizeMixin(RtlMixin(MobxReaction
 
 	render() {
 		return html`
-			<div class="container" id="container">
+			<div class="container" id="container" ?hidden="${!this.uploader.statusWindowVisible}">
 				<div class="header">
 					${this.renderHeaderTitle()}
 					<div class="header-icons-container">
@@ -228,29 +226,12 @@ class UploadStatusManagement extends InternalLocalizeMixin(RtlMixin(MobxReaction
 				<div class="content" id="content" tabindex="0">
 					${this.renderContent()}
 				</div>
-			</div>
-		`;
+			</div>`;
 	}
 
 	connectedCallback() {
 		super.connectedCallback();
 		this.uploader = this.requestDependency('uploader') || rootStore.uploader;
-	}
-
-	_resized() {
-		const { parentElement } = this;
-		const containerElement = this.shadowRoot.querySelector('#container');
-		if (parentElement && containerElement) {
-			if (this._dir === 'rtl') {
-				const leftOfParentElement = parentElement.getBoundingClientRect().left;
-				containerElement.style.left = `calc( ${leftOfParentElement}px + ${rightOffset})`;
-				containerElement.style.right = 'auto';
-			} else {
-				const rightOfParentElement = window.innerWidth - parentElement.getBoundingClientRect().right;
-				containerElement.style.right = `calc( ${rightOfParentElement}px + ${rightOffset}`;
-				containerElement.style.left = 'auto';
-			}
-		}
 	}
 
 	_toggleShowHideDialog() {
@@ -267,17 +248,8 @@ class UploadStatusManagement extends InternalLocalizeMixin(RtlMixin(MobxReaction
 	}
 
 	_closeDialog() {
-		this.style.display = 'none';
 		this.uploader.clearCompletedUploads();
-	}
-
-	show() {
-		const contentElement = this.shadowRoot.querySelector('#content');
-		if (contentElement && contentElement.style.display === 'none') {
-			this._toggleShowHideDialog();
-		}
-
-		this.style.display = 'block';
+		this.uploader.showStatusWindow(false);
 	}
 }
 

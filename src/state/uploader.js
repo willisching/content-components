@@ -7,6 +7,7 @@ export class Uploader {
 		this.uploads = [];
 		this.apiClient = apiClient;
 		this.uploadsInProgress = 0;
+		this.statusWindowVisible = false;
 
 		this.uploadFile = flow(function * (file) {
 			/* eslint-disable no-invalid-this */
@@ -35,6 +36,7 @@ export class Uploader {
 					}
 				});
 				yield uploader.upload();
+				yield this.apiClient.processRevision({ contentId: content.id, revisionId: revision.id });
 			} catch (error) {
 				const upload = this.uploads.find(upload => upload.file === file);
 				upload.error = error;
@@ -45,6 +47,16 @@ export class Uploader {
 		});
 	}
 
+	uploadFiles(files) {
+		for (const file of files) {
+			this.uploadFile(file);
+		}
+
+		if (files.length > 0) {
+			this.statusWindowVisible = true;
+		}
+	}
+
 	getUploads() {
 		return this.uploads;
 	}
@@ -52,12 +64,19 @@ export class Uploader {
 	clearCompletedUploads() {
 		this.uploads = this.uploads.filter(upload => upload.progress !== 100 && !upload.error);
 	}
+
+	showStatusWindow(show) {
+		this.statusWindowVisible = show;
+	}
 }
 
 decorate(Uploader, {
 	uploads: observable,
 	uploadsInProgress: observable,
+	statusWindowVisible: observable,
 	getUploads: action,
+	showStatusWindow: action,
 	uploadFile: action,
+	uploadFiles: action,
 	clearCompletedUploads: action
 });
