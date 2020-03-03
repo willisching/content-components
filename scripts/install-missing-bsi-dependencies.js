@@ -2,7 +2,7 @@ const { exec } = require('child_process');
 const fs = require('fs');
 
 // Add your dependencies that have not been released yet and are not found in BSI
-const dependenciesToInstall = ['page'];
+const dependenciesToInstall = ['page', 'file-drop-element'];
 
 const args = process.argv.slice(2);
 const bsiPath = args && args[0];

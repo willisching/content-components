@@ -81,6 +81,11 @@ class TwoColumnLayout extends RtlMixin(LitElement) {
 		});
 	}
 
+	firstUpdated() {
+		super.firstUpdated();
+		this._resized();
+	}
+
 	render() {
 		return html`
 			<div id="container" class="container">
