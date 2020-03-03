@@ -88,10 +88,10 @@ class ContentListItem extends DependencyRequester(InternalLocalizeMixin(LitEleme
 						icon="tier1:preview"
 						?disabled=${this.disabled}
 					></d2l-button-icon>
-					<d2l-dropdown-more text="${this.localize('moreActions')}" @click=${this.dropdownClicked}>
+					<d2l-dropdown-more text="${this.localize('moreActions')}" @click=${this.dropdownClicked} ?disabled=${this.disabled}>
 						<d2l-dropdown-menu id="actions-dropdown-menu" align="end" boundary=${JSON.stringify(this.dropdownBoundary)}>
 							<d2l-menu label="${this.localize('moreActions')}">
-								<d2l-menu-item text="${this.localize('download')}" @click="${this.download()}"></d2l-menu-item>
+								<d2l-menu-item text="${this.localize('download')}" @click="${this.download}"></d2l-menu-item>
 							</d2l-menu>
 						</d2l-dropdown-menu>
 					</d2l-dropdown-more>
@@ -113,17 +113,22 @@ class ContentListItem extends DependencyRequester(InternalLocalizeMixin(LitEleme
 	}
 
 	download() {
-		return async() => {
-			const res = await this.apiClient.getSignedUrlForRevision({
-				contentId: this.id,
-				revisionId: this.revisionId
-			});
-			const downloadWindow = useNewWindowForDownload(this.type) ?
-				window.open('', '_blank') :
-				window;
-
-			downloadWindow.location.replace(res.value);
-		};
+		// Safari blocks calls to window.open within an async call
+		const downloadWindow = useNewWindowForDownload(this.type) ?
+			window.open('', '_blank') :
+			window;
+		this.apiClient.getSignedUrlForRevision({
+			contentId: this.id,
+			revisionId: this.revisionId
+		})
+			.then(res => {
+				if (res && res.value) {
+					downloadWindow.location.replace(res.value);
+				} else {
+					downloadWindow.close();
+				}
+			})
+			.catch(() => downloadWindow.close());
 	}
 
 	// The class "actions" and methods dropdownClicked and dropdownClosed
