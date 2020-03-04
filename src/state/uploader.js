@@ -9,8 +9,8 @@ const randomizeDelay = (delay = 30000, range = 5000) => {
 	return low + random;
 };
 
-const sleep = function * (delay = 0) {
-	yield new Promise(resolve => {
+const sleep = async(delay = 0) => {
+	await new Promise(resolve => {
 		setTimeout(() => {
 			resolve();
 		}, delay);
@@ -83,7 +83,7 @@ export class Uploader {
 					}
 				}
 
-				yield * sleep(randomizeDelay(5000, 1000));
+				yield sleep(randomizeDelay(5000, 1000));
 				yield * monitorProgress(content, revision, progressCallback);
 			}.bind(this);
 			try {
