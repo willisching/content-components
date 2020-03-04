@@ -1,5 +1,5 @@
 const prefix = 'workerError';
-const defaultErrorType = 'UploadError';
+const defaultErrorType = 'UploadFailed';
 
 const getActivityWorkerErrorType = details => {
 	if (details && details.Error) {
