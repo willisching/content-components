@@ -3,6 +3,20 @@ import { decorate, observable, action, flow } from 'mobx';
 import { S3Uploader } from '../util/s3-uploader.js';
 import resolveWorkerError from '../util/resolve-worker-error.js';
 
+const randomizeDelay = (delay = 30000, range = 5000) => {
+	const low = delay - range;
+	const random = Math.round(Math.random() * range * 2);
+	return low + random;
+};
+
+const sleep = function * (delay = 0) {
+	yield new Promise(resolve => {
+		setTimeout(() => {
+			resolve();
+		}, delay);
+	});
+};
+
 export class Uploader {
 	constructor({ apiClient }) {
 		this.uploads = [];
@@ -69,6 +83,7 @@ export class Uploader {
 					}
 				}
 
+				yield * sleep(randomizeDelay(5000, 1000));
 				yield * monitorProgress(content, revision, progressCallback);
 			}.bind(this);
 			try {
