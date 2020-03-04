@@ -20,8 +20,18 @@ export const val = {
 	uploadInProgress: 'Uploading 1 item',
 	uploadsCompleted: '{uploadsCompleted} uploads complete',
 	uploadCompleted: '1 upload complete',
-	uploadFailed: 'Upload failed',
 	close: 'Close',
 	moreActions: 'More actions',
-	download: 'Download'
+	download: 'Download',
+	workerErrorConflict: 'A course already exists. Please refresh',
+	workerErrorInvalidFileType: 'Failed to extract contents of package. Please upload a zip file',
+	workerErrorEmptyFile: 'The file cannot be empty',
+	workerErrorZipFileCorrupted: 'The package zip file is corrupted',
+	workerErrorScormManifestMalformed: 'The package manifest contains invalid XML',
+	workerErrorScormManifestMissing: 'The package is missing a manifest',
+	workerErrorSizeLimitReached: 'The file size is too big',
+	workerErrorTimedOut: 'The package processing timed out',
+	workerErrorUnexpectedError: 'An unexpected error occurred',
+	workerErrorUnzipFailed: 'Package unzipping failed',
+	workerErrorUploadFailed: 'Upload failed'
 };

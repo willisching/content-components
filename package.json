@@ -8,6 +8,7 @@
   },
   "scripts": {
     "lint": "xo",
+    "lint:fix": "xo --fix",
     "start": "es-dev-server --node-resolve --dedupe --watch --open",
     "test": "npm run lint && npm run test:headless",
     "test:diff": "mocha ./**/*.visual-diff.js -t 40000",
