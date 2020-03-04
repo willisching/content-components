@@ -25,17 +25,21 @@ export default class ContentServiceClient {
 		method = 'GET',
 		query,
 		body,
-		extractJsonBody = true
+		extractJsonBody = true,
+		headers = new Headers()
 	}) {
-		const request = new Request(this._url(path, query), {
+		if (body) {
+			headers.append('Content-Type', 'application/json');
+		}
+
+		const requestInit = {
 			method,
 			...body && {
-				body: JSON.stringify(body),
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			}
-		});
+				body: JSON.stringify(body)
+			},
+			headers
+		};
+		const request = new Request(this._url(path, query), requestInit);
 
 		const response = await d2lfetch.fetch(request);
 		if (!response.ok) {
@@ -83,6 +87,13 @@ export default class ContentServiceClient {
 		});
 	}
 
+	deleteRevision({ contentId, revisionId }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}`,
+			method: 'DELETE'
+		});
+	}
+
 	processRevision({
 		contentId,
 		revisionId
@@ -108,6 +119,19 @@ export default class ContentServiceClient {
 	}) {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/upload/context`
+		});
+	}
+
+	getWorkflowProgress({
+		contentId,
+		revisionId
+	}) {
+		const headers = new Headers();
+		headers.append('pragma', 'no-cache');
+		headers.append('cache-control', 'no-cache');
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/progress`,
+			headers
 		});
 	}
 
