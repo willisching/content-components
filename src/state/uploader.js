@@ -17,7 +17,7 @@ export class Uploader {
 			const monitorProgress = function * (
 				content,
 				revision,
-				progressCallBack
+				progressCallback
 			) {
 				let err;
 				try {
@@ -34,7 +34,7 @@ export class Uploader {
 							err = resolveWorkerError(error);
 						}
 
-						progressCallBack({
+						progressCallback({
 							contentId: content.id,
 							revisionId: revision.id,
 							error: err
@@ -48,7 +48,7 @@ export class Uploader {
 						return;
 					}
 
-					progressCallBack({
+					progressCallback({
 						contentId: content.id,
 						revisionId: revision.id,
 						percentComplete: progress.percentComplete,
@@ -60,7 +60,7 @@ export class Uploader {
 				} catch (error) {
 					if (error.status && error.status === 404) {
 						err = resolveWorkerError(error);
-						progressCallBack({
+						progressCallback({
 							contentId: content.id,
 							revisionId: revision.id,
 							error: err
@@ -69,7 +69,7 @@ export class Uploader {
 					}
 				}
 
-				yield * monitorProgress(content, revision, progressCallBack);
+				yield * monitorProgress(content, revision, progressCallback);
 			}.bind(this);
 			try {
 				const extension = file.name.split('.').pop();
