@@ -161,7 +161,8 @@ export class Uploader {
 			this.uploads.forEach(ui => {
 				if (ui.batch === batch) {
 					count += 1;
-				}});
+				}
+			});
 			this.uploads.splice(count, 0, uploadInfo);
 			try {
 				if (this.runningJobs < this.uploadConcurrency) {
