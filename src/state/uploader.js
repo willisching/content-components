@@ -156,6 +156,7 @@ export class Uploader {
 
 		this.uploadFile = flow(function * (file, batch) {
 			/* eslint-disable no-invalid-this */
+			this.uploadsInProgress += 1;
 			const uploadInfo = { file, progress: 0, extension: file.name.split('.').pop(), err: null, batch };
 			let count = 0;
 			this.uploads.forEach(ui => {
