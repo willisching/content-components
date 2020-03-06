@@ -55,6 +55,8 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 		this.sortQuery = '';
 		this.totalResults = 0;
 		this.loading = false;
+
+		this.addEventListener('content-list-item-renamed', this.contentListItemRenamedHandler);
 	}
 
 	connectedCallback() {
@@ -126,11 +128,12 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 			revision-id=${item.lastRevId}
 			selectable
 			type=${type}
+			title=${item.lastRevTitle}
 		>
 			<content-icon type="${iconType}" slot="icon"></content-icon>
 			<div slot="title" class="title">${item.lastRevTitle}</div>
 			<div slot="type">${type}</div>
-			<relative-date slot="date" value=${item[this.dateField]}></relative-date>
+			<relative-date id="${`relative-date-${item.id}`}" slot="date" value=${item[this.dateField]}></relative-date>
 		</content-list-item>
 		`;
 	}
@@ -149,6 +152,27 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 				</d2l-list-item>
 			</d2l-list>
 		` : html``;
+	}
+
+	contentListItemRenamedHandler(e) {
+		const { detail } = e;
+
+		if (!detail) {
+			return;
+		}
+
+		const { id, title } = detail;
+
+		if (id && title) {
+			const index = this.contentItems.findIndex(c => c.id === id);
+			if (index >= 0 && index < this.contentItems.length) {
+				this.contentItems[index].lastRevTitle = title;
+				this.contentItems[index][this.dateField] = (new Date()).toISOString();
+				const relativeDateElement = this.shadowRoot.querySelector(`#relative-date-${this.contentItems[index].id}`);
+				relativeDateElement.updateValue(this.contentItems[index][this.dateField]);
+				this.requestUpdate();
+			}
+		}
 	}
 }
 

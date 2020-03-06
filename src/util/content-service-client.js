@@ -54,13 +54,18 @@ export default class ContentServiceClient {
 	}
 
 	searchContent({ start = 0, size = 20, sort }) {
+		const headers = new Headers();
+		headers.append('pragma', 'no-cache');
+		headers.append('cache-control', 'no-cache');
+
 		return this._fetch({
 			path: `/api/${this.tenantId}/search/content`,
 			query: {
 				start,
 				size,
 				sort
-			}
+			},
+			headers
 		});
 	}
 
@@ -161,5 +166,19 @@ export default class ContentServiceClient {
 
 	getSupportedMimeTypes() {
 		return this._fetch({ path: '/api/conf/supported-mime-types' });
+	}
+
+	getRevision({ contentId, revisionId }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}`
+		});
+	}
+
+	updateRevision({ contentId, revisionId, revision }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}`,
+			method: 'PUT',
+			body: revision
+		});
 	}
 }
