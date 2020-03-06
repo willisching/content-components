@@ -157,9 +157,12 @@ export class Uploader {
 		this.uploadFile = flow(function * (file, batch) {
 			/* eslint-disable no-invalid-this */
 			const uploadInfo = { file, progress: 0, extension: file.name.split('.').pop(), err: null, batch };
-			const getAllUploadsForBatch = this.uploads.filter(ui => ui.batch === batch) || [];
-			getAllUploadsForBatch.push(uploadInfo);
-			this.uploads.splice(0, getAllUploadsForBatch.length - 1, ...getAllUploadsForBatch);
+			let count = 0;
+			this.uploads.forEach(ui => {
+				if (ui.batch === batch) {
+					count += 1;
+				}});
+			this.uploads.splice(count, 0, uploadInfo);
 			try {
 				if (this.runningJobs < this.uploadConcurrency) {
 					yield this.uploadWorkflow(uploadInfo);
