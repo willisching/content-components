@@ -46,54 +46,81 @@ const formatRelative = formatFunction => (inputDate, {
 	onUpdate = null,
 	rtf = defaultRtf
 } = {}) => {
-	const midnight = midnightTime(origin);
-	const noon = noonTime(origin);
-	const now = origin.getTime();
+	let timerId = 0;
 
-	const sameDay = midnightTime(inputDate) === midnight;
-	const timespan = inputDate.getTime() - origin.getTime();
-	const timespanFromNoon = inputDate.getTime() - noon;
-	const timespanAbs = Math.abs(timespan);
-	const isPast = timespan < 0;
+	const run = formatFunction => (inputDate, {
+		absoluteFormat = 'short',
+		origin = new Date(),
+		onUpdate = null,
+		rtf = defaultRtf
+	} = {}) => {
+		const midnight = midnightTime(origin);
+		const noon = noonTime(origin);
+		const now = origin.getTime();
 
-	let text;
-	let timeout;
-	if (rtf && timespanAbs < thirtySeconds) {
-		text = rtf.format(Math.round(timespan / second), 'second');
-		timeout = isPast ?
-			thirtySeconds - timespanAbs :
-			thirtySeconds + timespanAbs;
-	} else if (rtf && timespanAbs < fortyFiveMinutes) {
-		text = rtf.format(Math.round(timespan / minute), 'minute');
-		timeout = minute;
-	} else if (rtf && (timespanAbs < sixHours || sameDay)) {
-		const minutes = (timespanAbs % hour);
-		text = rtf.format(Math.round(timespan / hour), 'hour');
-		timeout = (isPast ? hourAndHalf - minutes : halfHour + minutes) % hour;
-	} else if (rtf && Math.abs(timespanFromNoon) < threeAndAHalfDays) {
-		text = rtf.format(Math.round(timespanFromNoon / day), 'day');
-		timeout = noon - now + (now < noon ? 0 : day);
-	} else {
-		text = formatFunction(inputDate, { format: absoluteFormat });
-		timeout = -1;
-	}
+		const sameDay = midnightTime(inputDate) === midnight;
+		const timespan = inputDate.getTime() - origin.getTime();
+		const timespanFromNoon = inputDate.getTime() - noon;
+		const timespanAbs = Math.abs(timespan);
+		const isPast = timespan < 0;
 
-	if (timeout > 0) {
-		timeout = Math.max(timeout, 1000);
-	}
+		let text;
+		let timeout;
+		if (rtf && timespanAbs < thirtySeconds) {
+			text = rtf.format(Math.round(timespan / second), 'second');
+			timeout = isPast ?
+				thirtySeconds - timespanAbs :
+				thirtySeconds + timespanAbs;
+		} else if (rtf && timespanAbs < fortyFiveMinutes) {
+			text = rtf.format(Math.round(timespan / minute), 'minute');
+			timeout = minute;
+		} else if (rtf && (timespanAbs < sixHours || sameDay)) {
+			const minutes = (timespanAbs % hour);
+			text = rtf.format(Math.round(timespan / hour), 'hour');
+			timeout = (isPast ? hourAndHalf - minutes : halfHour + minutes) % hour;
+		} else if (rtf && Math.abs(timespanFromNoon) < threeAndAHalfDays) {
+			text = rtf.format(Math.round(timespanFromNoon / day), 'day');
+			timeout = noon - now + (now < noon ? 0 : day);
+		} else {
+			text = formatFunction(inputDate, { format: absoluteFormat });
+			timeout = -1;
+		}
+
+		if (timeout > 0) {
+			timeout = Math.max(timeout, 1000);
+		}
+
+		if (onUpdate) {
+			const updateResult = onUpdate(text, { nextUpdateInMilliseconds: timeout });
+			const shouldCancel = updateResult === false;
+			if (!shouldCancel && timeout > 0) {
+				timerId = setTimeout(() => {
+					run(formatFunction)(inputDate, {
+						absoluteFormat,
+						onUpdate,
+						rtf
+					});
+				}, timeout);
+			}
+		}
+
+		return text;
+	};
+
+	const stop = () => {
+		clearTimeout(timerId);
+		timerId = 0;
+	};
+
+	const text = run(formatFunction)(inputDate, {
+		absoluteFormat,
+		origin,
+		onUpdate,
+		rtf
+	});
 
 	if (onUpdate) {
-		const updateResult = onUpdate(text, { nextUpdateInMilliseconds: timeout });
-		const shouldCancel = updateResult === false;
-		if (!shouldCancel && timeout > 0) {
-			setTimeout(() => {
-				formatRelative(formatFunction)(inputDate, {
-					absoluteFormat,
-					onUpdate,
-					rtf
-				});
-			}, timeout);
-		}
+		return { text, stop };
 	}
 
 	return text;

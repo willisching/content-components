@@ -12,6 +12,8 @@ import '@brightspace-ui/core/components/dropdown/dropdown-more.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-menu.js';
 import '@brightspace-ui/core/components/menu/menu.js';
 import '@brightspace-ui/core/components/menu/menu-item.js';
+import '@brightspace-ui/core/components/dialog/dialog.js';
+import '@brightspace-ui/core/components/inputs/input-text.js';
 import './content-list-columns.js';
 import '../content-icon.js';
 
@@ -22,6 +24,7 @@ import { rootStore } from '../../state/root-store.js';
 
 const actionsDefaultZIndex = 2;
 const actionsActiveZIndex = 5;
+const dialogConfirmAction = 'confirm';
 
 class ContentListItem extends DependencyRequester(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
@@ -31,7 +34,9 @@ class ContentListItem extends DependencyRequester(InternalLocalizeMixin(LitEleme
 			type: { type: String },
 			disabled: { type: Boolean },
 			selectable: { type: Boolean },
-			dropdownBoundary: { type: Object, attribute: false }
+			dropdownBoundary: { type: Object, attribute: false },
+			title: { type: String },
+			confirmDisabled: { type: Boolean, attribute: false }
 		};
 	}
 
@@ -47,6 +52,8 @@ class ContentListItem extends DependencyRequester(InternalLocalizeMixin(LitEleme
 		super();
 		this.selectable = true;
 		this.dropdownBoundary = {};
+		this.revision = null;
+		this.confirmDisabled = false;
 	}
 
 	connectedCallback() {
@@ -92,12 +99,26 @@ class ContentListItem extends DependencyRequester(InternalLocalizeMixin(LitEleme
 						<d2l-dropdown-menu id="actions-dropdown-menu" align="end" boundary=${JSON.stringify(this.dropdownBoundary)}>
 							<d2l-menu label="${this.localize('moreActions')}">
 								<d2l-menu-item text="${this.localize('download')}" @click="${this.download}"></d2l-menu-item>
+								<d2l-menu-item id="rename-initiator" text="${this.localize('rename')}" @click="${this.openDialog()}"></d2l-menu-item>
 							</d2l-menu>
 						</d2l-dropdown-menu>
 					</d2l-dropdown-more>
 				</div>
 			</d2l-list-item>
 		</d2l-list>
+
+		<d2l-dialog id="rename-dialog" title-text="${this.localize('rename')}">
+			<d2l-input-text
+				id="rename-input"
+				label="${this.localize('title')}"
+				label-hidden
+				placeholder="${this.localize('titlePlaceholder')}"
+				value="${this.title}"
+				@input="${this.titleInputChangedHandler}"
+				maxlength=100></d2l-input-text>
+			<d2l-button slot="footer" ?disabled=${this.confirmDisabled} id="rename-dialog-confirm" primary dialog-action="${dialogConfirmAction}">${this.localize('save')}</d2l-button>
+			<d2l-button slot="footer" id="rename-dialog-cancel" dialog-action>${this.localize('cancel')}</d2l-button>
+		</d2l-dialog>
 		`;
 	}
 
@@ -166,6 +187,54 @@ class ContentListItem extends DependencyRequester(InternalLocalizeMixin(LitEleme
 				above: Math.max(finalBoundingTop, minimumBoundingTop)
 			};
 		}
+	}
+
+	openDialog() {
+		return async() => {
+			const action = await this.shadowRoot.querySelector('#rename-dialog').open();
+			const titleInputElement = this.shadowRoot.querySelector('#rename-input');
+			if (action === dialogConfirmAction && titleInputElement && titleInputElement.value) {
+				await this.rename(titleInputElement.value);
+			} else {
+				titleInputElement.value = this.title;
+			}
+		};
+	}
+
+	async rename(newTitle) {
+		if (this.title !== newTitle) {
+			this.dispatchRenameEvent(newTitle);
+			if (!this.revision) {
+				this.revision = await this.apiClient.getRevision({
+					contentId: this.id,
+					revisionId: this.revisionId
+				});
+			}
+
+			const updatedRevision = Object.assign({}, this.revision, { title: newTitle });
+			await this.apiClient.updateRevision({
+				contentId: this.id,
+				revisionId: this.revisionId,
+				revision: updatedRevision
+			});
+		}
+	}
+
+	dispatchRenameEvent(title) {
+		this.dispatchEvent(new CustomEvent('content-list-item-renamed', {
+			bubbles: true,
+			composed: true,
+			detail: {
+				id: this.id,
+				title
+			}
+		}));
+	}
+
+	titleInputChangedHandler() {
+		const titleInputElement = this.shadowRoot.querySelector('#rename-input');
+		const titleInputValue = titleInputElement && titleInputElement.value;
+		this.confirmDisabled = !titleInputValue || titleInputValue.trim().length === 0;
 	}
 }
 

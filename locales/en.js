@@ -33,5 +33,10 @@ export const val = {
 	workerErrorTimedOut: 'The package processing timed out',
 	workerErrorUnexpectedError: 'An unexpected error occurred',
 	workerErrorUnzipFailed: 'Package unzipping failed',
-	workerErrorUploadFailed: 'Upload failed'
+	workerErrorUploadFailed: 'Upload failed',
+	rename: 'Rename',
+	title: 'Title',
+	titlePlaceholder: 'Enter a title...',
+	save: 'Save',
+	cancel: 'Cancel'
 };

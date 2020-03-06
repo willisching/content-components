@@ -12,10 +12,18 @@ class RelativeDate extends LitElement {
 
 	firstUpdated() {
 		super.firstUpdated();
+		this.setupFormatRelativeDate();
+	}
+
+	setupFormatRelativeDate() {
 		const date = new Date(Date.parse(this.value));
 		this.absolute = formatDateTime(date, { format: 'full' });
 
-		formatRelativeDate(date, {
+		if (this.res && this.res.stop) {
+			this.res.stop();
+		}
+
+		this.res = formatRelativeDate(date, {
 			onUpdate: text => {
 				this.relative = text;
 			}
@@ -27,6 +35,11 @@ class RelativeDate extends LitElement {
 		<div title="${this.absolute}">
 			${this.relative}
 		</div>`;
+	}
+
+	updateValue(value) {
+		this.value = value;
+		this.setupFormatRelativeDate();
 	}
 }
 
