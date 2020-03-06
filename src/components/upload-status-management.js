@@ -191,7 +191,7 @@ class UploadStatusManagement extends InternalLocalizeMixin(RtlMixin(MobxReaction
 	renderContent() {
 		return html`
 			<d2l-list>
-				${this.uploader.uploads.slice(0).reverse().map(upload => html`
+				${this.uploader.uploads.slice(0).map(upload => html`
 					<d2l-list-item>
 						<d2l-list-item-content>
 							<div class="upload-item-container">
