@@ -4,6 +4,7 @@ import {
 	bodySmallStyles,
 	labelStyles
 } from '@brightspace-ui/core/components/typography/styles.js';
+import { observe, toJS } from 'mobx';
 
 // Polyfills
 import '@brightspace-ui/core/components/list/list.js';
@@ -20,9 +21,11 @@ import '../content-file-drop.js';
 import { navigationSharedStyle } from '../../styles/d2l-navigation-shared-styles.js';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
+import { NavigationMixin } from '../../mixins/navigation-mixin.js';
 import { typeLocalizationKey } from '../../util/content-type.js';
+import { rootStore } from '../../state/root-store.js';
 
-class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement)) {
+class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMixin(LitElement))) {
 	static get properties() {
 		return {
 			contentItems: { type: Array, attribute: false },
@@ -52,16 +55,31 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 		this.infiniteScrollThreshold = 400;
 		this.resultSize = 20;
 		this.dateField = 'updatedAt';
-		this.sortQuery = '';
 		this.totalResults = 0;
-		this.loading = false;
+		this.loading = true;
 
 		this.addEventListener('content-list-item-renamed', this.contentListItemRenamedHandler);
+
+		observe(
+			rootStore.routingStore,
+			'queryParams',
+			change => {
+				const newValues = toJS(change.newValue);
+				if (newValues.q === this.searchQuery && newValues.sortQuery === this.sortQuery) {
+					return;
+				}
+
+				this.searchQuery = newValues.q;
+				this.sortQuery = newValues.sortQuery;
+				this.reloadPage();
+			}
+		);
 	}
 
 	connectedCallback() {
 		super.connectedCallback();
 		this.apiClient = this.requestDependency('content-service-client');
+		window.addEventListener('scroll', this.onWindowScroll.bind(this));
 	}
 
 	onWindowScroll() {
@@ -78,26 +96,27 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 			this.dateField = detail.sortKey;
 		}
 
+		rootStore.routingStore.setQueryParams({
+			...rootStore.routingStore.getQueryParams(),
+			sortQuery: detail.sortQuery
+		});
+
 		this.sortQuery = detail.sortQuery;
-		this.reloadPage();
 	}
 
 	async reloadPage() {
 		this.contentItems = [];
 		await this.loadNext();
-		window.addEventListener('scroll', this.onWindowScroll.bind(this));
+		this._navigate('/manage/content', rootStore.routingStore.getQueryParams());
 	}
 
 	async loadNext() {
-		if (this.loading) {
-			return;
-		}
-
 		this.loading = true;
 		const searchResult = await this.apiClient.searchContent({
 			start: this.contentItems.length,
 			size: this.resultSize,
-			sort: this.sortQuery
+			sort: this.sortQuery,
+			query: this.searchQuery
 		});
 		this.totalResults = searchResult.hits.total;
 		this.contentItems.push(...searchResult.hits.hits.map(item => item._source));

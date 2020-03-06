@@ -53,7 +53,7 @@ export default class ContentServiceClient {
 		return response;
 	}
 
-	searchContent({ start = 0, size = 20, sort }) {
+	searchContent({ start = 0, size = 20, sort, query = '' }) {
 		const headers = new Headers();
 		headers.append('pragma', 'no-cache');
 		headers.append('cache-control', 'no-cache');
@@ -63,7 +63,8 @@ export default class ContentServiceClient {
 			query: {
 				start,
 				size,
-				sort
+				sort,
+				query
 			},
 			headers
 		});
