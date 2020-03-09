@@ -17,131 +17,6 @@ const sleep = async(delay = 0) => {
 	});
 };
 
-let batch = 0;
-
-async function monitorProgress(
-	content,
-	revision,
-	progressCallback
-) {
-	/* eslint-disable no-invalid-this */
-	let err;
-	try {
-		const progress = await this.apiClient.getWorkflowProgress({
-			contentId: content.id,
-			revisionId: revision.id
-		});
-		if (progress.didFail) {
-			try {
-				err = resolveWorkerError(
-					JSON.parse(progress.details)
-				);
-			} catch (error) {
-				err = resolveWorkerError(error);
-			}
-
-			progressCallback({
-				contentId: content.id,
-				revisionId: revision.id,
-				error: err
-			});
-			try {
-				await this.apiClient.deleteRevision({
-					contentId: content.id,
-					revisionId: revision.id
-				});
-			} catch (error) {
-				// Catch the error to delete here so that it doesn't fall through
-			}
-
-			return;
-		}
-
-		progressCallback({
-			contentId: content.id,
-			revisionId: revision.id,
-			percentComplete: progress.percentComplete,
-			ready: progress.ready
-		});
-		if (progress.ready) {
-			return;
-		}
-	} catch (error) {
-		if (error.status && error.status === 404) {
-			err = resolveWorkerError(error);
-			progressCallback({
-				contentId: content.id,
-				revisionId: revision.id,
-				error: err
-			});
-			return;
-		}
-	}
-
-	await sleep(randomizeDelay(5000, 1000));
-	await this.monitorProgress(content, revision, progressCallback);
-	/* eslint-enable no-invalid-this */
-}
-
-async function uploadWorkflow({ file, extension }) {
-	/* eslint-disable no-invalid-this */
-	try {
-		this.runningJobs += 1;
-		const content = await this.apiClient.createContent();
-		const revision = await this.apiClient.createRevision(
-			content.id,
-			{
-				title: file.name,
-				extension
-			}
-		);
-		const uploader = new S3Uploader({
-			file,
-			key: revision.s3Key,
-			signRequest: ({ file, key }) =>
-				this.apiClient.signUploadRequest({
-					fileName: key,
-					contentType: file.type,
-					contentDisposition: 'auto'
-				}),
-			onProgress: progress => {
-				const upload = this.uploads.find(
-					upload => upload.file === file
-				);
-				if (upload) {
-					upload.progress = progress / 2;
-				}
-			}
-		});
-		await uploader.upload();
-		await this.apiClient.processRevision({
-			contentId: content.id,
-			revisionId: revision.id
-		});
-		await this.monitorProgress(content, revision, ({ percentComplete = 0, error }) => {
-			const upload = this.uploads.find(
-				upload => upload.file === file
-			);
-			if (upload) {
-				upload.progress = 50 + (percentComplete / 2);
-				upload.error = error;
-			}
-		});
-	} catch (error) {
-		const upload = this.uploads.find(
-			upload => upload.file === file
-		);
-		upload.error = resolveWorkerError(error);
-	} finally {
-		this.runningJobs -= 1;
-		this.uploadsInProgress -= 1;
-		if (this.queuedUploads.length > 0) {
-			await this.uploadWorkflow(this.queuedUploads.shift());
-		}
-	}
-	/* eslint-enable no-invalid-this */
-}
-
 export class Uploader {
 	constructor({ apiClient }) {
 		this.uploads = [];
@@ -151,8 +26,7 @@ export class Uploader {
 		this.statusWindowVisible = false;
 		this.queuedUploads = [];
 		this.runningJobs = 0;
-		this.uploadWorkflow = uploadWorkflow.bind(this);
-		this.monitorProgress = monitorProgress.bind(this);
+		this._batch = 0;
 
 		this.uploadFile = flow(function * (file, batch) {
 			/* eslint-disable no-invalid-this */
@@ -167,7 +41,7 @@ export class Uploader {
 			this.uploads.splice(count, 0, uploadInfo);
 			try {
 				if (this.runningJobs < this.uploadConcurrency) {
-					yield this.uploadWorkflow(uploadInfo);
+					yield this._uploadWorkflowAsync(uploadInfo);
 				} else {
 					this.queuedUploads.push(uploadInfo);
 				}
@@ -181,10 +55,129 @@ export class Uploader {
 		});
 	}
 
+	async _monitorProgressAsync(
+		content,
+		revision,
+		progressCallback
+	) {
+		let err;
+		try {
+			const progress = await this.apiClient.getWorkflowProgress({
+				contentId: content.id,
+				revisionId: revision.id
+			});
+			if (progress.didFail) {
+				try {
+					err = resolveWorkerError(
+						JSON.parse(progress.details)
+					);
+				} catch (error) {
+					err = resolveWorkerError(error);
+				}
+
+				progressCallback({
+					contentId: content.id,
+					revisionId: revision.id,
+					error: err
+				});
+				try {
+					await this.apiClient.deleteRevision({
+						contentId: content.id,
+						revisionId: revision.id
+					});
+				} catch (error) {
+					// Catch the error to delete here so that it doesn't fall through
+				}
+
+				return;
+			}
+
+			progressCallback({
+				contentId: content.id,
+				revisionId: revision.id,
+				percentComplete: progress.percentComplete,
+				ready: progress.ready
+			});
+			if (progress.ready) {
+				return;
+			}
+		} catch (error) {
+			if (error.status && error.status === 404) {
+				err = resolveWorkerError(error);
+				progressCallback({
+					contentId: content.id,
+					revisionId: revision.id,
+					error: err
+				});
+				return;
+			}
+		}
+
+		await sleep(randomizeDelay(5000, 1000));
+		await this._monitorProgressAsync(content, revision, progressCallback);
+	}
+
+	async _uploadWorkflowAsync({ file, extension }) {
+		try {
+			this.runningJobs += 1;
+			const content = await this.apiClient.createContent();
+			const revision = await this.apiClient.createRevision(
+				content.id,
+				{
+					title: file.name,
+					extension
+				}
+			);
+			const uploader = new S3Uploader({
+				file,
+				key: revision.s3Key,
+				signRequest: ({ file, key }) =>
+					this.apiClient.signUploadRequest({
+						fileName: key,
+						contentType: file.type,
+						contentDisposition: 'auto'
+					}),
+				onProgress: progress => {
+					const upload = this.uploads.find(
+						upload => upload.file === file
+					);
+					if (upload) {
+						upload.progress = progress / 2;
+					}
+				}
+			});
+			await uploader.upload();
+			await this.apiClient.processRevision({
+				contentId: content.id,
+				revisionId: revision.id
+			});
+			await this._monitorProgressAsync(content, revision, ({ percentComplete = 0, error }) => {
+				const upload = this.uploads.find(
+					upload => upload.file === file
+				);
+				if (upload) {
+					upload.progress = 50 + (percentComplete / 2);
+					upload.error = error;
+				}
+			});
+		} catch (error) {
+			const upload = this.uploads.find(
+				upload => upload.file === file
+			);
+			upload.error = resolveWorkerError(error);
+		} finally {
+			this.runningJobs -= 1;
+			this.uploadsInProgress -= 1;
+			if (this.queuedUploads.length > 0) {
+				await this._uploadWorkflowAsync(this.queuedUploads.shift());
+			}
+		}
+	}
+
 	uploadFiles(files) {
-		batch += 1;
+		this._batch += 1;
 		for (const file of files) {
-			this.uploadFile(file, batch);
+			this.uploadFile(file, this._batch);
 		}
 
 		if (files.length > 0) {
