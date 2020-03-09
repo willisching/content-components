@@ -158,8 +158,8 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 	}
 
 	renderGhosts() {
-		return new Array(this.loading ? 5 : 0).fill().map(() => html`
-			<d2l-list><content-list-item-ghost></content-list-item-ghost></d2l-list>
+		return new Array(5).fill().map(() => html`
+			<d2l-list><content-list-item-ghost ?hidden=${!this.loading}></content-list-item-ghost></d2l-list>
 		`);
 	}
 
