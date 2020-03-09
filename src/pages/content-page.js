@@ -3,7 +3,6 @@ import { heading2Styles } from '@brightspace-ui/core/components/typography/style
 import { PageViewElement } from '../components/page-view-element.js';
 import { navigationSharedStyle } from '../styles/d2l-navigation-shared-styles.js';
 
-import { rootStore } from '../state/root-store.js';
 import '@brightspace-ui/core/components/inputs/input-search.js';
 import '../components/content-list/content-list.js';
 
@@ -45,7 +44,7 @@ class ContentPage extends PageViewElement {
 					label="${this.localize('searchPlaceholder')}"
 					placeholder="${this.localize('searchPlaceholder')}"
 					maxlength="100"
-					value=${rootStore.routingStore.getQueryParams().q || ''}
+					value=${this.rootStore.routingStore.getQueryParams().q || ''}
 					@d2l-input-search-searched=${this._handleSearch}
 				></d2l-input-search>
 			</div>
@@ -56,10 +55,9 @@ class ContentPage extends PageViewElement {
 	_handleSearch({ detail = {} }) {
 		const { value } = detail;
 
-		// TODO: we can reset the search params if value is ''
-		rootStore.routingStore.setQueryParams({
-			...rootStore.routingStore.getQueryParams(),
-			q: value
+		this._navigate('/manage/content', {
+			...this.rootStore.routingStore.getQueryParams(),
+			q: encodeURIComponent(value)
 		});
 	}
 }

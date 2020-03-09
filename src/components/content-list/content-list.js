@@ -56,30 +56,21 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 		this.resultSize = 20;
 		this.dateField = 'updatedAt';
 		this.totalResults = 0;
-		this.loading = true;
+		this.loading = false;
+
+		const { q = '', sortQuery = 'updatedAt:desc' } = rootStore.routingStore.getQueryParams();
+		this.sortQuery = sortQuery;
+		this.searchQuery = q;
 
 		this.addEventListener('content-list-item-renamed', this.contentListItemRenamedHandler);
-
-		observe(
-			rootStore.routingStore,
-			'queryParams',
-			change => {
-				const newValues = toJS(change.newValue);
-				if (newValues.q === this.searchQuery && newValues.sortQuery === this.sortQuery) {
-					return;
-				}
-
-				this.searchQuery = newValues.q;
-				this.sortQuery = newValues.sortQuery;
-				this.reloadPage();
-			}
-		);
+		window.addEventListener('scroll', this.onWindowScroll.bind(this));
+		this.observeQueryParams();
 	}
 
 	connectedCallback() {
 		super.connectedCallback();
 		this.apiClient = this.requestDependency('content-service-client');
-		window.addEventListener('scroll', this.onWindowScroll.bind(this));
+		this.reloadPage();
 	}
 
 	onWindowScroll() {
@@ -91,13 +82,34 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 		}
 	}
 
+	observeQueryParams() {
+		observe(
+			rootStore.routingStore,
+			'queryParams',
+			change => {
+				if (this.loading) {
+					return;
+				}
+
+				const { q = '', sortQuery = 'updatedAt:desc' } = toJS(change.newValue);
+				if (q === this.searchQuery && sortQuery === this.sortQuery) {
+					return;
+				}
+
+				this.searchQuery = q;
+				this.sortQuery = sortQuery;
+				this.reloadPage();
+			}
+		);
+	}
+
 	changeSort({ detail = {} }) {
 		if (/^(createdAt|updatedAt)$/.test(detail.sortKey)) {
 			this.dateField = detail.sortKey;
 		}
 
-		rootStore.routingStore.setQueryParams({
-			...rootStore.routingStore.getQueryParams(),
+		this._navigate('/manage/content', {
+			q: encodeURIComponent(this.searchQuery),
 			sortQuery: detail.sortQuery
 		});
 
@@ -105,9 +117,19 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 	}
 
 	async reloadPage() {
+		this.loading = true;
 		this.contentItems = [];
-		await this.loadNext();
-		this._navigate('/manage/content', rootStore.routingStore.getQueryParams());
+		this._navigate('/manage/content', {
+			q: encodeURIComponent(this.searchQuery),
+			sortQuery: this.sortQuery
+		});
+
+		try {
+			await this.loadNext();
+		} catch (error) {
+			this.loading = false;
+			this.contentItems = [];
+		}
 	}
 
 	async loadNext() {
@@ -121,7 +143,6 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 		this.totalResults = searchResult.hits.total;
 		this.contentItems.push(...searchResult.hits.hits.map(item => item._source));
 		this.loading = false;
-		this.update();
 	}
 
 	render() {

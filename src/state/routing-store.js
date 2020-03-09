@@ -42,10 +42,6 @@ export class RoutingStore {
 		return toJS(this.queryParams);
 	}
 
-	setQueryParams(queryParams) {
-		this.queryParams = queryParams;
-	}
-
 	getSubView() {
 		return this.subView;
 	}
@@ -63,6 +59,5 @@ decorate(RoutingStore, {
 	// actions
 	setRouteCtx: action,
 	setPage: action,
-	setQueryParams: action,
 	setSubView: action
 });
