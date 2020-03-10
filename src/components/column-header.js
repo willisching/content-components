@@ -32,6 +32,7 @@ class ColumnHeader extends LitElement {
 	}
 
 	firstUpdated() {
+		super.firstUpdated();
 		this.choiceNodes = this._getChoices();
 
 		for (const choiceNode of this.choiceNodes) {
@@ -121,14 +122,6 @@ class ColumnHeaderChoice extends LitElement {
 			const [sortKey, currentSortDesc] = sortQuery.split(':');
 			this.currentSort = this.sortKey === sortKey;
 			this.currentSortDesc = currentSortDesc === 'desc';
-		} else {
-			// set the default sort if none present
-			this.currentSort = this.sortKey === 'updatedAt';
-		}
-
-		if (this.currentSort) {
-			this.setBooleanAttribute('current-choice', true);
-			this.dispatchEvent(this.changeSortEvent());
 		}
 	}
 
