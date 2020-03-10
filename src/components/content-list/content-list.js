@@ -4,6 +4,7 @@ import {
 	bodySmallStyles,
 	labelStyles
 } from '@brightspace-ui/core/components/typography/styles.js';
+import { observe, toJS } from 'mobx';
 
 // Polyfills
 import '@brightspace-ui/core/components/list/list.js';
@@ -20,9 +21,11 @@ import '../content-file-drop.js';
 import { navigationSharedStyle } from '../../styles/d2l-navigation-shared-styles.js';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
+import { NavigationMixin } from '../../mixins/navigation-mixin.js';
 import { typeLocalizationKey } from '../../util/content-type.js';
+import { rootStore } from '../../state/root-store.js';
 
-class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement)) {
+class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMixin(LitElement))) {
 	static get properties() {
 		return {
 			contentItems: { type: Array, attribute: false },
@@ -52,16 +55,22 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 		this.infiniteScrollThreshold = 400;
 		this.resultSize = 20;
 		this.dateField = 'updatedAt';
-		this.sortQuery = '';
 		this.totalResults = 0;
 		this.loading = false;
 
+		const { q = '', sortQuery = 'updatedAt:desc' } = rootStore.routingStore.getQueryParams();
+		this.sortQuery = sortQuery;
+		this.searchQuery = q;
+
 		this.addEventListener('content-list-item-renamed', this.contentListItemRenamedHandler);
+		window.addEventListener('scroll', this.onWindowScroll.bind(this));
+		this.observeQueryParams();
 	}
 
 	connectedCallback() {
 		super.connectedCallback();
 		this.apiClient = this.requestDependency('content-service-client');
+		this.reloadPage();
 	}
 
 	onWindowScroll() {
@@ -73,36 +82,67 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 		}
 	}
 
+	observeQueryParams() {
+		observe(
+			rootStore.routingStore,
+			'queryParams',
+			change => {
+				if (this.loading) {
+					return;
+				}
+
+				const { q = '', sortQuery = 'updatedAt:desc' } = toJS(change.newValue);
+				if (q === this.searchQuery && sortQuery === this.sortQuery) {
+					return;
+				}
+
+				this.searchQuery = q;
+				this.sortQuery = sortQuery;
+				this.reloadPage();
+			}
+		);
+	}
+
 	changeSort({ detail = {} }) {
 		if (/^(createdAt|updatedAt)$/.test(detail.sortKey)) {
 			this.dateField = detail.sortKey;
 		}
 
+		this._navigate('/manage/content', {
+			q: encodeURIComponent(this.searchQuery),
+			sortQuery: detail.sortQuery
+		});
+
 		this.sortQuery = detail.sortQuery;
-		this.reloadPage();
 	}
 
 	async reloadPage() {
+		this.loading = true;
 		this.contentItems = [];
-		await this.loadNext();
-		window.addEventListener('scroll', this.onWindowScroll.bind(this));
+		this._navigate('/manage/content', {
+			q: encodeURIComponent(this.searchQuery),
+			sortQuery: this.sortQuery
+		});
+
+		try {
+			await this.loadNext();
+		} catch (error) {
+			this.loading = false;
+			this.contentItems = [];
+		}
 	}
 
 	async loadNext() {
-		if (this.loading) {
-			return;
-		}
-
 		this.loading = true;
 		const searchResult = await this.apiClient.searchContent({
 			start: this.contentItems.length,
 			size: this.resultSize,
-			sort: this.sortQuery
+			sort: this.sortQuery,
+			query: this.searchQuery
 		});
 		this.totalResults = searchResult.hits.total;
 		this.contentItems.push(...searchResult.hits.hits.map(item => item._source));
 		this.loading = false;
-		this.update();
 	}
 
 	render() {
@@ -139,8 +179,8 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(LitElement))
 	}
 
 	renderGhosts() {
-		return new Array(this.loading ? 5 : 0).fill().map(() => html`
-			<d2l-list><content-list-item-ghost></content-list-item-ghost></d2l-list>
+		return new Array(5).fill().map(() => html`
+			<d2l-list><content-list-item-ghost ?hidden=${!this.loading}></content-list-item-ghost></d2l-list>
 		`);
 	}
 

@@ -1,4 +1,5 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
+import { rootStore } from '../state/root-store.js';
 
 // Polyfills
 import '@brightspace-ui/core/components/icons/icon.js';
@@ -31,6 +32,7 @@ class ColumnHeader extends LitElement {
 	}
 
 	firstUpdated() {
+		super.firstUpdated();
 		this.choiceNodes = this._getChoices();
 
 		for (const choiceNode of this.choiceNodes) {
@@ -73,9 +75,9 @@ ColumnHeader.group = {};
 class ColumnHeaderChoice extends LitElement {
 	static get properties() {
 		return {
-			currentChoice: { type: Boolean, attribute: 'current-choice', default: false },
-			currentSort: { type: Boolean, attribute: 'current-sort', default: false },
-			currentSortDesc: { type: Boolean, attribute: 'current-sort-desc', default: false },
+			currentChoice: { type: Boolean, attribute: 'current-choice', default: false, reflect: true },
+			currentSort: { type: Boolean, attribute: 'current-sort', default: false, reflect: true },
+			currentSortDesc: { type: Boolean, attribute: 'current-sort-desc', default: false, reflect: true },
 			label: { type: String },
 			sortKey: { type: String, attribute: 'sort-key' },
 			sortDesc: { type: Boolean, attribute: 'sort-desc' }
@@ -115,9 +117,11 @@ class ColumnHeaderChoice extends LitElement {
 	firstUpdated() {
 		super.firstUpdated();
 		this.defaultSortDesc = this.currentSortDesc;
-		if (this.currentSort) {
-			this.setBooleanAttribute('current-choice', true);
-			this.dispatchEvent(this.changeSortEvent());
+		const { sortQuery } = rootStore.routingStore.getQueryParams();
+		if (sortQuery) {
+			const [sortKey, currentSortDesc] = sortQuery.split(':');
+			this.currentSort = this.sortKey === sortKey;
+			this.currentSortDesc = currentSortDesc === 'desc';
 		}
 	}
 

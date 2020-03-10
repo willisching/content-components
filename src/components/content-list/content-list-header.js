@@ -52,7 +52,7 @@ class ContentListHeader extends InternalLocalizeMixin(LitElement) {
 							sort-key="createdAt"
 						></column-header-choice>
 						<column-header-choice
-							current-sort
+							current-choice
 							current-sort-desc
 							label=${this.localize('modified')}
 							sort-key="updatedAt"
