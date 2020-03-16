@@ -1,8 +1,7 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import {
 	bodyCompactStyles,
-	bodySmallStyles,
-	labelStyles
+	bodySmallStyles
 } from '@brightspace-ui/core/components/typography/styles.js';
 import { observe, toJS } from 'mobx';
 
@@ -34,7 +33,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 	}
 
 	static get styles() {
-		return [bodyCompactStyles, bodySmallStyles, labelStyles, navigationSharedStyle, css`
+		return [bodyCompactStyles, bodySmallStyles, navigationSharedStyle, css`
 			:host([hidden]) {
 				display: none;
 			}
@@ -128,8 +127,6 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 			q: encodeURIComponent(this.searchQuery),
 			sortQuery: detail.sortQuery
 		});
-
-		this.sortQuery = detail.sortQuery;
 	}
 
 	async reloadPage() {
