@@ -27,6 +27,7 @@ export class Uploader {
 		this.queuedUploads = [];
 		this.runningJobs = 0;
 		this._batch = 0;
+		this.successfulUpload = {};
 
 		this.uploadFile = flow(function * (file, batch) {
 			/* eslint-disable no-invalid-this */
@@ -151,13 +152,17 @@ export class Uploader {
 				contentId: content.id,
 				revisionId: revision.id
 			});
-			await this._monitorProgressAsync(content, revision, ({ percentComplete = 0, error }) => {
+			await this._monitorProgressAsync(content, revision, ({ percentComplete = 0, ready, error }) => {
 				const upload = this.uploads.find(
 					upload => upload.file === file
 				);
 				if (upload) {
 					upload.progress = 50 + (percentComplete / 2);
 					upload.error = error;
+				}
+
+				if (ready && upload.progress === 100) {
+					this.successfulUpload = { upload, content, revision };
 				}
 			});
 		} catch (error) {
@@ -202,6 +207,7 @@ decorate(Uploader, {
 	uploads: observable,
 	uploadsInProgress: observable,
 	statusWindowVisible: observable,
+	successfulUpload: observable,
 	getUploads: action,
 	showStatusWindow: action,
 	uploadFile: action,

@@ -57,6 +57,8 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 		this.dateField = 'updatedAt';
 		this.totalResults = 0;
 		this.loading = false;
+		this.hasNextPage = false;
+		this.searchQueryStart = 0;
 
 		const { q = '', sortQuery = 'updatedAt:desc' } = rootStore.routingStore.getQueryParams();
 		this.sortQuery = sortQuery;
@@ -70,6 +72,8 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 	connectedCallback() {
 		super.connectedCallback();
 		this.apiClient = this.requestDependency('content-service-client');
+		this.uploader = this.requestDependency('uploader') || rootStore.uploader;
+		this.observeSuccessfulUpload();
 		this.reloadPage();
 	}
 
@@ -77,8 +81,8 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 		const contentListElem = this.shadowRoot.querySelector('#d2l-content-store-list');
 		const bottom = contentListElem.getBoundingClientRect().top + window.pageYOffset + contentListElem.clientHeight;
 		const scrollY = window.pageYOffset + window.innerHeight;
-		if (bottom - scrollY < this.infiniteScrollThreshold && this.contentItems.length < this.totalResults) {
-			this.loadNext();
+		if (bottom - scrollY < this.infiniteScrollThreshold && this.hasNextPage && !this.loading) {
+			this.loadNext(true);
 		}
 	}
 
@@ -103,6 +107,18 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 		);
 	}
 
+	observeSuccessfulUpload() {
+		observe(
+			this.uploader,
+			'successfulUpload',
+			async change => {
+				if (change.newValue && change.newValue.content && !this.searchQuery) {
+					return this.addNewItemIntoContentItems(toJS(change.newValue));
+				}
+			}
+		);
+	}
+
 	changeSort({ detail = {} }) {
 		if (/^(createdAt|updatedAt)$/.test(detail.sortKey)) {
 			this.dateField = detail.sortKey;
@@ -119,6 +135,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 	async reloadPage() {
 		this.loading = true;
 		this.contentItems = [];
+		this.searchQueryStart = 0;
 		this._navigate('/manage/content', {
 			q: encodeURIComponent(this.searchQuery),
 			sortQuery: this.sortQuery
@@ -129,18 +146,21 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 		} catch (error) {
 			this.loading = false;
 			this.contentItems = [];
+			this.searchQueryStart = 0;
 		}
 	}
 
 	async loadNext() {
 		this.loading = true;
 		const searchResult = await this.apiClient.searchContent({
-			start: this.contentItems.length,
+			start: this.searchQueryStart,
 			size: this.resultSize,
 			sort: this.sortQuery,
 			query: this.searchQuery
 		});
 		this.totalResults = searchResult.hits.total;
+		this.searchQueryStart += searchResult.hits.hits.length;
+		this.hasNextPage = this.searchQueryStart < this.totalResults;
 		this.contentItems.push(...searchResult.hits.hits.map(item => item._source));
 		this.loading = false;
 	}
@@ -173,7 +193,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 			<content-icon type="${iconType}" slot="icon"></content-icon>
 			<div slot="title" class="title">${item.lastRevTitle}</div>
 			<div slot="type">${type}</div>
-			<relative-date id="${`relative-date-${item.id}`}" slot="date" value=${item[this.dateField]}></relative-date>
+			<relative-date slot="date" value=${item[this.dateField]}></relative-date>
 		</content-list-item>
 		`;
 	}
@@ -208,10 +228,65 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 			if (index >= 0 && index < this.contentItems.length) {
 				this.contentItems[index].lastRevTitle = title;
 				this.contentItems[index][this.dateField] = (new Date()).toISOString();
-				const relativeDateElement = this.shadowRoot.querySelector(`#relative-date-${this.contentItems[index].id}`);
-				relativeDateElement.updateValue(this.contentItems[index][this.dateField]);
 				this.requestUpdate();
 			}
+		}
+	}
+
+	async addNewItemIntoContentItems(item) {
+		if (!item || !item.revision || !item.content || !item.upload) {
+			return;
+		}
+
+		const { id: lastRevId, title: lastRevTitle, type: lastRevType } = item.revision;
+		const { id } = item.content;
+		const updatedAt = (new Date()).toISOString();
+
+		await this.insertIntoContentItemsBasedOnSort({
+			id, lastRevType, lastRevTitle, lastRevId, updatedAt
+		});
+	}
+
+	async insertIntoContentItemsBasedOnSort(item) {
+		let indexToInsertAt = this.contentItems.findIndex(this.getCompareBasedOnSort(item));
+		if (indexToInsertAt === -1) {
+			indexToInsertAt = this.contentItems.length;
+		}
+
+		if (!this.hasNextPage || indexToInsertAt !== this.contentItems.length) {
+			this.contentItems.splice(indexToInsertAt, 0, item);
+			this.requestUpdate();
+			await this.updateComplete;
+		}
+	}
+
+	getCompareBasedOnSort(item) {
+		const itemUpdatedAtDate = new Date(item.updatedAt);
+		switch (this.sortQuery) {
+			case 'updatedAt:desc':
+				return e => {
+					const elementUpdatedAtDate = new Date(e.updatedAt);
+					return elementUpdatedAtDate <= itemUpdatedAtDate;
+				};
+
+			case 'updatedAt:asc':
+				return e => {
+					const elementUpdatedAtDate = new Date(e.updatedAt);
+					return elementUpdatedAtDate >= itemUpdatedAtDate;
+				};
+
+			case 'lastRevTitle.keyword:desc':
+				return e => {
+					return e.lastRevTitle.toLowerCase() <= item.lastRevTitle.toLowerCase();
+				};
+
+			case 'lastRevTitle.keyword:asc':
+				return e => {
+					return e.lastRevTitle.toLowerCase() >= item.lastRevTitle.toLowerCase();
+				};
+
+			default:
+				return () => true;
 		}
 	}
 }

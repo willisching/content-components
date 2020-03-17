@@ -15,13 +15,21 @@ class RelativeDate extends LitElement {
 		this.setupFormatRelativeDate();
 	}
 
-	setupFormatRelativeDate() {
-		const date = new Date(Date.parse(this.value));
-		this.absolute = formatDateTime(date, { format: 'full' });
-
+	stopWatchingRelativeDate() {
 		if (this.res && this.res.stop) {
 			this.res.stop();
 		}
+	}
+
+	setupFormatRelativeDate() {
+		if (!this.value) {
+			this.stopWatchingRelativeDate();
+			return;
+		}
+
+		const date = new Date(Date.parse(this.value));
+		this.absolute = formatDateTime(date, { format: 'full' });
+		this.stopWatchingRelativeDate();
 
 		this.res = formatRelativeDate(date, {
 			onUpdate: text => {
@@ -37,9 +45,10 @@ class RelativeDate extends LitElement {
 		</div>`;
 	}
 
-	updateValue(value) {
-		this.value = value;
-		this.setupFormatRelativeDate();
+	updated(changedProperties) {
+		if (this.value !== changedProperties.value) {
+			this.setupFormatRelativeDate();
+		}
 	}
 }
 
