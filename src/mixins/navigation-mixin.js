@@ -13,7 +13,12 @@ export const navigationMixin = superClass => class extends (superClass) {
 	__stringifyQueryStringCollection(queryStringCollection) {
 		let qs = '';
 		if (queryStringCollection) {
-			qs = `?${querystring.stringify(queryStringCollection)}`;
+			const { searchQuery } = queryStringCollection;
+			const encodedSearchQueryStringCollection = {
+				...queryStringCollection,
+				...searchQuery && { searchQuery: encodeURIComponent(searchQuery) }
+			};
+			qs = `?${querystring.stringify(encodedSearchQueryStringCollection)}`;
 		}
 
 		return qs;

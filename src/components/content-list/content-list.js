@@ -1,8 +1,7 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import {
 	bodyCompactStyles,
-	bodySmallStyles,
-	labelStyles
+	bodySmallStyles
 } from '@brightspace-ui/core/components/typography/styles.js';
 import { observe, toJS } from 'mobx';
 
@@ -22,7 +21,7 @@ import { navigationSharedStyle } from '../../styles/d2l-navigation-shared-styles
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { NavigationMixin } from '../../mixins/navigation-mixin.js';
-import { typeLocalizationKey } from '../../util/content-type.js';
+import { filterToTypes, typeLocalizationKey } from '../../util/content-type.js';
 import { rootStore } from '../../state/root-store.js';
 
 class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMixin(LitElement))) {
@@ -34,7 +33,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 	}
 
 	static get styles() {
-		return [bodyCompactStyles, bodySmallStyles, labelStyles, navigationSharedStyle, css`
+		return [bodyCompactStyles, bodySmallStyles, navigationSharedStyle, css`
 			:host([hidden]) {
 				display: none;
 			}
@@ -60,9 +59,15 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 		this.hasNextPage = false;
 		this.searchQueryStart = 0;
 
-		const { q = '', sortQuery = 'updatedAt:desc' } = rootStore.routingStore.getQueryParams();
-		this.sortQuery = sortQuery;
-		this.searchQuery = q;
+		const {
+			searchQuery = '',
+			sortQuery = 'updatedAt:desc',
+			contentType = '',
+			dateCreated = '',
+			dateModified = ''
+		} = rootStore.routingStore.getQueryParams();
+
+		this.queryParams = { searchQuery, sortQuery, contentType, dateCreated, dateModified };
 
 		this.addEventListener('content-list-item-renamed', this.contentListItemRenamedHandler);
 		window.addEventListener('scroll', this.onWindowScroll.bind(this));
@@ -95,13 +100,31 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 					return;
 				}
 
-				const { q = '', sortQuery = 'updatedAt:desc' } = toJS(change.newValue);
-				if (q === this.searchQuery && sortQuery === this.sortQuery) {
+				const {
+					searchQuery: updatedSearchQuery = '',
+					sortQuery: updatedSortQuery = 'updatedAt:desc',
+					contentType: updatedContentType = '',
+					dateCreated: updatedDateCreated = '',
+					dateModified: updatedDateModified = ''
+				} = toJS(change.newValue);
+
+				const { searchQuery, sortQuery, contentType, dateCreated, dateModified } =
+					this.queryParams;
+
+				if (updatedSearchQuery === searchQuery && updatedSortQuery === sortQuery &&
+					updatedContentType === contentType && updatedDateCreated === dateCreated &&
+					updatedDateModified === dateModified
+				) {
 					return;
 				}
 
-				this.searchQuery = q;
-				this.sortQuery = sortQuery;
+				this.queryParams = {
+					searchQuery: updatedSearchQuery,
+					sortQuery: updatedSortQuery,
+					contentType: updatedContentType,
+					dateCreated: updatedDateCreated,
+					dateModified: updatedDateModified
+				};
 				this.reloadPage();
 			}
 		);
@@ -112,7 +135,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 			this.uploader,
 			'successfulUpload',
 			async change => {
-				if (change.newValue && change.newValue.content && !this.searchQuery) {
+				if (change.newValue && change.newValue.content && !this.queryParams.searchQuery) {
 					return this.addNewItemIntoContentItems(toJS(change.newValue));
 				}
 			}
@@ -120,26 +143,22 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 	}
 
 	changeSort({ detail = {} }) {
-		if (/^(createdAt|updatedAt)$/.test(detail.sortKey)) {
-			this.dateField = detail.sortKey;
+		const { sortKey, sortQuery } = detail;
+		if (/^(createdAt|updatedAt)$/.test(sortKey)) {
+			this.dateField = sortKey;
 		}
 
 		this._navigate('/manage/content', {
-			q: encodeURIComponent(this.searchQuery),
-			sortQuery: detail.sortQuery
+			...this.queryParams,
+			sortQuery
 		});
-
-		this.sortQuery = detail.sortQuery;
 	}
 
 	async reloadPage() {
 		this.loading = true;
 		this.contentItems = [];
 		this.searchQueryStart = 0;
-		this._navigate('/manage/content', {
-			q: encodeURIComponent(this.searchQuery),
-			sortQuery: this.sortQuery
-		});
+		this._navigate('/manage/content', this.queryParams);
 
 		try {
 			await this.loadNext();
@@ -152,11 +171,13 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 
 	async loadNext() {
 		this.loading = true;
+		const { sortQuery, searchQuery, contentType } = this.queryParams;
 		const searchResult = await this.apiClient.searchContent({
 			start: this.searchQueryStart,
 			size: this.resultSize,
-			sort: this.sortQuery,
-			query: this.searchQuery
+			sort: sortQuery,
+			query: searchQuery,
+			contentType: filterToTypes(contentType)
 		});
 		this.totalResults = searchResult.hits.total;
 		this.searchQueryStart += searchResult.hits.hits.length;
@@ -262,7 +283,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 
 	getCompareBasedOnSort(item) {
 		const itemUpdatedAtDate = new Date(item.updatedAt);
-		switch (this.sortQuery) {
+		switch (this.queryParams.sortQuery) {
 			case 'updatedAt:desc':
 				return e => {
 					const elementUpdatedAtDate = new Date(e.updatedAt);

@@ -119,8 +119,8 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 					<d2l-dropdown-menu class="dropdown-menu">
 						<d2l-menu>
 							<d2l-menu-item text="${this.localize('createANewItem')}" @click=${this.handleFileUploadClick}></d2l-menu-item>
-							<d2l-menu-item text="${this.localize('googleDrive')}" @click=${this.openPicker('GoogleDrive')}></d2l-menu-item>
-							<d2l-menu-item text="${this.localize('oneDrive')}" @click=${this.openPicker('Office365')}></d2l-menu-item>
+							<d2l-menu-item text="${this.localize('googledrive')}" @click=${this.openPicker('GoogleDrive')}></d2l-menu-item>
+							<d2l-menu-item text="${this.localize('onedrive')}" @click=${this.openPicker('Office365')}></d2l-menu-item>
 						</d2l-menu>
 					</d2l-dropdown-menu>
 				</d2l-dropdown-button>
