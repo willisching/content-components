@@ -24,7 +24,7 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 				display: flex;
 				justify-content: space-between;
 				align-items: center;
-				margin-top: 6px;
+				margin-top: 0.3rem;
 			}
 			.filter-type {
 				display: flex;
@@ -32,14 +32,13 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 			.filter-clear {
 				display: flex;
 				justify-content: space-between;
-				margin-top: 12px;
+				margin-top: 0.6rem;
 			}
 			.filter-clear d2l-button {
-				width: 100px;
+				width: 5rem;
 			}
-
 			.d2l-input-select {
-				width: 150px;
+				width: 7.5rem;
 			}
 		`];
 	}

@@ -30,6 +30,10 @@ class ContentPage extends PageViewElement {
 			content-filter-dropdown {
 				padding-right: 1rem;
 			}
+			:host([dir="rtl"]) content-filter-dropdown {
+				padding-right: 0;
+				padding-left: 1rem;
+			}
 		`];
 	}
 

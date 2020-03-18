@@ -135,7 +135,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 			this.uploader,
 			'successfulUpload',
 			async change => {
-				if (change.newValue && change.newValue.content && !this.searchQuery) {
+				if (change.newValue && change.newValue.content && !this.queryParams.searchQuery) {
 					return this.addNewItemIntoContentItems(toJS(change.newValue));
 				}
 			}
@@ -143,13 +143,14 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 	}
 
 	changeSort({ detail = {} }) {
-		if (/^(createdAt|updatedAt)$/.test(detail.sortKey)) {
-			this.dateField = detail.sortKey;
+		const { sortKey, sortQuery } = detail;
+		if (/^(createdAt|updatedAt)$/.test(sortKey)) {
+			this.dateField = sortKey;
 		}
 
 		this._navigate('/manage/content', {
 			...this.queryParams,
-			sortQuery: detail.sortQuery
+			sortQuery
 		});
 	}
 
@@ -282,7 +283,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 
 	getCompareBasedOnSort(item) {
 		const itemUpdatedAtDate = new Date(item.updatedAt);
-		switch (this.sortQuery) {
+		switch (this.queryParams.sortQuery) {
 			case 'updatedAt:desc':
 				return e => {
 					const elementUpdatedAtDate = new Date(e.updatedAt);
