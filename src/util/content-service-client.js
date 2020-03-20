@@ -1,6 +1,8 @@
 import * as querystring from '@chaitin/querystring';
 import auth from 'd2l-fetch-auth/src/unframed/index.js';
 import { d2lfetch } from 'd2l-fetch/src/index.js';
+import { dateFilterToSearchQuery } from './date-filter.js';
+import { contentFilterToSearchQuery } from './content-type.js';
 
 d2lfetch.use({ name: 'auth', fn: auth });
 
@@ -53,7 +55,7 @@ export default class ContentServiceClient {
 		return response;
 	}
 
-	searchContent({ start = 0, size = 20, sort, query = '', contentType = '' }) {
+	searchContent({ start = 0, size = 20, sort, query = '', contentType = '', updatedAt = '', createdAt = '' }) {
 		const headers = new Headers();
 		headers.append('pragma', 'no-cache');
 		headers.append('cache-control', 'no-cache');
@@ -65,7 +67,9 @@ export default class ContentServiceClient {
 				size,
 				sort,
 				query,
-				contentType
+				contentType: contentFilterToSearchQuery(contentType),
+				updatedAt: dateFilterToSearchQuery(updatedAt),
+				createdAt: dateFilterToSearchQuery(createdAt)
 			},
 			headers
 		});

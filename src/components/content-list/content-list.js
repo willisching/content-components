@@ -21,7 +21,7 @@ import { navigationSharedStyle } from '../../styles/d2l-navigation-shared-styles
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { NavigationMixin } from '../../mixins/navigation-mixin.js';
-import { filterToTypes, typeLocalizationKey } from '../../util/content-type.js';
+import { typeLocalizationKey } from '../../util/content-type.js';
 import { rootStore } from '../../state/root-store.js';
 
 class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMixin(LitElement))) {
@@ -171,13 +171,15 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 
 	async loadNext() {
 		this.loading = true;
-		const { sortQuery, searchQuery, contentType } = this.queryParams;
+		const { sortQuery, searchQuery, contentType, dateModified, dateCreated } = this.queryParams;
 		const searchResult = await this.apiClient.searchContent({
 			start: this.searchQueryStart,
 			size: this.resultSize,
 			sort: sortQuery,
 			query: searchQuery,
-			contentType: filterToTypes(contentType)
+			contentType,
+			updatedAt: dateModified,
+			createdAt: dateCreated
 		});
 		this.totalResults = searchResult.hits.total;
 		this.searchQueryStart += searchResult.hits.hits.length;
