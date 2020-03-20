@@ -41,7 +41,7 @@ export const contentTypeFilters = [
 	'scorm'
 ];
 
-export const filterToTypes = type => {
+export const contentFilterToSearchQuery = type => {
 	switch (type.toLowerCase()) {
 		case 'scorm':
 			return 'Scorm';

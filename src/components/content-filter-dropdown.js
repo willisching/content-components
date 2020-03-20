@@ -6,6 +6,7 @@ import { observe, toJS } from 'mobx';
 import { DependencyRequester } from '../mixins/dependency-requester-mixin.js';
 import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin.js';
 import { contentTypeFilters } from '../util/content-type.js';
+import { dateFilters } from '../util/date-filter.js';
 import { rootStore } from '../state/root-store.js';
 
 import '@brightspace-ui/core/components/dropdown/dropdown-button-subtle.js';
@@ -45,7 +46,6 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 
 	constructor() {
 		super();
-		this.dateFilterOptions = ['today', 'yesterday', 'last7days'];
 
 		const { contentType = '', dateModified = '', dateCreated = '' } =
 			rootStore.routingStore.getQueryParams();
@@ -101,14 +101,14 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 						<div class="filter-type d2l-label-text">${this.localize('dateModified')}</div>
 						<select class="d2l-input-select" data-filter='dateModified'>
 							<option value="">${this.localize('anyTime')}</option>
-							${this.renderFilterOptions(this.dateFilterOptions, 'dateModified')}
+							${this.renderFilterOptions(dateFilters, 'dateModified')}
 						</select>
 					</div>
 					<div class="filter-option">
 						<div class="filter-type d2l-label-text">${this.localize('dateCreated')}</div>
 						<select class="d2l-input-select" data-filter='dateCreated'>
 							<option value="">${this.localize('anyTime')}</option>
-							${this.renderFilterOptions(this.dateFilterOptions, 'dateCreated')}
+							${this.renderFilterOptions(dateFilters, 'dateCreated')}
 						</select>
 					</div>
 					<div class="filter-clear">
