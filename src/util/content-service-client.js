@@ -187,4 +187,20 @@ export default class ContentServiceClient {
 			body: revision
 		});
 	}
+
+	deleteContent({ contentId }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}`,
+			method: 'DELETE',
+			extractJsonBody: false
+		});
+	}
+
+	undeleteContent({ contentId }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}`,
+			method: 'PUT',
+			body: { id: contentId, deletedAt: null }
+		});
+	}
 }

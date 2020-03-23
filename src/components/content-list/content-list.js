@@ -10,6 +10,7 @@ import '@brightspace-ui/core/components/list/list.js';
 import '@brightspace-ui/core/components/list/list-item.js';
 import '@brightspace-ui/core/components/button/button-icon.js';
 import '@brightspace-ui/core/components/icons/icon.js';
+import 'd2l-alert/d2l-alert-toast.js';
 import './content-list-item.js';
 import './content-list-item-ghost.js';
 import './content-list-header.js';
@@ -58,6 +59,9 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 		this.loading = false;
 		this.hasNextPage = false;
 		this.searchQueryStart = 0;
+		this.alertToastMessage = '';
+		this.alertToastButtonText = '';
+		this.undoDeleteObject = {};
 
 		const {
 			searchQuery = '',
@@ -69,7 +73,6 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 
 		this.queryParams = { searchQuery, sortQuery, contentType, dateCreated, dateModified };
 
-		this.addEventListener('content-list-item-renamed', this.contentListItemRenamedHandler);
 		window.addEventListener('scroll', this.onWindowScroll.bind(this));
 		this.observeQueryParams();
 	}
@@ -87,7 +90,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 		const bottom = contentListElem.getBoundingClientRect().top + window.pageYOffset + contentListElem.clientHeight;
 		const scrollY = window.pageYOffset + window.innerHeight;
 		if (bottom - scrollY < this.infiniteScrollThreshold && this.hasNextPage && !this.loading) {
-			this.loadNext(true);
+			this.loadNext();
 		}
 	}
 
@@ -135,7 +138,9 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 			this.uploader,
 			'successfulUpload',
 			async change => {
-				if (change.newValue && change.newValue.content && !this.queryParams.searchQuery) {
+				if (change.newValue &&
+					change.newValue.content &&
+					!this.areAnyFiltersActive()) {
 					return this.addNewItemIntoContentItems(toJS(change.newValue));
 				}
 			}
@@ -198,6 +203,15 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 					${this.renderGhosts()}
 				</div>
 			</content-file-drop>
+
+			<d2l-alert-toast
+				id="delete-toast"
+				type="default"
+				button-text=${this.alertToastButtonText}
+				announce-text=${this.alertToastMessage}
+				@d2l-alert-button-pressed=${this.undoDeleteHandler}>
+				${this.alertToastMessage}
+			</d2l-alert-toast>
 		`;
 	}
 
@@ -212,6 +226,8 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 			selectable
 			type=${type}
 			title=${item.lastRevTitle}
+			@content-list-item-renamed=${this.contentListItemRenamedHandler}
+			@content-list-item-deleted=${this.contentListItemDeletedHandler}
 		>
 			<content-icon type="${iconType}" slot="icon"></content-icon>
 			<div slot="title" class="title">${item.lastRevTitle}</div>
@@ -311,6 +327,61 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 			default:
 				return () => true;
 		}
+	}
+
+	contentListItemDeletedHandler(e) {
+		if (e && e.detail && e.detail.id) {
+			const { id } = e.detail;
+			const index = this.contentItems.findIndex(c => c.id === id);
+
+			if (index >= 0 && index < this.contentItems.length) {
+				this.undoDeleteObject = this.contentItems[index];
+				this.contentItems.splice(index, 1);
+				this.requestUpdate();
+				this.showUndoDeleteToast();
+
+				if (this.contentItems.length < this.resultSize && this.hasNextPage && !this.loading) {
+					this.loadNext();
+				}
+			}
+		}
+	}
+
+	showUndoDeleteToast() {
+		const deleteToastElement = this.shadowRoot.querySelector('#delete-toast');
+
+		if (deleteToastElement) {
+			deleteToastElement.removeAttribute('open');
+			this.alertToastMessage = this.localize('removedFile');
+			this.alertToastButtonText = this.localize('undo');
+			deleteToastElement.setAttribute('open', true);
+		}
+	}
+
+	async undoDeleteHandler() {
+		const deleteToastElement = this.shadowRoot.querySelector('#delete-toast');
+
+		if (deleteToastElement && this.undoDeleteObject && this.undoDeleteObject.id) {
+			deleteToastElement.removeAttribute('open');
+			await this.apiClient.undeleteContent({ contentId: this.undoDeleteObject.id });
+
+			if (!this.areAnyFiltersActive()) {
+				await this.insertIntoContentItemsBasedOnSort(this.undoDeleteObject);
+			}
+
+			this.undoDeleteObject = {};
+			this.alertToastMessage = this.localize('actionUndone');
+			this.alertToastButtonText = '';
+			this.requestUpdate();
+			deleteToastElement.setAttribute('open', true);
+		}
+	}
+
+	areAnyFiltersActive() {
+		return this.queryParams.searchQuery ||
+			this.queryParams.contentType ||
+			this.queryParams.dateModified ||
+			this.queryParams.dateCreated;
 	}
 }
 

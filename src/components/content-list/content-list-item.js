@@ -100,6 +100,7 @@ class ContentListItem extends DependencyRequester(InternalLocalizeMixin(LitEleme
 							<d2l-menu label="${this.localize('moreActions')}">
 								<d2l-menu-item text="${this.localize('download')}" @click="${this.download}"></d2l-menu-item>
 								<d2l-menu-item id="rename-initiator" text="${this.localize('rename')}" @click="${this.openDialog()}"></d2l-menu-item>
+								<d2l-menu-item text="${this.localize('delete')}" @click="${this.delete()}"></d2l-menu-item>
 							</d2l-menu>
 						</d2l-dropdown-menu>
 					</d2l-dropdown-more>
@@ -235,6 +236,25 @@ class ContentListItem extends DependencyRequester(InternalLocalizeMixin(LitEleme
 		const titleInputElement = this.shadowRoot.querySelector('#rename-input');
 		const titleInputValue = titleInputElement && titleInputElement.value;
 		this.confirmDisabled = !titleInputValue || titleInputValue.trim().length === 0;
+	}
+
+	delete() {
+		return async() => {
+			await this.apiClient.deleteContent({
+				contentId: this.id
+			});
+			this.dispatchDeletedEvent();
+		};
+	}
+
+	dispatchDeletedEvent() {
+		this.dispatchEvent(new CustomEvent('content-list-item-deleted', {
+			bubbles: true,
+			composed: true,
+			detail: {
+				id: this.id
+			}
+		}));
 	}
 }
 
