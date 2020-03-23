@@ -90,23 +90,23 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 			<d2l-dropdown-button-subtle text="${this.getFilterText()}" primary>
 				<d2l-dropdown-content min-width="150" max-width="400">
 					<div class="filter-option">
-						<div class="filter-type d2l-label-text">${this.localize('contentType')}</div>
-						<select class="d2l-input-select" data-filter='contentType'>
+						<div class="filter-type d2l-label-text" id="content-type-label">${this.localize('contentType')}</div>
+						<select class="d2l-input-select" aria-labelledby="content-type-label" data-filter='contentType'>
 							<option value="">${this.localize('any')}</option>
 							${this.renderFilterOptions(contentTypeFilters, 'contentType')}
 						</select>
 					</div>
 					<hr></hr>
 					<div class="filter-option">
-						<div class="filter-type d2l-label-text">${this.localize('dateModified')}</div>
-						<select class="d2l-input-select" data-filter='dateModified'>
+						<div class="filter-type d2l-label-text" id="date-modified-label">${this.localize('dateModified')}</div>
+						<select class="d2l-input-select" aria-labelledby="date-modified-label" data-filter='dateModified'>
 							<option value="">${this.localize('anyTime')}</option>
 							${this.renderFilterOptions(dateFilters, 'dateModified')}
 						</select>
 					</div>
 					<div class="filter-option">
-						<div class="filter-type d2l-label-text">${this.localize('dateCreated')}</div>
-						<select class="d2l-input-select" data-filter='dateCreated'>
+						<div class="filter-type d2l-label-text" id="date-created-label">${this.localize('dateCreated')}</div>
+						<select class="d2l-input-select" aria-labelledby="date-created-label" data-filter='dateCreated'>
 							<option value="">${this.localize('anyTime')}</option>
 							${this.renderFilterOptions(dateFilters, 'dateCreated')}
 						</select>
