@@ -200,7 +200,7 @@ class UploadStatusManagement extends InternalLocalizeMixin(RtlMixin(MobxReaction
 								</div>
 								${upload.error ? this.renderUploadError(upload) : this.renderUploadProgress(upload)}
 							</div>
-							${upload.error && html`<div class="upload-failed-message" slot="secondary">${this.localize(upload.error)}</div>`}
+							${upload.error && html`<div class="upload-failed-message" slot="supporting-info">${this.localize(upload.error)}</div>`}
 						</d2l-list-item-content>
 
 					</d2l-list-item>
