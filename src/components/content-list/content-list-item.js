@@ -115,6 +115,7 @@ class ContentListItem extends DependencyRequester(InternalLocalizeMixin(LitEleme
 				label-hidden
 				placeholder="${this.localize('titlePlaceholder')}"
 				value="${this.title}"
+				novalidate
 				@input="${this.titleInputChangedHandler}"
 				maxlength=100></d2l-input-text>
 			<d2l-button slot="footer" ?disabled=${this.confirmDisabled} id="rename-dialog-confirm" primary dialog-action="${dialogConfirmAction}">${this.localize('save')}</d2l-button>
