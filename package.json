@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "@brightspace-ui/core": "^1.67.0",
+    "@polymer/polymer": "^3.4.1",
     "@webcomponents/webcomponentsjs": "^2",
     "d2l-card": "BrightspaceUI/card#semver:^6",
     "lit-element": "^2"
