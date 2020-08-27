@@ -40,26 +40,7 @@ class D2lCapturePresentations extends DependencyRequester(PageViewElement) {
 	constructor() {
 		super();
 		this._numSelectedPresentations = 0;
-	}
-
-	_addAllToSelection(e) {
-		const checkboxes = this.shadowRoot.querySelectorAll('tbody d2l-input-checkbox');
-		let numAddedToSelection = 0;
-		checkboxes.forEach(checkbox => {
-			if (checkbox.checked !== e.target.checked) {
-				numAddedToSelection += 1;
-			}
-			checkbox.checked = e.target.checked;
-		});
-		this._numSelectedPresentations += numAddedToSelection * (e.target.checked ? 1 : -1);
-	}
-
-	_addToSelection(e) {
-		this._numSelectedPresentations += e.target.checked ? 1 : -1;
-	}
-
-	_renderLivePresentations() {
-		const launches = [{
+		this._livePresentations = [{
 			id: 1,
 			name: 'Recording 1',
 			presenter: 'DC',
@@ -90,8 +71,26 @@ class D2lCapturePresentations extends DependencyRequester(PageViewElement) {
 			presenter: '-',
 			views: 30,
 		}];
+	}
 
-		return launches.map(row => html`
+	_addAllToSelection(e) {
+		const checkboxes = this.shadowRoot.querySelectorAll('tbody d2l-input-checkbox');
+		let numAddedToSelection = 0;
+		checkboxes.forEach(checkbox => {
+			if (checkbox.checked !== e.target.checked) {
+				numAddedToSelection += 1;
+			}
+			checkbox.checked = e.target.checked;
+		});
+		this._numSelectedPresentations += numAddedToSelection * (e.target.checked ? 1 : -1);
+	}
+
+	_addToSelection(e) {
+		this._numSelectedPresentations += e.target.checked ? 1 : -1;
+	}
+
+	_renderLivePresentations() {
+		return this._livePresentations.map(row => html`
 			<tr>
 				<td><d2l-input-checkbox aria-label=${this.localize('selectOption', { option: row.name })} @change=${this._addToSelection}></d2l-input-checkbox></td>
 				<td><d2l-link @click=${this._goTo('/presentations/edit', { id: row.id })}>${row.name}</d2l-link></td>

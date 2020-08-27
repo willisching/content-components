@@ -78,15 +78,15 @@ class D2LCaptureLiveEventsEdit extends DependencyRequester(PageViewElement) {
 				</d2l-labs-accordion-collapse>
 				<d2l-labs-accordion-collapse flex no-icons>
 					<div slot="header">${this.localize('accessControl')}</div>
-					<div>Some placeholder text...</div>
+					<div>Placeholder text...</div>
 				</d2l-labs-accordion-collapse>
 				<d2l-labs-accordion-collapse flex no-icons>
 					<div slot="header">${this.localize('sharing')}</div>
-					<div>Some placeholder text...</div>
+					<div>Placeholder text...</div>
 				</d2l-labs-accordion-collapse>
 				<d2l-labs-accordion-collapse flex no-icons>
 					<div slot="header">${this.localize('prepostRollSection')}</div>
-					<div>Some placeholder text...</div>
+					<div>Placeholder text...</div>
 				</d2l-labs-accordion-collapse>
 				<d2l-button
 					class="d2l-capture-central-edit-save-changes-button"

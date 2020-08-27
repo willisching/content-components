@@ -39,26 +39,7 @@ class D2lCaptureLiveEvents extends DependencyRequester(PageViewElement) {
 	constructor() {
 		super();
 		this._numSelectedEvents = 0;
-	}
-
-	_addAllToSelection(e) {
-		const checkboxes = this.shadowRoot.querySelectorAll('tbody d2l-input-checkbox');
-		let numAddedToSelection = 0;
-		checkboxes.forEach(checkbox => {
-			if (checkbox.checked !== e.target.checked) {
-				numAddedToSelection += 1;
-			}
-			checkbox.checked = e.target.checked;
-		});
-		this._numSelectedEvents += numAddedToSelection * (e.target.checked ? 1 : -1);
-	}
-
-	_addToSelection(e) {
-		this._numSelectedEvents += e.target.checked ? 1 : -1;
-	}
-
-	_renderLiveEvents() {
-		const launches = [{
+		this._liveEvents = [{
 			id: 1,
 			name: 'Live Event 1',
 			startTime: 'Thursday, August 1, 2020, 7:57PM',
@@ -89,8 +70,26 @@ class D2lCaptureLiveEvents extends DependencyRequester(PageViewElement) {
 			startTime: 'Thursday, August 2, 2020, 7:57PM',
 			status: 'Upcoming',
 		}];
+	}
 
-		return launches.map(row => html`
+	_addAllToSelection(e) {
+		const checkboxes = this.shadowRoot.querySelectorAll('tbody d2l-input-checkbox');
+		let numAddedToSelection = 0;
+		checkboxes.forEach(checkbox => {
+			if (checkbox.checked !== e.target.checked) {
+				numAddedToSelection += 1;
+			}
+			checkbox.checked = e.target.checked;
+		});
+		this._numSelectedEvents += numAddedToSelection * (e.target.checked ? 1 : -1);
+	}
+
+	_addToSelection(e) {
+		this._numSelectedEvents += e.target.checked ? 1 : -1;
+	}
+
+	_renderLiveEvents() {
+		return this._liveEvents.map(row => html`
 			<tr>
 				<td>
 					<d2l-input-checkbox
