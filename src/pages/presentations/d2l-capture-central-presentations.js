@@ -14,7 +14,8 @@ import 'd2l-table/d2l-table-wrapper.js';
 
 import { bodyStandardStyles, heading2Styles } from '@brightspace-ui/core/components/typography/styles.js';
 import { css, html } from 'lit-element/lit-element.js';
-import { d2lTableStyles, sharedTableStyles } from '../../components/d2l-table-styles.js';
+import { sharedManageStyles, sharedTableStyles } from '../../components/shared-styles.js';
+import { d2lTableStyles } from '../../components/d2l-table-styles.js';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
 import { PageViewElement } from '../../components/page-view-element.js';
 
@@ -26,38 +27,14 @@ class D2lCapturePresentations extends DependencyRequester(PageViewElement) {
 		};
 	}
 	static get styles() {
-		return [d2lTableStyles, sharedTableStyles, bodyStandardStyles, heading2Styles, css`
-			.d2l-capture-central-presentations {
-				display:flex;
-				flex-direction: column;
-				margin-top: 25px;
-				margin-bottom: 50px;
-			}
-
-			.d2l-capture-central-header {
-				align-items: center;
-				border-bottom: 1px solid var(--d2l-color-mica);
-				display: flex;
-				justify-content: space-between;
-			}
-
-			.d2l-capture-central-num-selected-presentations {
-				margin: 20px 0px;
-			}
-
-			.d2l-capture-central-manage-presentations {
-				display: flex;
-			}
-
-			.d2l-capture-central-manage-presentations d2l-input-search {
-				margin-left: auto;
-				width: 350px;
-			}
-
-			.d2l-capture-central-manage-presentations .settings-button {
-				margin-left: 30px;
-			}
-		`];
+		return [
+			bodyStandardStyles,
+			d2lTableStyles,
+			heading2Styles,
+			sharedManageStyles,
+			sharedTableStyles,
+			css``
+		];
 	}
 
 	constructor() {
@@ -138,21 +115,21 @@ class D2lCapturePresentations extends DependencyRequester(PageViewElement) {
 
 	render() {
 		return html`
-			<div class="d2l-capture-central-presentations">
+			<div class="d2l-capture-central-manage-container">
 				<d2l-breadcrumbs>
 					<d2l-breadcrumb @click=${this._goTo('/admin')} href="#" text="${this.localize('captureCentral')}"></d2l-breadcrumb>
 					<d2l-breadcrumb-current-page text="${this.localize('presentations')}"></d2l-breadcrumb-current-page>
 				</d2l-breadcrumbs>
-				<div class="d2l-capture-central-header">
+				<div class="d2l-capture-central-manage-header">
 					<h2 class="d2l-heading-2">${this.localize('managePresentations')}</h2>
 					<d2l-button primary>
 						${this.localize('uploadVideo')}
 					</d2l-button>
 				</div>
-				<div class="d2l-body-standard d2l-capture-central-num-selected-presentations">
+				<div class="d2l-body-standard d2l-capture-central-manage-num-selected">
 					${this.localize('numPresentationsSelected', { count: this._numSelectedPresentations })}
 				</div>
-				<div class="d2l-capture-central-manage-presentations">
+				<div class="d2l-capture-central-manage-options">
 					<d2l-button class="delete-button">${this.localize('delete')}</d2l-button>
 					<d2l-button class="settings-button">${this.localize('settings')}</d2l-button>
 					<d2l-input-search

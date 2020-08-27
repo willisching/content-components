@@ -12,7 +12,8 @@ import 'd2l-table/d2l-table-wrapper.js';
 
 import { bodyStandardStyles, heading2Styles } from '@brightspace-ui/core/components/typography/styles.js';
 import { css, html } from 'lit-element/lit-element.js';
-import { d2lTableStyles, sharedTableStyles } from '../../components/d2l-table-styles.js';
+import { sharedManageStyles, sharedTableStyles } from '../../components/shared-styles.js';
+import { d2lTableStyles } from '../../components/d2l-table-styles.js';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
 import { PageViewElement } from '../../components/page-view-element.js';
 
@@ -23,39 +24,16 @@ class D2lCaptureLiveEvents extends DependencyRequester(PageViewElement) {
 			_numSelectedEvents: { type: Number }
 		};
 	}
+
 	static get styles() {
-		return [d2lTableStyles, sharedTableStyles, bodyStandardStyles, heading2Styles, css`
-			.d2l-capture-central-live-events {
-				display:flex;
-				flex-direction: column;
-				margin-top: 25px;
-				margin-bottom: 50px;
-			}
-
-			.d2l-capture-central-header {
-				align-items: center;
-				border-bottom: 1px solid var(--d2l-color-mica);
-				display: flex;
-				justify-content: space-between;
-			}
-
-			.d2l-capture-central-num-selected-events {
-				margin: 20px 0px;
-			}
-
-			.d2l-capture-central-manage-events {
-				display: flex;
-			}
-
-			.d2l-capture-central-manage-events d2l-input-search {
-				margin-left: auto;
-				width: 350px;
-			}
-
-			.d2l-capture-central-manage-events .settings-button {
-				margin-left: 30px;
-			}
-		`];
+		return [
+			d2lTableStyles,
+			sharedManageStyles,
+			sharedTableStyles,
+			bodyStandardStyles,
+			heading2Styles,
+			css``
+		];
 	}
 
 	constructor() {
@@ -139,21 +117,21 @@ class D2lCaptureLiveEvents extends DependencyRequester(PageViewElement) {
 
 	render() {
 		return html`
-			<div class="d2l-capture-central-live-events">
+			<div class="d2l-capture-central-manage-container">
 				<d2l-breadcrumbs>
 					<d2l-breadcrumb @click=${this._goTo('/admin')} href="#" text="${this.localize('captureCentral')}"></d2l-breadcrumb>
 					<d2l-breadcrumb-current-page text="${this.localize('liveEvents')}"></d2l-breadcrumb-current-page>
 				</d2l-breadcrumbs>
-				<div class="d2l-capture-central-header">
+				<div class="d2l-capture-central-manage-header">
 					<h2 class="d2l-heading-2">${this.localize('manageLiveEvents')}</h2>
 					<d2l-button primary>
 						${this.localize('createLiveEvent')}
 					</d2l-button>
 				</div>
-				<div class="d2l-body-standard d2l-capture-central-num-selected-events">
+				<div class="d2l-body-standard d2l-capture-central-manage-num-selected">
 					${this.localize('numEventsSelected', { count: this._numSelectedEvents })}
 				</div>
-				<div class="d2l-capture-central-manage-events">
+				<div class="d2l-capture-central-manage-options">
 					<d2l-button class="delete-button">${this.localize('delete')}</d2l-button>
 					<d2l-button class="settings-button">${this.localize('settings')}</d2l-button>
 					<d2l-input-search

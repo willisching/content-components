@@ -552,27 +552,3 @@ export const d2lTableStyles = css`
 		border-bottom: var(--d2l-table-light-border);
 	}
 `;
-
-export const sharedTableStyles = css`
-	d2l-table-wrapper {
-		margin-top: 20px;
-	}
-
-	.d2l-capture-central-table-caption {
-		display: none;
-	}
-
-	.d2l-capture-central-th-container {
-		align-items: center;
-		display: flex;
-		white-space: nowrap;
-	}
-
-	.d2l-capture-central-th-checkbox-container, .d2l-capture-central-th-more-options-container {
-		width: 10px;
-	}
-
-	d2l-input-checkbox {
-		margin: 0;
-	}
-`;

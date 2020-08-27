@@ -12,7 +12,7 @@ import { heading2Styles, labelStyles } from '@brightspace-ui/core/components/typ
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
 import { inputStyles } from '@brightspace-ui/core/components/inputs/input-styles.js';
 import { PageViewElement } from '../../components/page-view-element.js';
-import { sharedEditStyles } from '../../components/shared-edit-styles.js';
+import { sharedEditStyles } from '../../components/shared-styles.js';
 
 class D2LCapturePresentationsEdit extends DependencyRequester(PageViewElement) {
 
