@@ -2,7 +2,6 @@ import '@brightspace-ui/core/components/button/button-icon.js';
 import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-button.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-menu.js';
-import '@brightspace-ui/core/components/dropdown/dropdown-more.js';
 import '@brightspace-ui/core/components/dropdown/dropdown.js';
 import '@brightspace-ui/core/components/icons/icon.js';
 import '@brightspace-ui/core/components/inputs/input-search.js';
@@ -164,13 +163,10 @@ class D2LCaptureCentralVideoLibrary extends PageViewElement {
 		return html`
 			<div class="d2l-capture-central-video-library">
 				<h2 class="d2l-capture-central-video-library-header">${this.localize('videoLibrary')}</h2>
-				<d2l-button primary @click=${this._goTo('/admin')}>
-					${this.localize('adminPage')}
-				</d2l-button>
 				<d2l-dropdown-button class="d2l-capture-central-filter-folders" text="${this.localize('folders')}">
 					<d2l-dropdown-menu>
 						<d2l-menu label="Folders">
-							<d2l-menu-item text="Placeholder text ..."></d2l-menu-item>
+							<d2l-menu-item @click=${this._goTo('/admin')} text="Placeholder text ..."></d2l-menu-item>
 							<d2l-menu-item text="Placeholder text ..."></d2l-menu-item>
 						</d2l-menu>
 					</d2l-dropdown-menu>

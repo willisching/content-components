@@ -5,8 +5,8 @@ export const sharedManageStyles = css`
 	.d2l-capture-central-manage-container {
 		display:flex;
 		flex-direction: column;
-		margin-top: 25px;
 		margin-bottom: 50px;
+		margin-top: 25px;
 	}
 
 	.d2l-capture-central-manage-header {

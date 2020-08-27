@@ -5,7 +5,6 @@ import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/button/button-icon.js';
 import '@brightspace-ui/core/components/colors/colors.js';
 import '@brightspace-ui/core/components/inputs/input-text.js';
-import '@brightspace-ui/core/components/inputs/input-checkbox.js';
 import '@brightspace-ui/core/components/inputs/input-date-time-range.js';
 import '@brightspace-ui-labs/accordion/accordion-collapse.js';
 
