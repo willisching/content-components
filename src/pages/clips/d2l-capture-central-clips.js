@@ -7,8 +7,6 @@ import '@brightspace-ui/core/components/dropdown/dropdown-context-menu.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-menu.js';
 import '@brightspace-ui/core/components/inputs/input-checkbox.js';
 import '@brightspace-ui/core/components/inputs/input-search.js';
-import '@brightspace-ui/core/components/menu/menu.js';
-import '@brightspace-ui/core/components/menu/menu-item.js';
 import '@brightspace-ui-labs/pagination/pagination.js';
 import 'd2l-table/d2l-table-wrapper.js';
 
@@ -19,57 +17,40 @@ import { d2lTableStyles } from '../../components/d2l-table-styles.js';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
 import { PageViewElement } from '../../components/page-view-element.js';
 
-class D2lCapturePresentations extends DependencyRequester(PageViewElement) {
+class D2lCaptureClips extends DependencyRequester(PageViewElement) {
 
 	static get properties() {
 		return {
-			_numSelectedPresentations: { type: Number }
+			_numSelectedClips: { type: Number }
 		};
 	}
+
 	static get styles() {
 		return [
-			bodyStandardStyles,
 			d2lTableStyles,
-			heading2Styles,
-			sharedManageStyles,
 			sharedTableStyles,
+			sharedManageStyles,
+			bodyStandardStyles,
+			heading2Styles,
 			css``
 		];
 	}
 
 	constructor() {
 		super();
-		this._numSelectedPresentations = 0;
-		this._livePresentations = [{
-			id: 1,
-			name: 'Recording 1',
-			presenter: 'DC',
-			views: 12,
+		this._numSelectedClips = 0;
+		this._clips = [{
+			name: 'Clip 1',
 		}, {
-			id: 2,
-			name: 'Recording 2',
-			presenter: '-',
-			views: 30,
+			name: 'Clip 2',
 		}, {
-			id: 3,
-			name: 'Recording 3',
-			presenter: '-',
-			views: 30,
+			name: 'Clip 3',
 		}, {
-			id: 4,
-			name: 'Recording 4',
-			presenter: '-',
-			views: 30,
+			name: 'Clip 4',
 		}, {
-			id: 5,
-			name: 'Recording 5',
-			presenter: '-',
-			views: 30,
+			name: 'Clip 5',
 		}, {
-			id: 6,
-			name: 'Recording 6',
-			presenter: '-',
-			views: 30,
+			name: 'Clip 6',
 		}];
 	}
 
@@ -82,27 +63,28 @@ class D2lCapturePresentations extends DependencyRequester(PageViewElement) {
 			}
 			checkbox.checked = e.target.checked;
 		});
-		this._numSelectedPresentations += numAddedToSelection * (e.target.checked ? 1 : -1);
+		this._numSelectedClips += numAddedToSelection * (e.target.checked ? 1 : -1);
 	}
 
 	_addToSelection(e) {
-		this._numSelectedPresentations += e.target.checked ? 1 : -1;
+		this._numSelectedClips += e.target.checked ? 1 : -1;
 	}
 
-	_renderLivePresentations() {
-		return this._livePresentations.map(row => html`
+	_renderClips() {
+		return this._clips.map(row => html`
 			<tr>
-				<td><d2l-input-checkbox aria-label=${this.localize('selectOption', { option: row.name })} @change=${this._addToSelection}></d2l-input-checkbox></td>
-				<td><d2l-link @click=${this._goTo('/presentations/edit', { id: row.id })}>${row.name}</d2l-link></td>
-				<td>${row.presenter}</td>
-				<td>${row.views}</td>
+				<td>
+					<d2l-input-checkbox
+						aria-label=${this.localize('selectOption', { option: row.name })}
+						@change=${this._addToSelection}
+					></d2l-input-checkbox>
+				</td>
+				<td>${row.name}</td>
 				<td>
 					<d2l-dropdown-context-menu>
 						<d2l-dropdown-menu>
 							<d2l-menu label="${this.localize('moreOptions')}">
-								<d2l-menu-item text="${this.localize('openInProducer')}"></d2l-menu-item>
-								<d2l-menu-item text="${this.localize('openInPlayer')}"></d2l-menu-item>
-								<d2l-menu-item text="${this.localize('duplicate')}"></d2l-menu-item>
+								<d2l-menu-item text="${this.localize('download')}"></d2l-menu-item>
 								<d2l-menu-item text="${this.localize('delete')}"></d2l-menu-item>
 							</d2l-menu>
 						</d2l-dropdown-menu>
@@ -117,58 +99,43 @@ class D2lCapturePresentations extends DependencyRequester(PageViewElement) {
 			<div class="d2l-capture-central-manage-container">
 				<d2l-breadcrumbs>
 					<d2l-breadcrumb @click=${this._goTo('/admin')} href="#" text="${this.localize('captureCentral')}"></d2l-breadcrumb>
-					<d2l-breadcrumb-current-page text="${this.localize('presentations')}"></d2l-breadcrumb-current-page>
+					<d2l-breadcrumb-current-page text="${this.localize('clips')}"></d2l-breadcrumb-current-page>
 				</d2l-breadcrumbs>
 				<div class="d2l-capture-central-manage-header">
-					<h2 class="d2l-heading-2">${this.localize('managePresentations')}</h2>
+					<h2 class="d2l-heading-2">${this.localize('manageClips')}</h2>
 					<d2l-button primary>
-						${this.localize('uploadVideo')}
+						${this.localize('uploadFile')}
 					</d2l-button>
 				</div>
 				<div class="d2l-body-standard d2l-capture-central-manage-num-selected">
-					${this.localize('numPresentationsSelected', { count: this._numSelectedPresentations })}
+					${this.localize('numEventsSelected', { count: this._numSelectedClips })}
 				</div>
 				<div class="d2l-capture-central-manage-options">
-					<d2l-button primary class="add-to-collection-button">${this.localize('addToCollection')}</d2l-button>
 					<d2l-button class="delete-button">${this.localize('delete')}</d2l-button>
-					<d2l-button class="settings-button">${this.localize('settings')}</d2l-button>
 					<d2l-input-search
-						class="search-presentations"
-						label="${this.localize('searchPresentations')}"
-						placeholder="${this.localize('searchPresentations')}"
+						class="search-live-events"
+						label="${this.localize('searchClips')}"
+						placeholder="${this.localize('searchClips')}"
 					></d2l-input-search>
 				</div>
 				<d2l-table-wrapper sticky-headers>
 					<p class="d2l-capture-central-table-caption" id="d2l-capture-central-table-caption">
-						${this.localize('livePresentations')}
+						${this.localize('manageClips')}
 					</p>
 					<table class="d2l-table" aria-describedby="d2l-capture-central-table-caption">
 						<thead>
 							<tr>
 								<th class="d2l-capture-central-th-checkbox-container">
-									<d2l-input-checkbox aria-label=${this.localize('selectAllPresentations')} @change=${this._addAllToSelection}></d2l-input-checkbox>
+									<d2l-input-checkbox aria-label=${this.localize('selectAllLiveEvents')} @change=${this._addAllToSelection}></d2l-input-checkbox>
 								</th>
-								<th>
-									<div class="d2l-capture-central-th-container">
-										${this.localize('name')}
-									</div>
-								</th>
-								<th>
-									<div class="d2l-capture-central-th-container">
-										${this.localize('presenter')}
-									</div>
-								</th>
-								<th>
-									<div class="d2l-capture-central-th-container">
-										${this.localize('views')}
-									</div>
-								</th>
-								<th class="d2l-capture-central-th-more-options-container">
-								</th>
+								<th><div class="d2l-capture-central-th-container">
+									${this.localize('name')}
+								</div></th>
+								<th class="d2l-capture-central-th-more-options-container"></th>
 							</tr>
 						</thead>
 						<tbody>
-							${this._renderLivePresentations()}
+							${this._renderClips()}
 						</tbody>
 					</table>
 				</d2l-table-wrapper>
@@ -178,4 +145,4 @@ class D2lCapturePresentations extends DependencyRequester(PageViewElement) {
 	}
 }
 
-window.customElements.define('d2l-capture-central-presentations', D2lCapturePresentations);
+window.customElements.define('d2l-capture-central-clips', D2lCaptureClips);
