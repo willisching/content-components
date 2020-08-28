@@ -67,12 +67,14 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 		const { page, subView } = rootStore.routingStore;
 
 		switch (page) {
-			/* eslint-disable no-unused-expressions */
 			case '':
 				this._navigate('/admin');
 				return;
 			case 'admin':
 				import('./pages/admin/d2l-capture-central-admin.js');
+				return;
+			case 'audit-logs':
+				import('./pages/reporting/d2l-capture-central-audit-logs.js');
 				return;
 			case 'clips':
 				import('./pages/clips/d2l-capture-central-clips.js');
@@ -101,7 +103,6 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 				rootStore.routingStore.setPage('404');
 				import('./d2l-capture-central-404.js');
 				break;
-			/* eslint-enable no-unused-expressions */
 		}
 	}
 
@@ -110,6 +111,7 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 		return html`
 		<main id="main" role="main">
 			<d2l-capture-central-admin class="page" ?active=${currentPage === 'admin'}></d2l-capture-central-admin>
+			<d2l-capture-central-audit-logs class="page" ?active=${currentPage === 'audit-logs'}></d2l-capture-central-audit-logs>
 			<d2l-capture-central-clips class="page" ?active=${currentPage === 'clips'}></d2l-capture-central-clips>
 			<d2l-capture-central-live-events class="page" ?active=${currentPage === 'live-events' && !subView}></d2l-capture-central-live-events>
 			<d2l-capture-central-live-events-edit class="page" ?active=${currentPage === 'live-events' && subView === 'edit'}></d2l-capture-central-live-events-edit>

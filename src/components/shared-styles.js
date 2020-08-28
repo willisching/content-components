@@ -47,6 +47,10 @@ export const sharedTableStyles = css`
 		display: none;
 	}
 
+	.d2l-capture-central-table-no-results {
+		text-align: center;
+	}
+
 	.d2l-capture-central-th-container {
 		align-items: center;
 		display: flex;
