@@ -73,7 +73,7 @@ class D2lCaptureCentralAdmin extends DependencyRequester(PageViewElement) {
 					<h3 class="d2l-heading-3">${this.localize('server')}</h3>
 					<div class="d2l-capture-central-grouping">
 						<h4 class="d2l-heading-4">${this.localize('usersAndGroupsHeading')}</h4>
-						<d2l-link>${this.localize('users')}</d2l-link>
+						<d2l-link @click=${this._goTo('/users')}>${this.localize('users')}</d2l-link>
 						<d2l-link>${this.localize('groups')}</d2l-link>
 					</div>
 					<div class="d2l-capture-central-grouping">
