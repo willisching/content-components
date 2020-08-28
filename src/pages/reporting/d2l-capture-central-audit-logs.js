@@ -21,7 +21,7 @@ class D2LCaptureAuditLogs extends DependencyRequester(PageViewElement) {
 
 	static get properties() {
 		return {
-			_liveEvent: { type: Object }
+			_auditLogs: { type: Array }
 		};
 	}
 	static get styles() {

@@ -21,7 +21,8 @@ class D2lCaptureClips extends DependencyRequester(PageViewElement) {
 
 	static get properties() {
 		return {
-			_numSelectedClips: { type: Number }
+			_numSelectedClips: { type: Number },
+			_clips: { type: Array }
 		};
 	}
 

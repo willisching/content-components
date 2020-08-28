@@ -23,7 +23,8 @@ class D2lCapturePresentations extends DependencyRequester(PageViewElement) {
 
 	static get properties() {
 		return {
-			_numSelectedPresentations: { type: Number }
+			_numSelectedPresentations: { type: Number },
+			_livePresentations: { type: Array }
 		};
 	}
 	static get styles() {

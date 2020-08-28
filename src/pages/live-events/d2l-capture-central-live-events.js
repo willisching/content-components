@@ -21,7 +21,8 @@ class D2lCaptureLiveEvents extends DependencyRequester(PageViewElement) {
 
 	static get properties() {
 		return {
-			_numSelectedEvents: { type: Number }
+			_numSelectedEvents: { type: Number },
+			_liveEvents: { type: Array }
 		};
 	}
 

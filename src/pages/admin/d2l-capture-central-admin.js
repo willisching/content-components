@@ -9,7 +9,6 @@ class D2lCaptureCentralAdmin extends DependencyRequester(PageViewElement) {
 
 	static get styles() {
 		return [heading3Styles, heading4Styles, css`
-
 			.d2l-capture-central-admin {
 				display: grid;
 				grid-template-columns: 225px 1fr;
