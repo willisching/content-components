@@ -102,6 +102,9 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 			case 'video-library':
 				import('./pages/video-library/d2l-capture-central-video-library.js');
 				return;
+			case 'visits':
+				import('./pages/reporting/d2l-capture-central-visits.js');
+				return;
 			default:
 				rootStore.routingStore.setPage('404');
 				import('./d2l-capture-central-404.js');
@@ -123,6 +126,7 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 			<d2l-capture-central-presentations-edit class="page" ?active=${currentPage === 'presentations' && subView === 'edit'}></d2l-capture-central-presentations-edit>
 			<d2l-capture-central-settings class="page" ?active=${currentPage === 'settings'}></d2l-capture-central-settings>
 			<d2l-capture-central-video-library class="page" ?active=${currentPage === 'video-library'}></d2l-capture-central-video-library>
+			<d2l-capture-central-visits class="page" ?active=${currentPage === 'visits'}></d2l-capture-central-visits>
 			<d2l-capture-central-404 class="page" ?active=${currentPage === '404'}></d2l-capture-central-404>
 		</main>
 		`;
