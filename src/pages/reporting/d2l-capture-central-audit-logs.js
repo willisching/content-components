@@ -11,7 +11,7 @@ import 'd2l-table/d2l-table-wrapper.js';
 
 import { css, html } from 'lit-element/lit-element.js';
 import { heading2Styles, labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
-import { sharedEditStyles, sharedManageStyles, sharedTableStyles } from '../../components/shared-styles.js';
+import { sharedManageStyles, sharedTableStyles } from '../../components/shared-styles.js';
 import { d2lTableStyles } from '../../components/d2l-table-styles.js';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
 import { inputStyles } from '@brightspace-ui/core/components/inputs/input-styles.js';
@@ -25,7 +25,7 @@ class D2LCaptureAuditLogs extends DependencyRequester(PageViewElement) {
 		};
 	}
 	static get styles() {
-		return [inputStyles, heading2Styles, labelStyles, sharedEditStyles, sharedManageStyles, sharedTableStyles, d2lTableStyles, css`
+		return [inputStyles, heading2Styles, labelStyles, sharedManageStyles, sharedTableStyles, d2lTableStyles, css`
 			.d2l-capture-central-manage-header {
 				border-bottom: none;
 			}
@@ -78,7 +78,7 @@ class D2LCaptureAuditLogs extends DependencyRequester(PageViewElement) {
 
 	render() {
 		return html`
-			<div class="d2l-capture-central-edit">
+			<div class="d2l-capture-central-manage-container">
 				<d2l-breadcrumbs>
 					<d2l-breadcrumb @click=${this._goTo('/admin')} href="#" text="${this.localize('captureCentral')}"></d2l-breadcrumb>
 					<d2l-breadcrumb-current-page text="${this.localize('auditLogs')}"></d2l-breadcrumb-current-page>

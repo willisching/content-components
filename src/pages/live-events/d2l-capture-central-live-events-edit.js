@@ -43,7 +43,7 @@ class D2LCaptureLiveEventsEdit extends DependencyRequester(PageViewElement) {
 	render() {
 		const { title, presenter, description } = this._liveEvent;
 		return html`
-			<div class="d2l-capture-central-edit">
+			<div class="d2l-capture-central-edit-container">
 				<d2l-breadcrumbs>
 					<d2l-breadcrumb @click=${this._goTo('/admin')} href="#" text="${this.localize('captureCentral')}"></d2l-breadcrumb>
 					<d2l-breadcrumb @click=${this._goTo('/live-events')} href="#" text="${this.localize('liveEvents')}"></d2l-breadcrumb>

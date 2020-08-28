@@ -67,7 +67,7 @@ export const sharedTableStyles = css`
 `;
 
 export const sharedEditStyles = css`
-	.d2l-capture-central-edit {
+	.d2l-capture-central-edit-container {
 		display:flex;
 		flex-direction: column;
 		margin-bottom: 50px;
