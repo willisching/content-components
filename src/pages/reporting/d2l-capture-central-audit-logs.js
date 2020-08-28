@@ -91,7 +91,7 @@ class D2LCaptureAuditLogs extends DependencyRequester(PageViewElement) {
 						</d2l-button>
 						<d2l-dropdown-button class="d2l-capture-central-audit-logs-export" text="${this.localize('export')}">
 							<d2l-dropdown-menu>
-								<d2l-menu label="${this.localize('folders')}">
+								<d2l-menu label="${this.localize('export')}">
 									<d2l-menu-item text="${this.localize('csv')}"></d2l-menu-item>
 								</d2l-menu>
 							</d2l-dropdown-menu>

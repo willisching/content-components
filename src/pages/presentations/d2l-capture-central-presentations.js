@@ -149,21 +149,15 @@ class D2lCapturePresentations extends DependencyRequester(PageViewElement) {
 								<th class="d2l-capture-central-th-checkbox-container">
 									<d2l-input-checkbox aria-label=${this.localize('selectAllPresentations')} @change=${this._addAllToSelection}></d2l-input-checkbox>
 								</th>
-								<th>
-									<div class="d2l-capture-central-th-container">
-										${this.localize('name')}
-									</div>
-								</th>
-								<th>
-									<div class="d2l-capture-central-th-container">
-										${this.localize('presenter')}
-									</div>
-								</th>
-								<th>
-									<div class="d2l-capture-central-th-container">
-										${this.localize('views')}
-									</div>
-								</th>
+								<th><div class="d2l-capture-central-th-container">
+									${this.localize('name')}
+								</div></th>
+								<th><div class="d2l-capture-central-th-container">
+									${this.localize('presenter')}
+								</div></th>
+								<th><div class="d2l-capture-central-th-container">
+									${this.localize('views')}
+								</div></th>
 								<th class="d2l-capture-central-th-more-options-container"></th>
 							</tr>
 						</thead>
