@@ -82,6 +82,9 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 			case 'folders':
 				import('./pages/folders/d2l-capture-central-folders.js');
 				return;
+			case 'groups':
+				import('./pages/groups/d2l-capture-central-groups.js');
+				return;
 			case 'live-events':
 				if (subView === 'edit') {
 					import('./pages/live-events/d2l-capture-central-live-events-edit.js');
@@ -126,6 +129,7 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 			<d2l-capture-central-audit-logs class="page" ?active=${currentPage === 'audit-logs'}></d2l-capture-central-audit-logs>
 			<d2l-capture-central-clips class="page" ?active=${currentPage === 'clips'}></d2l-capture-central-clips>
 			<d2l-capture-central-folders class="page" ?active=${currentPage === 'folders'}></d2l-capture-central-folders>
+			<d2l-capture-central-groups class="page" ?active=${currentPage === 'groups'}></d2l-capture-central-groups>
 			<d2l-capture-central-live-events class="page" ?active=${currentPage === 'live-events' && !subView}></d2l-capture-central-live-events>
 			<d2l-capture-central-live-events-edit class="page" ?active=${currentPage === 'live-events' && subView === 'edit'}></d2l-capture-central-live-events-edit>
 			<d2l-capture-central-live-events-reporting class="page" ?active=${currentPage === 'live-events-reporting'}></d2l-capture-central-live-events-reporting>
