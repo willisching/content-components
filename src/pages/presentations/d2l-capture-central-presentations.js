@@ -163,8 +163,7 @@ class D2lCapturePresentations extends DependencyRequester(PageViewElement) {
 										${this.localize('views')}
 									</div>
 								</th>
-								<th class="d2l-capture-central-th-more-options-container">
-								</th>
+								<th class="d2l-capture-central-th-more-options-container"></th>
 							</tr>
 						</thead>
 						<tbody>

@@ -57,13 +57,13 @@ class D2LCapturePresentationsEdit extends DependencyRequester(PageViewElement) {
 				<d2l-input-text
 					label="${this.localize('title')}"
 					placeholder="${this.localize('title')}"
-					value="${title}">
-				</d2l-input-text>
+					value="${title}"
+				></d2l-input-text>
 				<d2l-input-text
 					label="${this.localize('presenter')}"
 					placeholder="${this.localize('presenter')}"
-					value="${presenter}">
-				</d2l-input-text>
+					value="${presenter}"
+				></d2l-input-text>
 				<div class="d2l-capture-central-edit-textarea-container">
 					<div class="d2l-label-text">${this.localize('description')}</div>
 					<textarea class="d2l-input">${description}</textarea>
