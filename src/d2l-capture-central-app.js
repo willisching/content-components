@@ -105,6 +105,9 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 			case 'settings':
 				import('./pages/settings/d2l-capture-central-settings.js');
 				return;
+			case 'upload-video':
+				import('./pages/upload-video/d2l-capture-central-upload-video.js');
+				return;
 			case 'users':
 				import('./pages/users/d2l-capture-central-users.js');
 				return;
@@ -136,6 +139,7 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 			<d2l-capture-central-presentations class="page" ?active=${currentPage === 'presentations' && !subView}></d2l-capture-central-presentations>
 			<d2l-capture-central-presentations-edit class="page" ?active=${currentPage === 'presentations' && subView === 'edit'}></d2l-capture-central-presentations-edit>
 			<d2l-capture-central-settings class="page" ?active=${currentPage === 'settings'}></d2l-capture-central-settings>
+			<d2l-capture-central-upload-video class="page" ?active=${currentPage === 'upload-video'}></d2l-capture-central-upload-video>
 			<d2l-capture-central-users class="page" ?active=${currentPage === 'users'}></d2l-capture-central-users>
 			<d2l-capture-central-video-library class="page" ?active=${currentPage === 'video-library'}></d2l-capture-central-video-library>
 			<d2l-capture-central-visits class="page" ?active=${currentPage === 'visits'}></d2l-capture-central-visits>

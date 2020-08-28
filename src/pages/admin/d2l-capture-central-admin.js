@@ -65,7 +65,7 @@ class D2lCaptureCentralAdmin extends DependencyRequester(PageViewElement) {
 					<span><d2l-link @click=${this._goTo('/live-events')}>${this.localize('liveEvents')}</d2l-link></span>
 					<span><d2l-link @click=${this._goTo('/presentations')}>${this.localize('presentations')}</d2l-link></span>
 					<span><d2l-link @click=${this._goTo('/folders')}>${this.localize('folders')}</d2l-link></span>
-					<span><d2l-link>${this.localize('uploadVideo')}</d2l-link></span>
+					<span><d2l-link @click=${this._goTo('/upload-video')}>${this.localize('uploadVideo')}</d2l-link></span>
 					<span><d2l-link>${this.localize('recordVideo')}</d2l-link></span>
 					<span><d2l-link @click=${this._goTo('/video-library')}>${this.localize('videoLibrary')}</d2l-link></span>
 				</div>
