@@ -10,11 +10,11 @@ import '@brightspace-ui/core/components/inputs/input-search.js';
 import '@brightspace-ui-labs/pagination/pagination.js';
 import 'd2l-table/d2l-table-wrapper.js';
 
-import { bodyStandardStyles, heading2Styles } from '@brightspace-ui/core/components/typography/styles.js';
 import { css, html } from 'lit-element/lit-element.js';
 import { sharedManageStyles, sharedTableStyles } from '../../components/shared-styles.js';
 import { d2lTableStyles } from '../../components/d2l-table-styles.js';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
+import { heading2Styles } from '@brightspace-ui/core/components/typography/styles.js';
 import { PageViewElement } from '../../components/page-view-element.js';
 
 class D2lCaptureLiveEvents extends DependencyRequester(PageViewElement) {
@@ -27,14 +27,8 @@ class D2lCaptureLiveEvents extends DependencyRequester(PageViewElement) {
 	}
 
 	static get styles() {
-		return [
-			d2lTableStyles,
-			sharedManageStyles,
-			sharedTableStyles,
-			bodyStandardStyles,
-			heading2Styles,
-			css``
-		];
+		return [ d2lTableStyles, sharedManageStyles, sharedTableStyles, heading2Styles, css`
+		`];
 	}
 
 	constructor() {
@@ -128,11 +122,11 @@ class D2lCaptureLiveEvents extends DependencyRequester(PageViewElement) {
 						${this.localize('createLiveEvent')}
 					</d2l-button>
 				</div>
-				<div class="d2l-body-standard d2l-capture-central-manage-num-selected">
+				<div class="d2l-capture-central-manage-num-selected">
 					${this.localize('numLiveEventsSelected', { count: this._numSelectedEvents })}
 				</div>
 				<div class="d2l-capture-central-manage-options">
-					<d2l-button>${this.localize('delete')}</d2l-button=>
+					<d2l-button>${this.localize('delete')}</d2l-button>
 					<d2l-button>${this.localize('settings')}</d2l-button>
 					<d2l-input-search
 						label="${this.localize('searchLiveEvents')}"

@@ -12,11 +12,11 @@ import '@brightspace-ui/core/components/menu/menu-item.js';
 import '@brightspace-ui-labs/pagination/pagination.js';
 import 'd2l-table/d2l-table-wrapper.js';
 
-import { bodyStandardStyles, heading2Styles } from '@brightspace-ui/core/components/typography/styles.js';
 import { css, html } from 'lit-element/lit-element.js';
 import { sharedManageStyles, sharedTableStyles } from '../../components/shared-styles.js';
 import { d2lTableStyles } from '../../components/d2l-table-styles.js';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
+import { heading2Styles } from '@brightspace-ui/core/components/typography/styles.js';
 import { PageViewElement } from '../../components/page-view-element.js';
 
 class D2lCapturePresentations extends DependencyRequester(PageViewElement) {
@@ -28,14 +28,8 @@ class D2lCapturePresentations extends DependencyRequester(PageViewElement) {
 		};
 	}
 	static get styles() {
-		return [
-			bodyStandardStyles,
-			d2lTableStyles,
-			heading2Styles,
-			sharedManageStyles,
-			sharedTableStyles,
-			css``
-		];
+		return [ d2lTableStyles, heading2Styles, sharedManageStyles, sharedTableStyles, css`
+		`];
 	}
 
 	constructor() {
@@ -126,7 +120,7 @@ class D2lCapturePresentations extends DependencyRequester(PageViewElement) {
 						${this.localize('uploadVideo')}
 					</d2l-button>
 				</div>
-				<div class="d2l-body-standard d2l-capture-central-manage-num-selected">
+				<div class="d2l-capture-central-manage-num-selected">
 					${this.localize('numPresentationsSelected', { count: this._numSelectedPresentations })}
 				</div>
 				<div class="d2l-capture-central-manage-options">

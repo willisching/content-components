@@ -6,8 +6,8 @@ import '@brightspace-ui/core/components/colors/colors.js';
 import '@brightspace-ui/core/components/inputs/input-checkbox.js';
 import '@brightspace-ui-labs/accordion/accordion-collapse.js';
 
-import { bodyStandardStyles, heading2Styles, labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { css, html } from 'lit-element/lit-element.js';
+import { heading2Styles, labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { sharedEditStyles, sharedManageStyles } from '../../components/shared-styles.js';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
 import { PageViewElement } from '../../components/page-view-element.js';
@@ -16,7 +16,7 @@ import { selectStyles } from '@brightspace-ui/core/components/inputs/input-selec
 class D2lCaptureSettings extends DependencyRequester(PageViewElement) {
 
 	static get styles() {
-		return [ bodyStandardStyles, heading2Styles, labelStyles, selectStyles, sharedEditStyles, sharedManageStyles, css`
+		return [ heading2Styles, labelStyles, selectStyles, sharedEditStyles, sharedManageStyles, css`
 			.d2l-capture-central-manage-header {
 				border-bottom: none;
 			}
@@ -64,16 +64,16 @@ class D2lCaptureSettings extends DependencyRequester(PageViewElement) {
 				<div class="d2l-capture-central-manage-header">
 					<h2 class="d2l-heading-2">${this.localize('prepostRollClipSettings')}</h2>
 				</div>
-				<d2l-labs-accordion-collapse class="d2l-capture-central-settings-pre-post-roll-settings" disabled opened flex no-icons>
+				<d2l-labs-accordion-collapse class="d2l-capture-central-settings-pre-post-roll-settings" opened flex no-icons>
 					<div slot="header">${this.localize('liveEventSettings')}</div>
 					<div class="d2l-capture-central-settings-pre-post-roll-settings-container">
-						<label for="d2l-capture-central-settings-pre-roll-clip" class="d2l-label-styles">
+						<label for="d2l-capture-central-settings-pre-roll-clip" class="d2l-label-text">
 							${this.localize('preRollClip')}
 						</label>
 						<select id="d2l-capture-central-settings-pre-roll-clip" class="d2l-input-select">
 							${this._prerollClips.map(clip => (html`<option>${clip.name}</option>`))}
 						</select>
-						<label for="d2l-capture-central-settings-post-roll-clip" class="d2l-label-styles">
+						<label for="d2l-capture-central-settings-post-roll-clip" class="d2l-label-text">
 							${this.localize('postRollClip')}
 						</label>
 						<select id="d2l-capture-central-settings-post-roll-clip" class="d2l-input-select">

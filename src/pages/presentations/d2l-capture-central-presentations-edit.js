@@ -23,6 +23,9 @@ class D2LCapturePresentationsEdit extends DependencyRequester(PageViewElement) {
 	}
 	static get styles() {
 		return [inputStyles, heading2Styles, labelStyles, sharedEditStyles, css`
+			.d2l-capture-central-edit-presentation-options {
+				margin-bottom: 20px;
+			}
 			.d2l-capture-central-edit-presentation-options d2l-icon {
 				color: var(--d2l-color-celestine);
 				margin-bottom: 5px;
