@@ -131,8 +131,8 @@ class D2lCapturePresentations extends DependencyRequester(PageViewElement) {
 				</div>
 				<div class="d2l-capture-central-manage-options">
 					<d2l-button primary class="add-to-collection-button">${this.localize('addToCollection')}</d2l-button>
-					<d2l-button class="delete-button">${this.localize('delete')}</d2l-button>
-					<d2l-button class="settings-button">${this.localize('settings')}</d2l-button>
+					<d2l-button>${this.localize('delete')}</d2l-button>
+					<d2l-button>${this.localize('settings')}</d2l-button>
 					<d2l-input-search
 						class="search-presentations"
 						label="${this.localize('searchPresentations')}"

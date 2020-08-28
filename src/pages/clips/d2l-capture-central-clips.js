@@ -109,12 +109,11 @@ class D2lCaptureClips extends DependencyRequester(PageViewElement) {
 					</d2l-button>
 				</div>
 				<div class="d2l-body-standard d2l-capture-central-manage-num-selected">
-					${this.localize('numEventsSelected', { count: this._numSelectedClips })}
+					${this.localize('numClipsSelected', { count: this._numSelectedClips })}
 				</div>
 				<div class="d2l-capture-central-manage-options">
 					<d2l-button class="delete-button">${this.localize('delete')}</d2l-button>
 					<d2l-input-search
-						class="search-live-events"
 						label="${this.localize('searchClips')}"
 						placeholder="${this.localize('searchClips')}"
 					></d2l-input-search>
@@ -127,7 +126,7 @@ class D2lCaptureClips extends DependencyRequester(PageViewElement) {
 						<thead>
 							<tr>
 								<th class="d2l-capture-central-th-checkbox-container">
-									<d2l-input-checkbox aria-label=${this.localize('selectAllLiveEvents')} @change=${this._addAllToSelection}></d2l-input-checkbox>
+									<d2l-input-checkbox aria-label=${this.localize('selectAllLiveClips')} @change=${this._addAllToSelection}></d2l-input-checkbox>
 								</th>
 								<th><div class="d2l-capture-central-th-container">
 									${this.localize('name')}

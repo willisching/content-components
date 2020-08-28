@@ -22,7 +22,7 @@ class D2lCaptureLiveEvents extends DependencyRequester(PageViewElement) {
 	static get properties() {
 		return {
 			_numSelectedEvents: { type: Number },
-			_liveEvents: { type: Array }
+			_liveEvents: { type: Number }
 		};
 	}
 
@@ -129,13 +129,12 @@ class D2lCaptureLiveEvents extends DependencyRequester(PageViewElement) {
 					</d2l-button>
 				</div>
 				<div class="d2l-body-standard d2l-capture-central-manage-num-selected">
-					${this.localize('numEventsSelected', { count: this._numSelectedEvents })}
+					${this.localize('numLiveEventsSelected', { count: this._numSelectedEvents })}
 				</div>
 				<div class="d2l-capture-central-manage-options">
-					<d2l-button class="delete-button">${this.localize('delete')}</d2l-button>
-					<d2l-button class="settings-button">${this.localize('settings')}</d2l-button>
+					<d2l-button>${this.localize('delete')}</d2l-button=>
+					<d2l-button>${this.localize('settings')}</d2l-button>
 					<d2l-input-search
-						class="search-live-events"
 						label="${this.localize('searchLiveEvents')}"
 						placeholder="${this.localize('searchLiveEvents')}"
 					></d2l-input-search>
