@@ -7,7 +7,6 @@ import { rootStore } from '../state/root-store.js';
 export const navigationMixin = superClass => class extends (superClass) {
 	_navigate(path, queryStringCollection) {
 		const pathWithQs = `/${rootStore.routingStore.orgUnit}${path}${this.__stringifyQueryStringCollection(queryStringCollection)}`;
-		console.log(pathWithQs);
 		page(pathWithQs);
 		window.scrollTo(0, 0);
 	}

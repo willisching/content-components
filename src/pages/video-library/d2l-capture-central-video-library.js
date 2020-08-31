@@ -6,7 +6,7 @@ import '@brightspace-ui/core/components/icons/icon.js';
 import '@brightspace-ui/core/components/inputs/input-search.js';
 import '@brightspace-ui/core/components/menu/menu-item.js';
 import '@brightspace-ui/core/components/menu/menu.js';
-import 'd2l-card/d2l-card.js';
+import '@brightspace-ui/core/components/card/card.js';
 
 import { css, html } from 'lit-element/lit-element.js';
 import { PageViewElement } from '../../components/page-view-element';
