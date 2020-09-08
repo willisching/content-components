@@ -50,13 +50,6 @@ class D2lCaptureCentralAdmin extends DependencyRequester(PageViewElement) {
 		`];
 	}
 
-	async connectedCallback() {
-		super.connectedCallback();
-		// this.apiClient = this.requestDependency('content-service-client');
-		// const r = await this.apiClient.listContent();
-		// console.log('response', r);
-	}
-
 	render() {
 		return html`
 			<div class="d2l-capture-central-admin">

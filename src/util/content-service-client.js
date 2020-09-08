@@ -55,7 +55,7 @@ export default class ContentServiceClient {
 		return response;
 	}
 
-	searchContent({ start = 0, size = 20, sort, query = '', contentType = '', updatedAt = '', createdAt = '' }) {
+	searchContent({ start = 0, size = 20, sort, query = '', contentType = '', updatedAt = '', createdAt = '', includeThumbnails = false }) {
 		const headers = new Headers();
 		headers.append('pragma', 'no-cache');
 		headers.append('cache-control', 'no-cache');
@@ -69,7 +69,8 @@ export default class ContentServiceClient {
 				query,
 				contentType: contentFilterToSearchQuery(contentType),
 				updatedAt: dateFilterToSearchQuery(updatedAt),
-				createdAt: dateFilterToSearchQuery(createdAt)
+				createdAt: dateFilterToSearchQuery(createdAt),
+				includeThumbnails
 			},
 			headers
 		});
@@ -79,6 +80,12 @@ export default class ContentServiceClient {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content`,
 			...ids && { queryParams: ids.join(',') }
+		});
+	}
+
+	getContent(id) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${id}`
 		});
 	}
 

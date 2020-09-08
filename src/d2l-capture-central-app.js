@@ -50,15 +50,26 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 	_setupPageNavigation() {
 		page.base(BASE_PATH);
 
-		page('/:orgUnitId/404', this.setupPage.bind(this));
-		page('/:orgUnitId/admin', this.setupPage.bind(this));
-		page('/:orgUnitId/live-events', this.setupPage.bind(this));
-		page('/:orgUnitId/live-events/edit', this.setupPage.bind(this));
-		page('/:orgUnitId/presentations', this.setupPage.bind(this));
-		page('/:orgUnitId/presentations/edit', this.setupPage.bind(this));
-		page('/:orgUnitId/video-library', this.setupPage.bind(this));
-		page('/:orgUnitId/', this.setupPage.bind(this));
-		page('*', this.setupPage.bind(this));
+		const routes = [
+			'/:orgUnitId/404',
+			'/:orgUnitId/admin',
+			'/:orgUnitId/audit-logs',
+			'/:orgUnitId/clips',
+			'/:orgUnitId/folders',
+			'/:orgUnitId/groups',
+			'/:orgUnitId/live-events',
+			'/:orgUnitId/live-events/edit',
+			'/:orgUnitId/live-events-reporting',
+			'/:orgUnitId/presentations',
+			'/:orgUnitId/presentations/edit',
+			'/:orgUnitId/settings',
+			'/:orgUnitId/upload-video',
+			'/:orgUnitId/users',
+			'/:orgUnitId/video-library',
+			'/:orgUnitId/visits',
+			'/:orgUnitId/',
+		];
+		routes.forEach(route => page(route, this.setupPage.bind(this)));
 		page();
 	}
 

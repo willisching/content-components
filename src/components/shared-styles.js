@@ -17,7 +17,7 @@ export const sharedManageStyles = css`
 	}
 
 	.d2l-capture-central-manage-num-selected {
-		margin: 20px 0px;
+		margin: 20px 0;
 	}
 
 	.d2l-capture-central-manage-options {

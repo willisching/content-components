@@ -40,6 +40,7 @@
     "@brightspace-ui-labs/accordion": "^2.3.0",
     "@brightspace-ui-labs/pagination": "0.0.8",
     "@brightspace-ui/core": "^1.74.5",
+    "@brightspace-ui/intl": "^3.0.11",
     "@chaitin/querystring": "^1.1.0",
     "@polymer/polymer": "^3.4.1",
     "@webcomponents/webcomponentsjs": "^2",
