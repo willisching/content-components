@@ -1,5 +1,5 @@
 import { html } from 'lit-element/lit-element.js';
-import { PageViewElement } from './components/page-view-element.js';
+import { PageViewElement } from '../../components/page-view-element.js';
 
 class D2lCaptureCentral404 extends PageViewElement {
 	render() {

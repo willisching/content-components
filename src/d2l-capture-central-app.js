@@ -54,6 +54,7 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 			'/:orgUnitId/404',
 			'/:orgUnitId/admin',
 			'/:orgUnitId/audit-logs',
+			'/:orgUnitId/course-videos',
 			'/:orgUnitId/clips',
 			'/:orgUnitId/folders',
 			'/:orgUnitId/groups',
@@ -68,6 +69,7 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 			'/:orgUnitId/video-library',
 			'/:orgUnitId/visits',
 			'/:orgUnitId/',
+			'/*',
 		];
 		routes.forEach(route => page(route, this.setupPage.bind(this)));
 		page();
@@ -86,6 +88,9 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 				return;
 			case 'audit-logs':
 				import('./pages/reporting/d2l-capture-central-audit-logs.js');
+				return;
+			case 'course-videos':
+				import('./pages/course-videos/d2l-capture-central-course-videos.js');
 				return;
 			case 'clips':
 				import('./pages/clips/d2l-capture-central-clips.js');
@@ -130,7 +135,7 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 				return;
 			default:
 				rootStore.routingStore.setPage('404');
-				import('./d2l-capture-central-404.js');
+				import('./pages/404/d2l-capture-central-404.js');
 				break;
 		}
 	}
@@ -141,6 +146,7 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 		<main id="main" role="main">
 			<d2l-capture-central-admin class="page" ?active=${currentPage === 'admin'}></d2l-capture-central-admin>
 			<d2l-capture-central-audit-logs class="page" ?active=${currentPage === 'audit-logs'}></d2l-capture-central-audit-logs>
+			<d2l-capture-central-course-videos class="page" ?active=${currentPage === 'course-videos'}></d2l-capture-central-course-videos>
 			<d2l-capture-central-clips class="page" ?active=${currentPage === 'clips'}></d2l-capture-central-clips>
 			<d2l-capture-central-folders class="page" ?active=${currentPage === 'folders'}></d2l-capture-central-folders>
 			<d2l-capture-central-groups class="page" ?active=${currentPage === 'groups'}></d2l-capture-central-groups>

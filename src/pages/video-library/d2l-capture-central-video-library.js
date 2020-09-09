@@ -209,7 +209,7 @@ class D2LCaptureCentralVideoLibrary extends DependencyRequester(PageViewElement)
 				></d2l-input-search>
 				${this._renderVideos()}
 				<d2l-button class="d2l-capture-central-load-more-button">
-					${this.localize('loadMoreVideos')}
+					${this.localize('loadMore')}
 				</d2l-button>
 			</div>
 		`;
