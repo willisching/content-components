@@ -59,15 +59,8 @@ class D2lCaptureCourseVideos extends DependencyRequester(PageViewElement) {
 		this._updateVideoList(hits);
 	}
 
-	async firstUpdated() {
-		super.firstUpdated();
-		this.shadowRoot
-			.querySelector('#d2l-capture-central-add-from-content-store-button')
-			.addEventListener('click', () => {
-				this.shadowRoot
-					.querySelector('d2l-capture-central-add-videos-dialog')
-					.open();
-			});
+	_openAddVideosDialog() {
+		this.shadowRoot.querySelector('d2l-capture-central-add-videos-dialog').open();
 	}
 
 	_updateVideoList(hits) {
@@ -141,6 +134,7 @@ class D2lCaptureCourseVideos extends DependencyRequester(PageViewElement) {
 				<div class="d2l-capture-central-manage-num-selected">
 					${this.localize('numPresentationsSelected', { count: this._numSelectedVideos })}
 					<d2l-button
+						@click=${this._openAddVideosDialog}
 						id="d2l-capture-central-add-from-content-store-button"
 						primary
 					>${this.localize('addFromContentStore')}</d2l-button>

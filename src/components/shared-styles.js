@@ -76,9 +76,10 @@ export const sharedEditStyles = css`
 
 	d2l-input-text,
 	d2l-labs-accordion-collapse,
-	.d2l-capture-central-edit-textarea-container {
+	.d2l-capture-central-edit-textarea-container,
+	.d2l-input-select {
 		margin-bottom: 25px;
-		width: 750px;
+		width: 500px;
 	}
 
 	.d2l-capture-central-edit-textarea-container textarea {
@@ -96,6 +97,7 @@ export const sharedEditStyles = css`
 	d2l-labs-accordion-collapse :not([slot=header]) {
 		margin-bottom: 10px;
 		margin-top: 10px;
+		display: block;
 	}
 
 	.d2l-capture-central-edit-save-changes-button {
