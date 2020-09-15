@@ -14,7 +14,7 @@ import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js'
 import { formatDate } from '@brightspace-ui/intl/lib/dateTime.js';
 import { PageViewElement } from '../../components/page-view-element';
 
-class D2LCaptureCentralVideoLibrary extends DependencyRequester(PageViewElement) {
+class D2LCaptureCentralCourseVideos extends DependencyRequester(PageViewElement) {
 
 	static get properties() {
 		return {
@@ -29,7 +29,7 @@ class D2LCaptureCentralVideoLibrary extends DependencyRequester(PageViewElement)
 				display: none;
 			}
 
-			.d2l-capture-central-video-library {
+			.d2l-capture-central-course-videos {
 				display: grid;
 				grid-row-gap: 50px;
 				grid-column-gap: 25px;
@@ -37,7 +37,7 @@ class D2LCaptureCentralVideoLibrary extends DependencyRequester(PageViewElement)
 				justify-content: center;
 			}
 
-			.d2l-capture-central-video-library-header {
+			.d2l-capture-central-course-videos-header {
 				align-self: center;
 				grid-column: 1 / 2;
 			}
@@ -191,8 +191,8 @@ class D2LCaptureCentralVideoLibrary extends DependencyRequester(PageViewElement)
 
 	render() {
 		return html`
-			<div class="d2l-capture-central-video-library">
-				<h2 class="d2l-capture-central-video-library-header">${this.localize('videoLibrary')}</h2>
+			<div class="d2l-capture-central-course-videos">
+				<h2 class="d2l-capture-central-course-videos-header">${this.localize('videoLibrary')}</h2>
 				<d2l-dropdown-button class="d2l-capture-central-filter-folders" text="${this.localize('folders')}">
 					<d2l-dropdown-menu>
 						<d2l-menu label="Folders">
@@ -216,4 +216,4 @@ class D2LCaptureCentralVideoLibrary extends DependencyRequester(PageViewElement)
 	}
 
 }
-customElements.define('d2l-capture-central-video-library', D2LCaptureCentralVideoLibrary);
+customElements.define('d2l-capture-central-course-videos', D2LCaptureCentralCourseVideos);

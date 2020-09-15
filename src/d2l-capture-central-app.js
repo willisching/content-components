@@ -55,6 +55,7 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 			'/:orgUnitId/admin',
 			'/:orgUnitId/audit-logs',
 			'/:orgUnitId/clips',
+			'/:orgUnitId/course-videos',
 			'/:orgUnitId/folders',
 			'/:orgUnitId/live-events',
 			'/:orgUnitId/live-events/edit',
@@ -63,7 +64,6 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 			'/:orgUnitId/presentations/edit',
 			'/:orgUnitId/settings',
 			'/:orgUnitId/upload-video',
-			'/:orgUnitId/video-library',
 			'/:orgUnitId/visits',
 			'/:orgUnitId/',
 			'/*',
@@ -124,9 +124,6 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 			case 'users':
 				import('./pages/users/d2l-capture-central-users.js');
 				return;
-			case 'video-library':
-				import('./pages/video-library/d2l-capture-central-video-library.js');
-				return;
 			case 'visits':
 				import('./pages/reporting/d2l-capture-central-visits.js');
 				return;
@@ -153,7 +150,6 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 			<d2l-capture-central-presentations-edit class="page" ?active=${currentPage === 'presentations' && subView === 'edit'}></d2l-capture-central-presentations-edit>
 			<d2l-capture-central-settings class="page" ?active=${currentPage === 'settings'}></d2l-capture-central-settings>
 			<d2l-capture-central-upload-video class="page" ?active=${currentPage === 'upload-video'}></d2l-capture-central-upload-video>
-			<d2l-capture-central-video-library class="page" ?active=${currentPage === 'video-library'}></d2l-capture-central-video-library>
 			<d2l-capture-central-visits class="page" ?active=${currentPage === 'visits'}></d2l-capture-central-visits>
 			<d2l-capture-central-404 class="page" ?active=${currentPage === '404'}></d2l-capture-central-404>
 		</main>
