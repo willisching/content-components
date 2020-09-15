@@ -2,6 +2,8 @@ import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import ContentServiceClient from './util/content-service-client.js';
 import { DependencyProvider } from './mixins/dependency-provider-mixin.js';
+import { rootStore } from './state/root-store.js';
+import { Uploader } from './state/uploader.js';
 
 class D2lCaptureCentral extends DependencyProvider(LitElement) {
 	static get properties() {
@@ -38,6 +40,13 @@ class D2lCaptureCentral extends DependencyProvider(LitElement) {
 			tenantId: this.tenantId
 		});
 		this.provideDependency('content-service-client', apiClient);
+		rootStore.uploader.apiClient = apiClient;
+
+		const uploader = new Uploader({
+			apiClient
+		});
+
+		this.provideDependency('uploader', uploader);
 	}
 
 	render() {
