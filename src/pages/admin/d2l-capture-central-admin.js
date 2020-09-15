@@ -61,15 +61,9 @@ class D2lCaptureCentralAdmin extends DependencyRequester(PageViewElement) {
 					<span><d2l-link @click=${this._goTo('/upload-video')}>${this.localize('uploadVideo')}</d2l-link></span>
 					<span><d2l-link>${this.localize('recordVideo')}</d2l-link></span>
 					<span><d2l-link @click=${this._goTo('/video-library')}>${this.localize('videoLibrary')}</d2l-link></span>
-					<span><d2l-link @click=${this._goTo('/course-videos')}>${this.localize('courseVideos')}</d2l-link></span>
 				</div>
 				<div class="d2l-capture-central-server-options">
 					<h3 class="d2l-heading-3">${this.localize('server')}</h3>
-					<div class="d2l-capture-central-grouping">
-						<h4 class="d2l-heading-4">${this.localize('usersAndGroupsHeading')}</h4>
-						<d2l-link @click=${this._goTo('/users')}>${this.localize('users')}</d2l-link>
-						<d2l-link @click=${this._goTo('/groups')}>${this.localize('groups')}</d2l-link>
-					</div>
 					<div class="d2l-capture-central-grouping">
 						<h4 class="d2l-heading-4">${this.localize('prepostRollHeading')}</h4>
 						<d2l-link @click=${this._goTo('/clips')}>${this.localize('clips')}</d2l-link>

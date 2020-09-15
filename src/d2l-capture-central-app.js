@@ -54,10 +54,8 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 			'/:orgUnitId/404',
 			'/:orgUnitId/admin',
 			'/:orgUnitId/audit-logs',
-			'/:orgUnitId/course-videos',
 			'/:orgUnitId/clips',
 			'/:orgUnitId/folders',
-			'/:orgUnitId/groups',
 			'/:orgUnitId/live-events',
 			'/:orgUnitId/live-events/edit',
 			'/:orgUnitId/live-events-reporting',
@@ -65,7 +63,6 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 			'/:orgUnitId/presentations/edit',
 			'/:orgUnitId/settings',
 			'/:orgUnitId/upload-video',
-			'/:orgUnitId/users',
 			'/:orgUnitId/video-library',
 			'/:orgUnitId/visits',
 			'/:orgUnitId/',
@@ -149,7 +146,6 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 			<d2l-capture-central-course-videos class="page" ?active=${currentPage === 'course-videos'}></d2l-capture-central-course-videos>
 			<d2l-capture-central-clips class="page" ?active=${currentPage === 'clips'}></d2l-capture-central-clips>
 			<d2l-capture-central-folders class="page" ?active=${currentPage === 'folders'}></d2l-capture-central-folders>
-			<d2l-capture-central-groups class="page" ?active=${currentPage === 'groups'}></d2l-capture-central-groups>
 			<d2l-capture-central-live-events class="page" ?active=${currentPage === 'live-events' && !subView}></d2l-capture-central-live-events>
 			<d2l-capture-central-live-events-edit class="page" ?active=${currentPage === 'live-events' && subView === 'edit'}></d2l-capture-central-live-events-edit>
 			<d2l-capture-central-live-events-reporting class="page" ?active=${currentPage === 'live-events-reporting'}></d2l-capture-central-live-events-reporting>
@@ -157,7 +153,6 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 			<d2l-capture-central-presentations-edit class="page" ?active=${currentPage === 'presentations' && subView === 'edit'}></d2l-capture-central-presentations-edit>
 			<d2l-capture-central-settings class="page" ?active=${currentPage === 'settings'}></d2l-capture-central-settings>
 			<d2l-capture-central-upload-video class="page" ?active=${currentPage === 'upload-video'}></d2l-capture-central-upload-video>
-			<d2l-capture-central-users class="page" ?active=${currentPage === 'users'}></d2l-capture-central-users>
 			<d2l-capture-central-video-library class="page" ?active=${currentPage === 'video-library'}></d2l-capture-central-video-library>
 			<d2l-capture-central-visits class="page" ?active=${currentPage === 'visits'}></d2l-capture-central-visits>
 			<d2l-capture-central-404 class="page" ?active=${currentPage === '404'}></d2l-capture-central-404>
