@@ -48,7 +48,7 @@ export const sharedTableStyles = css`
 	}
 
 	.d2l-capture-central-table-no-results {
-		text-align: center;
+		text-align: center !important;
 	}
 
 	.d2l-capture-central-th-container {

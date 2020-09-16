@@ -8,23 +8,14 @@ import '@brightspace-ui/core/components/icons/icon.js';
 import '@brightspace-ui/core/components/inputs/input-search.js';
 import '@brightspace-ui/core/components/menu/menu-item.js';
 import '@brightspace-ui/core/components/menu/menu.js';
+import '../../components/add-videos-dialog.js';
 
 import { css, html } from 'lit-element/lit-element.js';
+import { contentSearchMixin } from '../../mixins/content-search-mixin';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
-import { formatDate } from '@brightspace-ui/intl/lib/dateTime.js';
 import { PageViewElement } from '../../components/page-view-element';
 
-class D2LCaptureCentralCourseVideos extends DependencyRequester(PageViewElement) {
-
-	static get properties() {
-		return {
-			_moreResultsAvailable: { type: Boolean },
-			_query: { type: String },
-			_start: { type: Number },
-			_videos: { type: Array }
-		};
-	}
-
+class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequester(PageViewElement)) {
 	static get styles() {
 		return css`
 			.d2l-capture-central-course-videos {
@@ -128,62 +119,12 @@ class D2LCaptureCentralCourseVideos extends DependencyRequester(PageViewElement)
 
 	constructor() {
 		super();
-		this._moreResultsAvailable = false;
-		this._start = 0;
-		this._videos = [];
-		this._query = '';
 		this.apiClient = this.requestDependency('content-service-client');
 	}
 
 	async connectedCallback() {
 		super.connectedCallback();
 		this._handleVideoSearch();
-	}
-
-	_updateVideoList(hits, append = false) {
-		function getRandomInt(min, max) {
-			min = Math.ceil(min);
-			max = Math.floor(max);
-			return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
-		}
-		const content = hits.map(hit => hit._source);
-		const results = content.map(({ thumbnail, lastRevTitle, createdAt }) => {
-			const randomSeconds = getRandomInt(1, 60);
-			return {
-				thumbnail,
-				title: lastRevTitle,
-				duration: `${getRandomInt(0, 20)}:${randomSeconds < 10 ? '0' : ''}${randomSeconds}`,
-				uploadDate: formatDate(new Date(createdAt)),
-				views: getRandomInt(0, 100000)
-			};
-		});
-		this._videos = append
-			? this._videos.concat(results)
-			: results;
-	}
-
-	_handleInputVideoSearch({ detail: { value: query } }) {
-		this._start = 0;
-		this._query = query;
-		this._handleVideoSearch();
-	}
-
-	_handleLoadMoreVideos() {
-		this._start += 20;
-		this._handleVideoSearch(true);
-	}
-
-	async _handleVideoSearch(append = false) {
-
-		const { hits: { hits, total } } = await this.apiClient.searchContent({
-			contentType: 'video',
-			includeThumbnails: true,
-			query: this._query,
-			start: this._start
-		});
-
-		this._updateVideoList(hits, append);
-		this._moreResultsAvailable = this._videos.length < total;
 	}
 
 	_renderVideos() {
