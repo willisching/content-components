@@ -108,7 +108,6 @@ export const val = {
 	uploadVideoStepTwo: 'Step 2: Publish a presentation',
 	user: 'User',
 	usersCanSkipPrepostRollClips: 'Users can skip pre-roll and post-roll video clips.',
-	videoLibrary: 'Video Library',
 	views: 'Views',
 	visits: 'Visits',
 	watchPresentation: 'Watch Presentation',
