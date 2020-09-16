@@ -18,17 +18,15 @@ class D2LCaptureCentralCourseVideos extends DependencyRequester(PageViewElement)
 
 	static get properties() {
 		return {
+			_moreResultsAvailable: { type: Boolean },
+			_query: { type: String },
+			_start: { type: Number },
 			_videos: { type: Array }
 		};
 	}
 
 	static get styles() {
 		return css`
-
-			:host([hidden]) {
-				display: none;
-			}
-
 			.d2l-capture-central-course-videos {
 				display: grid;
 				grid-row-gap: 50px;
@@ -51,6 +49,12 @@ class D2LCaptureCentralCourseVideos extends DependencyRequester(PageViewElement)
 				grid-column: 4 / 5;
 				justify-self: end;
 				width: 300px;
+			}
+
+			.d2l-capture-central-video-no-results {
+				grid-column: 1 / 5;
+				grid-row: 3;
+				justify-self: center;
 			}
 
 			.d2l-capture-central-video {
@@ -124,28 +128,26 @@ class D2LCaptureCentralCourseVideos extends DependencyRequester(PageViewElement)
 
 	constructor() {
 		super();
+		this._moreResultsAvailable = false;
+		this._start = 0;
 		this._videos = [];
+		this._query = '';
 		this.apiClient = this.requestDependency('content-service-client');
 	}
 
 	async connectedCallback() {
 		super.connectedCallback();
-		const { hits: { hits } } = await this.apiClient.searchContent({
-			contentType: 'video',
-			includeThumbnails: true
-		});
-		this._updateVideoList(hits);
+		this._handleVideoSearch();
 	}
 
-	_updateVideoList(hits) {
+	_updateVideoList(hits, append = false) {
 		function getRandomInt(min, max) {
 			min = Math.ceil(min);
 			max = Math.floor(max);
 			return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
 		}
 		const content = hits.map(hit => hit._source);
-		console.log(content);
-		this._videos = content.map(({ thumbnail, lastRevTitle, createdAt }) => {
+		const results = content.map(({ thumbnail, lastRevTitle, createdAt }) => {
 			const randomSeconds = getRandomInt(1, 60);
 			return {
 				thumbnail,
@@ -155,21 +157,44 @@ class D2LCaptureCentralCourseVideos extends DependencyRequester(PageViewElement)
 				views: getRandomInt(0, 100000)
 			};
 		});
+		this._videos = append
+			? this._videos.concat(results)
+			: results;
 	}
 
-	async _handleVideoSearch({ detail: { value: query } }) {
-		const { hits: { hits } } = await this.apiClient.searchContent({
-			query,
+	_handleInputVideoSearch({ detail: { value: query } }) {
+		this._start = 0;
+		this._query = query;
+		this._handleVideoSearch();
+	}
+
+	_handleLoadMoreVideos() {
+		this._start += 20;
+		this._handleVideoSearch(true);
+	}
+
+	async _handleVideoSearch(append = false) {
+
+		const { hits: { hits, total } } = await this.apiClient.searchContent({
 			contentType: 'video',
-			includeThumbnails: true
+			includeThumbnails: true,
+			query: this._query,
+			start: this._start
 		});
-		this._updateVideoList(hits);
+
+		this._updateVideoList(hits, append);
+		this._moreResultsAvailable = this._videos.length < total;
 	}
 
 	_renderVideos() {
 		if (this._videos.length === 0) {
-			return html`<div>${this.localize('noResults')}</div>`;
+			return html`
+				<div class="d2l-capture-central-video-no-results">
+					${this.localize('noResults')}
+				</div>
+			`;
 		}
+
 		return this._videos.map(video => html`
 			<d2l-card class="d2l-capture-central-video" href="#">
 				<div slot="header">
@@ -192,7 +217,7 @@ class D2LCaptureCentralCourseVideos extends DependencyRequester(PageViewElement)
 	render() {
 		return html`
 			<div class="d2l-capture-central-course-videos">
-				<h2 class="d2l-capture-central-course-videos-header">${this.localize('videoLibrary')}</h2>
+				<h2 class="d2l-capture-central-course-videos-header">${this.localize('courseVideos')}</h2>
 				<d2l-dropdown-button class="d2l-capture-central-filter-folders" text="${this.localize('folders')}">
 					<d2l-dropdown-menu>
 						<d2l-menu label="Folders">
@@ -202,14 +227,17 @@ class D2LCaptureCentralCourseVideos extends DependencyRequester(PageViewElement)
 					</d2l-dropdown-menu>
 				</d2l-dropdown-button>
 				<d2l-input-search
-					@d2l-input-search-searched=${this._handleVideoSearch}
+					@d2l-input-search-searched=${this._handleInputVideoSearch}
 					class="d2l-capture-central-search-videos"
 					label="${this.localize('searchLabel')}"
 					placeholder="${this.localize('searchPlaceholder')}"
 				></d2l-input-search>
 				${this._renderVideos()}
-				<d2l-button class="d2l-capture-central-load-more-button">
-					${this.localize('loadMore')}
+				<d2l-button
+					?hidden="${!this._moreResultsAvailable}"
+					class="d2l-capture-central-load-more-button"
+					@click=${this._handleLoadMoreVideos}
+				>${this.localize('loadMore')}
 				</d2l-button>
 			</div>
 		`;
