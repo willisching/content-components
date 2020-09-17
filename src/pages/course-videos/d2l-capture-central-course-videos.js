@@ -137,7 +137,7 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 		}
 
 		return this._videos.map(video => html`
-			<d2l-card class="d2l-capture-central-video" href="#">
+			<d2l-card @click=${this._goTo(`/course-videos/${video.id}`)} class="d2l-capture-central-video" href="">
 				<div slot="header">
 					<img alt="" class="d2l-capture-central-thumbnail" src="${video.thumbnail}" />
 					<div class="d2l-capture-central-play-icon-overlay">

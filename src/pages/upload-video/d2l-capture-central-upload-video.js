@@ -85,11 +85,7 @@ class D2LCaptureUploadVideo extends DependencyRequester(PageViewElement) {
 
 	constructor() {
 		super();
-		this._folders = [{
-			name: 'None',
-		}, {
-			name: 'Folder 1',
-		}];
+		this._folders = [{ name: 'None', }, { name: 'Folder 1', }];
 
 		this.codec = 'h.264';
 		this.formats = '.mp4, .flv, .f4v, .m4v, .mov';
@@ -116,15 +112,15 @@ class D2LCaptureUploadVideo extends DependencyRequester(PageViewElement) {
 		this.apiClient = this.requestDependency('content-service-client');
 	}
 
-	async _finishUpload() {
+	_finishUpload() {
 		const title = this.shadowRoot.querySelector('#d2l-capture-central-edit-file-title').value;
-		const {content, revision} = this.uploader.getSuccessfulUpload();
-		await this.apiClient.updateRevision({
-			contentId: content.id,
-			revisionId: revision.id,
-			revision: Object.assign(revision, {
-				title,
-			})
+		const {content} = this.uploader.getSuccessfulUpload();
+		const body = Object.assign({
+			title,
+		}, content);
+		this.apiClient.updateContent({
+			id: content.id,
+			body
 		});
 		this._resetUploadState() && this._goTo('/admin')();
 	}
@@ -181,12 +177,12 @@ class D2LCaptureUploadVideo extends DependencyRequester(PageViewElement) {
 				placeholder="${this.localize('title')}"
 				value=${this._uploadedVideo.name}
 			></d2l-input-text>
-			<label for="d2l-capture-central-upload-video-folder" class="d2l-label-text">
+			<!-- <label for="d2l-capture-central-upload-video-folder" class="d2l-label-text">
 				${this.localize('folder')}
 			</label>
 			<select id="d2l-capture-central-upload-video-folder" class="d2l-input-select">
 				${this._folders.map(folder => (html`<option>${folder.name}</option>`))}
-			</select>
+			</select> -->
 			<div class="d2l-capture-central-manage-header-button-group">
 				<d2l-button
 					@click=${this._finishUpload}

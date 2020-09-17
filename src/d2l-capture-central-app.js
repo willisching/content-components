@@ -56,6 +56,7 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 			'/:orgUnitId/audit-logs',
 			'/:orgUnitId/clips',
 			'/:orgUnitId/course-videos',
+			'/:orgUnitId/course-videos/:id',
 			'/:orgUnitId/folders',
 			'/:orgUnitId/live-events',
 			'/:orgUnitId/live-events/edit',
@@ -87,6 +88,10 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 				import('./pages/reporting/d2l-capture-central-audit-logs.js');
 				return;
 			case 'course-videos':
+				if (subView) {
+					import('./pages/course-videos/d2l-capture-central-course-video-player.js');
+					return;
+				}
 				import('./pages/course-videos/d2l-capture-central-course-videos.js');
 				return;
 			case 'clips':
@@ -140,7 +145,8 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 		<main id="main" role="main">
 			<d2l-capture-central-admin class="page" ?active=${currentPage === 'admin'}></d2l-capture-central-admin>
 			<d2l-capture-central-audit-logs class="page" ?active=${currentPage === 'audit-logs'}></d2l-capture-central-audit-logs>
-			<d2l-capture-central-course-videos class="page" ?active=${currentPage === 'course-videos'}></d2l-capture-central-course-videos>
+			<d2l-capture-central-course-videos class="page" ?active=${currentPage === 'course-videos' && !subView}></d2l-capture-central-course-videos>
+			<d2l-capture-central-course-video-player class="page" ?active=${currentPage === 'course-videos' && subView}></d2l-capture-central-course-video-player>
 			<d2l-capture-central-clips class="page" ?active=${currentPage === 'clips'}></d2l-capture-central-clips>
 			<d2l-capture-central-folders class="page" ?active=${currentPage === 'folders'}></d2l-capture-central-folders>
 			<d2l-capture-central-live-events class="page" ?active=${currentPage === 'live-events' && !subView}></d2l-capture-central-live-events>

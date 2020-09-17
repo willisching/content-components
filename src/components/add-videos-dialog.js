@@ -138,8 +138,6 @@ class D2lCaptureAddVideosDialog extends contentSearchMixin(DependencyRequester(I
 				</d2l-list-item>
 			`;
 		});
-		console.log(videos);
-		console.log(this._moreResultsAvailable);
 
 		return html`
 			<d2l-list

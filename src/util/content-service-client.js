@@ -55,7 +55,7 @@ export default class ContentServiceClient {
 		return response;
 	}
 
-	searchContent({ start = 0, size = 20, sort, query = '', contentType = '', updatedAt = '', createdAt = '', includeThumbnails = false }) {
+	searchContent({ start = 0, size = 20, sort = 'updatedAt:desc', query = '', contentType = '', updatedAt = '', createdAt = '', includeThumbnails = false }) {
 		const headers = new Headers();
 		headers.append('pragma', 'no-cache');
 		headers.append('cache-control', 'no-cache');
@@ -86,6 +86,14 @@ export default class ContentServiceClient {
 	getContent(id) {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${id}`
+		});
+	}
+
+	updateContent({id, body}) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${id}`,
+			method: 'PUT',
+			body
 		});
 	}
 
@@ -174,6 +182,12 @@ export default class ContentServiceClient {
 	}) {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/signedUrl`
+		});
+	}
+
+	getSignedUrl(contentId) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/signedUrl`
 		});
 	}
 
