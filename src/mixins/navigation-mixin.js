@@ -6,7 +6,7 @@ import { rootStore } from '../state/root-store.js';
 /* @polymerMixin */
 export const navigationMixin = superClass => class extends (superClass) {
 	_navigate(path, queryStringCollection) {
-		const pathWithQs = `/${rootStore.routingStore.orgUnit}${path}${this.__stringifyQueryStringCollection(queryStringCollection)}`;
+		const pathWithQs = `/${rootStore.routingStore.orgUnitId}${path}${this.__stringifyQueryStringCollection(queryStringCollection)}`;
 		page(pathWithQs);
 		window.scrollTo(0, 0);
 	}

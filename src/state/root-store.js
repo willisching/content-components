@@ -5,7 +5,7 @@ export class RootStore {
 	constructor() {
 		this.routingStore = new RoutingStore(this);
 		this.uploader = new Uploader({ apiClient: {} });
-		this.orgUnit = 0;
+		this.orgUnitId = 0;
 		this.appTop = 0;
 	}
 }

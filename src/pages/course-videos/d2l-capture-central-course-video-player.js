@@ -40,7 +40,7 @@ class D2LCaptureCentralCourseVideoPlayer extends DependencyRequester(PageViewEle
 		autorun(async() => {
 			if (this.rootStore.routingStore.page === 'course-videos' && this.rootStore.routingStore.subView) {
 				this._loading = true;
-				this._sourceUrl = await this.apiClient.getSignedUrl(this.rootStore.routingStore.subView).value;
+				this._sourceUrl = (await this.apiClient.getSignedUrl(this.rootStore.routingStore.subView)).value;
 				this._content = await this.apiClient.getContent(this.rootStore.routingStore.subView);
 				this._loading = false;
 			}

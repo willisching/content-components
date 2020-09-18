@@ -12,7 +12,7 @@ export class RoutingStore {
 		this.page = '';
 		this.queryParams = {};
 		this.subView = '';
-		this.orgUnit;
+		this.orgUnitId;
 	}
 
 	setRouteCtx(routeCtx) {
@@ -23,10 +23,10 @@ export class RoutingStore {
 		const pathNameWithoutBase = stripBasePath(routeCtx.pathname);
 		let page = pathNameWithoutBase;
 		let subView = '';
-		let orgUnit;
+		let orgUnitId;
 
 		if (pathNameWithoutBase.includes('/')) {
-			[orgUnit, page, subView] = pathNameWithoutBase.split('/');
+			[orgUnitId, page, subView] = pathNameWithoutBase.split('/');
 		}
 		const queryParams = querystring.parse(routeCtx.querystring);
 
@@ -34,7 +34,7 @@ export class RoutingStore {
 		this.page = page;
 		this.subView = subView;
 		this.queryParams = queryParams;
-		this.orgUnit = orgUnit;
+		this.orgUnitId = orgUnitId;
 	}
 
 	getPage() {

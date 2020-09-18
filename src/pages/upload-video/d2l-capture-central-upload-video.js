@@ -115,9 +115,9 @@ class D2LCaptureUploadVideo extends DependencyRequester(PageViewElement) {
 	_finishUpload() {
 		const title = this.shadowRoot.querySelector('#d2l-capture-central-edit-file-title').value;
 		const {content} = this.uploader.getSuccessfulUpload();
-		const body = Object.assign({
+		const body = Object.assign({}, content, {
 			title,
-		}, content);
+		});
 		this.apiClient.updateContent({
 			id: content.id,
 			body
