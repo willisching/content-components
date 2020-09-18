@@ -209,7 +209,7 @@ export default class ContentServiceClient {
 		});
 	}
 
-	deleteContent({ contentId }) {
+	deleteContent(contentId) {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}`,
 			method: 'DELETE',

@@ -1,21 +1,23 @@
-import '@brightspace-ui/core/components/breadcrumbs/breadcrumb.js';
+import '../../components/add-videos-dialog.js';
+import '@brightspace-ui-labs/pagination/pagination.js';
 import '@brightspace-ui/core/components/breadcrumbs/breadcrumb-current-page.js';
+import '@brightspace-ui/core/components/breadcrumbs/breadcrumb.js';
 import '@brightspace-ui/core/components/breadcrumbs/breadcrumbs.js';
 import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/colors/colors.js';
+import '@brightspace-ui/core/components/dialog/dialog-confirm.js';
+import '@brightspace-ui/core/components/dropdown/dropdown-button.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-context-menu.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-menu.js';
-import '@brightspace-ui/core/components/dropdown/dropdown-button.js';
 import '@brightspace-ui/core/components/inputs/input-checkbox.js';
 import '@brightspace-ui/core/components/inputs/input-search.js';
-import '@brightspace-ui/core/components/menu/menu.js';
 import '@brightspace-ui/core/components/menu/menu-item.js';
-import '@brightspace-ui-labs/pagination/pagination.js';
+import '@brightspace-ui/core/components/menu/menu.js';
 import 'd2l-table/d2l-table-wrapper.js';
-import '../../components/add-videos-dialog.js';
 
 import { css, html } from 'lit-element/lit-element.js';
 import { sharedManageStyles, sharedTableStyles } from '../../components/shared-styles.js';
+import { autorun } from 'mobx';
 import { contentSearchMixin } from '../../mixins/content-search-mixin.js';
 import { d2lTableStyles } from '../../components/d2l-table-styles.js';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
@@ -44,7 +46,13 @@ class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(Pag
 
 	async connectedCallback() {
 		super.connectedCallback();
-		this._handleVideoSearch();
+		autorun(async() => {
+			if (this.rootStore.routingStore.page === 'presentations'
+				&& !this.rootStore.routingStore.subView
+			) {
+				this._handleVideoSearch();
+			}
+		});
 	}
 
 	_openAddVideosDialog() {
@@ -67,8 +75,28 @@ class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(Pag
 		this._numSelectedPresentations += e.target.checked ? 1 : -1;
 	}
 
+	_handleDeletePresentation(id) {
+		return async() => {
+			const shouldDelete = await this.shadowRoot.querySelector('d2l-dialog-confirm').open();
+			if (shouldDelete) {
+				this.apiClient.deleteContent(id);
+				this._handleVideoSearch();
+			}
+		};
+	}
+
 	_handlePaginationPageChange({ detail: { page } = {}}) {
 		this._handlePaginationSearch(page);
+	}
+
+	_renderDialogs() {
+		return html`
+			<d2l-capture-central-add-videos-dialog></d2l-capture-central-add-videos-dialog>
+			<d2l-dialog-confirm text=${this.localize('confirmDeletion')}>
+				<d2l-button slot="footer" primary data-dialog-action="yes">${this.localize('yes')}</d2l-button>
+				<d2l-button slot="footer" data-dialog-action>${this.localize('no')}</d2l-button>
+			</d2l-dialog-confirm>
+		`;
 	}
 
 	_renderPresentations() {
@@ -90,10 +118,10 @@ class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(Pag
 					<d2l-dropdown-context-menu>
 						<d2l-dropdown-menu>
 							<d2l-menu label="${this.localize('moreOptions')}">
-								<d2l-menu-item text="${this.localize('openInProducer')}"></d2l-menu-item>
-								<d2l-menu-item text="${this.localize('openInPlayer')}"></d2l-menu-item>
-								<d2l-menu-item text="${this.localize('duplicate')}"></d2l-menu-item>
-								<d2l-menu-item text="${this.localize('delete')}"></d2l-menu-item>
+								<!-- <d2l-menu-item text="${this.localize('openInProducer')}"></d2l-menu-item> -->
+								<d2l-menu-item @click=${this._goTo(`/course-videos/${id}`)} text="${this.localize('openInPlayer')}"></d2l-menu-item>
+								<!-- <d2l-menu-item text="${this.localize('duplicate')}"></d2l-menu-item> -->
+								<d2l-menu-item @click=${this._handleDeletePresentation(id)} text="${this.localize('delete')}"></d2l-menu-item>
 							</d2l-menu>
 						</d2l-dropdown-menu>
 					</d2l-dropdown-context-menu>
@@ -114,7 +142,7 @@ class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(Pag
 					<d2l-dropdown-button primary text=${this.localize('addToCourseVideos')}>
 						<d2l-dropdown-menu>
 							<d2l-menu label="${this.localize('addToCourseVideos')}">
-								<d2l-menu-item @click=${this._goTo('/upload-video')} text=${this.localize('uploadVideo')}></d2l-menu-item>
+								<d2l-menu-item @click=${this._goTo('/upload-video')} text=${this.localize('uploadVideoDropdownOption')}></d2l-menu-item>
 								<d2l-menu-item @click=${this._openAddVideosDialog} text=${this.localize('addFromContentStore')}></d2l-menu-item>
 							</d2l-menu>
 						</d2l-dropdown-menu>
@@ -124,8 +152,8 @@ class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(Pag
 					${this.localize('numPresentationsSelected', { count: this._numSelectedPresentations })}
 				</div>
 				<div class="d2l-capture-central-manage-options">
-					<d2l-button>${this.localize('delete')}</d2l-button>
-					<d2l-button>${this.localize('settings')}</d2l-button>
+					<d2l-button ?disabled=${this._numSelectedPresentations === 0}>${this.localize('delete')}</d2l-button>
+					<d2l-button ?disabled=${this._numSelectedPresentations === 0}>${this.localize('settings')}</d2l-button>
 					<d2l-input-search
 						@d2l-input-search-searched=${this._handleInputVideoSearch}
 						class="search-presentations"
@@ -165,8 +193,8 @@ class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(Pag
 					?hidden="${this._totalResults < 20}"
 					page-number="${this._start / 20 + 1}"
 					max-page-number="${Math.ceil(this._totalResults / 20)}"
-				></d2l-labs-paginationpage-number=>
-				<d2l-capture-central-add-videos-dialog></d2l-capture-central-add-videos-dialog>
+				></d2l-labs-pagination>
+				${this._renderDialogs()}
 			</div>
 		`;
 	}
