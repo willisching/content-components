@@ -79,25 +79,15 @@ export const sharedEditStyles = css`
 	.d2l-capture-central-edit-textarea-container,
 	.d2l-input-select {
 		margin-bottom: 25px;
-		width: 500px;
+		width: 575px;
 	}
 
 	.d2l-capture-central-edit-textarea-container textarea {
 		resize: vertical;
 	}
 
-	d2l-labs-accordion-collapse [slot=header] {
-		background-color: var(--d2l-color-gypsum);
-	}
-
-	d2l-labs-accordion-collapse [slot=header]:hover {
-		background-color: var(--d2l-color-mica);
-	}
-
-	d2l-labs-accordion-collapse :not([slot=header]) {
-		margin-bottom: 10px;
-		margin-top: 10px;
-		display: block;
+	d2l-labs-accordion-collapse div[slot=header] {
+		border-bottom: 1px solid var(--d2l-color-mica);
 	}
 
 	.d2l-capture-central-edit-save-changes-button {
