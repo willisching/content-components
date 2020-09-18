@@ -11,6 +11,7 @@ import '@brightspace-ui/core/components/menu/menu.js';
 import '../../components/add-videos-dialog.js';
 
 import { css, html } from 'lit-element/lit-element.js';
+import { autorun } from 'mobx';
 import { contentSearchMixin } from '../../mixins/content-search-mixin';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
 import { PageViewElement } from '../../components/page-view-element';
@@ -124,7 +125,13 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 
 	async connectedCallback() {
 		super.connectedCallback();
-		this._handleVideoSearch();
+		autorun(async() => {
+			if (this.rootStore.routingStore.page === 'course-videos'
+				&& !this.rootStore.routingStore.subView
+			) {
+				this._handleVideoSearch();
+			}
+		});
 	}
 
 	_renderVideos() {
