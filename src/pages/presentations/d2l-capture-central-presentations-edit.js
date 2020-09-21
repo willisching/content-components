@@ -88,11 +88,11 @@ class D2LCapturePresentationsEdit extends DependencyRequester(PageViewElement) {
 	_handleCopyUrl() {
 		const textarea = document.createElement('textarea');
 		textarea.textContent = this._shareUrl;
-		textarea.style.position = 'fixed';  // Prevent scrolling to bottom of page in Microsoft Edge.
+		textarea.style.position = 'fixed';
 		document.body.appendChild(textarea);
 		textarea.select();
 		try {
-			document.execCommand('copy');  // Security exception may be thrown by some browsers.
+			document.execCommand('copy');
 			this.shadowRoot.querySelector('#d2l-capture-central-edit-copy-url-toast').setAttribute('open', 'open');
 		}
 		catch (e) {

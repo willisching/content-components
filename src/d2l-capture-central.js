@@ -8,7 +8,7 @@ import { Uploader } from './state/uploader.js';
 class D2lCaptureCentral extends DependencyProvider(LitElement) {
 	static get properties() {
 		return {
-			apiEndpoint: { type: String, attribute: 'api-endpoint' },
+			apiEndpoint: { type: String, attribute: 'content-service-endpoint' },
 			tenantId: { type: String, attribute: 'tenant-id' }
 		};
 	}
