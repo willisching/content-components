@@ -2,8 +2,12 @@
   "name": "@brightspace-ui-labs/video-producer",
   "description": "",
   "repository": "https://github.com/BrightspaceUILabs/video-producer.git",
-  "publishConfig": { "access": "public" },
-  "files": [ "video-producer.js" ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "video-producer.js"
+  ],
   "scripts": {
     "lint": "npm run lint:eslint && npm run lint:lit",
     "lint:eslint": "eslint . --ext .js,.html",
@@ -37,7 +41,8 @@
     "puppeteer": "^5"
   },
   "dependencies": {
-    "@brightspace-ui/core": "^1",
+    "@brightspace-ui/core": "^1.80.1",
+    "@createjs/easeljs": "^2.0.0-beta.4",
     "@webcomponents/webcomponentsjs": "^2",
     "lit-element": "^2"
   }
