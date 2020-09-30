@@ -21,7 +21,7 @@ class D2lCaptureCentralApp extends NavigationMixin(InternalLocalizeMixin(MobxRea
 				display: block;
 				height: 100%;
 				margin: 0 auto;
-				max-width: 1230px;
+				max-width: 1175px;
 			}
 
 			.page {
