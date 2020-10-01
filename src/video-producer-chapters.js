@@ -156,6 +156,10 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 		this.shadowRoot.querySelector('.d2l-video-producer-new-chapter-title-input').value = '';
 	}
 
+	setChapters(chapters) {
+		this._chapters = chapters;
+	}
+
 	setChapterToTime(time) {
 		for (let i = 0; i < this._chapters.length; i++) {
 			const { time: chapterTime, title } = this._chapters[i];

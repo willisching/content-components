@@ -74,8 +74,15 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 		this._configureModes();
 
 		this._chapters.addEventListener('active-chapter-updated', this._handleActiveChapterUpdated.bind(this));
+
+		// Wait for video duration to be updated
+		this._video.addEventListener('durationchange', () => {
+			this._addChaptersToTimeline();
+			this._addCutsToTimeline();
+		});
 	}
 
+	//#region Control mode management
 	_changeToCutMode() {
 		this._video.pause();
 		this._setMouseEnabledForMarks({ enabled: false });
@@ -258,7 +265,9 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 
 		return seekMode;
 	}
+	//#endregion
 
+	//#region Timeline management
 	_configureStage() {
 		this._stage = new Stage(this.shadowRoot.querySelector('#timeline-canvas'));
 		this._stage.enableMouseOver(30);
@@ -537,8 +546,21 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 		}
 	}
 
-	_pauseUpdatingVideoTime() {
-		clearInterval(this._updateTimelineInterval);
+	_recalculateCuts() {
+		Object.entries(this._cuts).forEach(([cut, value]) => {
+			const cutPos = this._getNewCutPositionForCut(value);
+
+			this._stage.removeChild(value.displayObject);
+			delete this._cuts[cut];
+
+			this._setCutBoundsForStageX(cutPos);
+
+			// Don't add the cut if one already exists, e.g. removing a mark
+			// that was separating two cuts
+			if (!this._cuts[this._lowerBound]) {
+				this._cut();
+			}
+		});
 	}
 
 	_setCursorOrCurrentMark(stageXPosition) {
@@ -634,6 +656,12 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 			this._stage.update();
 		}
 	}
+	//#endregion
+
+	//#region Video time management
+	_pauseUpdatingVideoTime() {
+		clearInterval(this._updateTimelineInterval);
+	}
 
 	_startUpdatingVideoTime() {
 		// Restart video if paused at end cut.
@@ -662,23 +690,6 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 		}, 50);
 	}
 
-	_recalculateCuts() {
-		Object.entries(this._cuts).forEach(([cut, value]) => {
-			const cutPos = this._getNewCutPositionForCut(value);
-
-			this._stage.removeChild(value.displayObject);
-			delete this._cuts[cut];
-
-			this._setCutBoundsForStageX(cutPos);
-
-			// Don't add the cut if one already exists, e.g. removing a mark
-			// that was separating two cuts
-			if (!this._cuts[this._lowerBound]) {
-				this._cut();
-			}
-		});
-	}
-
 	_updateVideoTime() {
 		// Clear the seeked time once the video has caught up
 		if (this._mouseTime && Math.abs(this._mouseTime - this._video.currentTime) < 1) {
@@ -688,10 +699,23 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 		this._playedRect.graphics.clear().beginFill('#0066CC').drawRect(0, 0, width, constants.TIMELINE_HEIGHT);
 		this._stage.update();
 	}
+	//#endregion
 
+	//#region Chapter management
 	_addNewChapter() {
 		this._chapters.addNewChapter(this._video.currentTime);
 	}
+
+	_addChaptersToTimeline() {
+		// TODO: Fetch chapters
+		const chapters = [{
+			title: 'Chapter 1',
+			time: 300,
+		}];
+		this._chapters.setChapters(chapters);
+	}
+
+	_addCutsToTimeline() {
 		const clearMarks = () => {
 			Object.values(this._marks).forEach(mark => {
 				this._stage.removeChild(mark.displayObject);
@@ -709,25 +733,34 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 		clearMarks();
 		clearCuts();
 
-		const addCut = (event) => {
+		const addCut = (cut) => {
 			// Don't add mark if cut starts at 0 seconds
-			if (event.inMs > 0) this._addMarkAtTime(event.inMs / 1000);
+			if (cut.inMs > 0) this._addMarkAtTime(cut.inMs);
 
 			// Don't add mark if cut goes to the end of the video
 			// NOTE: 0 value means cut goes to end of video.
-			if (event.outMs > 0 && event.outMs / 1000 <= Math.floor(this._video.duration)) {
-				this._addMarkAtTime(event.outMs / 1000);
+			if (cut.outMs > 0 && cut.outMs <= Math.floor(this._video.duration)) {
+				this._addMarkAtTime(cut.outMs);
 			}
 
-			this._setCutBoundsForStageX(this._getStageXFromTime(event.inMs / 1000) + 1); // Trigger a cut just to the right of the lower mark
+			this._setCutBoundsForStageX(this._getStageXFromTime(cut.inMs) + 1); // Trigger a cut just to the right of the lower mark
 			this._cut();
 		};
-		events.forEach(event => {
-			switch (event.type) {
-				case constants.CUETYPES.Cut:
-					addCut(event);
-					break;
-			}
+
+		// TODO: Fetch cuts
+		const cuts = [{
+			inMs: 100,
+			outMs: 200
+		}, {
+			inMs: 230,
+			outMs: 270
+		}, {
+			inMs: 300,
+			outMs: 392
+		}];
+
+		cuts.forEach(cut => {
+			addCut(cut);
 		});
 
 		if (this._currentMark) {
@@ -738,18 +771,20 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 		this._changeToSeekMode();
 		this._stage.update();
 	}
+	//#endregion
 
-	getTimelineEvents() {
-		const cutEvents = [];
+	getCuts() {
+		const cuts = [];
 
 		Object.values(this._cuts).forEach(cut => {
-			cutEvents.push({
-				type: constants.CONTROL_MODES.CUT,
+			cuts.push({
+				type: constants.CUETYPES.Cut,
 				inMs: cut.startTimeMS,
 				outMs: cut.endTimeMS
 			});
 		});
-		return cutEvents;
+
+		return cuts;
 	}
 
 	render() {
