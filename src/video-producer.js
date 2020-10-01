@@ -3,13 +3,11 @@ import '@brightspace-ui/core/components/colors/colors.js';
 import { Container, Shape, Stage, Text } from '@createjs/easeljs';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import constants from './constants.js';
-import { LocalizeMixin } from '@brightspace-ui/core/mixins/localize-mixin.js';
-class VideoProducer extends LocalizeMixin(LitElement) {
+import { InternalLocalizeMixin } from './internal-localize-mixin.js';
 
+class VideoProducer extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
-		return {
-			prop1: { type: String },
-		};
+		return {};
 	}
 
 	static get styles() {
@@ -46,26 +44,6 @@ class VideoProducer extends LocalizeMixin(LitElement) {
 				float: left;
 			}
 		`;
-	}
-
-	static async getLocalizeResources(langs) {
-		for await (const lang of langs) {
-			let translations;
-			switch (lang) {
-				case 'en':
-					translations = await import('../../locales/en.js');
-					break;
-			}
-
-			if (translations && translations.val) {
-				return {
-					language: lang,
-					resources: translations.val
-				};
-			}
-		}
-
-		return null;
 	}
 
 	constructor() {
