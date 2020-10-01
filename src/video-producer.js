@@ -76,6 +76,47 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 		this._chapters.addEventListener('active-chapter-updated', this._handleActiveChapterUpdated.bind(this));
 	}
 
+	_changeToCutMode() {
+		this._video.pause();
+		this._setMouseEnabledForMarks(false);
+		this._setMouseEnabledForCuts(true);
+		this._contentMarker.mouseEnabled = false;
+		this._controlMode = 'cut';
+	}
+
+	_changeToMarkMode() {
+		this._video.pause();
+		this._setMouseEnabledForMarks(true);
+		this._setMouseEnabledForCuts(false);
+		this._contentMarker.mouseEnabled = false;
+		this._controlMode = 'mark';
+	}
+
+	_changeToSeekMode() {
+		this._setMouseEnabledForMarks(false);
+		this._setMouseEnabledForCuts(false);
+		this._contentMarker.mouseEnabled = true;
+		this._controlMode = 'seek';
+	}
+
+	_checkForMarkDelete(event) {
+		if (this._mouseDownStageX && Math.abs(this._mouseDownStageX - event.stageX) === 0) {
+			const markToDelete = this._marks[Math.round(this._currentMark.displayObject.x)];
+			this._stage.removeChild(markToDelete.displayObject);
+			this._currentMark = null;
+
+			delete this._marks[markToDelete.bound];
+			this._recalculateCuts();
+			this._setCursorOrCurrentMark(this._stage.mouseX);
+
+			this._mouseDownStageX = null;
+			return true;
+		}
+
+		this._mouseDownStageX = null;
+		return false;
+	}
+
 	_configureModes() {
 		const voidFunction = () => {};
 		const seek = event => {
@@ -299,82 +340,44 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 		this._stage.update();
 	}
 
-	_changeToSeekMode() {
-		this._setMouseEnabledForMarks(false);
-		this._setMouseEnabledForCuts(false);
-		this._contentMarker.mouseEnabled = true;
-		this._controlMode = 'seek';
-	}
+	_cut() {
+		const cut = new Shape();
+		cut.setTransform(this._lowerBound, constants.TIMELINE_OFFSET_Y);
+		cut.graphics.beginFill('#FF0000').drawRect(0, 0, this._upperBound - this._lowerBound, constants.TIMELINE_HEIGHT);
+		cut.alpha = 0.5;
 
-	_changeToMarkMode() {
-		this._video.pause();
-		this._setMouseEnabledForMarks(true);
-		this._setMouseEnabledForCuts(false);
-		this._contentMarker.mouseEnabled = false;
-		this._controlMode = 'mark';
-	}
-
-	_changeToCutMode() {
-		this._video.pause();
-		this._setMouseEnabledForMarks(false);
-		this._setMouseEnabledForCuts(true);
-		this._contentMarker.mouseEnabled = false;
-		this._controlMode = 'cut';
-	}
-
-	_isTimeInCut(time) {
-		let result = false;
-		Object.values(this._cuts).forEach(cut => {
-			if (cut.startTimeMS < time && (cut.endTimeMS > time || cut.endTimeMS === 0)) {
-				result = cut;
-			}
-		});
-		return result;
-	}
-
-	_isMouseOverContentMarker() {
-		const underMouse = this._stage.getObjectsUnderPoint(this._stage.mouseX, this._stage.mouseY, 1)[0];
-		return this._contentMarker === underMouse;
-	}
-
-	_isMouseOverMark() {
-		const underMouse = this._stage.getObjectsUnderPoint(this._stage.mouseX, this._stage.mouseY, 1)[0];
-
-		let result = false;
-		Object.values(this._marks).forEach(mark => {
-			if (mark.displayObject === underMouse) {
-				result = mark;
-			}
-		});
-		return result;
-	}
-
-	_isMouseOverTimeline(directlyOver) {
-		const objects = this._stage.getObjectsUnderPoint(this._stage.mouseX, this._stage.mouseY, 1);
-
-		if (directlyOver) {
-			return objects[0] === this._timelineRect;
-		} else {
-			return objects.includes(this._timelineRect);
-		}
-	}
-
-	_addOrDeleteMarkForEvent(event) {
-		if (this._draggingMark) return;
-		if (this._checkForMarkDelete(event)) return;
-		const mark = this._addMarkAtTime(this._cursor.time);
-		const cut = this._isTimeInCut(this._marks[mark.bound].time * 1000);
-		if (cut) {
-			this._stage.removeChild(cut.displayObject);
-			delete this._cuts[cut.x];
-
-			this._setCutBoundsForStageX(cut.displayObject.x + 1);
-			this._cut();
+		// When we're splitting a cut by adding a mark, disable mouse for the new cut
+		if (this._controlMode !== 'cut') {
+			cut.mouseEnabled = false;
 		}
 
-		this._hideCursor();
-		this._showAndMoveTimeContainer(mark.time);
+		cut.on('click', (event) => {
+			if (this._controlMode === 'mark') {
+				this._addOrDeleteMarkForEvent(event);
+			} else if (this._controlMode === 'cut') {
+				delete this._cuts[event.target.x];
+				this._stage.removeChild(event.target);
+				this._stage.update();
+			}
+		});
+
+		// Add the cut shape below the marks
+		let numMarks = 0;
+		Object.values(this._marks).forEach(() => {
+			numMarks++;
+		});
+
+		const zIndexForCut = this._stage.numChildren - numMarks;
+		this._stage.addChildAt(cut, zIndexForCut);
 		this._stage.update();
+
+		this._cuts[cut.x] = {
+			startTimeMS: (this._lowerMark ? this._lowerMark.time * 1000 : 0),
+			endTimeMS: (this._upperMark ? this._upperMark.time * 1000 : 0),     // NOTE: 0 value means cut goes to end of video.
+			lowerBound: this._lowerBound,
+			upperBound: this._upperBound,
+			displayObject: cut
+		};
 	}
 
 	_addMarkAtTime(time) {
@@ -409,6 +412,24 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 
 	_addNewChapter() {
 		this._chapters.addNewChapter(this._video.currentTime);
+	}
+
+	_addOrDeleteMarkForEvent(event) {
+		if (this._draggingMark) return;
+		if (this._checkForMarkDelete(event)) return;
+		const mark = this._addMarkAtTime(this._cursor.time);
+		const cut = this._isTimeInCut(this._marks[mark.bound].time * 1000);
+		if (cut) {
+			this._stage.removeChild(cut.displayObject);
+			delete this._cuts[cut.x];
+
+			this._setCutBoundsForStageX(cut.displayObject.x + 1);
+			this._cut();
+		}
+
+		this._hideCursor();
+		this._showAndMoveTimeContainer(mark.time);
+		this._stage.update();
 	}
 
 	_getNewCutPositionForCut(cut) {
@@ -462,6 +483,60 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 			this._contentMarker.mouseEnabled = false;
 		}
 		this._stage.update();
+	}
+
+	_isMouseOverContentMarker() {
+		const underMouse = this._stage.getObjectsUnderPoint(this._stage.mouseX, this._stage.mouseY, 1)[0];
+		return this._contentMarker === underMouse;
+	}
+
+	_isMouseOverMark() {
+		const underMouse = this._stage.getObjectsUnderPoint(this._stage.mouseX, this._stage.mouseY, 1)[0];
+
+		let result = false;
+		Object.values(this._marks).forEach(mark => {
+			if (mark.displayObject === underMouse) {
+				result = mark;
+			}
+		});
+		return result;
+	}
+
+	_isMouseOverTimeline(directlyOver) {
+		const objects = this._stage.getObjectsUnderPoint(this._stage.mouseX, this._stage.mouseY, 1);
+
+		if (directlyOver) {
+			return objects[0] === this._timelineRect;
+		} else {
+			return objects.includes(this._timelineRect);
+		}
+	}
+
+	_isTimeInCut(time) {
+		let result = false;
+		Object.values(this._cuts).forEach(cut => {
+			if (cut.startTimeMS < time && (cut.endTimeMS > time || cut.endTimeMS === 0)) {
+				result = cut;
+			}
+		});
+		return result;
+	}
+
+	_hideCursor() {
+		this._cursor.displayObject.visible = false;
+		this._timeContainer.visible = false;
+		this._stage.update();
+	}
+
+	_moveContentMarker(event) {
+		if (this._controlMode === 'seek') {
+			this._chapters.setChapterToTime(this._getTimeFromStageX(event.stageX));
+			this._showAndMoveTimeContainer(this._activeChapter.time);
+		}
+	}
+
+	_pauseUpdatingVideoTime() {
+		clearInterval(this._updateTimelineInterval);
 	}
 
 	_setCursorOrCurrentMark(stageXPosition) {
@@ -532,16 +607,30 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 		mark.graphics.clear().beginFill('#BCBCBC').drawRect(0, 0, constants.MARK_WIDTH, constants.MARK_HEIGHT);
 	}
 
+	_setMouseEnabledForCuts(enabled) {
+		Object.values(this._cuts).forEach(cut => {
+			cut.displayObject.mouseEnabled = enabled;
+		});
+	}
+
 	_setMouseEnabledForMarks(enabled) {
 		Object.values(this._marks).forEach(mark => {
 			mark.displayObject.mouseEnabled = enabled;
 		});
 	}
 
-	_setMouseEnabledForCuts(enabled) {
-		Object.values(this._cuts).forEach(cut => {
-			cut.displayObject.mouseEnabled = enabled;
-		});
+	_showAndMoveTimeContainer(time) {
+		if (time) {
+			this._timeText.text = new Date(time * 1000).toISOString().substr(11, 8);
+			this._timeContainer.visible = true;
+
+			const stageX = this._getStageXFromTime(time);
+			this._timeContainer.x = Math.min(
+				Math.max(stageX + constants.TIME_CONTAINER_OFFSET_X, constants.TIMELINE_OFFSET_X),
+				constants.TIMELINE_OFFSET_X + constants.TIMELINE_WIDTH - constants.TIME_TEXT_BORDER_WIDTH
+			);
+			this._stage.update();
+		}
 	}
 
 	_startUpdatingVideoTime() {
@@ -571,10 +660,6 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 		}, 50);
 	}
 
-	_pauseUpdatingVideoTime() {
-		clearInterval(this._updateTimelineInterval);
-	}
-
 	_updateVideoTime() {
 		// Clear the seeked time once the video has caught up
 		if (this._mouseTime && Math.abs(this._mouseTime - this._video.currentTime) < 1) {
@@ -583,64 +668,6 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 		const width = Math.min(constants.TIMELINE_WIDTH, constants.TIMELINE_WIDTH * ((this._mouseTime || this._video.currentTime) / this._video.duration));
 		this._playedRect.graphics.clear().beginFill('#0066CC').drawRect(0, 0, width, constants.TIMELINE_HEIGHT);
 		this._stage.update();
-	}
-
-	_cut() {
-		const cut = new Shape();
-		cut.setTransform(this._lowerBound, constants.TIMELINE_OFFSET_Y);
-		cut.graphics.beginFill('#FF0000').drawRect(0, 0, this._upperBound - this._lowerBound, constants.TIMELINE_HEIGHT);
-		cut.alpha = 0.5;
-
-		// When we're splitting a cut by adding a mark, disable mouse for the new cut
-		if (this._controlMode !== 'cut') {
-			cut.mouseEnabled = false;
-		}
-
-		cut.on('click', (event) => {
-			if (this._controlMode === 'mark') {
-				this._addOrDeleteMarkForEvent(event);
-			} else if (this._controlMode === 'cut') {
-				delete this._cuts[event.target.x];
-				this._stage.removeChild(event.target);
-				this._stage.update();
-			}
-		});
-
-		// Add the cut shape below the marks
-		let numMarks = 0;
-		Object.values(this._marks).forEach(() => {
-			numMarks++;
-		});
-
-		const zIndexForCut = this._stage.numChildren - numMarks;
-		this._stage.addChildAt(cut, zIndexForCut);
-		this._stage.update();
-
-		this._cuts[cut.x] = {
-			startTimeMS: (this._lowerMark ? this._lowerMark.time * 1000 : 0),
-			endTimeMS: (this._upperMark ? this._upperMark.time * 1000 : 0),     // NOTE: 0 value means cut goes to end of video.
-			lowerBound: this._lowerBound,
-			upperBound: this._upperBound,
-			displayObject: cut
-		};
-	}
-
-	_checkForMarkDelete(event) {
-		if (this._mouseDownStageX && Math.abs(this._mouseDownStageX - event.stageX) === 0) {
-			const markToDelete = this._marks[Math.round(this._currentMark.displayObject.x)];
-			this._stage.removeChild(markToDelete.displayObject);
-			this._currentMark = null;
-
-			delete this._marks[markToDelete.bound];
-			this._recalculateCuts();
-			this._setCursorOrCurrentMark(this._stage.mouseX);
-
-			this._mouseDownStageX = null;
-			return true;
-		}
-
-		this._mouseDownStageX = null;
-		return false;
 	}
 
 	_recalculateCuts() {
@@ -658,33 +685,6 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 				this._cut();
 			}
 		});
-	}
-
-	_hideCursor() {
-		this._cursor.displayObject.visible = false;
-		this._timeContainer.visible = false;
-		this._stage.update();
-	}
-
-	_moveContentMarker(event) {
-		if (this._controlMode === 'seek') {
-			this._chapters.setChapterToTime(this._getTimeFromStageX(event.stageX));
-			this._showAndMoveTimeContainer(this._activeChapter.time);
-		}
-	}
-
-	_showAndMoveTimeContainer(time) {
-		if (time) {
-			this._timeText.text = new Date(time * 1000).toISOString().substr(11, 8);
-			this._timeContainer.visible = true;
-
-			const stageX = this._getStageXFromTime(time);
-			this._timeContainer.x = Math.min(
-				Math.max(stageX + constants.TIME_CONTAINER_OFFSET_X, constants.TIMELINE_OFFSET_X),
-				constants.TIMELINE_OFFSET_X + constants.TIMELINE_WIDTH - constants.TIME_TEXT_BORDER_WIDTH
-			);
-			this._stage.update();
-		}
 	}
 
 	addEventsToTimeline(events) {
