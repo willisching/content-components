@@ -43,6 +43,7 @@
   "dependencies": {
     "@brightspace-ui/core": "^1.80.1",
     "@createjs/easeljs": "^2.0.0-beta.4",
+    "@polymer/polymer": "^3.4.1",
     "@webcomponents/webcomponentsjs": "^2",
     "lit-element": "^2"
   }
