@@ -1,5 +1,7 @@
 import '@brightspace-ui/core/components/button/button-icon.js';
 import '@brightspace-ui/core/components/colors/colors.js';
+import './video-producer-chapters.js';
+
 import { Container, Shape, Stage, Text } from '@createjs/easeljs';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import constants from './constants.js';
@@ -12,36 +14,33 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 
 	static get styles() {
 		return css`
-			.timeline-controls {
-				float: left;
+			.d2l-video-producer {
+				display: flex;
 			}
 
-			.timeline-controls .btn {
-				width: 50px;
-				padding-left: 20px;
-				padding-right: 20px;
-				color: white;
-				background-color: #939393;
-				border: 1px solid #787878;
-				border-bottom: none;
-				border-top-left-radius: 0;
-				border-bottom-left-radius: 0;
+			.d2l-video-producer video {
+				background-color: black;
+				margin-right: 10px;
+			}
 
-				&:hover {
-					background-color: #828282;
-					color: white;
-				}
+			.d2l-video-producer-timeline {
+				margin-top: 15px;
+			}
 
-				&.active,
-				&:active {
-					background-color: #787878;
-					color: white;
-				}
+			.d2l-video-producer-timeline-controls {
+				display: inline-flex;
+				height: 90px;
+				justify-content: center;
+				vertical-align: top;
+				width: 170px;
+			}
+
+			.d2l-video-producer-timeline-controls d2l-button-icon {
+				margin: 0 4px;
 			}
 
 			#timeline-canvas {
 				border: 1px solid #787878;
-				float: left;
 			}
 		`;
 	}
@@ -49,7 +48,7 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 	constructor() {
 		super();
 
-		this._controlMode = 'mark';
+		this._controlMode = 'seek';
 		this._shouldResumePlaying = false;
 		this._cuts = {};
 		this._updateTimelineInterval = null;
@@ -70,8 +69,11 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 	firstUpdated() {
 		super.firstUpdated();
 		this._video = this.shadowRoot.querySelector('video');
+		this._chapters = this.shadowRoot.querySelector('d2l-labs-video-producer-chapters');
 		this._configureStage();
 		this._configureModes();
+
+		this._chapters.addEventListener('active-chapter-updated', this._handleActiveChapterUpdated.bind(this));
 	}
 
 	_configureModes() {
@@ -102,7 +104,14 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 					this._shouldResumePlaying = false;
 				}
 			},
-			stageMouseMove: voidFunction
+			stageMouseMove: () => {
+				if (this._isMouseOverContentMarker() && this._activeChapter) {
+					this._showAndMoveTimeContainer(this._activeChapter.time);
+				} else {
+					this._timeContainer.visible = false;
+					this._stage.update();
+				}
+			}
 		};
 		seekMode.timelineMouseDown = event => {
 			this._stage.mouseMoveOutside = true;
@@ -256,19 +265,10 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 		this._contentMarkerHitBox.graphics.beginFill('#FFF').drawRect(constants.HITBOX_OFFSET, constants.HITBOX_OFFSET, constants.HITBOX_WIDTH, constants.HITBOX_HEIGHT);
 		this._contentMarker.hitArea = this._contentMarkerHitBox;
 
-		this._contentMarker.on('mouseover', (event) => {
-			console.log('mouseover', event);
-			// showAndMoveTimeContainerForTime($scope.getCurrentContentItem().time / 1000);
-		});
-
-		this._contentMarker.on('mouseout', () => {
-			this._timeContainer.visible = false;
-			this._stage.update();
-		});
-
 		this._contentMarker.on('pressmove', (event) => {
-			console.log('pressmove', event);
-			// moveContentMarker(event);
+			if (this._isMouseOverTimeline(false)) {
+				this._moveContentMarker(event);
+			}
 		});
 		this._stage.addChild(this._contentMarker);
 
@@ -330,6 +330,11 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 			}
 		});
 		return result;
+	}
+
+	_isMouseOverContentMarker() {
+		const underMouse = this._stage.getObjectsUnderPoint(this._stage.mouseX, this._stage.mouseY, 1)[0];
+		return this._contentMarker === underMouse;
 	}
 
 	_isMouseOverMark() {
@@ -402,6 +407,10 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 		return this._currentMark;
 	}
 
+	_addNewChapter() {
+		this._chapters.addNewChapter(this._video.currentTime);
+	}
+
 	_getNewCutPositionForCut(cut) {
 		let result = cut.lowerBound + 1;
 		// We can use the lowerBound unless the lower mark changed
@@ -439,6 +448,20 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 		const time = this._video.duration * (seekPosition / 100);
 
 		return time;
+	}
+
+	_handleActiveChapterUpdated({ detail: { chapter } }) {
+		if (chapter) {
+			this._activeChapter = chapter;
+			this._contentMarker.visible = true;
+			this._contentMarker.mouseEnabled = true;
+			this._contentMarker.setTransform(this._getStageXFromTime(chapter.time) +
+				constants.CURSOR_OFFSET_X, constants.CURSOR_OFFSET_Y);
+		} else {
+			this._contentMarker.visible = false;
+			this._contentMarker.mouseEnabled = false;
+		}
+		this._stage.update();
 	}
 
 	_setCursorOrCurrentMark(stageXPosition) {
@@ -499,6 +522,10 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 				this._upperMark = mark;
 			}
 		});
+	}
+
+	_setChapterToCurrentTime() {
+		this._chapters.setChapterToTime(this._video.currentTime);
 	}
 
 	_setMarkStyleNormal(mark) {
@@ -640,9 +667,9 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_moveContentMarker(event) {
-		if (this._.controlMode === this._.controls.seek) {
-			this._.updateCurrentContentItem(this._getTimeFromStageX(event.stageX) * 1000);
-			this._showAndMoveTimeContainerForTime(this._.getCurrentContentItem().time / 1000);
+		if (this._controlMode === 'seek') {
+			this._chapters.setChapterToTime(this._getTimeFromStageX(event.stageX));
+			this._showAndMoveTimeContainer(this._activeChapter.time);
 		}
 	}
 
@@ -652,26 +679,12 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 			this._timeContainer.visible = true;
 
 			const stageX = this._getStageXFromTime(time);
-			this._timeContainer.x = Math.min(Math.max(stageX + constants.TIME_CONTAINER_OFFSET_X, constants.TIMELINE_OFFSET_X), constants.TIMELINE_OFFSET_X + constants.TIMELINE_WIDTH - constants.TIME_TEXT_BORDER_WIDTH);
+			this._timeContainer.x = Math.min(
+				Math.max(stageX + constants.TIME_CONTAINER_OFFSET_X, constants.TIMELINE_OFFSET_X),
+				constants.TIMELINE_OFFSET_X + constants.TIMELINE_WIDTH - constants.TIME_TEXT_BORDER_WIDTH
+			);
 			this._stage.update();
 		}
-	}
-
-	_buildTimeline() {
-		// $scope.$watchGroup(['currentTab', 'currentChapter', 'currentChapter.time', 'currentCaption', 'currentCaption.time'], () => {
-		// 	if ($scope.getCurrentContentItem()) {
-		// 		contentMarker.visible = true;
-		// 		contentMarker.mouseEnabled = true;
-		// 		contentMarker.setTransform(stageXFromTime($scope.getCurrentContentItem().time / 1000) + CURSOR_OFFSET_X, CURSOR_OFFSET_Y);
-		// 	} else {
-		// 		contentMarker.visible = false;
-		// 		contentMarker.mouseEnabled = false;
-		// 	}
-
-		// 	stage.update();
-		// });
-
-		// this._stage.update();
 	}
 
 	addEventsToTimeline(events) {
@@ -737,21 +750,27 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 
 	render() {
 		return html`
-			<div>
+			<div class="d2l-video-producer">
 				<video
 					@play=${this._startUpdatingVideoTime}
 					@pause=${this._pauseUpdatingVideoTime}
 					@seeking=${this._updateVideoTime}
 					controls
-					width="1010"
+					width="820"
 				><source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4">
 				</video>
+				<d2l-labs-video-producer-chapters
+					@add-new-chapter=${this._addNewChapter}
+					@set-chapter-to-current-time=${this._setChapterToCurrentTime}
+				></d2l-labs-video-producer-chapters>
+			</div>
+			<div class="d2l-video-producer-timeline">
 				<canvas width="1010" height="90" id="timeline-canvas"></canvas>
-				<span class="btn-group timeline-controls">
+				<div class="d2l-video-producer-timeline-controls">
 					<d2l-button-icon @click=${this._changeToSeekMode} text="${this.localize('seek')}" icon="tier1:divider-solid"></d2l-button-icon>
 					<d2l-button-icon @click=${this._changeToMarkMode} text="${this.localize('mark')}" icon="tier1:edit"></d2l-button-icon>
 					<d2l-button-icon @click=${this._changeToCutMode} text="${this.localize('cut')}" icon="html-editor:cut"></d2l-button-icon>
-				</span>
+				</div>
 			</div>
 		`;
 	}
