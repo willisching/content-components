@@ -1,4 +1,11 @@
 const constants = {
+	// Control Modes
+	CONTROL_MODES: {
+		SEEK: 'seek',
+		MARK: 'mark',
+		CUT: 'cut',
+	},
+
 	// Timeline
 	TIMELINE_HEIGHT: 30,
 	TIMELINE_WIDTH: 990,
