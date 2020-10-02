@@ -111,7 +111,7 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 
 	_setChapterToCurrentTime(chapter) {
 		return () => {
-			this._activeChapter = chapter;
+			this._updateActiveChapter(chapter);
 			this.dispatchEvent(new CustomEvent(
 				'set-chapter-to-current-time',
 				{ bubbles: true, composed: false }
@@ -159,6 +159,9 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 
 	setChapters(chapters) {
 		this._chapters = chapters;
+		if (chapters.length > 0) {
+			this._updateActiveChapter(chapters[0]);
+		}
 	}
 
 	setChapterToTime(time) {

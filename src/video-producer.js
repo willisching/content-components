@@ -2,6 +2,7 @@ import '@brightspace-ui/core/components/button/button-icon.js';
 import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/colors/colors.js';
 import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
+import '@brightspace-ui-labs/media-player/media-player.js';
 import './video-producer-chapters.js';
 
 import { Container, Shape, Stage, Text } from '@createjs/easeljs';
@@ -58,9 +59,10 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				justify-content: space-between;
 			}
 
-			.d2l-video-producer video {
+			.d2l-video-producer d2l-labs-media-player {
 				background-color: black;
-				margin-right: 10px;
+				display: flex;
+				width: 820px;
 			}
 
 			.d2l-video-producer-timeline {
@@ -111,16 +113,17 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 	firstUpdated() {
 		super.firstUpdated();
-		this._video = this.shadowRoot.querySelector('video');
+		this._video = this.shadowRoot.querySelector('d2l-labs-media-player');
 		this._chapters = this.shadowRoot.querySelector('d2l-labs-video-producer-chapters');
 		this._revisionSelector = this.shadowRoot.querySelector('select');
 		this._configureStage();
 		this._configureModes();
 
-		this._chapters.addEventListener('active-chapter-updated', this._handleActiveChapterUpdated.bind(this));
+		this._chapters.addEventListener('active-chapter-updated',
+			this._handleActiveChapterUpdated.bind(this));
 
-		// Wait for video duration to be updated
-		this._video.addEventListener('durationchange', () => {
+		// Wait for video to be loaded
+		this._video.addEventListener('loadeddata', () => {
 			this._addChaptersToTimeline();
 			this._addCutsToTimeline();
 		});
@@ -754,7 +757,7 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		// TODO: Fetch chapters
 		const chapters = [{
 			title: 'Chapter 1',
-			time: 300,
+			time: 512,
 		}];
 		this._chapters.setChapters(chapters);
 	}
@@ -884,14 +887,13 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 					</d2l-button>
 				</div>
 				<div class="d2l-video-producer-video-controls">
-					<video
+					<d2l-labs-media-player
 						@play=${this._startUpdatingVideoTime}
 						@pause=${this._pauseUpdatingVideoTime}
 						@seeking=${this._updateVideoTime}
 						controls
-						width="820"
-					><source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4">
-					</video>
+						src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+					></d2l-labs-media-player>
 					<d2l-labs-video-producer-chapters
 						@add-new-chapter=${this._addNewChapter}
 						@set-chapter-to-current-time=${this._setChapterToCurrentTime}
