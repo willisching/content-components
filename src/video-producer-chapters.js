@@ -85,6 +85,7 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 
 	_deleteChapter(chapter) {
 		return () => {
+			this._updateActiveChapter(null);
 			this._chapters = this._chapters.filter(({ time, title }) =>
 				!(title === chapter.title && time === chapter.time));
 		};
