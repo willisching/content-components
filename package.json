@@ -42,6 +42,7 @@
   },
   "dependencies": {
     "@brightspace-ui/core": "^1.80.1",
+    "@brightspace-ui/intl": "^3.0.11",
     "@createjs/easeljs": "^2.0.0-beta.4",
     "@polymer/polymer": "^3.4.1",
     "@webcomponents/webcomponentsjs": "^2",

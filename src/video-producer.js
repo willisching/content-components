@@ -1,21 +1,61 @@
 import '@brightspace-ui/core/components/button/button-icon.js';
+import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/colors/colors.js';
+import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
 import './video-producer-chapters.js';
 
 import { Container, Shape, Stage, Text } from '@createjs/easeljs';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import constants from './constants.js';
+import { formatDateTime } from '@brightspace-ui/intl/lib/dateTime.js';
 import { InternalLocalizeMixin } from './internal-localize-mixin.js';
+import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
+import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';
 
-class VideoProducer extends InternalLocalizeMixin(LitElement) {
+class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
-		return {};
+		return {
+			_loadingRevision: { type: Boolean },
+			_savingRevision: { type: Boolean },
+		};
 	}
 
 	static get styles() {
-		return css`
+		return [selectStyles, css`
 			.d2l-video-producer {
 				display: flex;
+				flex-direction: column;
+				width: 1200px;
+			}
+
+			.d2l-video-producer-revision-controls {
+				align-items: center;
+				display: flex;
+				justify-content: flex-end;
+				margin-bottom: 15px;
+			}
+
+			.d2l-video-producer-manage-revision {
+				display: flex;
+				align-items: center;
+			}
+
+			.d2l-video-producer-manage-revision d2l-loading-spinner {
+				margin-right: 5px;
+			}
+
+			.d2l-video-producer-manage-revision.d2l-video-producer-manage-revision-hidden {
+				display: none;
+			}
+
+			.d2l-video-producer-revision-controls d2l-button,
+			.d2l-video-producer-revision-controls select {
+				margin-left: 15px;
+			}
+
+			.d2l-video-producer-video-controls {
+				display: flex;
+				justify-content: space-between;
 			}
 
 			.d2l-video-producer video {
@@ -42,7 +82,7 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 			#timeline-canvas {
 				border: 1px solid #787878;
 			}
-		`;
+		`];
 	}
 
 	constructor() {
@@ -64,12 +104,16 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 
 		this._lowerBound = constants.TIMELINE_OFFSET_X;
 		this._upperBound = constants.TIMELINE_WIDTH;
+
+		this._loadingRevision = false;
+		this._savingRevision = false;
 	}
 
 	firstUpdated() {
 		super.firstUpdated();
 		this._video = this.shadowRoot.querySelector('video');
 		this._chapters = this.shadowRoot.querySelector('d2l-labs-video-producer-chapters');
+		this._revisionSelector = this.shadowRoot.querySelector('select');
 		this._configureStage();
 		this._configureModes();
 
@@ -773,42 +817,93 @@ class VideoProducer extends InternalLocalizeMixin(LitElement) {
 	}
 	//#endregion
 
-	getCuts() {
+	//#region Revision management
+	async _loadRevision() {
+		// TODO: Load revisions
+		this._loadingRevision = true;
+		console.log('Loading revision:', this._revisionSelector.value);
+		await (new Promise(r => setTimeout(r, 2000)));
+		this._loadingRevision = false;
+	}
+
+	async _saveRevision() {
+		// TODO: Save revisions
+		this._savingRevision = true;
 		const cuts = [];
 
 		Object.values(this._cuts).forEach(cut => {
 			cuts.push({
 				type: constants.CUETYPES.Cut,
-				inMs: cut.startTimeMS,
-				outMs: cut.endTimeMS
+				inMs: cut.startTimeMS / 1000,
+				outMs: cut.endTimeMS / 1000
 			});
 		});
 
-		return cuts;
+		console.log(cuts);
+		await (new Promise(r => setTimeout(r, 2000)));
+		this._savingRevision = false;
+	}
+	//#endregion
+
+	_renderRevisions() {
+		// TODO: Fetch revisions
+		const revisions = [{
+			id: 1,
+			date: formatDateTime(new Date(), { format: 'medium' })
+		}];
+		return revisions.map(revision => html`
+			<option value=${revision.id}>${revision.date}</option>
+		`);
 	}
 
 	render() {
 		return html`
 			<div class="d2l-video-producer">
-				<video
-					@play=${this._startUpdatingVideoTime}
-					@pause=${this._pauseUpdatingVideoTime}
-					@seeking=${this._updateVideoTime}
-					controls
-					width="820"
-				><source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4">
-				</video>
-				<d2l-labs-video-producer-chapters
-					@add-new-chapter=${this._addNewChapter}
-					@set-chapter-to-current-time=${this._setChapterToCurrentTime}
-				></d2l-labs-video-producer-chapters>
-			</div>
-			<div class="d2l-video-producer-timeline">
-				<canvas width="1010" height="90" id="timeline-canvas"></canvas>
-				<div class="d2l-video-producer-timeline-controls">
-					<d2l-button-icon @click=${this._changeToSeekMode} text="${this.localize(constants.CONTROL_MODES.SEEK)}" icon="tier1:divider-solid"></d2l-button-icon>
-					<d2l-button-icon @click=${this._changeToMarkMode} text="${this.localize(constants.CONTROL_MODES.MARK)}" icon="tier1:edit"></d2l-button-icon>
-					<d2l-button-icon @click=${this._changeToCutMode} text="${this.localize(constants.CONTROL_MODES.CUT)}" icon="html-editor:cut"></d2l-button-icon>
+				<div class="d2l-video-producer-revision-controls">
+					<label>${this.localize('revisionHistory')}</label>
+					<select class="d2l-input-select">
+						${this._renderRevisions()}
+					</select>
+					<d2l-button @click="${this._loadRevision}" ?disabled="${this._loadingRevision || this._savingRevision}">
+						<div class="d2l-video-producer-manage-revision ${!this._loadingRevision ? 'd2l-video-producer-manage-revision-hidden' : ''}">
+							<d2l-loading-spinner size="20"></d2l-loading-spinner>
+							${this.localize('loading')}
+						</div>
+						<div ?hidden="${this._loadingRevision}">
+							${this.localize('load')}
+						</div>
+					</d2l-button>
+					<d2l-button primary @click="${this._saveRevision}" ?disabled="${this._loadingRevision || this._savingRevision}">
+						<div class="d2l-video-producer-manage-revision ${!this._savingRevision ? 'd2l-video-producer-manage-revision-hidden' : ''}">
+							<d2l-loading-spinner size="20"></d2l-loading-spinner>
+							${this.localize('saving')}
+						</div>
+						<div ?hidden="${this._savingRevision}">
+							${this.localize('save')}
+						</div>
+					</d2l-button>
+				</div>
+				<div class="d2l-video-producer-video-controls">
+					<video
+						@play=${this._startUpdatingVideoTime}
+						@pause=${this._pauseUpdatingVideoTime}
+						@seeking=${this._updateVideoTime}
+						controls
+						width="820"
+					><source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4">
+					</video>
+					<d2l-labs-video-producer-chapters
+						@add-new-chapter=${this._addNewChapter}
+						@set-chapter-to-current-time=${this._setChapterToCurrentTime}
+					></d2l-labs-video-producer-chapters>
+				</div>
+				<div class="d2l-video-producer-timeline">
+					<canvas width="1010" height="90" id="timeline-canvas"></canvas>
+					<div class="d2l-video-producer-timeline-controls">
+						<d2l-button-icon @click=${this._changeToSeekMode} text="${this.localize(constants.CONTROL_MODES.SEEK)}" icon="tier1:divider-solid"></d2l-button-icon>
+						<d2l-button-icon @click=${this._changeToMarkMode} text="${this.localize(constants.CONTROL_MODES.MARK)}" icon="tier1:edit"></d2l-button-icon>
+						<d2l-button-icon @click=${this._changeToCutMode} text="${this.localize(constants.CONTROL_MODES.CUT)}" icon="html-editor:cut"></d2l-button-icon>
+					</div>
 				</div>
 			</div>
 		`;
