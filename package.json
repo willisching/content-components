@@ -2,6 +2,7 @@
   "name": "@brightspace-ui-labs/video-producer",
   "description": "",
   "repository": "https://github.com/BrightspaceUILabs/video-producer.git",
+  "version": "0.0.1",
   "publishConfig": {
     "access": "public"
   },
@@ -41,7 +42,7 @@
     "puppeteer": "^5"
   },
   "dependencies": {
-    "@brightspace-ui-labs/media-player": "BrightspaceUILabs/media-player#semver:^1",
+    "@brightspace-ui-labs/media-player": "git+ssh://git@github.com/BrightspaceUILabs/media-player.git",
     "@brightspace-ui/core": "^1.80.1",
     "@brightspace-ui/intl": "^3.0.11",
     "@createjs/easeljs": "^2.0.0-beta.4",

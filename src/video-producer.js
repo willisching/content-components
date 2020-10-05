@@ -16,6 +16,7 @@ import { selectStyles } from '@brightspace-ui/core/components/inputs/input-selec
 class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
+			src: { type: String, reflect: true },
 			_loadingRevision: { type: Boolean },
 			_savingRevision: { type: Boolean },
 		};
@@ -892,7 +893,7 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 						@pause=${this._pauseUpdatingVideoTime}
 						@seeking=${this._updateVideoTime}
 						controls
-						src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+						src="${this.src}"
 					></d2l-labs-media-player>
 					<d2l-labs-video-producer-chapters
 						@add-new-chapter=${this._addNewChapter}
