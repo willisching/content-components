@@ -1,4 +1,4 @@
-import '../video-producer.js';
+import '../src/video-producer.js';
 import { expect, fixture, html } from '@open-wc/testing';
 import { runConstructor } from '@brightspace-ui/core/tools/constructor-test-helper.js';
 
