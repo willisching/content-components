@@ -57,13 +57,14 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 			.d2l-video-producer-video-controls {
 				display: flex;
+				height: 580px;
 				justify-content: space-between;
 			}
 
 			.d2l-video-producer d2l-labs-media-player {
-				background-color: black;
 				display: flex;
-				width: 820px;
+				margin-right: 20px;
+				width: 100%;
 			}
 
 			.d2l-video-producer-timeline {
@@ -756,10 +757,7 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 	_addChaptersToTimeline() {
 		// TODO: Fetch chapters
-		const chapters = [{
-			title: 'Chapter 1',
-			time: 512,
-		}];
+		const chapters = [];
 		this._chapters.setChapters(chapters);
 	}
 
@@ -796,16 +794,7 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		};
 
 		// TODO: Fetch cuts
-		const cuts = [{
-			inMs: 100,
-			outMs: 200
-		}, {
-			inMs: 230,
-			outMs: 270
-		}, {
-			inMs: 300,
-			outMs: 392
-		}];
+		const cuts = [];
 
 		cuts.forEach(cut => {
 			addCut(cut);
@@ -825,7 +814,6 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	async _loadRevision() {
 		// TODO: Load revisions
 		this._loadingRevision = true;
-		console.log('Loading revision:', this._revisionSelector.value);
 		await (new Promise(r => setTimeout(r, 2000)));
 		this._loadingRevision = false;
 	}
