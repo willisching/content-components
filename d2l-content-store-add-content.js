@@ -1,7 +1,7 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { LocalizeMixin } from '@brightspace-ui/core/mixins/localize-mixin.js';
 
-class D2lContentServiceAddDialog extends LocalizeMixin(LitElement) {
+class D2lContentStoreAddContent extends LocalizeMixin(LitElement) {
 
 	static get properties() {
 		return {
@@ -40,7 +40,7 @@ class D2lContentServiceAddDialog extends LocalizeMixin(LitElement) {
 	constructor() {
 		super();
 
-		this.prop1 = 'd2l-content-service-add-dialog';
+		this.prop1 = 'd2l-content-store-add-content';
 	}
 
 	render() {
@@ -50,4 +50,4 @@ class D2lContentServiceAddDialog extends LocalizeMixin(LitElement) {
 		`;
 	}
 }
-customElements.define('d2l-labs-d2l-content-service-add-dialog', D2lContentServiceAddDialog);
+customElements.define('d2l-content-store-add-content', D2lContentStoreAddContent);

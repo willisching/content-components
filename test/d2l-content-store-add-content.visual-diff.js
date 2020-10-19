@@ -1,9 +1,9 @@
 const puppeteer = require('puppeteer');
 const VisualDiff = require('@brightspace-ui/visual-diff');
 
-describe('d2l-labs-d2l-content-service-add-dialog', () => {
+describe('d2l-content-store-add-content', () => {
 
-	const visualDiff = new VisualDiff('d2l-content-service-add-dialog', __dirname);
+	const visualDiff = new VisualDiff('d2l-content-store-add-content', __dirname);
 
 	let browser, page;
 
@@ -11,7 +11,7 @@ describe('d2l-labs-d2l-content-service-add-dialog', () => {
 		browser = await puppeteer.launch();
 		page = await visualDiff.createPage(browser);
 		await page.setViewport({width: 800, height: 800, deviceScaleFactor: 2});
-		await page.goto(`${visualDiff.getBaseUrl()}/test/d2l-content-service-add-dialog.visual-diff.html`, {waitUntil: ['networkidle0', 'load']});
+		await page.goto(`${visualDiff.getBaseUrl()}/test/d2l-content-store-add-content.visual-diff.html`, {waitUntil: ['networkidle0', 'load']});
 		await page.bringToFront();
 	});
 
