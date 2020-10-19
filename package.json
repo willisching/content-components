@@ -1,12 +1,12 @@
 {
-  "name": "<%= packageName %>",
-  "description": "<%= description %>",
-  "repository": "https://github.com/<%= githubOrg %>/<%= shortName %>.git",
-  <%= publishInfo %>,
+  "name": "d2l-content-store-add-content",
+  "description": "Dialog for adding content.",
+  "repository": "https://github.com/Brightspace/content-store-add-content.git",
+  "private": true,
   "scripts": {
     "lint": "npm run lint:eslint && npm run lint:lit",
     "lint:eslint": "eslint . --ext .js,.html",
-    "lint:lit": "lit-analyzer <%= shortName %>.js demo test",
+    "lint:lit": "lit-analyzer d2l-content-store-add-content.js demo test",
     "start": "es-dev-server --app-index demo/index.html --node-resolve --dedupe --open --watch",
     "test": "npm run lint && npm run test:headless && npm run test:diff",
     "test:diff": "mocha ./**/*.visual-diff.js -t 40000",
