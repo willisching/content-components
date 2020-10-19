@@ -1,7 +1,7 @@
 # d2l-content-store-add-content
 
-[![Dependabot badge](https://flat.badgen.net/dependabot/Brightspace/d2l-content-store-add-content?icon=dependabot)](https://app.dependabot.com/)
-[![Build status](https://travis-ci.com/brightspace/d2l-content-store-add-content.svg?branch=master)](https://travis-ci.com/brightspace/d2l-content-store-add-content)
+[![Dependabot badge](https://flat.badgen.net/dependabot/Brightspace/content-store-add-content?icon=dependabot)](https://app.dependabot.com/)
+[![Build status](https://travis-ci.com/brightspace/content-store-add-content.svg?branch=master)](https://travis-ci.com/brightspace/content-store-add-content)
 
 Dialog for adding content.
 
