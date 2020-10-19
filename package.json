@@ -23,7 +23,7 @@
     "@open-wc/testing": "^2",
     "@open-wc/testing-karma": "^3",
     "babel-eslint": "^10",
-    "deepmerge": "^3",
+    "deepmerge": "^4",
     "es-dev-server": "^1",
     "eslint": "^6",
     "eslint-config-brightspace": "^0.6.7",
