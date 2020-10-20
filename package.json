@@ -32,7 +32,7 @@
     "eslint-plugin-lit": "^1",
     "eslint-plugin-sort-class-members": "^1",
     "frau-ci": "^1",
-    "karma-sauce-launcher": "^2",
+    "karma-sauce-launcher": "^4",
     "lit-analyzer": "^1",
     "puppeteer": "^5"
   },
