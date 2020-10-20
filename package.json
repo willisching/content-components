@@ -2,6 +2,7 @@
   "name": "d2l-content-store-add-content",
   "description": "Dialog for adding content.",
   "repository": "https://github.com/Brightspace/content-store-add-content.git",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "lint": "npm run lint:eslint && npm run lint:lit",
@@ -21,11 +22,11 @@
   "devDependencies": {
     "@brightspace-ui/visual-diff": "^1",
     "@open-wc/testing": "^2",
-    "@open-wc/testing-karma": "^3",
+    "@open-wc/testing-karma": "^4",
     "babel-eslint": "^10",
-    "deepmerge": "^3",
+    "deepmerge": "^4",
     "es-dev-server": "^1",
-    "eslint": "^6",
+    "eslint": "^7",
     "eslint-config-brightspace": "^0.6.7",
     "eslint-plugin-html": "^6",
     "eslint-plugin-lit": "^1",
@@ -33,7 +34,7 @@
     "frau-ci": "^1",
     "karma-sauce-launcher": "^2",
     "lit-analyzer": "^1",
-    "puppeteer": "^4"
+    "puppeteer": "^5"
   },
   "dependencies": {
     "@brightspace-ui/core": "^1",
