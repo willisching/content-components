@@ -6,7 +6,6 @@ import '@brightspace-ui/core/components/button/button-icon.js';
 import '@brightspace-ui/core/components/colors/colors.js';
 import '@brightspace-ui/core/components/inputs/input-text.js';
 import '@brightspace-ui/core/components/inputs/input-date-time-range.js';
-import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
 import '@brightspace-ui-labs/accordion/accordion-collapse.js';
 import '../../components/live-event-form.js';
 import '../../components/unauthorized-message.js';
@@ -21,58 +20,39 @@ import { PageViewElement } from '../../components/page-view-element.js';
 import { rootStore } from '../../state/root-store.js';
 import { sharedEditStyles } from '../../components/shared-styles.js';
 
-class D2LCaptureLiveEventsEdit extends DependencyRequester(PageViewElement) {
+class D2LCaptureLiveEventsCreate extends DependencyRequester(PageViewElement) {
 
 	static get properties() {
 		return {
-			_loading: { type: Boolean, attribute: false },
 		};
 	}
 	static get styles() {
 		return [inputStyles, heading2Styles, labelStyles, sharedEditStyles, css`
-			d2l-loading-spinner {
-				display: flex;
-				margin-top: 10%;
-			}
-
-			.hidden {
-				display: none;
-			}
-
-			.visible {
-				display: block;
-			}
 		`];
 	}
 
 	constructor() {
 		super();
-		this._liveEvent = {};
 		this.captureApiClient = this.requestDependency('capture-service-client');
-		this._loading = true;
-		this.observeQueryParams();
+		this.observeSubView();
 	}
 
 	firstUpdated() {
 		super.firstUpdated();
 		this.reloadPage();
-		const editLiveEventForm = this.shadowRoot.querySelector('#edit-live-event-form');
-		if (editLiveEventForm) {
-			editLiveEventForm.addEventListener('edit-live-event', this.handleEditEvent.bind(this));
+		const createLiveEventForm = this.shadowRoot.querySelector('#create-live-event-form');
+		if (createLiveEventForm) {
+			createLiveEventForm.addEventListener('create-live-event', this.handleCreateEvent.bind(this));
 		}
 	}
 
-	observeQueryParams() {
+	observeSubView() {
 		observe(
 			rootStore.routingStore,
-			'queryParams',
-			async() => {
-				if (this.loading) {
-					return;
-				}
-
-				if (rootStore.routingStore.page === pageNames.manageLiveEvents &&
-					rootStore.routingStore.subView === pageNames.manageLiveEventsEdit) {
+			'subView',
+			async change => {
+				if (!change.oldValue &&
+					change.newValue === pageNames.manageLiveEventsCreate) {
 					this.reloadPage();
 				}
 			}
@@ -84,30 +64,15 @@ class D2LCaptureLiveEventsEdit extends DependencyRequester(PageViewElement) {
 			return;
 		}
 
-		const editLiveEventForm = this.shadowRoot.querySelector('#edit-live-event-form');
-		this._loading = true;
-		let liveEventResponse;
-		try {
-			liveEventResponse = await this.captureApiClient.getEvent({
-				id: rootStore.routingStore.getQueryParams().id
-			});
-			this._liveEvent = liveEventResponse.item;
-			editLiveEventForm.setLiveEvent(this._liveEvent);
-			editLiveEventForm.setFocus();
-		} catch (error) {
-			editLiveEventForm.renderFailureAlert({
-				message: this.localize('getLiveEventError', { numEvents: 1}),
-				hideInputs: true
-			});
+		const createLiveEventForm = this.shadowRoot.querySelector('#create-live-event-form');
+		if (createLiveEventForm) {
+			createLiveEventForm.reload();
 		}
-
-		this._loading = false;
 	}
 
-	async handleEditEvent(event) {
+	async handleCreateEvent(event) {
 		if (event && event.detail) {
 			const {
-				id,
 				title,
 				presenter,
 				description,
@@ -119,8 +84,7 @@ class D2LCaptureLiveEventsEdit extends DependencyRequester(PageViewElement) {
 			}  = event.detail;
 
 			try {
-				await this.captureApiClient.updateEvent({
-					id,
+				await this.captureApiClient.createEvent({
 					title,
 					presenter,
 					description,
@@ -131,8 +95,8 @@ class D2LCaptureLiveEventsEdit extends DependencyRequester(PageViewElement) {
 					layoutName
 				});
 			} catch (error) {
-				const editLiveEventForm = this.shadowRoot.querySelector('#edit-live-event-form');
-				editLiveEventForm.renderFailureAlert({ message: this.localize('updateLiveEventError') });
+				const createLiveEventForm = this.shadowRoot.querySelector('#create-live-event-form');
+				createLiveEventForm.renderFailureAlert({ message: this.localize('createLiveEventError') });
 				return;
 			}
 
@@ -148,18 +112,9 @@ class D2LCaptureLiveEventsEdit extends DependencyRequester(PageViewElement) {
 		}
 
 		return html`
-			<d2l-loading-spinner
-				id="loading-spinner"
-				class="${this._loading ? 'visible' : 'hidden'}"
-				size=150>
-			</d2l-loading-spinner>
-			<live-event-form
-				id="edit-live-event-form"
-				class="${this._loading ? 'hidden' : 'visible'}"
-				is-edit>
-			</live-event-form>
+			<live-event-form id="create-live-event-form"></live-event-form>
 		`;
 	}
 }
 
-window.customElements.define('d2l-capture-central-live-events-edit', D2LCaptureLiveEventsEdit);
+window.customElements.define('d2l-capture-central-live-events-create', D2LCaptureLiveEventsCreate);
