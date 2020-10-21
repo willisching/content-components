@@ -23,6 +23,7 @@ import { d2lTableStyles } from '../../components/d2l-table-styles.js';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
 import { heading2Styles } from '@brightspace-ui/core/components/typography/styles.js';
 import { PageViewElement } from '../../components/page-view-element.js';
+import { ResizeObserver } from 'd2l-resize-aware/resize-observer-module.js';
 
 class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(PageViewElement)) {
 	static get properties() {
@@ -53,6 +54,14 @@ class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(Pag
 				this._handleVideoSearch();
 			}
 		});
+
+		const documentObserver = new ResizeObserver(this._resized.bind(this));
+		documentObserver.observe(document.body, { attributes: true });
+	}
+
+	firstUpdated() {
+		super.firstUpdated();
+		this._table = this.shadowRoot.querySelector('d2l-table-wrapper');
 	}
 
 	_openAddVideosDialog() {
@@ -89,6 +98,16 @@ class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(Pag
 		this._handlePaginationSearch(page);
 	}
 
+	_resized() {
+		if (this._table) {
+			if (window.innerWidth > 768 || !this._videos.length) {
+				this._table.setAttribute('sticky-headers', '');
+			} else {
+				this._table.removeAttribute('sticky-headers');
+			}
+		}
+	}
+
 	_renderDialogs() {
 		return html`
 			<d2l-capture-central-add-videos-dialog></d2l-capture-central-add-videos-dialog>
@@ -106,22 +125,35 @@ class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(Pag
 					<td class="d2l-capture-central-table-no-results" colspan=5>
 						${this.localize('noResults')}
 					</td>
-				</tr>`;
+				</tr>
+			`;
 		}
+
 		return this._videos.map(({ id, title, presenter = '-', views = 0}) => html`
 			<tr>
-				<td><d2l-input-checkbox aria-label=${this.localize('selectOption', { option: title })} @change=${this._addToSelection}></d2l-input-checkbox></td>
-				<td><d2l-link @click=${this._goTo('/presentations/edit', { id })}>${title}</d2l-link></td>
+				<td>
+					<d2l-input-checkbox
+						aria-label=${this.localize('selectOption', { option: title })}
+						@change=${this._addToSelection}
+					></d2l-input-checkbox>
+				</td>
+				<td>
+					<d2l-link @click=${this._goTo(`/presentations/edit/${id}`)}>${title}</d2l-link>
+				</td>
 				<td>${presenter}</td>
 				<td>${views}</td>
 				<td>
 					<d2l-dropdown-context-menu>
 						<d2l-dropdown-menu>
 							<d2l-menu label="${this.localize('moreOptions')}">
-								<!-- <d2l-menu-item text="${this.localize('openInProducer')}"></d2l-menu-item> -->
-								<d2l-menu-item @click=${this._goTo(`/course-videos/${id}`)} text="${this.localize('openInPlayer')}"></d2l-menu-item>
-								<!-- <d2l-menu-item text="${this.localize('duplicate')}"></d2l-menu-item> -->
-								<d2l-menu-item @click=${this._handleDeletePresentation(id)} text="${this.localize('delete')}"></d2l-menu-item>
+								<d2l-menu-item
+									@click=${this._goTo(`/course-videos/${id}`)}
+									text="${this.localize('openInPlayer')}"
+								></d2l-menu-item>
+								<d2l-menu-item
+									@click=${this._handleDeletePresentation(id)}
+									text="${this.localize('delete')}"
+								></d2l-menu-item>
 							</d2l-menu>
 						</d2l-dropdown-menu>
 					</d2l-dropdown-context-menu>
@@ -161,7 +193,7 @@ class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(Pag
 						placeholder="${this.localize('searchPresentations')}"
 					></d2l-input-search>
 				</div>
-				<d2l-table-wrapper sticky-headers>
+				<d2l-table-wrapper>
 					<p class="d2l-capture-central-table-caption" id="d2l-capture-central-table-caption">
 						${this.localize('presentations')}
 					</p>

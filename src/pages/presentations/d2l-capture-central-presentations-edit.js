@@ -32,7 +32,11 @@ class D2LCapturePresentationsEdit extends DependencyRequester(PageViewElement) {
 	static get styles() {
 		return [ d2lTableStyles, inputStyles, heading2Styles, labelStyles, sharedEditStyles, sharedTableStyles, css`
 			.d2l-capture-central-edit-presentation-options {
+				display: flex;
 				margin-bottom: 20px;
+			}
+			.d2l-capture-central-edit-presentation-options d2l-link {
+				margin-right: 10px;
 			}
 			.d2l-capture-central-edit-presentation-options d2l-icon {
 				color: var(--d2l-color-celestine);
@@ -58,7 +62,8 @@ class D2LCapturePresentationsEdit extends DependencyRequester(PageViewElement) {
 
 			d2l-loading-spinner {
 				display: flex;
-				margin-top: 100px;
+				margin: auto;
+				margin-top: 200px;
 			}
 		`];
 	}
@@ -73,9 +78,10 @@ class D2LCapturePresentationsEdit extends DependencyRequester(PageViewElement) {
 		autorun(async() => {
 			if (this.rootStore.routingStore.page === 'presentations'
 				&& this.rootStore.routingStore.subView === 'edit'
+				&& this.rootStore.routingStore.params.id
 			) {
 				this._loading = true;
-				const contentId = this.rootStore.routingStore.getQueryParams().id;
+				const contentId = this.rootStore.routingStore.params.id;
 				const { orgUnitId } = this.rootStore.routingStore;
 				this._content = await this.apiClient.getContent(contentId);
 				this._downloadUrl = (await this.apiClient.getSignedUrl(contentId)).value;
@@ -119,7 +125,7 @@ class D2LCapturePresentationsEdit extends DependencyRequester(PageViewElement) {
 		if (this._loading) {
 			return html`<d2l-loading-spinner size=150></d2l-loading-spinner>`;
 		}
-		const { title, presenter, description, id } = this._content;
+		const { title, id } = this._content;
 		return html`
 			<div class="d2l-capture-central-edit-container">
 				<d2l-breadcrumbs>
@@ -129,7 +135,6 @@ class D2LCapturePresentationsEdit extends DependencyRequester(PageViewElement) {
 				</d2l-breadcrumbs>
 				<div class="d2l-heading-2">${this.localize('editRecordedPresentation')}</div>
 				<div class="d2l-capture-central-edit-presentation-options">
-					<!-- <d2l-link><d2l-icon icon="tier1:file-video"></d2l-icon>${this.localize('editInPostProductionTool')}</d2l-link> -->
 					<d2l-link @click=${this._goTo(`/course-videos/${id}`)}><d2l-icon icon="tier1:play"></d2l-icon>${this.localize('watchPresentation')}</d2l-link>
 				</div>
 				<d2l-input-text
@@ -138,25 +143,12 @@ class D2LCapturePresentationsEdit extends DependencyRequester(PageViewElement) {
 					placeholder="${this.localize('title')}"
 					value="${title}"
 				></d2l-input-text>
-				<!-- <d2l-input-text
-					label="${this.localize('presenter')}"
-					placeholder="${this.localize('presenter')}"
-					value="${presenter}"
-				></d2l-input-text> -->
-				<!-- <div class="d2l-capture-central-edit-textarea-container">
-					<div class="d2l-label-text">${this.localize('description')}</div>
-					<textarea class="d2l-input">${description}</textarea>
-				</div> -->
 				<d2l-labs-accordion-collapse flex>
 					<div slot="header">${this.localize('transcodingStatus')}</div>
 					<div class="d2l-capture-central-edit-transcode-status">
 						<div class="d2l-capture-central-edit-transcode-status-format">${this.localize('hd')}:</div>
 						<d2l-link href=${this._downloadUrl}>${this.localize('download')}</d2l-link>
 					</div>
-					<!-- <div class="d2l-capture-central-edit-transcode-status">
-						<div class="d2l-capture-central-edit-transcode-status-format">${this.localize('sd')}:</div>
-						<d2l-link>${this.localize('download')}</d2l-link>
-					</div> -->
 				</d2l-labs-accordion-collapse>
 				<d2l-labs-accordion-collapse flex>
 					<div slot="header">${this.localize('sharing')}</div>
@@ -176,10 +168,6 @@ class D2LCapturePresentationsEdit extends DependencyRequester(PageViewElement) {
 						${this.localize('copiedToClipboard')}
 					</d2l-alert-toast>
 				</d2l-labs-accordion-collapse>
-				<!-- <d2l-labs-accordion-collapse flex>
-					<div slot="header">${this.localize('prepostRollSection')}</div>
-					<div>Placeholder text...</div>
-				</d2l-labs-accordion-collapse> -->
 				<d2l-button
 					primary
 					@click=${this._handleSaveChanges}

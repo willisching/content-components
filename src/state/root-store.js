@@ -7,7 +7,6 @@ export class RootStore {
 		this.routingStore = new RoutingStore(this);
 		this.uploader = new Uploader({ apiClient: {} });
 		this.permissionStore = new PermissionStore(this);
-		this.orgUnitId = 0;
 		this.appTop = 0;
 	}
 }

@@ -21,10 +21,10 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 		return css`
 			.d2l-capture-central-course-videos {
 				display: grid;
-				grid-row-gap: 50px;
-				grid-column-gap: 25px;
+				grid-gap: 50px 25px;
 				grid-template-columns: repeat(3, 1fr);
 				justify-content: center;
+				width: 100%;
 			}
 
 			.d2l-capture-central-course-videos-header {
@@ -33,18 +33,18 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 			}
 			.d2l-capture-central-filter-folders {
 				align-self: center;
-				grid-column: 3 / 4;
+				grid-column: 2 / 3;
 				justify-self: end;
 			}
 			.d2l-capture-central-search-videos {
 				align-self: center;
-				grid-column: 4 / 5;
+				grid-column: 3 / 4;
 				justify-self: end;
-				width: 300px;
+				width: 100%;
 			}
 
 			.d2l-capture-central-video-no-results {
-				grid-column: 1 / 5;
+				grid-column: 1 / 4;
 				grid-row: 3;
 				justify-self: center;
 			}
@@ -53,13 +53,12 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 				display: flex;
 				flex-direction: column;
 				height: 300px;
-				margin: auto;
-				width: 300px;
+				width: 375px;
 			}
 			.d2l-capture-central-thumbnail {
 				height: 180px;
 				object-fit: cover;
-				width: 300px;
+				width: 375px;
 			}
 
 			.d2l-capture-central-play-icon-overlay {
@@ -114,6 +113,86 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 				grid-column: 1 / 5;
 				justify-self: center;
 				margin-bottom: 20px;
+			}
+
+			@media (max-width: 1200px) {
+				.d2l-capture-central-course-videos {
+					grid-gap: 25px 15px;
+				}
+
+				.d2l-capture-central-video {
+					min-width: 225px;
+					width: 100%;
+				}
+				.d2l-capture-central-thumbnail {
+					min-width: 225px;
+					width: 100%;
+				}
+			}
+
+			@media (max-width: 768px) {
+				.d2l-capture-central-course-videos {
+					grid-template-columns: repeat(2, 1fr);
+					grid-gap: 15px 10px;
+				}
+
+				.d2l-capture-central-search-videos {
+					grid-row: 1;
+					grid-column: 2 / 3;
+					width: 75%;
+				}
+
+				.d2l-capture-central-filter-folders {
+					grid-row: 2;
+					grid-column: 1 / 3;
+					margin-left: auto;
+				}
+
+				.d2l-capture-central-video-no-results {
+					grid-column: 1 / 3;
+					grid-row: 4;
+				}
+
+				 .d2l-capture-central-video {
+					height: 270px;
+				}
+				.d2l-capture-central-thumbnail,
+				.d2l-capture-central-play-icon-overlay {
+					height: 170px;
+				}
+			}
+
+			@media (max-width: 520px) {
+				.d2l-capture-central-course-videos {
+					grid-template-columns: 1fr;
+					grid-gap: 0px 15x;
+				}
+
+				.d2l-capture-central-search-videos {
+					grid-column: 1 / 2;
+					grid-row: 2;
+					width: 100%;
+				}
+
+				.d2l-capture-central-filter-folders {
+					grid-column: 1 / 2;
+					grid-row: 3;
+					margin-left: 0;
+				}
+
+				.d2l-capture-central-video-no-results {
+					grid-column: 1 / 2;
+					grid-row: 4;
+				}
+
+				.d2l-capture-central-video {
+					height: 300px;
+					width: 100%;
+				}
+				.d2l-capture-central-thumbnail,
+				.d2l-capture-central-play-icon-overlay {
+					height: 180px;
+				}
 			}
 		`;
 	}
