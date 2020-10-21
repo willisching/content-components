@@ -27,7 +27,7 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			.d2l-video-producer {
 				display: flex;
 				flex-direction: column;
-				width: 1200px;
+				width: 1175px;
 			}
 
 			.d2l-video-producer-revision-controls {
@@ -889,7 +889,7 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 					></d2l-labs-video-producer-chapters>
 				</div>
 				<div class="d2l-video-producer-timeline">
-					<canvas width="1010" height="90" id="timeline-canvas"></canvas>
+					<canvas width="985" height="90" id="timeline-canvas"></canvas>
 					<div class="d2l-video-producer-timeline-controls">
 						<d2l-button-icon @click=${this._changeToSeekMode} text="${this.localize(constants.CONTROL_MODES.SEEK)}" icon="tier1:divider-solid"></d2l-button-icon>
 						<d2l-button-icon @click=${this._changeToMarkMode} text="${this.localize(constants.CONTROL_MODES.MARK)}" icon="tier1:edit"></d2l-button-icon>
