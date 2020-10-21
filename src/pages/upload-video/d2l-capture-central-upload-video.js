@@ -122,7 +122,7 @@ class D2LCaptureUploadVideo extends DependencyRequester(PageViewElement) {
 			id: content.id,
 			body
 		});
-		this._resetUploadState() && this._goTo('/admin')();
+		this._resetUploadState() && this._navigate('/admin');
 	}
 
 	_handleFileAdded({ detail: { files }}) {
@@ -163,6 +163,9 @@ class D2LCaptureUploadVideo extends DependencyRequester(PageViewElement) {
 		return html`
 			<d2l-breadcrumbs>
 				<d2l-breadcrumb @click=${this._goTo('/admin')} href="#" text="${this.localize('captureCentral')}"></d2l-breadcrumb>
+				${this.rootStore.routingStore.previousPage === 'presentations' ? html`
+					<d2l-breadcrumb @click=${this._goTo('/presentations')} href="#" text="${this.localize('presentations')}">
+					</d2l-breadcrumb>` : ''}
 				${uploadBreadcrumbs}
 			</d2l-breadcrumbs>
 		`;

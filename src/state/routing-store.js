@@ -8,11 +8,14 @@ export class RoutingStore {
 	constructor(rootStore) {
 		this.rootStore = rootStore;
 
-		this.routeCtx = {};
+		this.orgUnitId = '';
 		this.page = '';
+		this.params = {};
+		this.previousPage = '';
+		this.previousSubView = '';
 		this.queryParams = {};
+		this.routeCtx = {};
 		this.subView = '';
-		this.orgUnitId;
 	}
 
 	setRouteCtx(routeCtx) {
@@ -30,19 +33,16 @@ export class RoutingStore {
 		}
 		const queryParams = querystring.parse(routeCtx.querystring);
 
-		this.routeCtx = routeCtx;
-		this.page = page;
-		this.subView = subView;
-		this.queryParams = queryParams;
 		this.orgUnitId = orgUnitId;
+		this.page = page;
+		this.params = routeCtx.params;
+		this.queryParams = queryParams;
+		this.routeCtx = routeCtx;
+		this.subView = subView;
 	}
 
 	getPage() {
 		return this.page;
-	}
-
-	setPage(page) {
-		this.page = page;
 	}
 
 	getQueryParams() {
@@ -53,8 +53,17 @@ export class RoutingStore {
 		return this.subView;
 	}
 
+	setPage(page) {
+		this.page = page;
+	}
+
 	setSubView(subView) {
 		this.subView = subView;
+	}
+
+	setPreviousPage() {
+		this.previousPage = this.page;
+		this.previousSubView = this.subView;
 	}
 }
 
