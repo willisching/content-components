@@ -54,28 +54,10 @@ class D2lCaptureCentralAdmin extends DependencyRequester(PageViewElement) {
 			<div class="d2l-capture-central-admin">
 				<div class="d2l-capture-central-sidebar">
 					<h3 class="d2l-heading-3">${this.localize('captureCentral')}</h3>
-					<!-- <span><d2l-link @click=${this._goTo('/live-events')}>${this.localize('liveEvents')}</d2l-link></span> -->
 					<span><d2l-link @click=${this._goTo('/presentations')}>${this.localize('presentations')}</d2l-link></span>
-					<!-- <span><d2l-link @click=${this._goTo('/folders')}>${this.localize('folders')}</d2l-link></span> -->
 					<span><d2l-link @click=${this._goTo('/upload-video')}>${this.localize('uploadVideo')}</d2l-link></span>
-					<!-- <span><d2l-link>${this.localize('recordVideo')}</d2l-link></span> -->
 					<span><d2l-link @click=${this._goTo('/course-videos')}>${this.localize('courseVideos')}</d2l-link></span>
 				</div>
-				<!-- Mocked up pages commented out for now -->
-				<!-- <div class="d2l-capture-central-server-options">
-					<h3 class="d2l-heading-3">${this.localize('server')}</h3>
-					<div class="d2l-capture-central-grouping">
-						<h4 class="d2l-heading-4">${this.localize('prepostRollHeading')}</h4>
-						<d2l-link @click=${this._goTo('/clips')}>${this.localize('clips')}</d2l-link>
-						<d2l-link @click=${this._goTo('/settings')}>${this.localize('settings')}</d2l-link>
-					</div>
-					<div class="d2l-capture-central-grouping">
-						<h4 class="d2l-heading-4">${this.localize('reportingHeading')}</h4>
-						<d2l-link @click=${this._goTo('/audit-logs')}>${this.localize('auditLogs')}</d2l-link>
-						<d2l-link @click=${this._goTo('/live-events-reporting')}>${this.localize('liveEvents')}</d2l-link>
-						<d2l-link @click=${this._goTo('/visits')}>${this.localize('visits')}</d2l-link>
-					</div>
-				</div> -->
 			</div>
 		`;
 	}

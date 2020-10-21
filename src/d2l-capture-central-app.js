@@ -21,10 +21,11 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 	static get styles() {
 		return [css`
 			main {
-				display: block;
+				display: flex;
 				height: 100%;
 				margin: 0 auto;
 				max-width: 1175px;
+				padding: 0 25px;
 			}
 
 			.page {
@@ -32,7 +33,9 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			}
 
 			.page[active] {
-				display: block;
+				display: flex;
+				flex-direction:column;
+				width: 100%;
 			}
 		`];
 	}

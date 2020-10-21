@@ -177,12 +177,6 @@ class D2LCaptureUploadVideo extends DependencyRequester(PageViewElement) {
 				placeholder="${this.localize('title')}"
 				value=${this._uploadedVideo.name}
 			></d2l-input-text>
-			<!-- <label for="d2l-capture-central-upload-video-folder" class="d2l-label-text">
-				${this.localize('folder')}
-			</label>
-			<select id="d2l-capture-central-upload-video-folder" class="d2l-input-select">
-				${this._folders.map(folder => (html`<option>${folder.name}</option>`))}
-			</select> -->
 			<div class="d2l-capture-central-manage-header-button-group">
 				<d2l-button
 					@click=${this._finishUpload}

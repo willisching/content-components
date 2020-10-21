@@ -7,6 +7,7 @@ export const sharedManageStyles = css`
 		flex-direction: column;
 		margin-bottom: 50px;
 		margin-top: 25px;
+		width: 100%;
 	}
 
 	.d2l-capture-central-manage-header {
@@ -14,6 +15,10 @@ export const sharedManageStyles = css`
 		border-bottom: 1px solid var(--d2l-color-mica);
 		display: flex;
 		justify-content: space-between;
+	}
+
+	.d2l-capture-central-manage-header .d2l-heading-2 {
+		margin-right: 25px;
 	}
 
 	.d2l-capture-central-manage-num-selected {
@@ -29,12 +34,8 @@ export const sharedManageStyles = css`
 		width: 350px;
 	}
 
-	.d2l-capture-central-manage-options d2l-button:first-child {
-		margin-left: 0;
-	}
-
 	.d2l-capture-central-manage-options d2l-button {
-		margin-left: 25px;
+		margin-right: 25px;
 	}
 `;
 
@@ -72,6 +73,7 @@ export const sharedEditStyles = css`
 		flex-direction: column;
 		margin-bottom: 50px;
 		margin-top: 25px;
+		width: 100%;
 	}
 
 	d2l-input-text,
@@ -79,7 +81,7 @@ export const sharedEditStyles = css`
 	.d2l-capture-central-edit-textarea-container,
 	.d2l-input-select {
 		margin-bottom: 25px;
-		width: 575px;
+		max-width: 575px;
 	}
 
 	.d2l-capture-central-edit-textarea-container textarea {
