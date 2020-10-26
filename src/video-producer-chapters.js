@@ -1,21 +1,29 @@
 import '@brightspace-ui/core/components/button/button-icon.js';
 import '@brightspace-ui/core/components/inputs/input-text.js';
 import '@brightspace-ui/core/components/colors/colors.js';
-import { bodyStandardStyles, heading3Styles } from '@brightspace-ui/core/components/typography/styles.js';
+import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
+import { bodySmallStyles, bodyStandardStyles, heading3Styles } from '@brightspace-ui/core/components/typography/styles.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { InternalLocalizeMixin } from './internal-localize-mixin.js';
 
 class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
-			_activeChapter: { type: Object },
-			_chapters: { type: Array },
+			defaultLanguage: { type: String, attribute: 'default-language' },
+			loading: { type: Boolean, reflect: true },
+			selectedLanguage: { type: String, reflect: true, attribute: 'selected-language' },
+			_activeChapterIndex: { type: Number },
+			_chapters: { type: Object },
 			_newChapterTitle: { type: String },
 		};
 	}
 
 	static get styles() {
-		return [ bodyStandardStyles, heading3Styles, css`
+		return [  bodySmallStyles, bodyStandardStyles, heading3Styles, css`
+			d2l-loading-spinner {
+				margin: auto;
+			}
+
 			.d2l-video-producer-chapters {
 				border: 1px solid var(--d2l-color-mica);
 				position: relative;
@@ -24,10 +32,16 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 
 			.d2l-video-producer-chapters-heading {
 				margin: 0;
-				padding: 10px;
+				padding: 10px 10px 0;
+			}
+
+			.d2l-video-producer-chapters-heading .d2l-body-small.hidden {
+				visibility: hidden;
 			}
 
 			.d2l-video-producer-chapters-container {
+				display: flex;
+				flex-direction: column;
 				height: 450px;
 				overflow-y: scroll;
 				padding: 10px;
@@ -35,7 +49,6 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 			}
 
 			.d2l-video-producer-chapter {
-				align-items: center;
 				display: flex;
 			}
 
@@ -70,10 +83,21 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 
 	constructor() {
 		super();
-		this._disableControls = false;
+		this.loading = true;
 		this._chapters = [];
 		this._newChapterTitle = '';
-		this._activeChapter = null;
+		this._activeChapterIndex = null;
+	}
+
+	get _sortedChapters() {
+		return this._chapters.map((chapter, index) => ({
+			...chapter,
+			originalIndex: index // Used to index into this._chapters
+		})).sort((a, b) => parseFloat(a.time) - parseFloat(b.time));
+	}
+
+	get _editingOverrides() {
+		return this.selectedLanguage !== this.defaultLanguage;
 	}
 
 	_addNewChapter() {
@@ -83,11 +107,11 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 		));
 	}
 
-	_deleteChapter(chapter) {
+	_deleteChapter(index) {
 		return () => {
-			this._updateActiveChapter(null);
-			this._chapters = this._chapters.filter(({ time, title }) =>
-				!(title === chapter.title && time === chapter.time));
+			this._updateActiveChapterIndex(null);
+			this._chapters.splice(index, 1);
+			this.requestUpdate();
 		};
 	}
 
@@ -105,13 +129,13 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 		}
 	}
 
-	_selectChapter(chapter) {
-		return () => this._updateActiveChapter(chapter);
+	_selectChapter(index) {
+		return () => this._updateActiveChapterIndex(index);
 	}
 
-	_setChapterToCurrentTime(chapter) {
+	_setChapterToCurrentTime(index) {
 		return () => {
-			this._updateActiveChapter(chapter);
+			this._activeChapterIndex = index;
 			this.dispatchEvent(new CustomEvent(
 				'set-chapter-to-current-time',
 				{ bubbles: true, composed: false }
@@ -119,39 +143,34 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 		};
 	}
 
-	_sortChapters() {
-		this._chapters = this._chapters.sort((a, b) => {
-			if (a.time < b.time) {
-				return -1;
-			} else if (a.time > b.time) {
-				return 1;
-			} else {
-				return 0;
-			}
-		});
-		this.requestUpdate();
+	_updateChapterTitle(index) {
+		return event => {
+			this._chapters[index].title[this.selectedLanguage] = event.target.value;
+		};
 	}
 
-	_updateActiveChapter(chapter) {
-		this._activeChapter = chapter;
+	_updateActiveChapterIndex(index) {
+		this._activeChapterIndex = index;
 		this.dispatchEvent(new CustomEvent(
 			'active-chapter-updated',
-			{ bubbles: true, composed: false, detail: { chapter: this._activeChapter} }
+			{ bubbles: true, composed: false, detail: {
+				chapterTime: index === null ? null : this._chapters[index].time
+			}}
 		));
 	}
 
-	addNewChapter(time) {
+	addNewChapter(chapterTime) {
 		if (!this._newChapterTitle) {
 			return;
 		}
 
-		const chapter = {
-			time,
-			title: this._newChapterTitle
-		};
-		this._chapters.push(chapter);
-		this._sortChapters();
-		this._updateActiveChapter(chapter);
+		this._chapters.push({
+			time: chapterTime,
+			title: {
+				[this.selectedLanguage]: this._newChapterTitle,
+			}
+		});
+		this._updateActiveChapterIndex(this._chapters.length - 1);
 
 		this._newChapterTitle = '';
 		this.shadowRoot.querySelector('.d2l-video-producer-new-chapter-title-input').value = '';
@@ -159,63 +178,67 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 
 	setChapters(chapters) {
 		this._chapters = chapters;
-		if (chapters.length > 0) {
-			this._updateActiveChapter(chapters[0]);
+		if (this._chapters.length > 0) {
+			this._updateActiveChapterIndex(this._sortedChapters[0].originalIndex);
 		}
 	}
 
-	setChapterToTime(time) {
-		for (let i = 0; i < this._chapters.length; i++) {
-			const { time: chapterTime, title } = this._chapters[i];
-			if (chapterTime === this._activeChapter.time && title === this._activeChapter.title) {
-				this._chapters[i].time = time;
-				this._sortChapters();
-				break;
-			}
-		}
+	setChapterToTime(chapterTime) {
+		this._chapters[this._activeChapterIndex].time = chapterTime;
 
-		const indexOfUpdatedChapter = this._chapters.findIndex(({ time, title }) =>
-			time === this._activeChapter.time && title === this._activeChapter.title);
+		const indexOfUpdatedChapter = this._sortedChapters.findIndex(({ originalIndex }) =>
+			originalIndex === this._activeChapterIndex);
+
 		const inputTextOfUpdatedChapter = [...this.shadowRoot
 			.querySelectorAll('.d2l-video-producer-chapter d2l-input-text')
 		][indexOfUpdatedChapter];
 
-		this._updateActiveChapter(this._chapters[indexOfUpdatedChapter]);
+		this._updateActiveChapterIndex(this._activeChapterIndex);
 		inputTextOfUpdatedChapter.focus();
+		this.requestUpdate();
 	}
 
 	_renderChapters() {
+		if (this.loading) {
+			return html`<d2l-loading-spinner size="150"></d2l-loading-spinner>`;
+		}
+
 		if (this._chapters.length === 0) {
 			return html`
 				<p class="d2l-body-standard">${this.localize('noItems')}</p>
 			`;
 		}
 
-		return this._chapters.map(chapter => html`
-			<div class="d2l-video-producer-chapter">
-				<d2l-input-text
-					@click=${this._selectChapter(chapter)}
-					?hidden="${chapter.active}"
-					inline-edit
-					class="form-control"
-					value=${chapter.title}
-				></d2l-input-text>
-				<p class="${this._activeChapter === chapter ? 'active-chapter' : ''} d2l-video-producer-chapter-time">
-					${this._getTime(chapter.time)}
-				</p>
-				<d2l-button-icon
-					@click="${this._setChapterToCurrentTime(chapter)}"
-					class="d2l-video-producer-chapter-set-chapter-time-button"
-					icon="tier1:time"
-					text=${this.localize('timeToSeekPosition')}
-				></d2l-button-icon>
-				<d2l-button-icon
-					@click="${this._deleteChapter(chapter)}"
-					icon="tier1:close-default"
-					text="${this.localize('delete')}"
-				></d2l-button-icon>
-			</div>
-		`);
+		return this._sortedChapters.map(({ time, title, originalIndex }) => {
+			const chapterTitle = title[this.selectedLanguage] || '';
+			const fallbackTitle = title[this.defaultLanguage] || '';
+			return html`
+				<div class="d2l-video-producer-chapter">
+					<d2l-input-text
+						@click=${this._selectChapter(originalIndex)}
+						@change=${this._updateChapterTitle(originalIndex)}
+						inline-edit
+						class="form-control"
+						value=${chapterTitle}
+						placeholder=${fallbackTitle}
+					></d2l-input-text>
+					<p class="${this._activeChapterIndex === originalIndex ? 'active-chapter' : ''} d2l-video-producer-chapter-time">
+						${this._getTime(time)}
+					</p>
+					<d2l-button-icon
+						@click="${this._setChapterToCurrentTime(originalIndex)}"
+						class="d2l-video-producer-chapter-set-chapter-time-button"
+						icon="tier1:time"
+						text=${this.localize('timeToSeekPosition')}
+					></d2l-button-icon>
+					<d2l-button-icon
+						@click="${this._deleteChapter(originalIndex)}"
+						icon="tier1:close-default"
+						text="${this.localize('delete')}"
+					></d2l-button-icon>
+				</div>
+			`;
+		});
 	}
 
 	render() {
@@ -223,6 +246,9 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 			<div class="d2l-video-producer-chapters">
 				<h3 class="d2l-heading-3 d2l-video-producer-chapters-heading">
 					${this.localize('tableOfContents')}
+					<div class="d2l-body-small ${!this.loading && this._editingOverrides ? '' : 'hidden'}">
+						${this.localize('editingOverrides')}
+					</div>
 				</h3>
 				<div class="d2l-video-producer-chapters-container">
 					${this._renderChapters()}

@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<link rel="stylesheet" href="/node_modules/@brightspace-ui/core/components/demo/styles.css" type="text/css">
-		<script src="/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+		<scrip src="/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></scrip>
 		<script type="module">
 			import '@brightspace-ui/core/components/demo/demo-page.js';
 			import '../src/video-producer.js';
@@ -22,4 +22,58 @@
 			<!-- </d2l-demo-snippet> -->
 		</d2l-demo-page>
 	</body>
+	<script type="module">
+		const producer = document.querySelector('d2l-labs-video-producer');
+		// Languages from LMS
+		producer.setLanguages([{
+			name: 'English (United States)',
+			code: 'en-us',
+			isDefault: true,
+		}, {
+			name: 'Français (Canada)',
+			code: 'fr-fr',
+			isDefault: false
+		}]);
+
+		// Metadata from Content Service
+		producer.addEventListener('get-metadata', () => {
+			const metadata = {
+				cuts: [{ in: 10, out: 60 }],
+				chapters: [{
+					time: 50,
+					title: {
+						'en-us': 'Chapter 1',
+						'fr-fr': 'Çhàptêr 1',
+					}
+				}, {
+					time: 150,
+					title: {
+						'en-us': 'Chapter 2',
+						'fr-fr': 'Chaptér 2',
+					}
+				}, {
+					time: 25,
+					title: {
+						'en-us': 'Ch 1',
+						'fr-fr': 'Fr Ch 2'
+					}
+				}]
+			};
+			producer.setMetadata(metadata);
+		});
+
+		producer.addEventListener('publish-metadata', async e => {
+			producer.setPublishing(true);
+			console.log('Publishing metadata:', e.detail);
+			await new Promise(resolve => setTimeout(resolve, 2000));
+			producer.setPublishing(false);
+		});
+
+		producer.addEventListener('save-draft-metadata', async e => {
+			producer.setSavingDraft(true);
+			console.log('Saving draft metadata:', e.detail);
+			await new Promise(resolve => setTimeout(resolve, 2000));
+			producer.setSavingDraft(false);
+		});
+	</script>
 </html>

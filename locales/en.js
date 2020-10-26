@@ -4,7 +4,6 @@ export const val = {
 	cut: 'Cut',
 	delete: 'Delete',
 	editingOverrides: '(Editing overrides)',
-	existingChapter: 'A chapter at the current time already exists.',
 	languages: 'Languages',
 	mark: 'mark',
 	noItems: 'There are no items for this archive.',
