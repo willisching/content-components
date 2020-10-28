@@ -4,6 +4,7 @@ export const val = {
 	cut: 'Cut',
 	delete: 'Delete',
 	editingOverrides: 'Editing language: {language}',
+	errorAlertToast: 'An unexpected error occurred.',
 	languages: 'Languages',
 	mark: 'mark',
 	noItems: 'There are no items for this archive.',

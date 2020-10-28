@@ -63,17 +63,17 @@
 		});
 
 		producer.addEventListener('publish-metadata', async e => {
-			producer.setPublishing(true);
+			producer.setState({ state: 'publishing', inProgress: true });
 			console.log('Publishing metadata:', e.detail);
 			await new Promise(resolve => setTimeout(resolve, 2000));
-			producer.setPublishing(false);
+			producer.setState({ state: 'publishing', inProgress: false });
 		});
 
 		producer.addEventListener('save-draft-metadata', async e => {
-			producer.setSavingDraft(true);
+			producer.setState({ state: 'saving', inProgress: true });
 			console.log('Saving draft metadata:', e.detail);
 			await new Promise(resolve => setTimeout(resolve, 2000));
-			producer.setSavingDraft(false);
+			producer.setState({ state: 'saving', inProgress: false });
 		});
 	</script>
 </html>

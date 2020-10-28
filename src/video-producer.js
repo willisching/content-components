@@ -889,23 +889,22 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._loadingMetadata = false;
 	}
 
-	setSavingDraft(savingDraft) {
-		if (!savingDraft) {
-			this._toastLangterm = 'saveSuccess';
-			this.shadowRoot.querySelector('#d2l-video-producer-alert').open = true;
+	setState({ state, inProgress, error = false }) {
+		if (state === 'saving') {
+			this._toastLangterm = error ? 'errorAlertToast' : 'saveSuccess';
+			this._savingDraft = inProgress;
+		} else if (state === 'publishing') {
+			this._toastLangterm = error ? 'errorAlertToast' : 'publishComplete';
+			this._publishing = inProgress;
+		} else {
+			return;
 		}
-		this.shadowRoot
-			.querySelector('.d2l-video-producer-metadata-controls-save-draft-metadata')
-			.icon = `tier1:${savingDraft ? 'check' : 'save'}`;
-		this._savingDraft = savingDraft;
-	}
-
-	setPublishing(publishing) {
-		if (!publishing) {
-			this._toastLangterm = 'publishComplete';
-			this.shadowRoot.querySelector('#d2l-video-producer-alert').open = true;
+		const alertToast = this.shadowRoot.querySelector('#d2l-video-producer-alert');
+		alertToast.type = error ? 'error' : 'default';
+		if (!inProgress) {
+			alertToast.open = true;
 		}
-		this._publishing = publishing;
+		this.update();
 	}
 	//#endregion
 
