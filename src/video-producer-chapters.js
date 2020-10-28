@@ -1,6 +1,6 @@
 import '@brightspace-ui/core/components/button/button-icon.js';
-import '@brightspace-ui/core/components/inputs/input-text.js';
 import '@brightspace-ui/core/components/colors/colors.js';
+import '@brightspace-ui/core/components/inputs/input-text.js';
 import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
 import { bodySmallStyles, bodyStandardStyles, heading3Styles } from '@brightspace-ui/core/components/typography/styles.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
@@ -12,6 +12,7 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 			defaultLanguage: { type: String, attribute: 'default-language' },
 			loading: { type: Boolean, reflect: true },
 			selectedLanguage: { type: String, reflect: true, attribute: 'selected-language' },
+			selectedLanguageName: { type: String, reflect: true, attribute: 'selected-language-name' },
 			_activeChapterIndex: { type: Number },
 			_chapters: { type: Object },
 			_newChapterTitle: { type: String },
@@ -247,7 +248,7 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 				<h3 class="d2l-heading-3 d2l-video-producer-chapters-heading">
 					${this.localize('tableOfContents')}
 					<div class="d2l-body-small ${!this.loading && this._editingOverrides ? '' : 'hidden'}">
-						${this.localize('editingOverrides')}
+						${this.localize('editingOverrides', { language: this.selectedLanguageName })}
 					</div>
 				</h3>
 				<div class="d2l-video-producer-chapters-container">

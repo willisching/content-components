@@ -1,3 +1,4 @@
+import '@brightspace-ui/core/components/alert/alert-toast.js';
 import '@brightspace-ui/core/components/button/button-icon.js';
 import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/colors/colors.js';
@@ -23,7 +24,7 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			_loadingMetadata: { type: Boolean, attribute: false },
 			_publishing: { type: Boolean, attribute: false },
 			_savingDraft: { type: Boolean, attribute: false },
-			_selectedLanguage: { type: Boolean, attribute: false },
+			_selectedLanguage: { type: Object, attribute: false },
 		};
 	}
 
@@ -127,6 +128,8 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._savingDraft = false;
 		this._loadingMetadata = true;
 		this._languages = [];
+
+		this._toastLangterm = '';
 	}
 
 	firstUpdated() {
@@ -887,13 +890,21 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	setSavingDraft(savingDraft) {
-		const saveButton = this.shadowRoot
-			.querySelector('.d2l-video-producer-metadata-controls-save-draft-metadata');
-		saveButton.icon = `tier1:${savingDraft ? 'check' : 'save'}`;
+		if (!savingDraft) {
+			this._toastLangterm = 'saveSuccess';
+			this.shadowRoot.querySelector('#d2l-video-producer-alert').open = true;
+		}
+		this.shadowRoot
+			.querySelector('.d2l-video-producer-metadata-controls-save-draft-metadata')
+			.icon = `tier1:${savingDraft ? 'check' : 'save'}`;
 		this._savingDraft = savingDraft;
 	}
 
 	setPublishing(publishing) {
+		if (!publishing) {
+			this._toastLangterm = 'publishComplete';
+			this.shadowRoot.querySelector('#d2l-video-producer-alert').open = true;
+		}
 		this._publishing = publishing;
 	}
 	//#endregion
@@ -939,6 +950,7 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 						@set-chapter-to-current-time=${this._setChapterToCurrentTime}
 						default-language=${this._defaultLanguage}
 						selected-language=${this._selectedLanguage && this._selectedLanguage.code}
+						selected-language-name=${this._selectedLanguage && this._selectedLanguage.name}
 					></d2l-labs-video-producer-chapters>
 				</div>
 				<div class="d2l-video-producer-timeline">
@@ -950,6 +962,9 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 					</div>
 				</div>
 			</div>
+			<d2l-alert-toast id="d2l-video-producer-alert" type="default">
+				${this.localize(this._toastLangterm)}
+			</d2l-alert-toast>
 		`;
 	}
 }
