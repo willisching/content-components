@@ -105,11 +105,12 @@ export default class ContentServiceClient {
 		});
 	}
 
-	createRevision(contentId, body) {
+	createRevision({ contentId, body, sourceRevisionId }) {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions`,
 			method: 'POST',
-			body
+			body,
+			query: { sourceRevisionId }
 		});
 	}
 
@@ -122,11 +123,13 @@ export default class ContentServiceClient {
 
 	processRevision({
 		contentId,
-		revisionId
+		revisionId,
+		body,
 	}) {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/process`,
-			method: 'POST'
+			method: 'POST',
+			body,
 		});
 	}
 
@@ -176,10 +179,7 @@ export default class ContentServiceClient {
 		});
 	}
 
-	getSignedUrlForRevision({
-		contentId,
-		revisionId
-	}) {
+	getSignedUrlForRevision({ contentId, revisionId }) {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/signedUrl`
 		});
@@ -222,6 +222,30 @@ export default class ContentServiceClient {
 			path: `/api/${this.tenantId}/content/${contentId}`,
 			method: 'PUT',
 			body: { id: contentId, deletedAt: null }
+		});
+	}
+
+	getMetadata({ contentId, revisionId, draft = false }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/metadata`,
+			query: { draft }
+		});
+	}
+
+	deleteMetadata({ contentId, revisionId, draft = false }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/metadata`,
+			method: 'DELETE',
+			query: { draft }
+		});
+	}
+
+	updateMetadata({ contentId, revisionId, draft = false, metadata }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/metadata`,
+			method: 'PUT',
+			query: { draft },
+			body: metadata
 		});
 	}
 

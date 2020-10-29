@@ -147,6 +147,10 @@ class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(Pag
 						<d2l-dropdown-menu>
 							<d2l-menu label="${this.localize('moreOptions')}">
 								<d2l-menu-item
+									@click=${this._goTo(`/producer/${id}`)}
+									text="${this.localize('openInProducer')}"
+								></d2l-menu-item>
+								<d2l-menu-item
 									@click=${this._goTo(`/course-videos/${id}`)}
 									text="${this.localize('openInPlayer')}"
 								></d2l-menu-item>

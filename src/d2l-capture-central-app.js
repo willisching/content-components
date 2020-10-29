@@ -82,7 +82,8 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			`/:orgUnitId/${pageNames.manageLiveEvents}/edit`,
 			`/:orgUnitId/${pageNames.liveEventsReporting}`,
 			`/:orgUnitId/${pageNames.presentations}`,
-			`/:orgUnitId/${pageNames.presentations}/edit`,
+			`/:orgUnitId/${pageNames.presentations}/edit/:id`,
+			`/:orgUnitId/${pageNames.producer}/:id`,
 			`/:orgUnitId/${pageNames.settings}`,
 			`/:orgUnitId/${pageNames.uploadVideo}`,
 			`/:orgUnitId/${pageNames.visits}`,
@@ -95,9 +96,9 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 
 	setupPage(ctx) {
 		rootStore.routingStore.setRouteCtx(ctx);
-		const { page, subView } = rootStore.routingStore;
+		const { page: currentPage, subView } = rootStore.routingStore;
 
-		switch (page) {
+		switch (currentPage) {
 			case '':
 				import('./pages/d2l-capture-central-landing.js');
 				return;
@@ -143,11 +144,22 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				import('./pages/reporting/d2l-capture-central-live-events-reporting.js');
 				return;
 			case pageNames.presentations:
+				if (!subView) {
+					import('./pages/presentations/d2l-capture-central-presentations.js');
+					return;
+				}
 				if (subView === 'edit') {
 					import('./pages/presentations/d2l-capture-central-presentations-edit.js');
 					return;
 				}
-				import('./pages/presentations/d2l-capture-central-presentations.js');
+				this._navigate('/404');
+				return;
+			case pageNames.producer:
+				if (subView) {
+					import('./pages/producer/d2l-capture-central-producer.js');
+					return;
+				}
+				this._navigate('/admin');
 				return;
 			case pageNames.settings:
 				import('./pages/settings/d2l-capture-central-settings.js');
@@ -161,9 +173,12 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			case pageNames.visits:
 				import('./pages/reporting/d2l-capture-central-visits.js');
 				return;
-			default:
+			case '404':
 				rootStore.routingStore.setPage('404');
 				import('./pages/404/d2l-capture-central-404.js');
+				break;
+			default:
+				this._navigate('/404');
 				break;
 		}
 	}
@@ -192,6 +207,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				<d2l-capture-central-live-events-reporting class="page" ?active=${currentPage === pageNames.liveEventsReporting}></d2l-capture-central-live-events-reporting>
 				<d2l-capture-central-presentations class="page" ?active=${currentPage === pageNames.presentations && !subView}></d2l-capture-central-presentations>
 				<d2l-capture-central-presentations-edit class="page" ?active=${currentPage === pageNames.presentations && subView === 'edit'}></d2l-capture-central-presentations-edit>
+				<d2l-capture-central-producer class="page" ?active=${currentPage === pageNames.producer && subView}></d2l-capture-central-producer>
 				<d2l-capture-central-settings class="page" ?active=${currentPage === pageNames.settings}></d2l-capture-central-settings>
 				<d2l-capture-central-upload-video class="page" ?active=${currentPage === pageNames.uploadVideo}></d2l-capture-central-upload-video>
 				<d2l-capture-central-visits class="page" ?active=${currentPage === pageNames.visits}></d2l-capture-central-visits>
