@@ -144,7 +144,7 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 		// Wait for video to be loaded
 		this._video.addEventListener('loadeddata', () => {
-			this._fireGetMetadataEvent();
+			this._fireMetadataEvent('get-metadata');
 		});
 	}
 
@@ -829,27 +829,23 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	//#endregion
 
 	//#region Metadata management
-	_fireGetMetadataEvent() {
-		this.dispatchEvent(new CustomEvent('get-metadata', { bubbles: true, composed: false, }));
-	}
-
-	_fireMetadataEvent(eventName) {
+	_fireMetadataEvent(eventName, detail) {
 		this.dispatchEvent(new CustomEvent(
 			eventName,
 			{
 				bubbles: true,
 				composed: false,
-				detail: { cuts: this._getCuts(), chapters: this._chapterList }
+				detail
 			}
 		));
 	}
 
 	_publish() {
-		this._fireMetadataEvent('d2l-labs-video-producer-publish-metadata');
+		this._fireMetadataEvent('publish-metadata', { cuts: this._getCuts(), chapters: this._chapterList });
 	}
 
 	_saveDraft() {
-		this._fireMetadataEvent('d2l-labs-video-producer-save-metadata');
+		this._fireMetadataEvent('save-metadata', { cuts: this._getCuts(), chapters: this._chapterList });
 	}
 	//#endregion
 

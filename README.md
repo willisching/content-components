@@ -49,8 +49,9 @@ npm install @brightspace-ui-labs/video-producer
 
 | Event | Description |
 |--|--|
-| d2l-labs-video-producer-save-metadata | Fired when the save button is clicked. |
-| d2l-labs-video-producer-publish-metadata | Fired when the publish button is clicked. |
+| get-metadata | Fired when the video has loaded, indicating that metadata can be loaded. |
+| save-metadata | Fired when the save button is clicked. |
+| publish-metadata | Fired when the publish button is clicked. |
 
 **Methods:**
 

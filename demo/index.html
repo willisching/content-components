@@ -59,14 +59,14 @@
 			producer.setMetadata(metadata);
 		});
 
-		producer.addEventListener('d2l-labs-video-producer-publish-metadata', async e => {
+		producer.addEventListener('publish-metadata', async e => {
 			producer.setState({ state: 'publishing', inProgress: true });
 			console.log('Publishing metadata:', e.detail);
 			await new Promise(resolve => setTimeout(resolve, 2000));
 			producer.setState({ state: 'publishing', inProgress: false });
 		});
 
-		producer.addEventListener('d2l-labs-video-producer-save-metadata', async e => {
+		producer.addEventListener('save-metadata', async e => {
 			producer.setState({ state: 'saving', inProgress: true });
 			console.log('Saving draft metadata:', e.detail);
 			await new Promise(resolve => setTimeout(resolve, 2000));
