@@ -9,14 +9,14 @@
 > - [ ] [Design organization buy-in](https://github.com/BrightspaceUI/guide/wiki/Before-you-build#working-with-design)
 > - [ ] [design.d2l entry](http://design.d2l/)
 > - [ ] [Architectural sign-off](https://github.com/BrightspaceUI/guide/wiki/Before-you-build#web-component-architecture)
-> - [ ] [Continuous integration](https://github.com/BrightspaceUI/guide/wiki/Testing#testing-continuously-with-travis-ci)
+> - [x] [Continuous integration](https://github.com/BrightspaceUI/guide/wiki/Testing#testing-continuously-with-travis-ci)
 > - [ ] [Cross-browser testing](https://github.com/BrightspaceUI/guide/wiki/Testing#cross-browser-testing-with-sauce-labs)
 > - [ ] [Unit tests](https://github.com/BrightspaceUI/guide/wiki/Testing#testing-with-polymer-test) (if applicable)
 > - [ ] [Accessibility tests](https://github.com/BrightspaceUI/guide/wiki/Testing#automated-accessibility-testing-with-axe)
 > - [ ] [Visual diff tests](https://github.com/BrightspaceUI/visual-diff)
 > - [ ] [Localization](https://github.com/BrightspaceUI/guide/wiki/Localization) with Serge (if applicable)
-> - [ ] Demo page
-> - [ ] README documentation
+> - [x] Demo page
+> - [x] README documentation
 
 
 
@@ -34,22 +34,60 @@ npm install @brightspace-ui-labs/video-producer
 <script type="module">
     import '@brightspace-ui-labs/video-producer/video-producer.js';
 </script>
-<d2l-labs-video-producer>My element</d2l-labs-video-producer>
+<d2l-labs-video-producer
+	src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+></d2l-labs-video-producer>
 ```
 
 **Properties:**
 
 | Property | Type | Description |
 |--|--|--|
-| | | |
+| src | String | Source of the video file. |
 
-**Accessibility:**
+**Events:**
 
-To make your usage of `d2l-labs-video-producer` accessible, use the following properties when applicable:
-
-| Attribute | Description |
+| Event | Description |
 |--|--|
-| | |
+| d2l-labs-video-producer-save-metadata | Fired when the save button is clicked. |
+| d2l-labs-video-producer-publish-metadata | Fired when the publish button is clicked. |
+
+**Methods:**
+
+| Method | Type | Description |
+|--|--|--|
+| setLanguages | void | Set the list of languages available to the producer when setting chapter titles. |
+| setMetadata | void | Set the cuts and chapters for video. |
+| setState | void | Set the state of the producer (saving, publishing). |
+
+### Additional Information
+
+See demo for example input and usage.
+
+- `setLanguages`: Accepts an array of objects representing the language:
+  - `name`: `String`
+  - `code`: `String`
+  - `isDefault`: `Boolean`
+    - Determines the initial language for the selector
+
+- `setMetadata`: Accepts an object with `cuts` and `chapters` properties:
+  - `cuts`: `Array`
+    - `in`: `Number` (seconds)
+    - `out`: `Number` (seconds)
+  - `chapters`: `Array`
+    - `time`: `Number`
+    - `title`: `Object`
+      - `[languageCode]`: `String`
+        - e.g., `en-ca`
+        - Language code should correspond to the code from `setLanguages`
+
+- `setState`: Accepts an object with `state`, `inProgress`, and `error` properties:
+  - `state`: `String`
+    - 'saving' or 'publishing'
+  - `inProgress`: `Boolean`
+    - setting the state to false opens the status dialog
+  - `error`: `Boolean`
+    - set to true to display an error message
 
 ## Developing, Testing and Contributing
 
