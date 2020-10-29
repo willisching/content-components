@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<link rel="stylesheet" href="/node_modules/@brightspace-ui/core/components/demo/styles.css" type="text/css">
-		<scrip src="/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></scrip>
+		<script src="/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
 		<script type="module">
 			import '@brightspace-ui/core/components/demo/demo-page.js';
 			import '../src/video-producer.js';
@@ -15,16 +15,13 @@
 	<body>
 		<d2l-demo-page page-title="d2l-labs-video-producer">
 			<h2>d2l-labs-video-producer</h2>
-			<!-- <d2l-demo-snippet> -->
-				<d2l-labs-video-producer
-					src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-				></d2l-labs-video-producer>
-			<!-- </d2l-demo-snippet> -->
+			<d2l-labs-video-producer
+				src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+			></d2l-labs-video-producer>
 		</d2l-demo-page>
 	</body>
 	<script type="module">
 		const producer = document.querySelector('d2l-labs-video-producer');
-		// Languages from LMS
 		producer.setLanguages([{
 			name: 'English (United States)',
 			code: 'en-us',
@@ -62,14 +59,14 @@
 			producer.setMetadata(metadata);
 		});
 
-		producer.addEventListener('publish-metadata', async e => {
+		producer.addEventListener('d2l-labs-video-producer-publish-metadata', async e => {
 			producer.setState({ state: 'publishing', inProgress: true });
 			console.log('Publishing metadata:', e.detail);
 			await new Promise(resolve => setTimeout(resolve, 2000));
 			producer.setState({ state: 'publishing', inProgress: false });
 		});
 
-		producer.addEventListener('save-draft-metadata', async e => {
+		producer.addEventListener('d2l-labs-video-producer-save-metadata', async e => {
 			producer.setState({ state: 'saving', inProgress: true });
 			console.log('Saving draft metadata:', e.detail);
 			await new Promise(resolve => setTimeout(resolve, 2000));

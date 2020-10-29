@@ -833,7 +833,7 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this.dispatchEvent(new CustomEvent('get-metadata', { bubbles: true, composed: false, }));
 	}
 
-	_fireSaveMetadataEvent(eventName) {
+	_fireMetadataEvent(eventName) {
 		this.dispatchEvent(new CustomEvent(
 			eventName,
 			{
@@ -845,11 +845,11 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	_publish() {
-		this._fireSaveMetadataEvent('publish-metadata');
+		this._fireMetadataEvent('d2l-labs-video-producer-publish-metadata');
 	}
 
 	_saveDraft() {
-		this._fireSaveMetadataEvent('save-draft-metadata');
+		this._fireMetadataEvent('d2l-labs-video-producer-save-metadata');
 	}
 	//#endregion
 
