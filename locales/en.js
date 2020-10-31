@@ -12,7 +12,7 @@ export const val = {
 	publishComplete: 'Publish complete.',
 	publishing: 'Publishing',
 	save: 'Save',
-	saveSuccess: 'Saved changes.',
+	saveComplete: 'Saved changes.',
 	saving: 'Saving',
 	seek: 'Seek',
 	tableOfContents: 'Table of Contents',

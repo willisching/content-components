@@ -9,12 +9,12 @@ import { InternalLocalizeMixin } from './internal-localize-mixin.js';
 class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
+			chapters: { type: Object },
 			defaultLanguage: { type: String, attribute: 'default-language' },
-			loading: { type: Boolean, reflect: true },
+			loading: { type: Boolean },
 			selectedLanguage: { type: String, reflect: true, attribute: 'selected-language' },
 			selectedLanguageName: { type: String, reflect: true, attribute: 'selected-language-name' },
 			_activeChapterIndex: { type: Number },
-			_chapters: { type: Object },
 			_newChapterTitle: { type: String },
 		};
 	}
@@ -85,15 +85,15 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 	constructor() {
 		super();
 		this.loading = true;
-		this._chapters = [];
+		this.chapters = [];
 		this._newChapterTitle = '';
 		this._activeChapterIndex = null;
 	}
 
 	get _sortedChapters() {
-		return this._chapters.map((chapter, index) => ({
+		return this.chapters.map((chapter, index) => ({
 			...chapter,
-			originalIndex: index // Used to index into this._chapters
+			originalIndex: index // Used to index into this.chapters
 		})).sort((a, b) => parseFloat(a.time) - parseFloat(b.time));
 	}
 
@@ -111,7 +111,7 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 	_deleteChapter(index) {
 		return () => {
 			this._updateActiveChapterIndex(null);
-			this._chapters.splice(index, 1);
+			this.chapters.splice(index, 1);
 			this.requestUpdate();
 		};
 	}
@@ -146,7 +146,7 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 
 	_updateChapterTitle(index) {
 		return event => {
-			this._chapters[index].title[this.selectedLanguage] = event.target.value;
+			this.chapters[index].title[this.selectedLanguage] = event.target.value;
 		};
 	}
 
@@ -155,7 +155,7 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 		this.dispatchEvent(new CustomEvent(
 			'active-chapter-updated',
 			{ bubbles: true, composed: false, detail: {
-				chapterTime: index === null ? null : this._chapters[index].time
+				chapterTime: index === null ? null : this.chapters[index].time
 			}}
 		));
 	}
@@ -165,27 +165,20 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 			return;
 		}
 
-		this._chapters.push({
+		this.chapters.push({
 			time: chapterTime,
 			title: {
 				[this.selectedLanguage]: this._newChapterTitle,
 			}
 		});
-		this._updateActiveChapterIndex(this._chapters.length - 1);
+		this._updateActiveChapterIndex(this.chapters.length - 1);
 
 		this._newChapterTitle = '';
 		this.shadowRoot.querySelector('.d2l-video-producer-new-chapter-title-input').value = '';
 	}
 
-	setChapters(chapters) {
-		this._chapters = chapters;
-		if (this._chapters.length > 0) {
-			this._updateActiveChapterIndex(this._sortedChapters[0].originalIndex);
-		}
-	}
-
 	setChapterToTime(chapterTime) {
-		this._chapters[this._activeChapterIndex].time = chapterTime;
+		this.chapters[this._activeChapterIndex].time = chapterTime;
 
 		const indexOfUpdatedChapter = this._sortedChapters.findIndex(({ originalIndex }) =>
 			originalIndex === this._activeChapterIndex);
@@ -204,7 +197,7 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 			return html`<d2l-loading-spinner size="150"></d2l-loading-spinner>`;
 		}
 
-		if (this._chapters.length === 0) {
+		if (this.chapters.length === 0) {
 			return html`
 				<p class="d2l-body-standard">${this.localize('noItems')}</p>
 			`;
@@ -247,7 +240,7 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 			<div class="d2l-video-producer-chapters">
 				<h3 class="d2l-heading-3 d2l-video-producer-chapters-heading">
 					${this.localize('tableOfContents')}
-					<div class="d2l-body-small ${!this.loading && this._editingOverrides ? '' : 'hidden'}">
+					<div class="d2l-body-small ${this._editingOverrides ? '' : 'hidden'}">
 						${this.localize('editingOverrides', { language: this.selectedLanguageName })}
 					</div>
 				</h3>

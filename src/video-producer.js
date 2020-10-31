@@ -18,13 +18,16 @@ import { selectStyles } from '@brightspace-ui/core/components/inputs/input-selec
 class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
+			errorOccurred: { type: Boolean },
+			languages: { type: Array },
+			metadata: { type: Object },
+			saveComplete: { type: Boolean },
 			src: { type: String, reflect: true },
-			_defaultLanguage: { type: String, attribute: false },
-			_languages: { type: Array, attribute: false },
-			_loadingMetadata: { type: Boolean, attribute: false },
-			_publishing: { type: Boolean, attribute: false },
-			_savingDraft: { type: Boolean, attribute: false },
+			_loading: { type: Boolean },
+			_publishing: { type: Boolean },
+			_saving: { type: Boolean },
 			_selectedLanguage: { type: Object, attribute: false },
+			_videoLoaded: { type: Boolean, attribute: false },
 		};
 	}
 
@@ -109,7 +112,6 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._controlMode = constants.CONTROL_MODES.SEEK;
 		this._shouldResumePlaying = false;
 		this._cuts = {};
-		this._chapterList = [];
 		this._updateTimelineInterval = null;
 		this._mouseTime = null;
 		this._mouseDownStageX = null;
@@ -124,12 +126,20 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._lowerBound = constants.TIMELINE_OFFSET_X;
 		this._upperBound = constants.TIMELINE_WIDTH;
 
-		this._publishing = false;
-		this._savingDraft = false;
-		this._loadingMetadata = true;
-		this._languages = [];
+		this.errorOccurred = false;
+		this.languages = [];
+		this.metadata = { cuts: [], chapters: [] };
+		this.saveComplete = false;
+		this.src = '';
 
-		this._toastLangterm = '';
+		this._publishing = false;
+		this._saving = false;
+		this._selectedLanguage = {};
+		this._videoLoaded = false;
+	}
+
+	get _loading() {
+		return !(this.metadata && this._videoLoaded && this._selectedLanguage);
 	}
 
 	firstUpdated() {
@@ -144,8 +154,32 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 		// Wait for video to be loaded
 		this._video.addEventListener('loadeddata', () => {
-			this._fireMetadataEvent('get-metadata');
+			this._videoLoaded = true;
+			this._addCutsToTimeline(this.metadata.cuts);
 		});
+	}
+
+	updated(changedProperties) {
+		super.updated();
+		if (changedProperties.has('languages') && this.languages && this.languages.length > 0) {
+			this._selectedLanguage = this.languages.find(language => language.isDefault);
+			this._defaultLanguage = this._selectedLanguage.code;
+		}
+
+		if (changedProperties.has('saveComplete') && this.saveComplete) {
+			if (this.errorOccurred) {
+				this._alertToastLangterm = 'errorAlertToast';
+				this._alertToastType = 'error';
+			} else {
+				this._alertToastLangterm = this._publishing
+					? 'publishComplete'
+					: 'saveComplete';
+				this._alertToastType = 'default';
+			}
+			this.errorOccurred = false;
+			this._saving = false;
+			this._publishing = false;
+		}
 	}
 
 	//#region Control mode management
@@ -822,36 +856,34 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	_setChapterToCurrentTime() {
 		this._chapters.setChapterToTime(this._video.currentTime);
 	}
-
-	_updateChapters() {
-		this._chapters.setChapters(this._chapterList);
-	}
 	//#endregion
 
 	//#region Metadata management
-	_fireMetadataEvent(eventName, detail) {
+	_fireMetadataEvent(eventName) {
+		this.saveComplete = false;
 		this.dispatchEvent(new CustomEvent(
 			eventName,
 			{
 				bubbles: true,
 				composed: false,
-				detail
+				detail: { cuts: this._getCuts(), chapters: this.metadata.chapters }
 			}
 		));
 	}
 
 	_publish() {
-		this._fireMetadataEvent('publish-metadata', { cuts: this._getCuts(), chapters: this._chapterList });
+		this._publishing = true;
+		this._fireMetadataEvent('publish-metadata');
 	}
 
 	_saveDraft() {
-		this._fireMetadataEvent('save-metadata', { cuts: this._getCuts(), chapters: this._chapterList });
+		this._saving = true;
+		this._fireMetadataEvent('save-metadata');
 	}
 	//#endregion
 
-	//#region Public methods
 	_renderLanguageSelector() {
-		if (!this._languages.length) {
+		if (this._loading) {
 			return;
 		}
 
@@ -863,7 +895,7 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			<d2l-dropdown-button-subtle text="${this._selectedLanguage.name}">
 				<d2l-dropdown-menu id="dropdown">
 					<d2l-menu label="${this.localize('languages')}">
-						${this._languages.map(language => html`
+						${this.languages.map(language => html`
 							<d2l-menu-item @click="${selectLanguage(language)}" text=${language.name}></d2l-menu-item>
 						`)}
 					</d2l-menu>
@@ -872,56 +904,24 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		`;
 	}
 
-	setLanguages(languages) {
-		this._languages = languages;
-		this._selectedLanguage = languages.find(language => language.isDefault);
-		this._defaultLanguage = this._selectedLanguage.code;
-	}
-
-	setMetadata({ chapters, cuts }) {
-		this._chapterList = chapters;
-		this._updateChapters();
-		this._addCutsToTimeline(cuts);
-		this._loadingMetadata = false;
-	}
-
-	setState({ state, inProgress, error = false }) {
-		if (state === 'saving') {
-			this._toastLangterm = error ? 'errorAlertToast' : 'saveSuccess';
-			this._savingDraft = inProgress;
-		} else if (state === 'publishing') {
-			this._toastLangterm = error ? 'errorAlertToast' : 'publishComplete';
-			this._publishing = inProgress;
-		} else {
-			return;
-		}
-		const alertToast = this.shadowRoot.querySelector('#d2l-video-producer-alert');
-		alertToast.type = error ? 'error' : 'default';
-		if (!inProgress) {
-			alertToast.open = true;
-		}
-		this.update();
-	}
-	//#endregion
-
 	render() {
 		return html`
 			<div class="d2l-video-producer">
 				<div class="d2l-video-producer-metadata-controls">
 					<d2l-button-icon
+						?disabled="${this._saving || this._publishing || this._loading}"
+						@click="${this._saveDraft}"
 						class="d2l-video-producer-metadata-controls-save-draft-metadata"
 						icon="tier1:save"
-						text="${this.localize('save')}"
 						primary
-						@click="${this._saveDraft}"
-						?disabled="${this._savingDraft || this._publishing || this._loadingMetadata}"
+						text="${this.localize('save')}"
 					></d2l-button-icon>
 					${this._renderLanguageSelector()}
 					<d2l-button
+						?disabled="${this._saving || this._publishing || this._loading}"
+						@click="${this._publish}"
 						class="d2l-video-producer-metadata-controls-publish"
 						primary
-						@click="${this._publish}"
-						?disabled="${this._savingDraft || this._publishing || this._loadingMetadata}"
 					><div class="d2l-video-producer-manage-metadata ${!this._publishing ? 'd2l-video-producer-manage-metadata-hidden' : ''}">
 							<d2l-loading-spinner size="20"></d2l-loading-spinner>
 							${this.localize('publishing')}
@@ -933,32 +933,36 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				</div>
 				<div class="d2l-video-producer-video-controls">
 					<d2l-labs-media-player
-						@play=${this._startUpdatingVideoTime}
-						@pause=${this._pauseUpdatingVideoTime}
-						@seeking=${this._updateVideoTime}
+						@pause="${this._pauseUpdatingVideoTime}"
+						@play="${this._startUpdatingVideoTime}"
+						@seeking="${this._updateVideoTime}"
 						controls
 						src="${this.src}"
 					></d2l-labs-media-player>
 					<d2l-labs-video-producer-chapters
-						?loading="${this._loadingMetadata}"
-						@add-new-chapter=${this._addNewChapter}
-						@set-chapter-to-current-time=${this._setChapterToCurrentTime}
-						default-language=${this._defaultLanguage}
-						selected-language=${this._selectedLanguage && this._selectedLanguage.code}
-						selected-language-name=${this._selectedLanguage && this._selectedLanguage.name}
+						.chapters="${this.metadata && this.metadata.chapters}"
+						?loading="${this._loading}"
+						@add-new-chapter="${this._addNewChapter}"
+						@set-chapter-to-current-time="${this._setChapterToCurrentTime}"
+						default-language="${this._defaultLanguage}"
+						selected-language-name="${this._selectedLanguage && this._selectedLanguage.name}"
+						selected-language="${this._selectedLanguage && this._selectedLanguage.code}"
 					></d2l-labs-video-producer-chapters>
 				</div>
 				<div class="d2l-video-producer-timeline">
 					<canvas width="985" height="90" id="timeline-canvas"></canvas>
 					<div class="d2l-video-producer-timeline-controls">
-						<d2l-button-icon @click=${this._changeToSeekMode} text="${this.localize(constants.CONTROL_MODES.SEEK)}" icon="tier1:divider-solid"></d2l-button-icon>
-						<d2l-button-icon @click=${this._changeToMarkMode} text="${this.localize(constants.CONTROL_MODES.MARK)}" icon="tier1:edit"></d2l-button-icon>
-						<d2l-button-icon @click=${this._changeToCutMode} text="${this.localize(constants.CONTROL_MODES.CUT)}" icon="html-editor:cut"></d2l-button-icon>
+						<d2l-button-icon @click="${this._changeToSeekMode}" text="${this.localize(constants.CONTROL_MODES.SEEK)}" icon="tier1:divider-solid"></d2l-button-icon>
+						<d2l-button-icon @click="${this._changeToMarkMode}" text="${this.localize(constants.CONTROL_MODES.MARK)}" icon="tier1:edit"></d2l-button-icon>
+						<d2l-button-icon @click="${this._changeToCutMode}" text="${this.localize(constants.CONTROL_MODES.CUT)}" icon="html-editor:cut"></d2l-button-icon>
 					</div>
 				</div>
 			</div>
-			<d2l-alert-toast id="d2l-video-producer-alert" type="default">
-				${this.localize(this._toastLangterm)}
+			<d2l-alert-toast
+				?open=${this.saveComplete || this.errorOccurred}
+				id="d2l-video-producer-alert"
+				type="${this._alertToastType}"
+			>${this.localize(this._alertToastLangterm)}
 			</d2l-alert-toast>
 		`;
 	}
