@@ -39,11 +39,17 @@ npm install @brightspace-ui-labs/video-producer
 ></d2l-labs-video-producer>
 ```
 
+See the demo page for example implementation and usage.
+
 **Properties:**
 
 | Property | Type | Description |
 |--|--|--|
 | src | String | Source of the video file. |
+| languages | Array | Array of locale languages. |
+| metadata | Array | Object containing the cuts and chapters of the video. |
+| error-occurred | Boolean | Set to `true` to indicate that an error occurred. Setting `save-complete` to `true` will trigger the alert to show an error message. |
+| save-complete | Boolean | Set to `true` to indicate that saving/publishing of the metadata is complete, and display an alert. If `error-occurred` is also `true`, an error message will be displayed instead. |
 
 **Events:**
 
@@ -52,43 +58,6 @@ npm install @brightspace-ui-labs/video-producer
 | get-metadata | Fired when the video has loaded, indicating that metadata can be loaded. |
 | save-metadata | Fired when the save button is clicked. |
 | publish-metadata | Fired when the publish button is clicked. |
-
-**Methods:**
-
-| Method | Type | Description |
-|--|--|--|
-| setLanguages | void | Set the list of languages available to the producer when setting chapter titles. |
-| setMetadata | void | Set the cuts and chapters for video. |
-| setState | void | Set the state of the producer (saving, publishing). |
-
-### Additional Information
-
-See demo for example input and usage.
-
-- `setLanguages`: Accepts an array of objects representing the language:
-  - `name`: `String`
-  - `code`: `String`
-  - `isDefault`: `Boolean`
-    - Determines the initial language for the selector
-
-- `setMetadata`: Accepts an object with `cuts` and `chapters` properties:
-  - `cuts`: `Array`
-    - `in`: `Number` (seconds)
-    - `out`: `Number` (seconds)
-  - `chapters`: `Array`
-    - `time`: `Number`
-    - `title`: `Object`
-      - `[languageCode]`: `String`
-        - e.g., `en-ca`
-        - Language code should correspond to the code from `setLanguages`
-
-- `setState`: Accepts an object with `state`, `inProgress`, and `error` properties:
-  - `state`: `String`
-    - 'saving' or 'publishing'
-  - `inProgress`: `Boolean`
-    - setting the state to false opens the status dialog
-  - `error`: `Boolean`
-    - set to true to display an error message
 
 ## Developing, Testing and Contributing
 
