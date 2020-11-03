@@ -10,12 +10,11 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
 			chapters: { type: Object },
-			defaultLanguage: { type: String, attribute: 'default-language' },
+			defaultLanguage: { type: Object },
 			loading: { type: Boolean },
-			selectedLanguage: { type: String, reflect: true, attribute: 'selected-language' },
-			selectedLanguageName: { type: String, reflect: true, attribute: 'selected-language-name' },
-			_activeChapterIndex: { type: Number },
-			_newChapterTitle: { type: String },
+			selectedLanguage: { type: Object },
+			_activeChapterIndex: { type: Number, attribute: false },
+			_newChapterTitle: { type: String, attribute: false },
 		};
 	}
 
@@ -98,7 +97,10 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 	}
 
 	get _editingOverrides() {
-		return this.selectedLanguage !== this.defaultLanguage;
+		if (!(this.selectedLanguage && this.defaultLanguage)) {
+			return false;
+		}
+		return this.selectedLanguage.code !== this.defaultLanguage.code;
 	}
 
 	_addNewChapter() {
@@ -113,7 +115,15 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 			this._updateActiveChapterIndex(null);
 			this.chapters.splice(index, 1);
 			this.requestUpdate();
+			this._fireChaptersChangedEvent();
 		};
+	}
+
+	_fireChaptersChangedEvent() {
+		this.dispatchEvent(new CustomEvent(
+			'chapters-changed',
+			{ bubbles: true, composed: false }
+		));
 	}
 
 	_getTime(time) {
@@ -146,7 +156,8 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 
 	_updateChapterTitle(index) {
 		return event => {
-			this.chapters[index].title[this.selectedLanguage] = event.target.value;
+			this.chapters[index].title[this.selectedLanguage.code] = event.target.value;
+			this._fireChaptersChangedEvent();
 		};
 	}
 
@@ -168,13 +179,14 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 		this.chapters.push({
 			time: chapterTime,
 			title: {
-				[this.selectedLanguage]: this._newChapterTitle,
+				[this.selectedLanguage.code]: this._newChapterTitle,
 			}
 		});
 		this._updateActiveChapterIndex(this.chapters.length - 1);
 
 		this._newChapterTitle = '';
 		this.shadowRoot.querySelector('.d2l-video-producer-new-chapter-title-input').value = '';
+		this._fireChaptersChangedEvent();
 	}
 
 	setChapterToTime(chapterTime) {
@@ -190,6 +202,7 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 		this._updateActiveChapterIndex(this._activeChapterIndex);
 		inputTextOfUpdatedChapter.focus();
 		this.requestUpdate();
+		this._fireChaptersChangedEvent();
 	}
 
 	_renderChapters() {
@@ -204,8 +217,9 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 		}
 
 		return this._sortedChapters.map(({ time, title, originalIndex }) => {
-			const chapterTitle = title[this.selectedLanguage] || '';
-			const fallbackTitle = title[this.defaultLanguage] || '';
+			const chapterTitle = title[this.selectedLanguage.code] || '';
+			const fallbackTitle = title[this.defaultLanguage.code] || '';
+
 			return html`
 				<div class="d2l-video-producer-chapter">
 					<d2l-input-text
@@ -241,7 +255,7 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 				<h3 class="d2l-heading-3 d2l-video-producer-chapters-heading">
 					${this.localize('tableOfContents')}
 					<div class="d2l-body-small ${this._editingOverrides ? '' : 'hidden'}">
-						${this.localize('editingOverrides', { language: this.selectedLanguageName })}
+						${this.localize('editingOverrides', { language: this.selectedLanguage && this.selectedLanguage.name })}
 					</div>
 				</h3>
 				<div class="d2l-video-producer-chapters-container">
