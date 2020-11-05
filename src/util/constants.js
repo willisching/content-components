@@ -13,6 +13,7 @@ export const pageNames = {
 	viewLiveEvent: 'view-live-event',
 	page404: '404',
 	presentations: 'presentations',
+	producer: 'producer',
 	settings: 'settings',
 	uploadVideo: 'upload-video',
 	users: 'users',

@@ -135,6 +135,7 @@ class D2LCapturePresentationsEdit extends DependencyRequester(PageViewElement) {
 				</d2l-breadcrumbs>
 				<div class="d2l-heading-2">${this.localize('editRecordedPresentation')}</div>
 				<div class="d2l-capture-central-edit-presentation-options">
+					<d2l-link @click=${this._goTo(`/producer/${id}`)}><d2l-icon icon="tier1:file-video"></d2l-icon>${this.localize('editInPostProductionTool')}</d2l-link>
 					<d2l-link @click=${this._goTo(`/course-videos/${id}`)}><d2l-icon icon="tier1:play"></d2l-icon>${this.localize('watchPresentation')}</d2l-link>
 				</div>
 				<d2l-input-text

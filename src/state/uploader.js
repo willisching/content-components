@@ -121,13 +121,15 @@ export class Uploader {
 		try {
 			this.runningJobs += 1;
 			const content = await this.apiClient.createContent();
-			const revision = await this.apiClient.createRevision(
-				content.id,
-				{
+			const revision = await this.apiClient.createRevision({
+				contentId: content.id,
+				body: {
 					title: file.name,
-					extension
+					extension,
+					sourceFormat: 'hd',
+					formats: ['ld'],
 				}
-			);
+			});
 			const uploader = new S3Uploader({
 				file,
 				key: revision.s3Key,
