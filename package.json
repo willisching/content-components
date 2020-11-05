@@ -41,7 +41,7 @@
     "@brightspace-ui-labs/file-uploader": "^2.0.1",
     "@brightspace-ui-labs/media-player": "github:BrightspaceUILabs/media-player",
     "@brightspace-ui-labs/pagination": "0.0.8",
-    "@brightspace-ui-labs/video-producer": "github:Brightspace/video-producer",
+    "@brightspace-ui-labs/video-producer": "github:BrightspaceUILabs/video-producer",
     "@brightspace-ui/core": "^1.74.5",
     "@brightspace-ui/intl": "^3.0.11",
     "@chaitin/querystring": "^1.1.0",

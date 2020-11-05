@@ -1,7 +1,9 @@
+import '@brightspace-ui/core/components/alert/alert-toast.js';
 import '@brightspace-ui/core/components/breadcrumbs/breadcrumb.js';
 import '@brightspace-ui/core/components/breadcrumbs/breadcrumb-current-page.js';
 import '@brightspace-ui/core/components/breadcrumbs/breadcrumbs.js';
 import '@brightspace-ui-labs/video-producer/src/video-producer.js';
+import '@brightspace-ui-labs/video-producer/src/video-producer-language-selector.js';
 import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
 
 import { css, html } from 'lit-element/lit-element.js';
@@ -12,15 +14,47 @@ import { PageViewElement } from '../../components/page-view-element';
 class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 	static get properties() {
 		return {
+			_alertMessage: { type: String, attribute: false },
 			_content: { type: String, attribute: false },
 			_defaultLanguage: { type: String, attribute: false },
+			_errorOccurred: { type: Boolean, attribute: false },
+			_languages: { type: String, attribute: false },
 			_loading: { type: Boolean, attribute: false },
+			_metadata: { type: Object, attribute: false },
+			_publishing: { type: Boolean },
+			_saving: { type: Boolean },
+			_selectedLanguage: { type: String, attribute: false },
 			_sourceUrl: { type: String, attribute: false },
 		};
 	}
 
 	static get styles() {
 		return css`
+			.d2l-capture-central-producer-controls {
+				align-items: center;
+				display: flex;
+				justify-content: flex-end;
+				margin-bottom: 15px;
+				width: 1175px;
+			}
+
+			.d2l-capture-central-producer-controls-save-button {
+				margin-right: auto;
+			}
+
+			.d2l-capture-central-producer-controls-publish-button {
+				margin-left: 10px;
+			}
+
+			.d2l-capture-central-producer-controls-publish-button .d2l-capture-central-producer-controls-publishing {
+				display: flex;
+				align-items: center;
+			}
+
+			.d2l-capture-central-producer-controls-publish-button d2l-loading-spinner {
+				margin-right: 5px;
+			}
+
 			d2l-loading-spinner {
 				display: flex;
 				margin: auto;
@@ -36,6 +70,8 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 		super();
 		this.apiClient = this.requestDependency('content-service-client');
 		this.userBrightspaceClient = this.requestDependency('user-brightspace-client');
+		this._alertMessage = '';
+		this._errorOccurred = false;
 	}
 
 	async connectedCallback() {
@@ -47,8 +83,13 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 				this._loading = true;
 				this._content = await this.apiClient.getContent(this.rootStore.routingStore.params.id);
 				this._sourceUrl = (await this.apiClient.getSignedUrl(this.rootStore.routingStore.params.id)).value;
-				this._loading = false;
 				this._setupLanguages();
+				this._metadata = await this.apiClient.getMetadata({
+					contentId: this._content.id,
+					revisionId: 'latest',
+					draft: true
+				});
+				this._loading = false;
 			}
 		});
 	}
@@ -58,34 +99,23 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 	}
 
 	async _setupLanguages() {
-		this.requestUpdate();
 		const { Items } = await this.userBrightspaceClient.getLocales();
-		const languages = Items.map(({ LocaleName, CultureCode, IsDefault }) => {
+		this._languages = Items.map(({ LocaleName, CultureCode, IsDefault }) => {
 			const code = CultureCode.toLowerCase();
 			return { name: LocaleName, code, isDefault: IsDefault  };
 		});
-		this.producer.setLanguages(languages);
+		this._selectedLanguage = this._languages.find(language => language.isDefault);
+		this._defaultLanguage = this._selectedLanguage;
 	}
 
-	async _getMetadata() {
-		const metadata = await this.apiClient.getMetadata({
-			contentId: this._content.id,
-			revisionId: 'latest',
-			draft: true
-		});
-
-		this.producer.setMetadata(metadata);
-	}
-
-	async _publishMetadata(e) {
-		this.producer.setState({ state: 'publishing', inProgress: true });
+	async _handlePublish() {
+		this._publishing = true;
 
 		await this.apiClient.updateMetadata({
 			contentId: this._content.id,
-			metadata: e.detail,
+			metadata: this._metadata,
 			revisionId: 'latest',
 		});
-		// eslint-disable-next-line no-unused-vars
 		const { id, ...revision } = this._content.revisions[this._content.revisions.length - 1];
 		let newRevision;
 		try {
@@ -110,27 +140,40 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 					contentId: this._content.id, revisionId: newRevision.id
 				});
 			}
-			this.producer.setState({ state: 'publishing', inProgress: false, error: true });
-			return;
+			this._errorOccurred = true;
 		}
-
-		this.producer.setState({ state: 'publishing', inProgress: false });
+		this._alertMessage = this._errorOccurred
+			? this.localize('publishError')
+			: this.localize('publishSuccess');
+		this.shadowRoot.querySelector('d2l-alert-toast').open = true;
+		this._publishing = false;
 	}
 
-	async _saveDraftMetadata(e) {
-		this.producer.setState({ state: 'saving', inProgress: true });
+	_handleMetadataChanged(e) {
+		this._metadata = e.detail;
+	}
+
+	async _handleSave() {
+		this._saving = true;
 		try {
 			await this.apiClient.updateMetadata({
 				contentId: this._content.id,
 				draft: true,
-				metadata: e.detail,
+				metadata: this._metadata,
 				revisionId: 'latest',
 			});
 		} catch (error) {
-			this.producer.setState({ state: 'saving', inProgress: false, error: true });
-			return;
+			this._errorOccurred = true;
 		}
-		this.producer.setState({ state: 'saving', inProgress: false });
+		this._alertMessage = this._errorOccurred
+			? this.localize('saveError')
+			: this.localize('saveSuccess');
+		this.shadowRoot.querySelector('d2l-alert-toast').open = true;
+		this._saving = false;
+	}
+
+	_handleSelectedLanguageChanged(e) {
+		this._selectedLanguage = e.detail.selectedLanguage;
 	}
 
 	_renderBreadcrumbs() {
@@ -164,12 +207,46 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 
 		return html`
 			${this._renderBreadcrumbs()}
+			<div class="d2l-capture-central-producer-controls">
+				<d2l-button-icon
+					?disabled="${this._saving || this._publishing}"
+					@click="${this._handleSave}"
+					class="d2l-capture-central-producer-controls-save-button"
+					icon="tier1:save"
+					primary
+					text="${this.localize('save')}"
+				></d2l-button-icon>
+				<d2l-labs-video-producer-language-selector
+					.languages="${this._languages}"
+					.selectedLanguage="${this._selectedLanguage}"
+					@selected-language-changed="${this._handleSelectedLanguageChanged}"
+				></d2l-labs-video-producer-language-selector>
+				<d2l-button
+					?disabled="${this._saving || this._publishing}"
+					@click="${this._handlePublish}"
+					class="d2l-capture-central-producer-controls-publish-button"
+					primary
+				><div class="d2l-capture-central-producer-controls-publishing" style="${!this._publishing ? 'display: none' : ''}">
+						<d2l-loading-spinner size="20"></d2l-loading-spinner>
+						${this.localize('publishing')}
+					</div>
+					<div ?hidden="${this._publishing}">
+						${this.localize('publish')}
+					</div>
+				</d2l-button>
+			</div>
+
 			<d2l-labs-video-producer
-				@get-metadata=${this._getMetadata}
-				@publish-metadata=${this._publishMetadata}
-				@save-metadata=${this._saveDraftMetadata}
+				.defaultLanguage="${this._defaultLanguage}"
+				.metadata="${this._metadata}"
+				.selectedLanguage="${this._selectedLanguage}"
+				@metadata-changed="${this._handleMetadataChanged}"
 				src="${this._sourceUrl}"
 			></d2l-labs-video-producer>
+
+			<d2l-alert-toast type="${this.errorOccurred ? 'error' : 'default'}">
+				${this._alertMessage}
+			</d2l-alert-toast>
 		`;
 	}
 
