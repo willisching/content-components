@@ -237,7 +237,7 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 
 		if (this.chapters.length === 0) {
 			return html`
-				<p class="d2l-body-standard">${this.localize('noItems')}</p>
+				<p class="d2l-body-standard">${this.localize('noChapters')}</p>
 			`;
 		}
 
