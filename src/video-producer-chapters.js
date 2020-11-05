@@ -89,6 +89,19 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 		this._activeChapterIndex = null;
 	}
 
+	updated(changedProperties) {
+		if (changedProperties.has('chapters') && !this.loading) {
+			if (this.chapters[this._activeChapterIndex]) {
+				this._updateActiveChapterIndex(
+					this._activeChapterIndex,
+					this.chapters[this._activeChapterIndex].time
+				);
+			} else {
+				this._updateActiveChapterIndex(null);
+			}
+		}
+	}
+
 	get _sortedChapters() {
 		return this.chapters.map((chapter, index) => ({
 			...chapter,
@@ -113,16 +126,16 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 	_deleteChapter(index) {
 		return () => {
 			this._updateActiveChapterIndex(null);
-			this.chapters.splice(index, 1);
-			this.requestUpdate();
-			this._fireChaptersChangedEvent();
+			const chapters = [...this.chapters];
+			chapters.splice(index, 1);
+			this._fireChaptersChangedEvent(chapters);
 		};
 	}
 
-	_fireChaptersChangedEvent() {
+	_fireChaptersChangedEvent(chapters) {
 		this.dispatchEvent(new CustomEvent(
 			'chapters-changed',
-			{ bubbles: true, composed: false }
+			{ bubbles: true, composed: false, detail: { chapters } }
 		));
 	}
 
@@ -141,11 +154,12 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_selectChapter(index) {
-		return () => this._updateActiveChapterIndex(index);
+		return () => this._updateActiveChapterIndex(index, this.chapters[index].time);
 	}
 
 	_setChapterToCurrentTime(index) {
-		return () => {
+		return (event) => {
+			event.target.blur();
 			this._activeChapterIndex = index;
 			this.dispatchEvent(new CustomEvent(
 				'set-chapter-to-current-time',
@@ -156,17 +170,18 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 
 	_updateChapterTitle(index) {
 		return event => {
-			this.chapters[index].title[this.selectedLanguage.code] = event.target.value;
-			this._fireChaptersChangedEvent();
+			const chapters = [...this.chapters];
+			chapters[index].title[this.selectedLanguage.code] = event.target.value;
+			this._fireChaptersChangedEvent(chapters);
 		};
 	}
 
-	_updateActiveChapterIndex(index) {
+	_updateActiveChapterIndex(index, time) {
 		this._activeChapterIndex = index;
 		this.dispatchEvent(new CustomEvent(
 			'active-chapter-updated',
 			{ bubbles: true, composed: false, detail: {
-				chapterTime: index === null ? null : this.chapters[index].time
+				chapterTime: index === null ? null : time
 			}}
 		));
 	}
@@ -176,33 +191,43 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 			return;
 		}
 
-		this.chapters.push({
+		const chapters = [...this.chapters];
+		chapters.push({
 			time: chapterTime,
 			title: {
 				[this.selectedLanguage.code]: this._newChapterTitle,
 			}
 		});
-		this._updateActiveChapterIndex(this.chapters.length - 1);
+		this._fireChaptersChangedEvent(chapters);
+		this._updateActiveChapterIndex(chapters.length - 1, chapterTime);
 
 		this._newChapterTitle = '';
 		this.shadowRoot.querySelector('.d2l-video-producer-new-chapter-title-input').value = '';
-		this._fireChaptersChangedEvent();
 	}
 
 	setChapterToTime(chapterTime) {
-		this.chapters[this._activeChapterIndex].time = chapterTime;
+		const updatedChapters = this.chapters.slice();
+		const updatedChapter = {
+			...this.chapters[this._activeChapterIndex],
+			time: chapterTime
+		};
+		updatedChapters[this._activeChapterIndex] = updatedChapter;
+		this._fireChaptersChangedEvent(updatedChapters);
 
 		const indexOfUpdatedChapter = this._sortedChapters.findIndex(({ originalIndex }) =>
 			originalIndex === this._activeChapterIndex);
 
-		const inputTextOfUpdatedChapter = [...this.shadowRoot
-			.querySelectorAll('.d2l-video-producer-chapter d2l-input-text')
-		][indexOfUpdatedChapter];
+		if (indexOfUpdatedChapter > -1) {
+			this._updateActiveChapterIndex(this._activeChapterIndex, chapterTime);
+			const inputTextOfUpdatedChapter = [...this.shadowRoot
+				.querySelectorAll('.d2l-video-producer-chapter d2l-input-text')
+			][indexOfUpdatedChapter];
 
-		this._updateActiveChapterIndex(this._activeChapterIndex);
-		inputTextOfUpdatedChapter.focus();
-		this.requestUpdate();
-		this._fireChaptersChangedEvent();
+			inputTextOfUpdatedChapter.blur();
+			return;
+		}
+
+		this._updateActiveChapterIndex(null);
 	}
 
 	_renderChapters() {

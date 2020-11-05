@@ -10,7 +10,6 @@ import { css, html, LitElement } from 'lit-element/lit-element.js';
 class DemoVideoProducer extends LitElement {
 	static get properties() {
 		return {
-			errorOccurred: { type: Boolean },
 			languages: { type: Array },
 			metadata: { type: Object },
 			defaultLanguage: { type: Object },
@@ -79,7 +78,6 @@ class DemoVideoProducer extends LitElement {
 		this.defaultLanguage = this.selectedLanguage;
 
 		this.metadata = {
-			cuts: [{ in: 10, out: 60 }],
 			chapters: [{
 				time: 50,
 				title: {
@@ -93,12 +91,13 @@ class DemoVideoProducer extends LitElement {
 					'fr-fr': 'Chaptér 2',
 				}
 			}, {
-				time: 25,
+				time: 500,
 				title: {
 					'en-us': 'Ch 1',
 					'fr-fr': 'Fr Ch 2'
 				}
-			}]
+			}],
+			cuts: [{ in: 10, out: 60 }, { in: 400, out: 515 }],
 		};
 	}
 	async _handlePublish() {
@@ -115,8 +114,7 @@ class DemoVideoProducer extends LitElement {
 		await new Promise(resolve => setTimeout(resolve, 1000));
 		this._saving = false;
 
-		this.errorOccurred = Math.random() > 0.5;
-		this._alertMessage = this.errorOccurred ? 'An unexpected error occurred.' : 'Saved changes.';
+		this._alertMessage = 'Saved changes.';
 		this.shadowRoot.querySelector('d2l-alert-toast').open = true;
 	}
 
@@ -168,7 +166,7 @@ class DemoVideoProducer extends LitElement {
 				src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
 			></d2l-labs-video-producer>
 
-			<d2l-alert-toast type="${this.errorOccurred ? 'error' : 'default'}">
+			<d2l-alert-toast type="default">
 				${this._alertMessage}
 			</d2l-alert-toast>
 		`;

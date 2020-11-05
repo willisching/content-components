@@ -112,8 +112,18 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		// Wait for video to be loaded
 		this._video.addEventListener('loadeddata', () => {
 			this._videoLoaded = true;
-			this._addCutsToTimeline(this.metadata.cuts);
+			this._changeToSeekMode();
+			if (this.metadata) {
+				this._addCutsToTimeline(this.metadata.cuts);
+			}
 		});
+	}
+
+	updated(changedProperties) {
+		super.updated(changedProperties);
+		if (changedProperties.has('metadata') && this.metadata && this._videoLoaded) {
+			this._addCutsToTimeline(this.metadata.cuts);
+		}
 	}
 
 	//#region Control mode management
@@ -123,6 +133,7 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._setMouseEnabledForCuts({ enabled: true });
 		this._contentMarker.mouseEnabled = false;
 		this._controlMode = constants.CONTROL_MODES.CUT;
+		this._hideCursor();
 	}
 
 	_changeToMarkMode() {
@@ -131,6 +142,8 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._setMouseEnabledForCuts({ enabled: false });
 		this._contentMarker.mouseEnabled = false;
 		this._controlMode = constants.CONTROL_MODES.MARK;
+		this._cutHighlight.visible = false;
+		this._stage.update();
 	}
 
 	_changeToSeekMode() {
@@ -138,6 +151,8 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._setMouseEnabledForCuts({ enabled: false });
 		this._contentMarker.mouseEnabled = true;
 		this._controlMode = constants.CONTROL_MODES.SEEK;
+		this._cutHighlight.visible = false;
+		this._hideCursor();
 	}
 
 	_configureModes() {
@@ -176,7 +191,14 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 		return {
 			timelineMouseDown: () => {},
-			timelineMouseUp: (event) => { this._cut(event); },
+			timelineMouseUp: (event) => {
+				this._setCutBoundsForStageX(event.stageX);
+				const cuts = this._getCuts().concat({
+					in: (this._lowerMark ? this._lowerMark.time : 0),
+					out: (this._upperMark ? this._upperMark.time : 0),
+				});
+				this._fireMetadataChangedEvent({ cuts });
+			},
 			timelinePressMove: () => {},
 			timelinePressUp: () => {},
 			stageMouseMove: (event) => {
@@ -184,6 +206,7 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 					highlightCut(event);
 				} else {
 					hideCut();
+					this._timeContainer.visible = false;
 				}
 			}
 		};
@@ -239,8 +262,22 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				}
 			},
 			timelineMouseUp: event => { this._addOrDeleteMarkForEvent(event); },
-			timelinePressMove: event => { moveCurrentMark(event); },
-			timelinePressUp: () => { this._draggingMark = false; },
+			timelinePressMove: event => {
+				if (this._isMouseOverTimeline(false)) {
+					moveCurrentMark(event);
+				} else {
+					this._timeContainer.visible = false;
+					this._stage.update();
+				}
+			},
+			timelinePressUp: () => {
+				// If mark was just removed (=== null), a cut may have changed
+				if ((this._draggingMark || this._currentMark === null) && this._cutTimeChanged) {
+					this._fireMetadataChangedEvent();
+				}
+				this._cutTimeChanged = false;
+				this._draggingMark = false;
+			},
 			stageMouseMove: () => {
 				if (this._isMouseOverTimeline(false)) {
 					this._setCursorOrCurrentMark(this._stage.mouseX);
@@ -340,6 +377,9 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._contentMarker.on('pressmove', (event) => {
 			if (this._isMouseOverTimeline(false)) {
 				this._moveContentMarker(event);
+			} else {
+				this._timeContainer.visible = false;
+				this._stage.update();
 			}
 		});
 		this._stage.addChild(this._contentMarker);
@@ -372,12 +412,6 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	_addCutsToTimeline(cuts) {
-		const clearMarks = () => {
-			Object.values(this._marks).forEach(mark => {
-				this._stage.removeChild(mark.displayObject);
-			});
-			this._marks = {};
-		};
 		const clearCuts = () => {
 			Object.values(this._cuts).forEach(cut => {
 				this._stage.removeChild(cut.displayObject);
@@ -385,7 +419,6 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			this._cuts = {};
 		};
 
-		clearMarks();
 		clearCuts();
 
 		const addCut = (cut) => {
@@ -411,7 +444,6 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			this._currentMark = null;
 		}
 
-		this._changeToSeekMode();
 		this._stage.update();
 	}
 
@@ -455,7 +487,15 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			delete this._cuts[cut.x];
 
 			this._setCutBoundsForStageX(cut.displayObject.x + 1);
-			this._cut();
+			const cuts = this._getCuts();
+			cuts.forEach(c => {
+				// Since the mark will shorten the length of the cut, find the cut with in ===
+				// the lower cut bound, and update its out time
+				if (c.in === (this._lowerMark ? this._lowerMark.time : 0)) {
+					c.out = (this._upperMark ? this._upperMark.time : 0);
+				}
+			});
+			this._fireMetadataChangedEvent({ cuts });
 		}
 
 		this._hideCursor();
@@ -520,7 +560,6 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			upperBound: this._upperBound,
 			displayObject: cut
 		};
-		this._fireMetadataChangedEvent();
 	}
 
 	_getCuts() {
@@ -579,6 +618,7 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		} else {
 			this._contentMarker.visible = false;
 			this._contentMarker.mouseEnabled = false;
+			this._timeContainer.visible = false;
 		}
 		this._stage.update();
 	}
@@ -646,6 +686,12 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			// that was separating two cuts
 			if (!this._cuts[this._lowerBound]) {
 				this._cut();
+				const newCut = this._cuts[cut] || {};
+				const cutTimeChanged = (value.startTimeMS !== newCut.startTimeMS)
+					|| (value.endTimeMS !== newCut.endTimeMS);
+				if (cutTimeChanged) {
+					this._cutTimeChanged = true;
+				}
 			}
 		});
 	}
@@ -793,17 +839,17 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._chapters.setChapterToTime(this._video.currentTime);
 	}
 
-	_handleChaptersChanged() {
-		this._fireMetadataChangedEvent();
+	_handleChaptersChanged(e) {
+		this._fireMetadataChangedEvent({ chapters: e.detail.chapters });
 	}
 	//#endregion
 
-	_fireMetadataChangedEvent() {
+	_fireMetadataChangedEvent({ cuts = this._getCuts(), chapters = this.metadata.chapters } = {}) {
 		this.dispatchEvent(new CustomEvent(
 			'metadata-changed',
 			{
 				composed: false,
-				detail: { cuts: this._getCuts(), chapters: this.metadata.chapters }
+				detail: { cuts, chapters }
 			}
 		));
 	}
