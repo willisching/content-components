@@ -226,9 +226,13 @@ export default class ContentServiceClient {
 	}
 
 	getMetadata({ contentId, revisionId, draft = false }) {
+		const headers = new Headers();
+		headers.append('pragma', 'no-cache');
+		headers.append('cache-control', 'no-cache');
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/metadata`,
-			query: { draft }
+			query: { draft },
+			headers
 		});
 	}
 
