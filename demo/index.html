@@ -6,6 +6,7 @@
 		<script type="module">
 			import '@brightspace-ui/core/components/demo/demo-page.js';
 			import '../src/video-producer.js';
+			import './demo-video-producer.js';
 		</script>
 		<title>d2l-labs-video-producer</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,62 +16,7 @@
 	<body>
 		<d2l-demo-page page-title="d2l-labs-video-producer">
 			<h2>d2l-labs-video-producer</h2>
-			<d2l-labs-video-producer
-				src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-			></d2l-labs-video-producer>
+			<d2l-labs-video-producer-demo-producer></d2l-labs-video-producer-demo-producer>
 		</d2l-demo-page>
 	</body>
-	<script type="module">
-		const producer = document.querySelector('d2l-labs-video-producer');
-		producer.setLanguages([{
-			name: 'English (United States)',
-			code: 'en-us',
-			isDefault: true,
-		}, {
-			name: 'Français (Canada)',
-			code: 'fr-fr',
-			isDefault: false
-		}]);
-
-		// Metadata from Content Service
-		producer.addEventListener('get-metadata', () => {
-			const metadata = {
-				cuts: [{ in: 10, out: 60 }],
-				chapters: [{
-					time: 50,
-					title: {
-						'en-us': 'Chapter 1',
-						'fr-fr': 'Çhàptêr 1',
-					}
-				}, {
-					time: 150,
-					title: {
-						'en-us': 'Chapter 2',
-						'fr-fr': 'Chaptér 2',
-					}
-				}, {
-					time: 25,
-					title: {
-						'en-us': 'Ch 1',
-						'fr-fr': 'Fr Ch 2'
-					}
-				}]
-			};
-			producer.setMetadata(metadata);
-		});
-
-		producer.addEventListener('publish-metadata', async e => {
-			producer.setState({ state: 'publishing', inProgress: true });
-			console.log('Publishing metadata:', e.detail);
-			await new Promise(resolve => setTimeout(resolve, 2000));
-			producer.setState({ state: 'publishing', inProgress: false });
-		});
-
-		producer.addEventListener('save-metadata', async e => {
-			producer.setState({ state: 'saving', inProgress: true });
-			console.log('Saving draft metadata:', e.detail);
-			await new Promise(resolve => setTimeout(resolve, 2000));
-			producer.setState({ state: 'saving', inProgress: false });
-		});
-	</script>
 </html>

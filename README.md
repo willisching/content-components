@@ -28,15 +28,32 @@ To install from NPM:
 npm install @brightspace-ui-labs/video-producer
 ```
 
-## Usage
+## `video-producer`
 
-```html
-<script type="module">
-    import '@brightspace-ui-labs/video-producer/video-producer.js';
-</script>
-<d2l-labs-video-producer
-	src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-></d2l-labs-video-producer>
+### Usage
+(See demo page for a more detailed example)
+```js
+import '@brightspace-ui-labs/video-producer/video-producer.js';
+
+const defaultLanguage = { code: 'en-us', name: 'English' };
+let selectedLanguage = { code: 'fr-fr', name: 'French' };
+const metadata = { cuts: [], chapters: [] };
+const handleMetadataChanged = e => (metadata = e.detail);
+
+class MyComponent {
+	// ...
+	render() {
+		return html`
+			<d2l-labs-video-producer
+				.defaultLanguage="${defaultLanguage}"
+				.metadata="${metadata}"
+				.selectedLanguage="${selectedLanguage}"
+				@metadata-changed="${handleMetadataChanged}"
+				src="..."
+			></d2l-labs-video-producer>
+		`;
+	}
+}
 ```
 
 **Properties:**
@@ -44,51 +61,56 @@ npm install @brightspace-ui-labs/video-producer
 | Property | Type | Description |
 |--|--|--|
 | src | String | Source of the video file. |
+| .defaultLanguage | Object | An object representing the default language. Should have two properties: `code` and `name`. |
+| .selectedLanguage | Object | An object representing the currently selected language. Should have two properties: `code` and `name`. |
+| .metadata | Array | Object containing the cuts and chapters of the video. |
 
 **Events:**
 
 | Event | Description |
 |--|--|
-| get-metadata | Fired when the video has loaded, indicating that metadata can be loaded. |
-| save-metadata | Fired when the save button is clicked. |
-| publish-metadata | Fired when the publish button is clicked. |
+| @metadata-changed | Fired when the metadata has changed. This occurs whenever cuts/chapters are added/deleted, and chapter titles/times are updated. |
 
-**Methods:**
 
-| Method | Type | Description |
+## `video-producer-language-selector`
+
+### Usage
+```js
+import '@brightspace-ui-labs/video-producer/video-producer-language-selector.js';
+
+const languages = [
+	{ code: 'en-us', name: 'English' },
+	{ code: 'fr-fr', name: 'French' },
+];
+let selectedLanguage = { code: 'fr-fr', name: 'French' };
+const handleSelectedLanguageChanged = e => (selectedLanguage = e.detail.selectedLanguage);
+
+class MyComponent {
+	// ...
+	render() {
+		return html`
+			<d2l-labs-video-producer-language-selector
+				.languages="${languages}"
+				.selectedLanguage="${selectedLanguage}"
+				@selected-language-changed="${handleSelectedLanguageChanged}"
+			></d2l-labs-video-producer-language-selector>
+		`;
+	}
+}
+```
+
+**Properties:**
+
+| Property | Type | Description |
 |--|--|--|
-| setLanguages | void | Set the list of languages available to the producer when setting chapter titles. |
-| setMetadata | void | Set the cuts and chapters for video. |
-| setState | void | Set the state of the producer (saving, publishing). |
+| .languages | Object | An array of objects representing the available languages to select. Each language object should have two properties: `code` and `name`. |
+| .selectedLanguage | Object | An object representing the currently selected language. Should have two properties: `code` and `name`. |
 
-### Additional Information
+**Events:**
 
-See demo for example input and usage.
-
-- `setLanguages`: Accepts an array of objects representing the language:
-  - `name`: `String`
-  - `code`: `String`
-  - `isDefault`: `Boolean`
-    - Determines the initial language for the selector
-
-- `setMetadata`: Accepts an object with `cuts` and `chapters` properties:
-  - `cuts`: `Array`
-    - `in`: `Number` (seconds)
-    - `out`: `Number` (seconds)
-  - `chapters`: `Array`
-    - `time`: `Number`
-    - `title`: `Object`
-      - `[languageCode]`: `String`
-        - e.g., `en-ca`
-        - Language code should correspond to the code from `setLanguages`
-
-- `setState`: Accepts an object with `state`, `inProgress`, and `error` properties:
-  - `state`: `String`
-    - 'saving' or 'publishing'
-  - `inProgress`: `Boolean`
-    - setting the state to false opens the status dialog
-  - `error`: `Boolean`
-    - set to true to display an error message
+| Event | Description |
+|--|--|
+| @selected-language-changed | Fired when the selected language has changed. |
 
 ## Developing, Testing and Contributing
 
