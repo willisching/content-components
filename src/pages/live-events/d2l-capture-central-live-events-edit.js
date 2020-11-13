@@ -19,7 +19,7 @@ import { observe } from 'mobx';
 import { pageNames } from '../../util/constants.js';
 import { PageViewElement } from '../../components/page-view-element.js';
 import { rootStore } from '../../state/root-store.js';
-import { sharedEditStyles } from '../../components/shared-styles.js';
+import { sharedEditStyles } from '../../style/shared-styles.js';
 
 class D2LCaptureLiveEventsEdit extends DependencyRequester(PageViewElement) {
 

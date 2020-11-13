@@ -21,7 +21,7 @@ import { NavigationMixin } from '../mixins/navigation-mixin.js';
 import { radioStyles } from '@brightspace-ui/core/components/inputs/input-radio-styles.js';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';
-import { sharedEditStyles } from './shared-styles.js';
+import { sharedEditStyles } from '../style/shared-styles.js';
 
 class LiveEventForm extends MobxReactionUpdate(NavigationMixin(RtlMixin(InternalLocalizeMixin(LitElement)))) {
 

@@ -17,7 +17,7 @@ import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js'
 import { inputStyles } from '@brightspace-ui/core/components/inputs/input-styles.js';
 import { PageViewElement } from '../../components/page-view-element.js';
 import { rootStore } from '../../state/root-store.js';
-import { sharedEditStyles } from '../../components/shared-styles.js';
+import { sharedEditStyles } from '../../style/shared-styles.js';
 
 class D2LCaptureLiveEventsView extends DependencyRequester(PageViewElement) {
 

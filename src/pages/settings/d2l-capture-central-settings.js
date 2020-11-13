@@ -8,7 +8,7 @@ import '@brightspace-ui-labs/accordion/accordion-collapse.js';
 
 import { css, html } from 'lit-element/lit-element.js';
 import { heading2Styles, labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
-import { sharedEditStyles, sharedManageStyles } from '../../components/shared-styles.js';
+import { sharedEditStyles, sharedManageStyles } from '../../style/shared-styles.js';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
 import { PageViewElement } from '../../components/page-view-element.js';
 import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';

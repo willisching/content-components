@@ -13,7 +13,7 @@ import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js'
 import { inputStyles } from '@brightspace-ui/core/components/inputs/input-styles.js';
 import { PageViewElement } from '../../components/page-view-element.js';
 import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';
-import { sharedEditStyles } from '../../components/shared-styles.js';
+import { sharedEditStyles } from '../../style/shared-styles.js';
 
 class D2LCaptureUploadVideo extends DependencyRequester(PageViewElement) {
 	static get properties() {
