@@ -1,19 +1,19 @@
-import '../<%= shortName %>.js';
+import '../content-service-viewer.js';
 import { expect, fixture, html } from '@open-wc/testing';
 import { runConstructor } from '@brightspace-ui/core/tools/constructor-test-helper.js';
 
-describe('<%= name %>', () => {
+describe('d2l-labs-content-service-viewer', () => {
 
 	describe('accessibility', () => {
 		it('should pass all axe tests', async() => {
-			const el = await fixture(html`<<%= name %>></<%= name %>>`);
+			const el = await fixture(html`<d2l-labs-content-service-viewer></d2l-labs-content-service-viewer>`);
 			await expect(el).to.be.accessible();
 		});
 	});
 
 	describe('constructor', () => {
 		it('should construct', () => {
-			runConstructor('<%= name %>');
+			runConstructor('d2l-labs-content-service-viewer');
 		});
 	});
 
