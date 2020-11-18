@@ -1,5 +1,4 @@
 import '@brightspace-ui/core/components/breadcrumbs/breadcrumb.js';
-import '@brightspace-ui/core/components/breadcrumbs/breadcrumb-current-page.js';
 import '@brightspace-ui/core/components/breadcrumbs/breadcrumbs.js';
 import '@brightspace-ui-labs/media-player/media-player.js';
 import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';

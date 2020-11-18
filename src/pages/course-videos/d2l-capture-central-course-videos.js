@@ -110,9 +110,9 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 
 			.d2l-capture-central-load-more-button {
 				align-self: center;
-				grid-column: 1 / 5;
 				justify-self: center;
-				margin-bottom: 20px;
+				margin-bottom: 50px;
+				margin-top: 50px;
 			}
 
 			@media (max-width: 1200px) {
@@ -223,7 +223,7 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 		}
 
 		return this._videos.map(video => html`
-			<d2l-card @click=${this._goTo(`/course-videos/${video.id}`)} class="d2l-capture-central-video" href="">
+			<d2l-card @click=${this._goTo(`/course-videos/${video.id}`)} class="d2l-capture-central-video">
 				<div slot="header">
 					<img alt="" class="d2l-capture-central-thumbnail" src="${video.thumbnail}" />
 					<div class="d2l-capture-central-play-icon-overlay">
@@ -260,13 +260,13 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 					placeholder="${this.localize('searchPlaceholder')}"
 				></d2l-input-search>
 				${this._renderVideos()}
-				<d2l-button
-					?hidden="${!this._moreResultsAvailable}"
-					class="d2l-capture-central-load-more-button"
-					@click=${this._handleLoadMoreVideos}
-				>${this.localize('loadMore')}
-				</d2l-button>
 			</div>
+			<d2l-button
+				?hidden="${!this._moreResultsAvailable}"
+				class="d2l-capture-central-load-more-button"
+				@click=${this._handleLoadMoreVideos}
+			>${this.localize('loadMore')}
+			</d2l-button>
 		`;
 	}
 

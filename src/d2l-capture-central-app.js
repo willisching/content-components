@@ -30,6 +30,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 
 			.page {
 				display: none;
+				min-height: 500px;
 			}
 
 			.page[active] {
