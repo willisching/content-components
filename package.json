@@ -2,7 +2,7 @@
   "name": "@brightspace-ui-labs/video-producer",
   "description": "",
   "repository": "https://github.com/BrightspaceUILabs/video-producer.git",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "publishConfig": {
     "access": "public"
   },
