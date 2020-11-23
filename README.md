@@ -1,8 +1,7 @@
 # d2l-labs-video-producer
 
 [![NPM version](https://img.shields.io/npm/v/@brightspace-ui-labs/video-producer.svg)](https://www.npmjs.org/package/@brightspace-ui-labs/video-producer)
-[![Dependabot badge](https://flat.badgen.net/dependabot/BrightspaceUILabs/video-producer?icon=dependabot)](https://app.dependabot.com/)
-[![Build status](https://travis-ci.com/@brightspace-ui-labs/video-producer.svg?branch=master)](https://travis-ci.com/@brightspace-ui-labs/video-producer)
+![Build status](https://github.com/BrightspaceUILabs/video-producer/workflows/CI/badge.svg)
 
 > Note: this is a ["labs" component](https://github.com/BrightspaceUI/guide/wiki/Component-Tiers). While functional, these tasks are prerequisites to promotion to BrightspaceUI "official" status:
 >
@@ -175,4 +174,8 @@ Golden snapshots in source control must be updated by Travis CI. To trigger an u
 
 All version changes should obey [semantic versioning](https://semver.org/) rules.
 
-Include either `[increment major]`, `[increment minor]` or `[increment patch]` in your merge commit message to automatically increment the `package.json` version, create a tag, and trigger a deployment to NPM.
+Releases use the [semantic-release](https://semantic-release.gitbook.io/) tooling and the [angular preset](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-angular) for commit message syntax. Upon release, the version in `package.json` is updated, a tag and GitHub release is created and a new package will be deployed to NPM.
+
+Commits prefixed with `feat` will trigger a minor release, while `fix` or `perf` will trigger a patch release. A commit containing `BREAKING CHANGE` will cause a major release to occur.
+
+Other useful prefixes that will not trigger a release: `build`, `ci`, `docs`, `refactor`, `style` and `test`. More details in the [Angular Contribution Guidelines](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#type).

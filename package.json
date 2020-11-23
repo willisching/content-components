@@ -29,6 +29,7 @@
     "@brightspace-ui/visual-diff": "^1",
     "@open-wc/testing": "^2",
     "@open-wc/testing-karma": "^3",
+    "@webcomponents/webcomponentsjs": "^2",
     "babel-eslint": "^10",
     "deepmerge": "^3",
     "es-dev-server": "^1",
@@ -37,17 +38,15 @@
     "eslint-plugin-html": "^6",
     "eslint-plugin-lit": "^1",
     "eslint-plugin-sort-class-members": "^1",
-    "frau-ci": "^1",
     "karma-sauce-launcher": "^2",
     "lit-analyzer": "^1",
     "puppeteer": "^5"
   },
   "dependencies": {
-    "@brightspace-ui-labs/media-player": "github:BrightspaceUILabs/media-player",
+    "@brightspace-ui-labs/media-player": "^1",
     "@brightspace-ui/core": "^1",
     "@createjs/easeljs": "^2.0.0-beta.4",
     "@polymer/polymer": "^3.4.1",
-    "@webcomponents/webcomponentsjs": "^2",
     "lit-element": "^2"
   }
 }
