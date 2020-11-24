@@ -55,7 +55,16 @@ export default class ContentServiceClient {
 		return response;
 	}
 
-	searchContent({ start = 0, size = 20, sort = 'updatedAt:desc', query = '', contentType = '', updatedAt = '', createdAt = '', includeThumbnails = false }) {
+	searchContent({
+		start = 0,
+		size = 15,
+		sort = 'updatedAt:desc',
+		query = '',
+		contentType = '',
+		updatedAt = '',
+		createdAt = '',
+		includeThumbnails = false
+	}) {
 		const headers = new Headers();
 		headers.append('pragma', 'no-cache');
 		headers.append('cache-control', 'no-cache');
