@@ -1,4 +1,5 @@
 import '../../components/add-videos-dialog.js';
+import '../../components/ghost-box.js';
 import '@brightspace-ui-labs/pagination/pagination.js';
 import '@brightspace-ui/core/components/breadcrumbs/breadcrumb-current-page.js';
 import '@brightspace-ui/core/components/breadcrumbs/breadcrumb.js';
@@ -28,21 +29,32 @@ import { PageViewElement } from '../../components/page-view-element.js';
 class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(PageViewElement)) {
 	static get properties() {
 		return {
-			_numSelectedPresentations: { type: Number },
-			_moreResultsAvailable: { type: Boolean },
-			_query: { type: String },
-			_start: { type: Number },
+			_numSelectedPresentations: { type: Number, attribute: false },
+			_moreResultsAvailable: { type: Boolean, attribute: false },
+			_loading: { type: Boolean, attribute: false },
+			_query: { type: String, attribute: false },
+			_start: { type: Number, attribute: false },
 		};
 	}
 	static get styles() {
 		return [ d2lTableStyles, heading2Styles, sharedManageStyles, sharedTableStyles, navigationSharedStyle, css`
-		`];
+			.d2l-capture-central-presentations-ghost-checkbox {
+				height: 25px;
+				width: 25px;
+			}
+			.d2l-capture-central-presentations-ghost-data {
+				height: 25px;
+				width: 275px;
+			}
+			`
+		];
 	}
 
 	constructor() {
 		super();
 		this.apiClient = this.requestDependency('content-service-client');
 		this._numSelectedPresentations = 0;
+		this._loading = true;
 	}
 
 	async connectedCallback() {
@@ -51,7 +63,7 @@ class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(Pag
 			if (this.rootStore.routingStore.page === 'presentations'
 				&& !this.rootStore.routingStore.subView
 			) {
-				this._handleVideoSearch();
+				this._handleVideoSearched();
 			}
 		});
 	}
@@ -91,8 +103,20 @@ class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(Pag
 		};
 	}
 
-	_handlePaginationPageChange({ detail: { page } = {}}) {
-		this._handlePaginationSearch(page);
+	async _handlePaginationPageChange({ detail: { page } = {}}) {
+		this._loading = true;
+		await this._handlePaginationSearch(page);
+		this._loading = false;
+	}
+
+	async _handleVideoSearched(event) {
+		this._loading = true;
+		if (event) {
+			await this._handleInputVideoSearch(event);
+		} else {
+			await this._handleVideoSearch();
+		}
+		this._loading = false;
 	}
 
 	_renderDialogs() {
@@ -105,15 +129,45 @@ class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(Pag
 		`;
 	}
 
+	_renderGhosts() {
+		return new Array(5).fill().map(() => html`
+			<tr>
+				<td><ghost-box
+					class="d2l-capture-central-presentations-ghost-checkbox"
+				></ghost-box></td>
+				<td><ghost-box
+					class="d2l-capture-central-presentations-ghost-data"
+				></ghost-box></td>
+				<td><ghost-box
+					class="d2l-capture-central-presentations-ghost-data"
+				></ghost-box></td>
+				<td><ghost-box
+					class="d2l-capture-central-presentations-ghost-data"
+				></ghost-box></td>
+				<td><ghost-box
+					class="d2l-capture-central-presentations-ghost-checkbox"
+				></ghost-box></td>
+			</tr>
+		`);
+	}
+
+	_renderNoResults() {
+		return html`
+			<tr>
+				<td class="d2l-capture-central-table-no-results" colspan=5>
+					${this.localize('noResults')}
+				</td>
+			</tr>
+		`;
+	}
+
 	_renderPresentations() {
+		if (this._loading) {
+			return this._renderGhosts();
+		}
+
 		if (!this._videos.length) {
-			return html`
-				<tr>
-					<td class="d2l-capture-central-table-no-results" colspan=5>
-						${this.localize('noResults')}
-					</td>
-				</tr>
-			`;
+			return this._renderNoResults();
 		}
 
 		return this._videos.map(({ id: contentId, title, presenter = '-', views = 0}) => html`
@@ -178,7 +232,7 @@ class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(Pag
 					<d2l-button ?disabled=${this._numSelectedPresentations === 0}>${this.localize('delete')}</d2l-button>
 					<d2l-button ?disabled=${this._numSelectedPresentations === 0}>${this.localize('settings')}</d2l-button>
 					<d2l-input-search
-						@d2l-input-search-searched=${this._handleInputVideoSearch}
+						@d2l-input-search-searched=${this._handleVideoSearched}
 						class="search-presentations"
 						label="${this.localize('searchPresentations')}"
 						placeholder="${this.localize('searchPresentations')}"
@@ -213,9 +267,9 @@ class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(Pag
 				</d2l-table-wrapper>
 				<d2l-labs-pagination
 					@pagination-page-change=${this._handlePaginationPageChange}
-					?hidden="${this._totalResults < 20}"
-					page-number="${this._start / 20 + 1}"
-					max-page-number="${Math.ceil(this._totalResults / 20)}"
+					?hidden="${this._loading || this._totalResults < this._resultSize}"
+					page-number="${this._start / this._resultSize + 1}"
+					max-page-number="${Math.ceil(this._totalResults / this._resultSize)}"
 				></d2l-labs-pagination>
 				${this._renderDialogs()}
 			</div>
