@@ -9,6 +9,7 @@ import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
 import { css, html } from 'lit-element/lit-element.js';
 import { autorun } from 'mobx';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
+import { navigationSharedStyle } from '../../style/d2l-navigation-shared-styles.js';
 import { PageViewElement } from '../../components/page-view-element';
 
 class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
@@ -29,13 +30,16 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 	}
 
 	static get styles() {
-		return css`
+		return [navigationSharedStyle, css`
+			.d2l-capture-central-producer {
+				width: 1170px;
+			}
+
 			.d2l-capture-central-producer-controls {
 				align-items: center;
 				display: flex;
 				justify-content: flex-end;
 				margin-bottom: 15px;
-				width: 1175px;
 			}
 
 			.d2l-capture-central-producer-controls-save-button {
@@ -63,7 +67,7 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 			d2l-breadcrumbs {
 				margin: 25px 0;
 			}
-		`;
+		`];
 	}
 
 	constructor() {
@@ -206,47 +210,49 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 		}
 
 		return html`
-			${this._renderBreadcrumbs()}
-			<div class="d2l-capture-central-producer-controls">
-				<d2l-button-icon
-					?disabled="${this._saving || this._publishing}"
-					@click="${this._handleSave}"
-					class="d2l-capture-central-producer-controls-save-button"
-					icon="tier1:save"
-					primary
-					text="${this.localize('save')}"
-				></d2l-button-icon>
-				<d2l-labs-video-producer-language-selector
-					.languages="${this._languages}"
+			<div class="d2l-capture-central-producer d2l-navigation-gutters">
+				${this._renderBreadcrumbs()}
+				<div class="d2l-capture-central-producer-controls">
+					<d2l-button-icon
+						?disabled="${this._saving || this._publishing}"
+						@click="${this._handleSave}"
+						class="d2l-capture-central-producer-controls-save-button"
+						icon="tier1:save"
+						primary
+						text="${this.localize('save')}"
+					></d2l-button-icon>
+					<d2l-labs-video-producer-language-selector
+						.languages="${this._languages}"
+						.selectedLanguage="${this._selectedLanguage}"
+						@selected-language-changed="${this._handleSelectedLanguageChanged}"
+					></d2l-labs-video-producer-language-selector>
+					<d2l-button
+						?disabled="${this._saving || this._publishing}"
+						@click="${this._handlePublish}"
+						class="d2l-capture-central-producer-controls-publish-button"
+						primary
+					><div class="d2l-capture-central-producer-controls-publishing" style="${!this._publishing ? 'display: none' : ''}">
+							<d2l-loading-spinner size="20"></d2l-loading-spinner>
+							${this.localize('publishing')}
+						</div>
+						<div ?hidden="${this._publishing}">
+							${this.localize('publish')}
+						</div>
+					</d2l-button>
+				</div>
+
+				<d2l-labs-video-producer
+					.defaultLanguage="${this._defaultLanguage}"
+					.metadata="${this._metadata}"
 					.selectedLanguage="${this._selectedLanguage}"
-					@selected-language-changed="${this._handleSelectedLanguageChanged}"
-				></d2l-labs-video-producer-language-selector>
-				<d2l-button
-					?disabled="${this._saving || this._publishing}"
-					@click="${this._handlePublish}"
-					class="d2l-capture-central-producer-controls-publish-button"
-					primary
-				><div class="d2l-capture-central-producer-controls-publishing" style="${!this._publishing ? 'display: none' : ''}">
-						<d2l-loading-spinner size="20"></d2l-loading-spinner>
-						${this.localize('publishing')}
-					</div>
-					<div ?hidden="${this._publishing}">
-						${this.localize('publish')}
-					</div>
-				</d2l-button>
+					@metadata-changed="${this._handleMetadataChanged}"
+					src="${this._sourceUrl}"
+				></d2l-labs-video-producer>
+
+				<d2l-alert-toast type="${this.errorOccurred ? 'error' : 'default'}">
+					${this._alertMessage}
+				</d2l-alert-toast>
 			</div>
-
-			<d2l-labs-video-producer
-				.defaultLanguage="${this._defaultLanguage}"
-				.metadata="${this._metadata}"
-				.selectedLanguage="${this._selectedLanguage}"
-				@metadata-changed="${this._handleMetadataChanged}"
-				src="${this._sourceUrl}"
-			></d2l-labs-video-producer>
-
-			<d2l-alert-toast type="${this.errorOccurred ? 'error' : 'default'}">
-				${this._alertMessage}
-			</d2l-alert-toast>
 		`;
 	}
 

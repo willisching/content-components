@@ -7,6 +7,7 @@ import { css, html } from 'lit-element/lit-element.js';
 import { autorun } from 'mobx';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
 import { heading3Styles } from '@brightspace-ui/core/components/typography/styles.js';
+import { navigationSharedStyle } from '../../style/d2l-navigation-shared-styles.js';
 import { PageViewElement } from '../../components/page-view-element';
 
 class D2LCaptureCentralCourseVideoPlayer extends DependencyRequester(PageViewElement) {
@@ -20,7 +21,7 @@ class D2LCaptureCentralCourseVideoPlayer extends DependencyRequester(PageViewEle
 	}
 
 	static get styles() {
-		return [heading3Styles, css`
+		return [heading3Styles, navigationSharedStyle, css`
 			d2l-loading-spinner {
 				display: flex;
 				margin: auto;
@@ -74,31 +75,35 @@ class D2LCaptureCentralCourseVideoPlayer extends DependencyRequester(PageViewEle
 	}
 
 	_renderMediaPlayer() {
-		const { langterm, previousLocation } = this._navigationInfo;
+		if (this._loading) {
+			return html`<d2l-loading-spinner size=150></d2l-loading-spinner>`;
+		}
 		return html`
-			<d2l-breadcrumbs>
-				<d2l-breadcrumb
-					@click=${this._goTo('/admin')}
-					href="#"
-					text="${this.localize('captureCentral')}"
-				></d2l-breadcrumb>
-				<d2l-breadcrumb
-					@click=${this._goTo(previousLocation)}
-					href="#"
-					text="${this.localize(langterm)}"
-				></d2l-breadcrumb>
-			</d2l-breadcrumbs>
 			<h3 class="d2l-heading-3">${this._content.title}</h3>
 			<d2l-labs-media-player src="${this._sourceUrl}"></d2l-labs-media-player>
 		`;
 	}
 
 	render() {
-		if (this._loading) {
-			return html`<d2l-loading-spinner size=150></d2l-loading-spinner>`;
-		}
+		const { langterm, previousLocation } = this._navigationInfo;
+		return html`
+			<div class="d2l-navigation-gutters">
+				<d2l-breadcrumbs>
+					<d2l-breadcrumb
+						@click=${this._goTo('/admin')}
+						href="#"
+						text="${this.localize('captureCentral')}"
+					></d2l-breadcrumb>
+					<d2l-breadcrumb
+						@click=${this._goTo(previousLocation)}
+						href="#"
+						text="${this.localize(langterm)}"
+					></d2l-breadcrumb>
+				</d2l-breadcrumbs>
 
-		return this._renderMediaPlayer();
+				${this._renderMediaPlayer()}
+			</div>
+		`;
 	}
 
 }

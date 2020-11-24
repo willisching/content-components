@@ -22,8 +22,8 @@ import { contentSearchMixin } from '../../mixins/content-search-mixin.js';
 import { d2lTableStyles } from '../../style/d2l-table-styles.js';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
 import { heading2Styles } from '@brightspace-ui/core/components/typography/styles.js';
+import { navigationSharedStyle } from '../../style/d2l-navigation-shared-styles.js';
 import { PageViewElement } from '../../components/page-view-element.js';
-import { ResizeObserver } from 'd2l-resize-aware/resize-observer-module.js';
 
 class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(PageViewElement)) {
 	static get properties() {
@@ -35,14 +35,14 @@ class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(Pag
 		};
 	}
 	static get styles() {
-		return [ d2lTableStyles, heading2Styles, sharedManageStyles, sharedTableStyles, css`
+		return [ d2lTableStyles, heading2Styles, sharedManageStyles, sharedTableStyles, navigationSharedStyle, css`
 		`];
 	}
 
 	constructor() {
 		super();
-		this._numSelectedPresentations = 0;
 		this.apiClient = this.requestDependency('content-service-client');
+		this._numSelectedPresentations = 0;
 	}
 
 	async connectedCallback() {
@@ -54,9 +54,6 @@ class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(Pag
 				this._handleVideoSearch();
 			}
 		});
-
-		const documentObserver = new ResizeObserver(this._resized.bind(this));
-		documentObserver.observe(document.body, { attributes: true });
 	}
 
 	firstUpdated() {
@@ -84,11 +81,11 @@ class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(Pag
 		this._numSelectedPresentations += e.target.checked ? 1 : -1;
 	}
 
-	_handleDeletePresentation(id) {
+	_handleDeletePresentation(contentId) {
 		return async() => {
 			const shouldDelete = await this.shadowRoot.querySelector('d2l-dialog-confirm').open();
 			if (shouldDelete) {
-				this.apiClient.deleteContent(id);
+				this.apiClient.deleteContent({ contentId });
 				this._handleVideoSearch();
 			}
 		};
@@ -96,16 +93,6 @@ class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(Pag
 
 	_handlePaginationPageChange({ detail: { page } = {}}) {
 		this._handlePaginationSearch(page);
-	}
-
-	_resized() {
-		if (this._table) {
-			if (window.innerWidth > 768 || !this._videos.length) {
-				this._table.setAttribute('sticky-headers', '');
-			} else {
-				this._table.removeAttribute('sticky-headers');
-			}
-		}
 	}
 
 	_renderDialogs() {
@@ -129,7 +116,7 @@ class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(Pag
 			`;
 		}
 
-		return this._videos.map(({ id, title, presenter = '-', views = 0}) => html`
+		return this._videos.map(({ id: contentId, title, presenter = '-', views = 0}) => html`
 			<tr>
 				<td>
 					<d2l-input-checkbox
@@ -138,7 +125,7 @@ class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(Pag
 					></d2l-input-checkbox>
 				</td>
 				<td>
-					<d2l-link @click=${this._goTo(`/presentations/edit/${id}`)}>${title}</d2l-link>
+					<d2l-link @click=${this._goTo(`/presentations/edit/${contentId}`)}>${title}</d2l-link>
 				</td>
 				<td>${presenter}</td>
 				<td>${views}</td>
@@ -147,15 +134,15 @@ class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(Pag
 						<d2l-dropdown-menu>
 							<d2l-menu label="${this.localize('moreOptions')}">
 								<d2l-menu-item
-									@click=${this._goTo(`/producer/${id}`)}
+									@click=${this._goTo(`/producer/${contentId}`)}
 									text="${this.localize('openInProducer')}"
 								></d2l-menu-item>
 								<d2l-menu-item
-									@click=${this._goTo(`/course-videos/${id}`)}
+									@click=${this._goTo(`/course-videos/${contentId}`)}
 									text="${this.localize('openInPlayer')}"
 								></d2l-menu-item>
 								<d2l-menu-item
-									@click=${this._handleDeletePresentation(id)}
+									@click=${this._handleDeletePresentation(contentId)}
 									text="${this.localize('delete')}"
 								></d2l-menu-item>
 							</d2l-menu>
@@ -168,7 +155,7 @@ class D2lCapturePresentations extends contentSearchMixin(DependencyRequester(Pag
 
 	render() {
 		return html`
-			<div class="d2l-capture-central-manage-container">
+			<div class="d2l-capture-central-manage-container d2l-navigation-gutters">
 				<d2l-breadcrumbs>
 					<d2l-breadcrumb @click=${this._goTo('/admin')} href="#" text="${this.localize('captureCentral')}"></d2l-breadcrumb>
 					<d2l-breadcrumb-current-page text="${this.localize('presentations')}"></d2l-breadcrumb-current-page>

@@ -18,6 +18,7 @@ import { autorun } from 'mobx';
 import { d2lTableStyles } from '../../style/d2l-table-styles.js';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
 import { inputStyles } from '@brightspace-ui/core/components/inputs/input-styles.js';
+import { navigationSharedStyle } from '../../style/d2l-navigation-shared-styles.js';
 import { PageViewElement } from '../../components/page-view-element.js';
 
 class D2LCapturePresentationsEdit extends DependencyRequester(PageViewElement) {
@@ -30,7 +31,8 @@ class D2LCapturePresentationsEdit extends DependencyRequester(PageViewElement) {
 		};
 	}
 	static get styles() {
-		return [ d2lTableStyles, inputStyles, heading2Styles, labelStyles, sharedEditStyles, sharedTableStyles, css`
+		return [ d2lTableStyles, inputStyles, heading2Styles, labelStyles, sharedEditStyles,
+			sharedTableStyles, navigationSharedStyle, css`
 			.d2l-capture-central-edit-presentation-options {
 				display: flex;
 				margin-bottom: 20px;
@@ -127,7 +129,7 @@ class D2LCapturePresentationsEdit extends DependencyRequester(PageViewElement) {
 		}
 		const { title, id } = this._content;
 		return html`
-			<div class="d2l-capture-central-edit-container">
+			<div class="d2l-capture-central-edit-container d2l-navigation-gutters">
 				<d2l-breadcrumbs>
 					<d2l-breadcrumb @click=${this._goTo('/admin')} href="#" text="${this.localize('captureCentral')}"></d2l-breadcrumb>
 					<d2l-breadcrumb @click=${this._goTo('/presentations')} href="#" text="${this.localize('presentations')}"></d2l-breadcrumb>

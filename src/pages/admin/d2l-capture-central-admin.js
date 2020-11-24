@@ -3,12 +3,13 @@ import '@brightspace-ui/core/components/colors/colors.js';
 import { css, html } from 'lit-element/lit-element.js';
 import { heading3Styles, heading4Styles } from '@brightspace-ui/core/components/typography/styles.js';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
+import { navigationSharedStyle } from '../../style/d2l-navigation-shared-styles.js';
 import { PageViewElement } from '../../components/page-view-element.js';
 
 class D2lCaptureCentralAdmin extends DependencyRequester(PageViewElement) {
 
 	static get styles() {
-		return [heading3Styles, heading4Styles, css`
+		return [heading3Styles, heading4Styles, navigationSharedStyle, css`
 			.d2l-capture-central-admin {
 				display: grid;
 				grid-template-columns: 225px 1fr;
@@ -51,7 +52,7 @@ class D2lCaptureCentralAdmin extends DependencyRequester(PageViewElement) {
 
 	render() {
 		return html`
-			<div class="d2l-capture-central-admin">
+			<div class="d2l-capture-central-admin d2l-navigation-gutters">
 				<div class="d2l-capture-central-sidebar">
 					<h3 class="d2l-heading-3">${this.localize('captureCentral')}</h3>
 					<span><d2l-link @click=${this._goTo('/presentations')}>${this.localize('presentations')}</d2l-link></span>
