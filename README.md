@@ -1,7 +1,6 @@
 # d2l-labs-video-producer
 
 [![NPM version](https://img.shields.io/npm/v/@brightspace-ui-labs/video-producer.svg)](https://www.npmjs.org/package/@brightspace-ui-labs/video-producer)
-![Build status](https://github.com/BrightspaceUILabs/video-producer/workflows/CI/badge.svg)
 
 > Note: this is a ["labs" component](https://github.com/BrightspaceUI/guide/wiki/Component-Tiers). While functional, these tasks are prerequisites to promotion to BrightspaceUI "official" status:
 >
