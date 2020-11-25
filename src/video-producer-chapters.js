@@ -26,6 +26,8 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 
 			.d2l-video-producer-chapters {
 				border: 1px solid var(--d2l-color-mica);
+				box-sizing: border-box;
+				height: 580px;
 				position: relative;
 				width: 360px;
 			}
@@ -42,7 +44,7 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 			.d2l-video-producer-chapters-container {
 				display: flex;
 				flex-direction: column;
-				height: 450px;
+				height: 440px;
 				overflow-y: scroll;
 				padding: 10px;
 				position: relative;

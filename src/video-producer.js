@@ -28,7 +28,6 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			.d2l-video-producer {
 				display: flex;
 				flex-direction: column;
-				width: 1175px;
 			}
 			.d2l-video-producer-video-controls {
 				display: flex;

@@ -22,12 +22,15 @@ class DemoVideoProducer extends LitElement {
 
 	static get styles() {
 		return css`
+			.demo-video-producer {
+				width: 1170px;
+			}
+
 			.demo-video-producer-controls {
 				align-items: center;
 				display: flex;
 				justify-content: flex-end;
 				margin-bottom: 15px;
-				width: 1175px;
 			}
 
 			.demo-video-producer-controls-save-button {
@@ -129,46 +132,48 @@ class DemoVideoProducer extends LitElement {
 
 	render() {
 		return html`
-			<div class="demo-video-producer-controls">
-				<d2l-button-icon
-					?disabled="${this._saving || this._publishing || this._loading}"
-					@click="${this._handleSave}"
-					class="demo-video-producer-controls-save-button"
-					icon="tier1:save"
-					primary
-					text="Save"
-				></d2l-button-icon>
-				<d2l-labs-video-producer-language-selector
-					.languages="${this.languages}"
+			<div class="demo-video-producer">
+				<div class="demo-video-producer-controls">
+					<d2l-button-icon
+						?disabled="${this._saving || this._publishing || this._loading}"
+						@click="${this._handleSave}"
+						class="demo-video-producer-controls-save-button"
+						icon="tier1:save"
+						primary
+						text="Save"
+					></d2l-button-icon>
+					<d2l-labs-video-producer-language-selector
+						.languages="${this.languages}"
+						.selectedLanguage="${this.selectedLanguage}"
+						@selected-language-changed="${this._handleSelectedLanguageChanged}"
+					></d2l-labs-video-producer-language-selector>
+					<d2l-button
+						?disabled="${this._saving || this._publishing || this._loading}"
+						@click="${this._handlePublish}"
+						class="demo-video-producer-controls-publish-button"
+						primary
+					><div class="demo-video-producer-controls-publishing-button" style="${!this._publishing ? 'display: none' : ''}">
+							<d2l-loading-spinner size="20"></d2l-loading-spinner>
+							Publishing
+						</div>
+						<div ?hidden="${this._publishing}">
+							Publish
+						</div>
+					</d2l-button>
+				</div>
+
+				<d2l-labs-video-producer
+					.defaultLanguage="${this.defaultLanguage}"
+					.metadata="${this.metadata}"
 					.selectedLanguage="${this.selectedLanguage}"
-					@selected-language-changed="${this._handleSelectedLanguageChanged}"
-				></d2l-labs-video-producer-language-selector>
-				<d2l-button
-					?disabled="${this._saving || this._publishing || this._loading}"
-					@click="${this._handlePublish}"
-					class="demo-video-producer-controls-publish-button"
-					primary
-				><div class="demo-video-producer-controls-publishing-button" style="${!this._publishing ? 'display: none' : ''}">
-						<d2l-loading-spinner size="20"></d2l-loading-spinner>
-						Publishing
-					</div>
-					<div ?hidden="${this._publishing}">
-						Publish
-					</div>
-				</d2l-button>
+					@metadata-changed="${this._handleMetadataChanged}"
+					src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+				></d2l-labs-video-producer>
+
+				<d2l-alert-toast type="default">
+					${this._alertMessage}
+				</d2l-alert-toast>
 			</div>
-
-			<d2l-labs-video-producer
-				.defaultLanguage="${this.defaultLanguage}"
-				.metadata="${this.metadata}"
-				.selectedLanguage="${this.selectedLanguage}"
-				@metadata-changed="${this._handleMetadataChanged}"
-				src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-			></d2l-labs-video-producer>
-
-			<d2l-alert-toast type="default">
-				${this._alertMessage}
-			</d2l-alert-toast>
 		`;
 	}
 }
