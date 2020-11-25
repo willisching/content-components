@@ -6,7 +6,6 @@ import { InternalLocalizeMixin } from './mixins/internal-localize-mixin.js';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { NavigationMixin } from './mixins/navigation-mixin.js';
 import page from 'page/page.mjs';
-
 import { pageNames } from './util/constants.js';
 import { ResizeObserver } from 'd2l-resize-aware/resize-observer-module.js';
 import { rootStore } from './state/root-store.js';
@@ -24,12 +23,12 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				display: flex;
 				height: 100%;
 				margin: 0 auto;
-				max-width: 1175px;
-				padding: 0 25px;
+				max-width: 1230px;
 			}
 
 			.page {
 				display: none;
+				min-height: 500px;
 			}
 
 			.page[active] {

@@ -12,7 +12,7 @@ import { contentSearchMixin } from '../mixins/content-search-mixin';
 import { DependencyRequester } from '../mixins/dependency-requester-mixin.js';
 import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin.js';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
-import { sharedManageStyles } from './shared-styles.js';
+import { sharedManageStyles } from '../style/shared-styles.js';
 
 class D2lCaptureAddVideosDialog extends contentSearchMixin(DependencyRequester(InternalLocalizeMixin(RtlMixin(LitElement)))) {
 	static get properties() {

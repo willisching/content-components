@@ -11,9 +11,10 @@ import { css, html } from 'lit-element/lit-element.js';
 import { heading2Styles, labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
 import { inputStyles } from '@brightspace-ui/core/components/inputs/input-styles.js';
+import { navigationSharedStyle } from '../../style/d2l-navigation-shared-styles.js';
 import { PageViewElement } from '../../components/page-view-element.js';
 import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';
-import { sharedEditStyles } from '../../components/shared-styles.js';
+import { sharedEditStyles } from '../../style/shared-styles.js';
 
 class D2LCaptureUploadVideo extends DependencyRequester(PageViewElement) {
 	static get properties() {
@@ -30,7 +31,7 @@ class D2LCaptureUploadVideo extends DependencyRequester(PageViewElement) {
 	}
 
 	static get styles() {
-		return [inputStyles, heading2Styles, labelStyles, selectStyles, sharedEditStyles, css`
+		return [inputStyles, heading2Styles, labelStyles, selectStyles, sharedEditStyles, navigationSharedStyle, css`
 			.d2l-capture-central-edit-presentation-options {
 				margin: 10px 0;
 			}
@@ -260,7 +261,7 @@ class D2LCaptureUploadVideo extends DependencyRequester(PageViewElement) {
 
 	render() {
 		return html`
-			<div class="d2l-capture-central-edit-container">
+			<div class="d2l-capture-central-edit-container d2l-navigation-gutters">
 				${this._renderBreadcrumbs()}
 				${this._editingProperties ? this._renderEditProperties() : this._renderUploadVideo()}
 			</div>

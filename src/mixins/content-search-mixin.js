@@ -41,10 +41,10 @@ export const contentSearchMixin = superClass => class extends superClass {
 		this._videos = append ? this._videos.concat(results) : results;
 	}
 
-	_handleInputVideoSearch({ detail: { value: query } }) {
+	async _handleInputVideoSearch({ detail: { value: query } }) {
 		this._start = 0;
 		this._query = query;
-		this._handleVideoSearch();
+		await this._handleVideoSearch();
 	}
 
 	async _handleLoadMoreVideos() {

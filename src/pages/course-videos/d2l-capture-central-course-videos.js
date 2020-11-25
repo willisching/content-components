@@ -14,17 +14,16 @@ import { css, html } from 'lit-element/lit-element.js';
 import { autorun } from 'mobx';
 import { contentSearchMixin } from '../../mixins/content-search-mixin';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
+import { navigationSharedStyle } from '../../style/d2l-navigation-shared-styles.js';
 import { PageViewElement } from '../../components/page-view-element';
-
 class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequester(PageViewElement)) {
 	static get styles() {
-		return css`
+		return [navigationSharedStyle, css`
 			.d2l-capture-central-course-videos {
 				display: grid;
 				grid-gap: 50px 25px;
 				grid-template-columns: repeat(3, 1fr);
 				justify-content: center;
-				width: 100%;
 			}
 
 			.d2l-capture-central-course-videos-header {
@@ -110,9 +109,9 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 
 			.d2l-capture-central-load-more-button {
 				align-self: center;
-				grid-column: 1 / 5;
 				justify-self: center;
-				margin-bottom: 20px;
+				margin-bottom: 50px;
+				margin-top: 50px;
 			}
 
 			@media (max-width: 1200px) {
@@ -194,7 +193,7 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 					height: 180px;
 				}
 			}
-		`;
+		`];
 	}
 
 	constructor() {
@@ -223,7 +222,7 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 		}
 
 		return this._videos.map(video => html`
-			<d2l-card @click=${this._goTo(`/course-videos/${video.id}`)} class="d2l-capture-central-video" href="">
+			<d2l-card @click=${this._goTo(`/course-videos/${video.id}`)} class="d2l-capture-central-video">
 				<div slot="header">
 					<img alt="" class="d2l-capture-central-thumbnail" src="${video.thumbnail}" />
 					<div class="d2l-capture-central-play-icon-overlay">
@@ -243,7 +242,7 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 
 	render() {
 		return html`
-			<div class="d2l-capture-central-course-videos">
+			<div class="d2l-capture-central-course-videos d2l-navigation-gutters">
 				<h2 class="d2l-capture-central-course-videos-header">${this.localize('courseVideos')}</h2>
 				<d2l-dropdown-button class="d2l-capture-central-filter-folders" text="${this.localize('folders')}">
 					<d2l-dropdown-menu>
@@ -260,13 +259,13 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 					placeholder="${this.localize('searchPlaceholder')}"
 				></d2l-input-search>
 				${this._renderVideos()}
-				<d2l-button
-					?hidden="${!this._moreResultsAvailable}"
-					class="d2l-capture-central-load-more-button"
-					@click=${this._handleLoadMoreVideos}
-				>${this.localize('loadMore')}
-				</d2l-button>
 			</div>
+			<d2l-button
+				?hidden="${!this._moreResultsAvailable}"
+				class="d2l-capture-central-load-more-button"
+				@click=${this._handleLoadMoreVideos}
+			>${this.localize('loadMore')}
+			</d2l-button>
 		`;
 	}
 

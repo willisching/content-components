@@ -3,11 +3,10 @@ import { css } from 'lit-element/lit-element.js';
 
 export const sharedManageStyles = css`
 	.d2l-capture-central-manage-container {
-		display:flex;
+		display: flex;
 		flex-direction: column;
 		margin-bottom: 50px;
 		margin-top: 25px;
-		width: 100%;
 	}
 
 	.d2l-capture-central-manage-header {
@@ -73,7 +72,6 @@ export const sharedEditStyles = css`
 		flex-direction: column;
 		margin-bottom: 50px;
 		margin-top: 25px;
-		width: 100%;
 	}
 
 	d2l-input-text,
