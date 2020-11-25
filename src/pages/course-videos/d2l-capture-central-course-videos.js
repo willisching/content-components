@@ -54,6 +54,10 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 				justify-self: center;
 			}
 
+			.d2l-capture-central-course-videos-ghost-video[hidden] {
+				display: none;
+			}
+
 			.d2l-capture-central-course-videos-ghost-video,
 			.d2l-capture-central-video {
 				display: flex;
@@ -233,9 +237,18 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 		this._loading = false;
 	}
 
+	async _handleLoadMoreVideosClicked() {
+		this._loading = true;
+		await this._handleLoadMoreVideos();
+		this._loading = false;
+	}
+
 	_renderGhosts() {
 		return new Array(6).fill().map(() => html`
-			<ghost-box class="d2l-capture-central-course-videos-ghost-video"></ghost-box>
+			<ghost-box
+				?hidden="${!this._loading}"
+				class="d2l-capture-central-course-videos-ghost-video"
+			></ghost-box>
 		`);
 	}
 
@@ -248,10 +261,7 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 	}
 
 	_renderVideos() {
-		if (this._loading) {
-			return this._renderGhosts();
-		}
-		if (this._videos.length === 0) {
+		if (!this._loading && this._videos.length === 0) {
 			return this._renderNoResults();
 		}
 
@@ -293,15 +303,15 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 					placeholder="${this.localize('searchPlaceholder')}"
 				></d2l-input-search>
 				${this._renderVideos()}
+				${this._renderGhosts()}
 			</div>
 			<d2l-button
 				?hidden="${this._loading || !this._moreResultsAvailable}"
 				class="d2l-capture-central-load-more-button"
-				@click=${this._handleLoadMoreVideos}
+				@click=${this._handleLoadMoreVideosClicked}
 			>${this.localize('loadMore')}
 			</d2l-button>
 		`;
 	}
-
 }
 customElements.define('d2l-capture-central-course-videos', D2LCaptureCentralCourseVideos);
