@@ -79,6 +79,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			`/:orgUnitId/${pageNames.viewLiveEvent}`,
 			`/:orgUnitId/${pageNames.manageLiveEvents}/create`,
 			`/:orgUnitId/${pageNames.manageLiveEvents}/edit`,
+			`/:orgUnitId/${pageNames.myVideos}`,
 			`/:orgUnitId/${pageNames.liveEventsReporting}`,
 			`/:orgUnitId/${pageNames.presentations}`,
 			`/:orgUnitId/${pageNames.presentations}/edit/:id`,
@@ -136,6 +137,9 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 						import('./pages/404/d2l-capture-central-404.js');
 						return;
 				}
+			case pageNames.myVideos:
+				import('./pages/my-videos/d2l-capture-central-my-videos.js');
+				return;
 			case pageNames.viewLiveEvent:
 				import('./pages/live-events/d2l-capture-central-live-events-view.js');
 				return;
@@ -204,6 +208,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				<d2l-capture-central-live-events-edit class="page" ?active=${currentPage === pageNames.manageLiveEvents && subView === 'edit'}></d2l-capture-central-live-events-edit>
 				<d2l-capture-central-live-events-create class="page" ?active=${currentPage === pageNames.manageLiveEvents && subView === 'create'}></d2l-capture-central-live-events-create>
 				<d2l-capture-central-live-events-reporting class="page" ?active=${currentPage === pageNames.liveEventsReporting}></d2l-capture-central-live-events-reporting>
+				<d2l-capture-central-my-videos class="page" ?active=${currentPage === pageNames.myVideos}></d2l-capture-central-my-videos>
 				<d2l-capture-central-presentations class="page" ?active=${currentPage === pageNames.presentations && !subView}></d2l-capture-central-presentations>
 				<d2l-capture-central-presentations-edit class="page" ?active=${currentPage === pageNames.presentations && subView === 'edit'}></d2l-capture-central-presentations-edit>
 				<d2l-capture-central-producer class="page" ?active=${currentPage === pageNames.producer && subView}></d2l-capture-central-producer>

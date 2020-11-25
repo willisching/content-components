@@ -23,6 +23,7 @@ export class Uploader {
 		this.apiClient = apiClient;
 		this.uploadsInProgress = 0;
 		this.uploadConcurrency = 5;
+		this.statusWindowVisible = false;
 		this.queuedUploads = [];
 		this.runningJobs = 0;
 		this._batch = 0;
@@ -185,6 +186,10 @@ export class Uploader {
 		for (const file of files) {
 			this.uploadFile(file, this._batch);
 		}
+
+		if (files.length > 0) {
+			this.statusWindowVisible = true;
+		}
 	}
 
 	getUploads() {
@@ -198,11 +203,16 @@ export class Uploader {
 	clearCompletedUploads() {
 		this.uploads = this.uploads.filter(upload => upload.progress !== 100 && !upload.error);
 	}
+
+	showStatusWindow(show) {
+		this.statusWindowVisible = show;
+	}
 }
 
 decorate(Uploader, {
 	uploads: observable,
 	uploadsInProgress: observable,
+	statusWindowVisible: observable,
 	successfulUpload: observable,
 	getUploads: action,
 	uploadFile: action,
