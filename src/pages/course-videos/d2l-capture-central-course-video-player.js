@@ -1,7 +1,7 @@
 import '@brightspace-ui/core/components/breadcrumbs/breadcrumb.js';
 import '@brightspace-ui/core/components/breadcrumbs/breadcrumbs.js';
 import '@brightspace-ui-labs/media-player/media-player.js';
-import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
+import '../../components/ghost-box.js';
 
 import { css, html } from 'lit-element/lit-element.js';
 import { autorun } from 'mobx';
@@ -22,17 +22,22 @@ class D2LCaptureCentralCourseVideoPlayer extends DependencyRequester(PageViewEle
 
 	static get styles() {
 		return [heading3Styles, navigationSharedStyle, css`
-			d2l-loading-spinner {
-				display: flex;
-				margin: auto;
-				margin-top: 200px;
-			}
-
 			.d2l-heading-3 {
 				margin-top: 0;
 			}
 			d2l-breadcrumbs {
 				margin: 25px 0;
+			}
+
+			.d2l-capture-central-course-video-player-title-ghost {
+				height: 25px;
+				width: 250px;
+			}
+
+			.d2l-capture-central-course-video-player-video-ghost {
+				margin-top: 25px;
+				height: 650px;
+				width: 100%;
 			}
 		`];
 	}
@@ -76,7 +81,10 @@ class D2LCaptureCentralCourseVideoPlayer extends DependencyRequester(PageViewEle
 
 	_renderMediaPlayer() {
 		if (this._loading) {
-			return html`<d2l-loading-spinner size=150></d2l-loading-spinner>`;
+			return html`
+				<ghost-box class="d2l-capture-central-course-video-player-title-ghost"></ghost-box>
+				<ghost-box class="d2l-capture-central-course-video-player-video-ghost"></ghost-box>
+			`;
 		}
 		return html`
 			<h3 class="d2l-heading-3">${this._content.title}</h3>

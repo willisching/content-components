@@ -9,6 +9,7 @@ import '@brightspace-ui/core/components/inputs/input-search.js';
 import '@brightspace-ui/core/components/menu/menu-item.js';
 import '@brightspace-ui/core/components/menu/menu.js';
 import '../../components/add-videos-dialog.js';
+import '../../components/ghost-box.js';
 
 import { css, html } from 'lit-element/lit-element.js';
 import { autorun } from 'mobx';
@@ -17,6 +18,11 @@ import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js'
 import { navigationSharedStyle } from '../../style/d2l-navigation-shared-styles.js';
 import { PageViewElement } from '../../components/page-view-element';
 class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequester(PageViewElement)) {
+	static get properties() {
+		return {
+			_loading: { type: Boolean, attribute: false }
+		};
+	}
 	static get styles() {
 		return [navigationSharedStyle, css`
 			.d2l-capture-central-course-videos {
@@ -48,6 +54,7 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 				justify-self: center;
 			}
 
+			.d2l-capture-central-course-videos-ghost-video,
 			.d2l-capture-central-video {
 				display: flex;
 				flex-direction: column;
@@ -119,6 +126,7 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 					grid-gap: 25px 15px;
 				}
 
+				.d2l-capture-central-course-videos-ghost-video,
 				.d2l-capture-central-video {
 					min-width: 225px;
 					width: 100%;
@@ -152,7 +160,8 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 					grid-row: 4;
 				}
 
-				 .d2l-capture-central-video {
+				.d2l-capture-central-course-videos-ghost-video,
+				.d2l-capture-central-video {
 					height: 270px;
 				}
 				.d2l-capture-central-thumbnail,
@@ -184,6 +193,7 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 					grid-row: 4;
 				}
 
+				.d2l-capture-central-course-videos-ghost-video,
 				.d2l-capture-central-video {
 					height: 300px;
 					width: 100%;
@@ -199,6 +209,7 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 	constructor() {
 		super();
 		this.apiClient = this.requestDependency('content-service-client');
+		this._loading = true;
 	}
 
 	async connectedCallback() {
@@ -207,18 +218,41 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 			if (this.rootStore.routingStore.page === 'course-videos'
 				&& !this.rootStore.routingStore.subView
 			) {
-				this._handleVideoSearch();
+				await this._handleVideoSearched();
 			}
 		});
 	}
 
+	async _handleVideoSearched(event) {
+		this._loading = true;
+		if (event) {
+			await this._handleInputVideoSearch(event);
+		} else {
+			await this._handleVideoSearch();
+		}
+		this._loading = false;
+	}
+
+	_renderGhosts() {
+		return new Array(6).fill().map(() => html`
+			<ghost-box class="d2l-capture-central-course-videos-ghost-video"></ghost-box>
+		`);
+	}
+
+	_renderNoResults() {
+		return html`
+			<div class="d2l-capture-central-video-no-results">
+				${this.localize('noResults')}
+			</div>
+		`;
+	}
+
 	_renderVideos() {
+		if (this._loading) {
+			return this._renderGhosts();
+		}
 		if (this._videos.length === 0) {
-			return html`
-				<div class="d2l-capture-central-video-no-results">
-					${this.localize('noResults')}
-				</div>
-			`;
+			return this._renderNoResults();
 		}
 
 		return this._videos.map(video => html`
@@ -253,7 +287,7 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 					</d2l-dropdown-menu>
 				</d2l-dropdown-button>
 				<d2l-input-search
-					@d2l-input-search-searched=${this._handleInputVideoSearch}
+					@d2l-input-search-searched=${this._handleVideoSearched}
 					class="d2l-capture-central-search-videos"
 					label="${this.localize('searchLabel')}"
 					placeholder="${this.localize('searchPlaceholder')}"
@@ -261,7 +295,7 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 				${this._renderVideos()}
 			</div>
 			<d2l-button
-				?hidden="${!this._moreResultsAvailable}"
+				?hidden="${this._loading || !this._moreResultsAvailable}"
 				class="d2l-capture-central-load-more-button"
 				@click=${this._handleLoadMoreVideos}
 			>${this.localize('loadMore')}
