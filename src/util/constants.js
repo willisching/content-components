@@ -10,6 +10,7 @@ export const pageNames = {
 	manageLiveEvents: 'manage-live-events',
 	manageLiveEventsCreate: 'create',
 	manageLiveEventsEdit: 'edit',
+	myVideos: 'my-videos',
 	viewLiveEvent: 'view-live-event',
 	page404: '404',
 	presentations: 'presentations',
