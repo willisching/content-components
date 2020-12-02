@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>upload-confirmation</title>
+    <script src="/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+    <script type="module">
+import '@brightspace-ui/core/components/typography/typography.js';
+import '/src/components/file-upload/upload-confirmation.js';
+	</script>
+	<style>
+		#default {
+			width: 500px;
+			height: 200px;
+			padding: 20px;
+		}
+	</style>
+  </head>
+  <body class="d2l-typography">
+	<div id="default">
+		<upload-confirmation
+			content-title="Some Title"
+			file-name="some_file.mp4"
+			file-size="1234567"
+			file-type="video/mp4"
+		></upload-confirmation>
+	</div>
+  </body>
+</html>

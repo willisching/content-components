@@ -1,9 +1,9 @@
 const puppeteer = require('puppeteer');
 const VisualDiff = require('@brightspace-ui/visual-diff');
 
-describe('d2l-content-store-add-content', () => {
+describe('upload-progress-indicator', () => {
 
-	const visualDiff = new VisualDiff('d2l-content-store-add-content', __dirname);
+	const visualDiff = new VisualDiff('upload-progress-indicator', __dirname);
 
 	let browser, page;
 
@@ -11,7 +11,7 @@ describe('d2l-content-store-add-content', () => {
 		browser = await puppeteer.launch();
 		page = await visualDiff.createPage(browser);
 		await page.setViewport({ width: 800, height: 800, deviceScaleFactor: 2 });
-		await page.goto(`${visualDiff.getBaseUrl()}/test/d2l-content-store-add-content.visual-diff.html`, { waitUntil: ['networkidle0', 'load'] });
+		await page.goto(`${visualDiff.getBaseUrl()}/test/src/components/file-upload/upload-progress-indicator.visual-diff.html`, { waitUntil: ['networkidle0', 'load'] });
 		await page.bringToFront();
 	});
 

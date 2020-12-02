@@ -1,11 +1,14 @@
+import './src/pages/tabs-container.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
-import { LocalizeMixin } from '@brightspace-ui/core/mixins/localize-mixin.js';
+import ContentServiceClient from './src/util/content-service-client';
+import { DependencyProvider } from './src/mixins/dependency-provider-mixin';
+import { Uploader } from './src/state/uploader';
 
-class D2lContentStoreAddContent extends LocalizeMixin(LitElement) {
-
+class D2lContentStoreAddContent extends DependencyProvider(LitElement) {
 	static get properties() {
 		return {
-			prop1: { type: String },
+			apiEndpoint: { type: String, attribute: 'api-endpoint', reflect: true },
+			tenantId: { type: String, attribute: 'tenant-id', reflect: true }
 		};
 	}
 
@@ -13,6 +16,8 @@ class D2lContentStoreAddContent extends LocalizeMixin(LitElement) {
 		return css`
 			:host {
 				display: inline-block;
+				width: 100%;
+				margin-top: 5px;
 			}
 			:host([hidden]) {
 				display: none;
@@ -20,33 +25,22 @@ class D2lContentStoreAddContent extends LocalizeMixin(LitElement) {
 		`;
 	}
 
-	static async getLocalizeResources(langs) {
-		const langResources = {
-			'en': { 'myLangTerm': 'I am a localized string!' }
-		};
+	firstUpdated() {
+		super.firstUpdated();
 
-		for (let i = 0; i < langs.length; i++) {
-			if (langResources[langs[i]]) {
-				return {
-					language: langs[i],
-					resources: langResources[langs[i]]
-				};
-			}
-		}
+		const apiClient = new ContentServiceClient({
+			endpoint: this.apiEndpoint,
+			tenantId: this.tenantId
+		});
+		this.provideDependency('content-service-client', apiClient);
 
-		return null;
-	}
-
-	constructor() {
-		super();
-
-		this.prop1 = 'd2l-content-store-add-content';
+		const uploader = new Uploader({ apiClient });
+		this.provideDependency('uploader', uploader);
 	}
 
 	render() {
 		return html`
-			<h2>Hello ${this.prop1}!</h2>
-			<div>Localization Example: ${this.localize('myLangTerm')}</div>
+			<d2l-content-store-add-content-tabs-container></d2l-content-store-add-content-tabs-container>
 		`;
 	}
 }

@@ -11,14 +11,18 @@ Dialog for adding content.
 <script type="module">
     import 'd2l-content-store-add-content/d2l-content-store-add-content.js';
 </script>
-<d2l-content-store-add-content>My element</d2l-content-store-add-content>
+<d2l-content-store-add-content
+	tenant-id="00000000-0000-0000-0000-000000000000"
+	api-endpoint="https://api.us-east-1.content-service.brightspace.com"
+	>My element</d2l-content-store-add-content>
 ```
 
 **Properties:**
 
 | Property | Type | Description |
 |--|--|--|
-| | | |
+|tenant-id|String (required)|ID of the Brightspace Tenant that the content will be added to|
+|api-endpoint|String (required)|URL of the Content Service instance that will manage the added content|
 
 **Accessibility:**
 
@@ -30,15 +34,18 @@ To make your usage of `d2l-content-store-add-content` accessible, use the follow
 
 ## Developing, Testing and Contributing
 
-After cloning the repo, run `npm install` to install dependencies.
+### Integrating with a Local BSI Instance
+
+1. After cloning the repo, run `npm install` to install dependencies.
+2. Create a local clone of [BSI](https://github.com/Brightspace/brightspace-integration). In its directory, run `npm install`.
+3. cd to your local `d2l-content-store-add-content` repo.\
+   Run: `node ./scripts/install-missing-bsi-dependencies.js <path to your local BSI instance>`\
+   and: `npm link`
+4. cd to your BSI clone and run `npm link d2l-content-store-add-content`.
 
 ### Running the demos
 
-To start an [es-dev-server](https://open-wc.org/developing/es-dev-server.html) that hosts the demo page and tests:
-
-```shell
-npm start
-```
+This Web Component does not possess a demo because it must be integrated into Brightspace in order to function.
 
 ### Linting
 

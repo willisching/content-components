@@ -2,7 +2,7 @@
   "name": "d2l-content-store-add-content",
   "description": "Dialog for adding content.",
   "repository": "https://github.com/Brightspace/content-store-add-content.git",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "lint": "npm run lint:eslint && npm run lint:lit",
@@ -37,8 +37,16 @@
     "puppeteer": "^5"
   },
   "dependencies": {
+    "@adobe/lit-mobx": "^1.0.0",
     "@brightspace-ui/core": "^1",
+    "@brightspace-ui/intl": "^3.1.4",
+    "@chaitin/querystring": "^1.1.0",
+    "@polymer/polymer": "^3.4.1",
     "@webcomponents/webcomponentsjs": "^2",
-    "lit-element": "^2"
+    "d2l-fetch": "github:Brightspace/d2l-fetch#semver:^2",
+    "d2l-fetch-auth": "^1.5.2",
+    "file-drop-element": "^1.0.1",
+    "lit-element": "^2",
+    "mobx": "^5.15.4"
   }
 }
