@@ -181,17 +181,12 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 	}
 
 	_renderBreadcrumbs() {
-		const { params, previousSubView } = this.rootStore.routingStore;
-		const previousLocation = previousSubView ? `/presentations/edit/${params.id}` : '/presentations';
-		const previousLocationLangterm = previousSubView ? 'editPresentation' : 'presentations';
+		const { params } = this.rootStore.routingStore;
+		const previousLocation = `/presentations/edit/${params.id}`;
+		const previousLocationLangterm = 'editPresentation';
 
 		return html`
 			<d2l-breadcrumbs>
-				<d2l-breadcrumb
-					@click=${this._goTo('/admin')}
-					href=""
-					text="${this.localize('captureCentral')}"
-				></d2l-breadcrumb>
 				<d2l-breadcrumb
 					@click=${this._goTo(previousLocation)}
 					href=""

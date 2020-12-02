@@ -1,5 +1,4 @@
 export const pageNames = {
-	admin: 'admin',
 	auditLogs: 'audit-logs',
 	clips: 'clips',
 	courseVideos: 'course-videos',
