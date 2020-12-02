@@ -2,7 +2,7 @@
   "name": "d2l-content-store-add-content",
   "description": "Dialog for adding content.",
   "repository": "https://github.com/Brightspace/content-store-add-content.git",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "scripts": {
     "lint": "npm run lint:eslint && npm run lint:lit",
@@ -37,7 +37,7 @@
     "puppeteer": "^5"
   },
   "dependencies": {
-    "@adobe/lit-mobx": "^1.0.0",
+    "@adobe/lit-mobx": "0.0.4",
     "@brightspace-ui/core": "^1",
     "@brightspace-ui/intl": "^3.1.4",
     "@chaitin/querystring": "^1.1.0",
