@@ -233,7 +233,7 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 		});
 	}
 
-	async _handleVideoSearched(event) {
+	async _handleVideoSearched() {
 		this._loading = true;
 		// TODO: Add video search back in once adding videos to course is available
 		// if (event) {

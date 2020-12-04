@@ -125,10 +125,8 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			`/:orgUnitId/${pageNames.manageLiveEvents}/edit`,
 			`/:orgUnitId/${pageNames.myVideos}`,
 			`/:orgUnitId/${pageNames.liveEventsReporting}`,
-			`/:orgUnitId/${pageNames.presentations}/edit/:id`,
 			`/:orgUnitId/${pageNames.producer}/:id`,
 			`/:orgUnitId/${pageNames.settings}`,
-			`/:orgUnitId/${pageNames.uploadVideo}`,
 			`/:orgUnitId/${pageNames.visits}`,
 			'/:orgUnitId/',
 			'/*',
@@ -186,13 +184,6 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			case pageNames.liveEventsReporting:
 				import('./pages/reporting/d2l-capture-central-live-events-reporting.js');
 				return;
-			case pageNames.presentations:
-				if (subView === 'edit') {
-					import('./pages/presentations/d2l-capture-central-presentations-edit.js');
-					return;
-				}
-				this._navigate('/404');
-				return;
 			case pageNames.producer:
 				this._shouldRenderSidebar = false;
 				if (subView) {
@@ -203,9 +194,6 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				return;
 			case pageNames.settings:
 				import('./pages/settings/d2l-capture-central-settings.js');
-				return;
-			case pageNames.uploadVideo:
-				import('./pages/upload-video/d2l-capture-central-upload-video.js');
 				return;
 			case pageNames.users:
 				import('./pages/users/d2l-capture-central-users.js');
@@ -285,10 +273,8 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				<d2l-capture-central-live-events-create class="page" ?active=${currentPage === pageNames.manageLiveEvents && subView === 'create'}></d2l-capture-central-live-events-create>
 				<d2l-capture-central-live-events-reporting class="page" ?active=${currentPage === pageNames.liveEventsReporting}></d2l-capture-central-live-events-reporting>
 				<d2l-capture-central-my-videos class="page" ?active=${currentPage === pageNames.myVideos}></d2l-capture-central-my-videos>
-				<d2l-capture-central-presentations-edit class="page" ?active=${currentPage === pageNames.presentations && subView === 'edit'}></d2l-capture-central-presentations-edit>
 				<d2l-capture-central-producer class="page" ?active=${currentPage === pageNames.producer && subView}></d2l-capture-central-producer>
 				<d2l-capture-central-settings class="page" ?active=${currentPage === pageNames.settings}></d2l-capture-central-settings>
-				<d2l-capture-central-upload-video class="page" ?active=${currentPage === pageNames.uploadVideo}></d2l-capture-central-upload-video>
 				<d2l-capture-central-visits class="page" ?active=${currentPage === pageNames.visits}></d2l-capture-central-visits>
 				<d2l-capture-central-404 class="page" ?active=${currentPage === pageNames.page404}></d2l-capture-central-404>
 			</div>
