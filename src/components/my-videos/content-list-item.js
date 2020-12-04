@@ -16,13 +16,14 @@ import {
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
+import { navigationMixin } from '../../mixins/navigation-mixin.js';
+import { pageNames } from '../../util/constants.js';
 import { rootStore } from '../../state/root-store.js';
-
 const actionsDefaultZIndex = 2;
 const actionsActiveZIndex = 5;
 const dialogConfirmAction = 'confirm';
 
-class ContentListItem extends DependencyRequester(InternalLocalizeMixin(LitElement)) {
+class ContentListItem extends DependencyRequester(navigationMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
 		return {
 			confirmDisabled: { type: Boolean, attribute: false },
@@ -39,6 +40,9 @@ class ContentListItem extends DependencyRequester(InternalLocalizeMixin(LitEleme
 		return [bodyCompactStyles, bodySmallStyles, css`
 			.actions {
 				position: relative;
+			}
+			content-list-columns div {
+				margin-right: 5px;
 			}
 		`];
 	}
@@ -94,6 +98,7 @@ class ContentListItem extends DependencyRequester(InternalLocalizeMixin(LitEleme
 						<d2l-dropdown-menu id="actions-dropdown-menu" align="end" boundary=${JSON.stringify(this.dropdownBoundary)}>
 							<d2l-menu label="${this.localize('moreActions')}">
 								<d2l-menu-item text="${this.localize('download')}" @click="${this.download}"></d2l-menu-item>
+								<d2l-menu-item text="${this.localize('edit')}" @click=${this._goTo(`/${pageNames.producer}/${this.id}`)}></d2l-menu-item>
 								<d2l-menu-item id="rename-initiator" text="${this.localize('rename')}" @click="${this.openDialog()}"></d2l-menu-item>
 								<d2l-menu-item text="${this.localize('delete')}" @click="${this.delete()}"></d2l-menu-item>
 							</d2l-menu>

@@ -1,4 +1,4 @@
-import { html, LitElement } from 'lit-element';
+import { css, html, LitElement } from 'lit-element';
 import { formatDateTime } from '@brightspace-ui/intl/lib/dateTime.js';
 import { formatRelativeDate } from '../util/date-time.js';
 
@@ -8,6 +8,13 @@ class RelativeDate extends LitElement {
 			value: { type: String },
 			relative: { type: String, attribute: false }
 		};
+	}
+	static get styles() {
+		return css`
+			.relative-date {
+				word-wrap: break-word;
+			}
+		`;
 	}
 
 	firstUpdated() {
@@ -40,7 +47,7 @@ class RelativeDate extends LitElement {
 
 	render() {
 		return html`
-		<div title="${this.absolute}">
+		<div class="relative-date" title="${this.absolute}">
 			${this.relative}
 		</div>`;
 	}

@@ -8,6 +8,7 @@ class TwoColumnLayout extends RtlMixin(LitElement) {
 		return css`
 			:host {
 				display: block;
+				width: 100%;
 			}
 			:host([hidden]) {
 				display: none;
@@ -38,7 +39,7 @@ class TwoColumnLayout extends RtlMixin(LitElement) {
 				flex-shrink: 0;
 				flex-grow: 0;
 				position: fixed;
-				width: var(--sidebar-width, 350px);
+				width: var(--sidebar-width, 300px);
 			}
 			:host([dir="rtl"]) .sidebar {
 				border-left: 1px solid var(--d2l-color-gypsum);
@@ -52,16 +53,28 @@ class TwoColumnLayout extends RtlMixin(LitElement) {
 				border-bottom: 1px solid var(--d2l-color-gypsum);
 			}
 			.primary {
-				margin-left: var(--sidebar-width, 350px);
-				overflow-x: auto;
+				margin-left: var(--sidebar-width, 300px);
+				max-width: 930px;
 				width: 100%;
 			}
 			:host([dir="rtl"]) .primary {
 				margin-left: 0px;
-				margin-right: var(--sidebar-width, 350px);
+				margin-right: var(--sidebar-width, 300px);
 			}
 			.primary-content {
 				min-width: 500px;
+			}
+
+			@media (max-width: 1056px) {
+				.primary {
+					max-width: 1030px;
+				}
+			}
+
+			@media (max-width: 660px) {
+				.primary-content {
+					min-width: 400px;
+				}
 			}
 		`;
 	}
