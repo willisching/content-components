@@ -72,14 +72,14 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 
 	constructor() {
 		super();
-		this.apiClient = this.requestDependency('content-service-client');
-		this.userBrightspaceClient = this.requestDependency('user-brightspace-client');
 		this._alertMessage = '';
 		this._errorOccurred = false;
 	}
 
 	async connectedCallback() {
 		super.connectedCallback();
+		this.apiClient = this.requestDependency('content-service-client');
+		this.userBrightspaceClient = this.requestDependency('user-brightspace-client');
 		autorun(async() => {
 			if (this.rootStore.routingStore.page === 'producer'
 				&& this.rootStore.routingStore.params.id
@@ -205,7 +205,7 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 		}
 
 		return html`
-			<div class="d2l-capture-central-producer d2l-navigation-gutters">
+			<div class="d2l-capture-central-producer">
 				${this._renderBreadcrumbs()}
 				<div class="d2l-capture-central-producer-controls">
 					<d2l-button-icon

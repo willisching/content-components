@@ -76,6 +76,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			`/:orgUnitId/${pageNames.courseVideos}/:id`,
 			`/:orgUnitId/${pageNames.folders}`,
 			`/:orgUnitId/${pageNames.viewLiveEvent}`,
+			`/:orgUnitId/${pageNames.manageLiveEvents}`,
 			`/:orgUnitId/${pageNames.manageLiveEvents}/create`,
 			`/:orgUnitId/${pageNames.manageLiveEvents}/edit`,
 			`/:orgUnitId/${pageNames.myVideos}`,
@@ -128,8 +129,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 						import('./pages/live-events/d2l-capture-central-live-events-create.js');
 						return;
 					default:
-						rootStore.routingStore.setPage('404');
-						import('./pages/404/d2l-capture-central-404.js');
+						import('./pages/live-events/d2l-capture-central-live-events.js');
 						return;
 				}
 			case pageNames.myVideos:
@@ -194,7 +194,8 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				<d2l-capture-central-course-video-player class="page" ?active=${currentPage === pageNames.courseVideos && subView}></d2l-capture-central-course-video-player>
 				<d2l-capture-central-clips class="page" ?active=${currentPage === pageNames.clips}></d2l-capture-central-clips>
 				<d2l-capture-central-folders class="page" ?active=${currentPage === pageNames.folders}></d2l-capture-central-folders>
-				<d2l-capture-central-live-events-view class="page" ?active=${currentPage === pageNames.viewLiveEvent}></d2l-capture-central-live-events-view>
+				<d2l-capture-central-live-events class="page" ?active=${currentPage === pageNames.manageLiveEvents && !subView}></d2l-capture-central-live-events>
+				<d2l-capture-central-live-events-view class="page" ?active=${currentPage === pageNames.viewLiveEvent && subView === 'view'}></d2l-capture-central-live-events-view>
 				<d2l-capture-central-live-events-edit class="page" ?active=${currentPage === pageNames.manageLiveEvents && subView === 'edit'}></d2l-capture-central-live-events-edit>
 				<d2l-capture-central-live-events-create class="page" ?active=${currentPage === pageNames.manageLiveEvents && subView === 'create'}></d2l-capture-central-live-events-create>
 				<d2l-capture-central-live-events-reporting class="page" ?active=${currentPage === pageNames.liveEventsReporting}></d2l-capture-central-live-events-reporting>

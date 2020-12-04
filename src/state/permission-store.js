@@ -1,4 +1,4 @@
-import { action, decorate, observable } from 'mobx';
+import { action, decorate, observable, toJS } from 'mobx';
 
 export class PermissionStore {
 	constructor(rootStore) {
@@ -12,12 +12,16 @@ export class PermissionStore {
 	}
 
 	getPermissions() {
-		return this.permissions;
+		return toJS(this.permissions);
 	}
 
 	getCanViewLiveEvents() {
 		return this.permissions.canAccessCaptureCentral === 'true' &&
 			this.permissions.canViewLiveEvents === 'true';
+	}
+
+	getCanManageCaptureCentral() {
+		return true; // TODO: update after permission is added
 	}
 
 	getCanManageLiveEvents() {
