@@ -10,6 +10,7 @@ import { css, html } from 'lit-element/lit-element.js';
 import { autorun } from 'mobx';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
 import { navigationSharedStyle } from '../../style/d2l-navigation-shared-styles.js';
+import { pageNames } from '../../util/constants.js';
 import { PageViewElement } from '../../components/page-view-element';
 
 class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
@@ -181,16 +182,12 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 	}
 
 	_renderBreadcrumbs() {
-		const { params } = this.rootStore.routingStore;
-		const previousLocation = `/presentations/edit/${params.id}`;
-		const previousLocationLangterm = 'editPresentation';
-
 		return html`
 			<d2l-breadcrumbs>
 				<d2l-breadcrumb
-					@click=${this._goTo(previousLocation)}
+					@click=${this._goTo(`/${pageNames.myVideos}`)}
 					href=""
-					text="${this.localize(previousLocationLangterm)}"
+					text="${this.localize('myVideos')}"
 				></d2l-breadcrumb>
 				<d2l-breadcrumb-current-page
 					text="${this._content.title}"

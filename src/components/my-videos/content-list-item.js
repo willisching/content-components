@@ -89,7 +89,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 
 				<div slot="actions" id="actions" class="actions">
 					<d2l-button-icon
-						@click=${this.openPreview()}
+						@click=${this._goTo(`/${pageNames.courseVideos}/${this.id}`)}
 						text="${this.localize('preview')}"
 						icon="tier1:preview"
 						?disabled=${this.disabled}
@@ -121,16 +121,6 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 				<d2l-button slot="footer" id="rename-dialog-cancel" dialog-action>${this.localize('cancel')}</d2l-button>
 			</d2l-dialog>
 		`;
-	}
-
-	openPreview() {
-		return async() => {
-			const previewWindow = window.open('', '_blank');
-			const instanceUrl = window.location.href
-				.substring(0, window.location.href.indexOf('/d2l'));
-			previewWindow.location.href =
-				`${instanceUrl}/d2l/wcs/capture-central/6606/course-videos/${this.id}`;
-		};
 	}
 
 	download() {

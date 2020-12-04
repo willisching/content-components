@@ -41,11 +41,6 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 				align-self: center;
 				grid-column: 1 / 2;
 			}
-			.d2l-capture-central-filter-folders {
-				align-self: center;
-				grid-column: 2 / 3;
-				justify-self: end;
-			}
 			.d2l-capture-central-search-videos {
 				align-self: center;
 				grid-column: 3 / 4;
@@ -167,12 +162,6 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 					width: 75%;
 				}
 
-				.d2l-capture-central-filter-folders {
-					grid-row: 2;
-					grid-column: 1 / 3;
-					margin-left: auto;
-				}
-
 				.d2l-capture-central-video-no-results {
 					grid-column: 1 / 3;
 					grid-row: 4;
@@ -205,12 +194,6 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 					grid-column: 1 / 2;
 					grid-row: 2;
 					width: 100%;
-				}
-
-				.d2l-capture-central-filter-folders {
-					grid-column: 1 / 2;
-					grid-row: 3;
-					margin-left: 0;
 				}
 
 				.d2l-capture-central-video-no-results {
@@ -252,11 +235,12 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 
 	async _handleVideoSearched(event) {
 		this._loading = true;
-		if (event) {
-			await this._handleInputVideoSearch(event);
-		} else {
-			await this._handleVideoSearch();
-		}
+		// TODO: Add video search back in once adding videos to course is available
+		// if (event) {
+		// 	await this._handleInputVideoSearch(event);
+		// } else {
+		// 	await this._handleVideoSearch();
+		// }
 		this._loading = false;
 	}
 
@@ -278,7 +262,7 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 	_renderNoResults() {
 		return html`
 			<div class="d2l-capture-central-video-no-results">
-				${this.localize('noResults')}
+				${this.localize('noCourseVideos')}
 			</div>
 		`;
 	}
@@ -311,14 +295,6 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 		return html`
 			<div class="d2l-capture-central-course-videos">
 				<h2 class="d2l-capture-central-course-videos-header d2l-heading-2">${this.localize('courseVideos')}</h2>
-				<d2l-dropdown-button class="d2l-capture-central-filter-folders" text="${this.localize('folders')}">
-					<d2l-dropdown-menu>
-						<d2l-menu label="Folders">
-							<d2l-menu-item text="Placeholder text ..."></d2l-menu-item>
-							<d2l-menu-item text="Placeholder text ..."></d2l-menu-item>
-						</d2l-menu>
-					</d2l-dropdown-menu>
-				</d2l-dropdown-button>
 				<d2l-input-search
 					@d2l-input-search-searched=${this._handleVideoSearched}
 					class="d2l-capture-central-search-videos"

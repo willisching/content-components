@@ -76,6 +76,7 @@ export const val = {
 	name: 'Name',
 	newFolder: 'New Folder',
 	no: 'No',
+	noCourseVideos: 'No videos found or shared.',
 	noLiveEvents: 'There are no live events.',
 	noResults: 'No results.',
 	numClipsSelected: '{count} {count, plural, =1 {clip} other {clips} } selected.',
