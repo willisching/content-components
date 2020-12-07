@@ -1,6 +1,3 @@
-import '@brightspace-ui/core/components/breadcrumbs/breadcrumb.js';
-import '@brightspace-ui/core/components/breadcrumbs/breadcrumb-current-page.js';
-import '@brightspace-ui/core/components/breadcrumbs/breadcrumbs.js';
 import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/colors/colors.js';
 import '@brightspace-ui/core/components/inputs/input-checkbox.js';
@@ -53,14 +50,7 @@ class D2lCaptureSettings extends DependencyRequester(PageViewElement) {
 	render() {
 		return html`
 			<div class="d2l-capture-central-manage-container">
-				<d2l-breadcrumbs>
-					<d2l-breadcrumb
-						@click=${this._goTo('/admin')}
-						href="#"
-						text="${this.localize('captureCentral')}"
-					></d2l-breadcrumb>
-					<d2l-breadcrumb-current-page text="${this.localize('settings')}"></d2l-breadcrumb-current-page>
-				</d2l-breadcrumbs>
+
 				<div class="d2l-capture-central-manage-header">
 					<h2 class="d2l-heading-2">${this.localize('prepostRollClipSettings')}</h2>
 				</div>

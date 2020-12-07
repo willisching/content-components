@@ -1,6 +1,3 @@
-import '@brightspace-ui/core/components/breadcrumbs/breadcrumb.js';
-import '@brightspace-ui/core/components/breadcrumbs/breadcrumb-current-page.js';
-import '@brightspace-ui/core/components/breadcrumbs/breadcrumbs.js';
 import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/colors/colors.js';
 import '@brightspace-ui/core/components/inputs/input-text.js';
@@ -153,25 +150,6 @@ class D2LCaptureUploadVideo extends DependencyRequester(PageViewElement) {
 		this._editingProperties = false;
 	}
 
-	_renderBreadcrumbs() {
-		const uploadBreadcrumbs = this._editingProperties
-			? html`
-				<d2l-breadcrumb @click=${this._resetUploadState} href="#" text="${this.localize('uploadVideo')}"></d2l-breadcrumb>
-				<d2l-breadcrumb-current-page text="${this.localize('editProperties')}"></d2l-breadcrumb-current-page>
-			  `
-			: html`<d2l-breadcrumb-current-page text="${this.localize('uploadVideo')}"></d2l-breadcrumb-current-page>`;
-
-		return html`
-			<d2l-breadcrumbs>
-				<d2l-breadcrumb @click=${this._goTo('/admin')} href="#" text="${this.localize('captureCentral')}"></d2l-breadcrumb>
-				${this.rootStore.routingStore.previousPage === 'presentations' ? html`
-					<d2l-breadcrumb @click=${this._goTo('/presentations')} href="#" text="${this.localize('presentations')}">
-					</d2l-breadcrumb>` : ''}
-				${uploadBreadcrumbs}
-			</d2l-breadcrumbs>
-		`;
-	}
-
 	_renderEditProperties() {
 		return html`
 			<div class="d2l-heading-2">${this.localize('editProperties')}</div>
@@ -223,7 +201,9 @@ class D2LCaptureUploadVideo extends DependencyRequester(PageViewElement) {
 				: 'uploadInProgress';
 		}
 		return html`
-			<div class="d2l-heading-2">${this.localize('uploadVideo')}</div>
+			<h2 class="d2l-capture-central-upload-video-heading d2l-heading-2">
+				${this.localize('uploadVideo')}
+			</h2>
 			<d2l-labs-file-uploader
 				style="${this._fileUploadStarted ? 'display: none' : ''}"
 				@d2l-file-uploader-files-added=${this._handleFileAdded}
@@ -262,7 +242,6 @@ class D2LCaptureUploadVideo extends DependencyRequester(PageViewElement) {
 	render() {
 		return html`
 			<div class="d2l-capture-central-edit-container d2l-navigation-gutters">
-				${this._renderBreadcrumbs()}
 				${this._editingProperties ? this._renderEditProperties() : this._renderUploadVideo()}
 			</div>
 		`;

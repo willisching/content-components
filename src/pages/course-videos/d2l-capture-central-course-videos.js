@@ -291,7 +291,7 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 				<d2l-dropdown-button class="d2l-capture-central-filter-folders" text="${this.localize('folders')}">
 					<d2l-dropdown-menu>
 						<d2l-menu label="Folders">
-							<d2l-menu-item @click=${this._goTo('/admin')} text="Placeholder text ..."></d2l-menu-item>
+							<d2l-menu-item text="Placeholder text ..."></d2l-menu-item>
 							<d2l-menu-item text="Placeholder text ..."></d2l-menu-item>
 						</d2l-menu>
 					</d2l-dropdown-menu>

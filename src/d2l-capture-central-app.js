@@ -70,7 +70,6 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 
 		const routes = [
 			`/:orgUnitId/${pageNames.page404}`,
-			`/:orgUnitId/${pageNames.admin}`,
 			`/:orgUnitId/${pageNames.auditLogs}`,
 			`/:orgUnitId/${pageNames.clips}`,
 			`/:orgUnitId/${pageNames.courseVideos}`,
@@ -81,7 +80,6 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			`/:orgUnitId/${pageNames.manageLiveEvents}/edit`,
 			`/:orgUnitId/${pageNames.myVideos}`,
 			`/:orgUnitId/${pageNames.liveEventsReporting}`,
-			`/:orgUnitId/${pageNames.presentations}`,
 			`/:orgUnitId/${pageNames.presentations}/edit/:id`,
 			`/:orgUnitId/${pageNames.producer}/:id`,
 			`/:orgUnitId/${pageNames.settings}`,
@@ -101,9 +99,6 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 		switch (currentPage) {
 			case '':
 				import('./pages/d2l-capture-central-landing.js');
-				return;
-			case pageNames.admin:
-				import('./pages/admin/d2l-capture-central-admin.js');
 				return;
 			case pageNames.auditLogs:
 				import('./pages/reporting/d2l-capture-central-audit-logs.js');
@@ -147,10 +142,6 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				import('./pages/reporting/d2l-capture-central-live-events-reporting.js');
 				return;
 			case pageNames.presentations:
-				if (!subView) {
-					import('./pages/presentations/d2l-capture-central-presentations.js');
-					return;
-				}
 				if (subView === 'edit') {
 					import('./pages/presentations/d2l-capture-central-presentations-edit.js');
 					return;
@@ -162,7 +153,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 					import('./pages/producer/d2l-capture-central-producer.js');
 					return;
 				}
-				this._navigate('/admin');
+				this._navigate('/404');
 				return;
 			case pageNames.settings:
 				import('./pages/settings/d2l-capture-central-settings.js');
@@ -198,7 +189,6 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 		return html`
 			<main id="main" role="main">
 				<d2l-capture-central-landing class="page" ?active=${currentPage === pageNames.landing}></d2l-capture-central-landing>
-				<d2l-capture-central-admin class="page" ?active=${currentPage === pageNames.admin}></d2l-capture-central-admin>
 				<d2l-capture-central-audit-logs class="page" ?active=${currentPage === pageNames.auditLogs}></d2l-capture-central-audit-logs>
 				<d2l-capture-central-course-videos class="page" ?active=${currentPage === pageNames.courseVideos && !subView}></d2l-capture-central-course-videos>
 				<d2l-capture-central-course-video-player class="page" ?active=${currentPage === pageNames.courseVideos && subView}></d2l-capture-central-course-video-player>
@@ -209,7 +199,6 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				<d2l-capture-central-live-events-create class="page" ?active=${currentPage === pageNames.manageLiveEvents && subView === 'create'}></d2l-capture-central-live-events-create>
 				<d2l-capture-central-live-events-reporting class="page" ?active=${currentPage === pageNames.liveEventsReporting}></d2l-capture-central-live-events-reporting>
 				<d2l-capture-central-my-videos class="page" ?active=${currentPage === pageNames.myVideos}></d2l-capture-central-my-videos>
-				<d2l-capture-central-presentations class="page" ?active=${currentPage === pageNames.presentations && !subView}></d2l-capture-central-presentations>
 				<d2l-capture-central-presentations-edit class="page" ?active=${currentPage === pageNames.presentations && subView === 'edit'}></d2l-capture-central-presentations-edit>
 				<d2l-capture-central-producer class="page" ?active=${currentPage === pageNames.producer && subView}></d2l-capture-central-producer>
 				<d2l-capture-central-settings class="page" ?active=${currentPage === pageNames.settings}></d2l-capture-central-settings>
