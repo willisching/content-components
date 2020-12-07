@@ -15,6 +15,7 @@ import { css, html } from 'lit-element/lit-element.js';
 import { autorun } from 'mobx';
 import { contentSearchMixin } from '../../mixins/content-search-mixin';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
+import { heading2Styles } from '@brightspace-ui/core/components/typography/styles.js';
 import { navigationSharedStyle } from '../../style/d2l-navigation-shared-styles.js';
 import { PageViewElement } from '../../components/page-view-element';
 class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequester(PageViewElement)) {
@@ -24,12 +25,16 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 		};
 	}
 	static get styles() {
-		return [navigationSharedStyle, css`
+		return [heading2Styles, navigationSharedStyle, css`
 			.d2l-capture-central-course-videos {
 				display: grid;
 				grid-gap: 50px 25px;
 				grid-template-columns: repeat(3, 1fr);
 				justify-content: center;
+			}
+
+			:host(.sidebar) .d2l-capture-central-course-videos-header {
+				visibility: hidden;
 			}
 
 			.d2l-capture-central-course-videos-header {
@@ -56,6 +61,12 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 
 			.d2l-capture-central-course-videos-ghost-video[hidden] {
 				display: none;
+			}
+
+			:host(.sidebar) .d2l-capture-central-course-videos-ghost-video,
+			:host(.sidebar) .d2l-capture-central-video,
+			:host(.sidebar) .d2l-capture-central-thumbnail {
+				width: 275px;
 			}
 
 			.d2l-capture-central-course-videos-ghost-video,
@@ -125,23 +136,26 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 				margin-top: 50px;
 			}
 
-			@media (max-width: 1200px) {
+			@media (max-width: 1230px) {
 				.d2l-capture-central-course-videos {
 					grid-gap: 25px 15px;
 				}
 
-				.d2l-capture-central-course-videos-ghost-video,
-				.d2l-capture-central-video {
-					min-width: 225px;
+				:host(.sidebar) .d2l-capture-central-course-videos-ghost-video,
+				:host(.sidebar) .d2l-capture-central-video,
+				:host(.sidebar) .d2l-capture-central-thumbnail {
 					width: 100%;
 				}
+
+				.d2l-capture-central-course-videos-ghost-video,
+				.d2l-capture-central-video,
 				.d2l-capture-central-thumbnail {
 					min-width: 225px;
 					width: 100%;
 				}
 			}
 
-			@media (max-width: 768px) {
+			@media (max-width: 930px) {
 				.d2l-capture-central-course-videos {
 					grid-template-columns: repeat(2, 1fr);
 					grid-gap: 15px 10px;
@@ -174,7 +188,14 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 				}
 			}
 
-			@media (max-width: 520px) {
+			@media (max-width: 768px) {
+				:host(.sidebar) .d2l-capture-central-course-videos-header,
+				.d2l-capture-central-course-videos-header {
+					visibility: visible;
+				}
+			}
+
+			@media (max-width: 660px) {
 				.d2l-capture-central-course-videos {
 					grid-template-columns: 1fr;
 					grid-gap: 0px 15x;
@@ -200,6 +221,7 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 				.d2l-capture-central-course-videos-ghost-video,
 				.d2l-capture-central-video {
 					height: 300px;
+					min-width: 225px;
 					width: 100%;
 				}
 				.d2l-capture-central-thumbnail,
@@ -212,12 +234,13 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 
 	constructor() {
 		super();
-		this.apiClient = this.requestDependency('content-service-client');
 		this._loading = true;
+
 	}
 
 	async connectedCallback() {
 		super.connectedCallback();
+		this.apiClient = this.requestDependency('content-service-client');
 		autorun(async() => {
 			if (this.rootStore.routingStore.page === 'course-videos'
 				&& !this.rootStore.routingStore.subView
@@ -286,8 +309,8 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 
 	render() {
 		return html`
-			<div class="d2l-capture-central-course-videos d2l-navigation-gutters">
-				<h2 class="d2l-capture-central-course-videos-header">${this.localize('courseVideos')}</h2>
+			<div class="d2l-capture-central-course-videos">
+				<h2 class="d2l-capture-central-course-videos-header d2l-heading-2">${this.localize('courseVideos')}</h2>
 				<d2l-dropdown-button class="d2l-capture-central-filter-folders" text="${this.localize('folders')}">
 					<d2l-dropdown-menu>
 						<d2l-menu label="Folders">

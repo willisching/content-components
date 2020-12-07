@@ -12,7 +12,7 @@ import '@brightspace-ui-labs/accordion/accordion-collapse.js';
 
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { heading2Styles, labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
-import { layoutNames, streamingStatus } from '../util/constants.js';
+import { layoutNames, pageNames, streamingStatus } from '../util/constants.js';
 import { inputLabelStyles } from '@brightspace-ui/core/components/inputs/input-label-styles';
 import { inputStyles } from '@brightspace-ui/core/components/inputs/input-styles.js';
 import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin.js';
@@ -401,7 +401,7 @@ class LiveEventForm extends MobxReactionUpdate(NavigationMixin(RtlMixin(Internal
 		return html`
 			<div class="d2l-capture-central-edit-container">
 				<d2l-breadcrumbs>
-					<d2l-breadcrumb @click=${this._goTo('/')} href="#" text="${this.localize('captureCentral')}"></d2l-breadcrumb>
+					<d2l-breadcrumb @click=${this._goTo(`/${pageNames.manageLiveEvents}`)} href="#" text="${this.localize('liveEvents')}"></d2l-breadcrumb>
 					<d2l-breadcrumb-current-page text="${this.getCurrentPageLabel()}"></d2l-breadcrumb-current-page>
 				</d2l-breadcrumbs>
 				<div class="d2l-heading-2">${this.getCurrentPageLabel()}</div>

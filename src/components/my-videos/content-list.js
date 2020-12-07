@@ -4,10 +4,11 @@ import '@brightspace-ui/core/components/colors/colors.js';
 import '@brightspace-ui/core/components/icons/icon.js';
 import '@brightspace-ui/core/components/list/list-item.js';
 import '@brightspace-ui/core/components/list/list.js';
-import './content-list-item.js';
-import './content-list-item-ghost.js';
-import './content-list-header.js';
+import '../content-file-drop.js';
 import '../relative-date.js';
+import './content-list-header.js';
+import './content-list-item-ghost.js';
+import './content-list-item.js';
 
 import { bodyCompactStyles, bodySmallStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
@@ -191,6 +192,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 	render() {
 		return html`
 			<content-list-header @change-sort=${this.changeSort}></content-list-header>
+			<content-file-drop>
 			<d2l-list>
 				<div id="d2l-content-store-list">
 					${this.renderNotFound()}
@@ -198,6 +200,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 					${this.renderGhosts()}
 				</div>
 			</d2l-list>
+			</content-file-drop>
 
 			<d2l-alert-toast
 				id="delete-toast"

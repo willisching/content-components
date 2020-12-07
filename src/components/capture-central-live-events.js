@@ -98,7 +98,7 @@ class CaptureCentralLiveEvents extends DependencyRequester(InternalLocalizeMixin
 
 				const { searchQuery = '' } = toJS(change.newValue);
 
-				if (rootStore.routingStore.getPage() === pageNames.landing) {
+				if (rootStore.routingStore.getPage() === pageNames.manageLiveEvents) {
 					await this.reload({ searchQuery });
 				}
 			}
@@ -206,9 +206,9 @@ class CaptureCentralLiveEvents extends DependencyRequester(InternalLocalizeMixin
 		const searchQuery = e.detail.value;
 
 		if (searchQuery) {
-			this._navigate('/', { searchQuery });
+			this._navigate(`/${pageNames.manageLiveEvents}`, { searchQuery });
 		} else {
-			this._navigate('/');
+			this._navigate(`/${pageNames.manageLiveEvents}`);
 		}
 	}
 

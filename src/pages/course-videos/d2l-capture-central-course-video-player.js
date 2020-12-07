@@ -8,6 +8,7 @@ import { autorun } from 'mobx';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
 import { heading3Styles } from '@brightspace-ui/core/components/typography/styles.js';
 import { navigationSharedStyle } from '../../style/d2l-navigation-shared-styles.js';
+import { pageNames } from '../../util/constants.js';
 import { PageViewElement } from '../../components/page-view-element';
 
 class D2LCaptureCentralCourseVideoPlayer extends DependencyRequester(PageViewElement) {
@@ -29,6 +30,13 @@ class D2LCaptureCentralCourseVideoPlayer extends DependencyRequester(PageViewEle
 				margin: 25px 0;
 			}
 
+			.d2l-capture-central-course-video-player-breadcrumb-ghost {
+				margin: 25px 0;
+				height: 25px;
+				width: 100px;
+				min-width: 500px;
+			}
+
 			.d2l-capture-central-course-video-player-title-ghost {
 				height: 25px;
 				width: 250px;
@@ -36,7 +44,7 @@ class D2LCaptureCentralCourseVideoPlayer extends DependencyRequester(PageViewEle
 
 			.d2l-capture-central-course-video-player-video-ghost {
 				margin-top: 25px;
-				height: 650px;
+				height: 600px;
 				width: 100%;
 			}
 		`];
@@ -44,12 +52,12 @@ class D2LCaptureCentralCourseVideoPlayer extends DependencyRequester(PageViewEle
 
 	constructor() {
 		super();
-		this.apiClient = this.requestDependency('content-service-client');
 		this._content = {};
 	}
 
 	async connectedCallback() {
 		super.connectedCallback();
+		this.apiClient = this.requestDependency('content-service-client');
 		autorun(async() => {
 			if (this.rootStore.routingStore.page === 'course-videos'
 				&& this.rootStore.routingStore.subView
@@ -64,53 +72,36 @@ class D2LCaptureCentralCourseVideoPlayer extends DependencyRequester(PageViewEle
 	}
 
 	_updateBreadcrumbs() {
-		const { previousPage, previousSubView } = this.rootStore.routingStore;
+		const { previousPage } = this.rootStore.routingStore;
 		let langterm = 'courseVideos';
 		let previousLocation = '/course-videos';
-		if (previousPage === 'presentations') {
-			if (previousSubView === 'edit') {
-				langterm = 'editPresentation';
-				previousLocation = `/presentations/edit/${this.rootStore.routingStore.params.id}`;
-			} else {
-				langterm = 'managePresentations';
-				previousLocation = '/presentations';
-			}
+		if (previousPage === 'my-videos') {
+			langterm = 'myVideos';
+			previousLocation = `/${pageNames.myVideos}`;
 		}
 		this._navigationInfo = { langterm, previousLocation };
 	}
 
-	_renderMediaPlayer() {
+	render() {
 		if (this._loading) {
 			return html`
+				<ghost-box class="d2l-capture-central-course-video-player-breadcrumb-ghost"></ghost-box>
 				<ghost-box class="d2l-capture-central-course-video-player-title-ghost"></ghost-box>
 				<ghost-box class="d2l-capture-central-course-video-player-video-ghost"></ghost-box>
 			`;
 		}
-		return html`
-			<h3 class="d2l-heading-3">${this._content.title}</h3>
-			<d2l-labs-media-player src="${this._sourceUrl}"></d2l-labs-media-player>
-		`;
-	}
 
-	render() {
 		const { langterm, previousLocation } = this._navigationInfo;
 		return html`
-			<div class="d2l-navigation-gutters">
-				<d2l-breadcrumbs>
-					<d2l-breadcrumb
-						@click=${this._goTo('/admin')}
-						href="#"
-						text="${this.localize('captureCentral')}"
-					></d2l-breadcrumb>
-					<d2l-breadcrumb
-						@click=${this._goTo(previousLocation)}
-						href="#"
-						text="${this.localize(langterm)}"
-					></d2l-breadcrumb>
-				</d2l-breadcrumbs>
-
-				${this._renderMediaPlayer()}
-			</div>
+			<d2l-breadcrumbs>
+				<d2l-breadcrumb
+					@click=${this._goTo(previousLocation)}
+					href="#"
+					text="${this.localize(langterm)}"
+				></d2l-breadcrumb>
+			</d2l-breadcrumbs>
+			<h3 class="d2l-heading-3">${this._content.title}</h3>
+			<d2l-labs-media-player src="${this._sourceUrl}"></d2l-labs-media-player>
 		`;
 	}
 
