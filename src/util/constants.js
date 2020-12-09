@@ -3,7 +3,6 @@ export const pageNames = {
 	clips: 'clips',
 	courseVideos: 'course-videos',
 	folders: 'folders',
-	groups: 'groups',
 	landing: '',
 	liveEventsReporting: 'live-events-reporting',
 	manageLiveEvents: 'manage-live-events',
@@ -14,7 +13,6 @@ export const pageNames = {
 	page404: '404',
 	producer: 'producer',
 	settings: 'settings',
-	users: 'users',
 	visits: 'visits'
 };
 

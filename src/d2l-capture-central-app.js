@@ -160,9 +160,6 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			case pageNames.folders:
 				import('./pages/folders/d2l-capture-central-folders.js');
 				return;
-			case pageNames.groups:
-				import('./pages/groups/d2l-capture-central-groups.js');
-				return;
 			case pageNames.manageLiveEvents:
 				switch (subView) {
 					case 'edit':
@@ -194,9 +191,6 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				return;
 			case pageNames.settings:
 				import('./pages/settings/d2l-capture-central-settings.js');
-				return;
-			case pageNames.users:
-				import('./pages/users/d2l-capture-central-users.js');
 				return;
 			case pageNames.visits:
 				import('./pages/reporting/d2l-capture-central-visits.js');
