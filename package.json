@@ -11,9 +11,6 @@
     "lint:fix": "xo --fix",
     "start": "es-dev-server --node-resolve --dedupe --watch --open",
     "test": "npm run lint && npm run test:headless",
-    "test:diff": "mocha ./**/*.visual-diff.js -t 40000",
-    "test:diff:golden": "mocha ./**/*.visual-diff.js -t 40000 --golden",
-    "test:diff:golden:commit": "commit-goldens",
     "test:headless": "karma start",
     "test:headless:watch": "karma start --auto-watch=true --single-run=false",
     "test:sauce": "karma start karma.sauce.conf.js"
@@ -21,9 +18,9 @@
   "author": "D2L Corporation",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@brightspace-ui/visual-diff": "^1",
     "@open-wc/testing": "^2",
     "@open-wc/testing-karma": "^3",
+    "@webcomponents/webcomponentsjs": "^2",
     "axe-core": "^3",
     "babel-eslint": "^10",
     "chai": "^4",
@@ -37,7 +34,6 @@
     "karma-sauce-launcher": "^2",
     "lit-analyzer": "^1",
     "mocha": "^7",
-    "puppeteer": "^2",
     "sinon": "^9",
     "xo": "^0.25.4"
   },
@@ -47,7 +43,6 @@
     "@brightspace-ui/intl": "^3",
     "@chaitin/querystring": "^1.1.0",
     "@polymer/polymer": "^3.2.0",
-    "@webcomponents/webcomponentsjs": "^2",
     "d2l-alert": "BrightspaceUI/alert#semver:^4",
     "d2l-dropdown": "BrightspaceUI/dropdown#semver:^7",
     "d2l-fetch": "Brightspace/d2l-fetch.git#semver:^2",
