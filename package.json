@@ -10,9 +10,6 @@
     "lint:lit": "lit-analyzer d2l-content-store-add-content.js demo test",
     "start": "es-dev-server --app-index demo/index.html --node-resolve --dedupe --open --watch",
     "test": "npm run lint && npm run test:headless && npm run test:diff",
-    "test:diff": "mocha ./**/*.visual-diff.js -t 40000",
-    "test:diff:golden": "mocha ./**/*.visual-diff.js -t 40000 --golden",
-    "test:diff:golden:commit": "commit-goldens",
     "test:headless": "karma start",
     "test:headless:watch": "karma start --auto-watch=true --single-run=false",
     "test:sauce": "karma start karma.sauce.conf.js"
@@ -20,9 +17,9 @@
   "author": "D2L Corporation",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@brightspace-ui/visual-diff": "^1",
     "@open-wc/testing": "^2",
     "@open-wc/testing-karma": "^4",
+    "@webcomponents/webcomponentsjs": "^2",
     "babel-eslint": "^10",
     "deepmerge": "^4",
     "es-dev-server": "^1",
@@ -33,8 +30,7 @@
     "eslint-plugin-sort-class-members": "^1",
     "frau-ci": "^1",
     "karma-sauce-launcher": "^4",
-    "lit-analyzer": "^1",
-    "puppeteer": "^5"
+    "lit-analyzer": "^1"
   },
   "dependencies": {
     "@adobe/lit-mobx": "0.0.4",
@@ -42,7 +38,6 @@
     "@brightspace-ui/intl": "^3.1.4",
     "@chaitin/querystring": "^1.1.0",
     "@polymer/polymer": "^3.4.1",
-    "@webcomponents/webcomponentsjs": "^2",
     "d2l-fetch": "github:Brightspace/d2l-fetch#semver:^2",
     "d2l-fetch-auth": "^1.5.2",
     "file-drop-element": "^1.0.1",

@@ -63,7 +63,7 @@ npm run lint:lit
 ### Testing
 
 ```shell
-# lint, unit test and visual-diff test
+# lint, unit test
 npm test
 
 # lint only
@@ -76,23 +76,6 @@ npm run test:headless
 # then navigate to `http://localhost:9876/debug.html`
 npm run test:headless:watch
 ```
-
-### Visual Diff Testing
-
-This repo uses the [@brightspace-ui/visual-diff utility](https://github.com/BrightspaceUI/visual-diff/) to compare current snapshots against a set of golden snapshots stored in source control.
-
-```shell
-# run visual-diff tests
-npm run test:diff
-
-# subset of visual-diff tests:
-npm run test:diff -- -g some-pattern
-
-# update visual-diff goldens
-npm run test:diff:golden
-```
-
-Golden snapshots in source control must be updated by Travis CI. To trigger an update, press the "Regenerate Goldens" button in the pull request `visual-difference` test run.
 
 ## Versioning, Releasing & Deploying
 
