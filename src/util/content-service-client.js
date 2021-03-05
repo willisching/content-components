@@ -1,6 +1,7 @@
 import * as querystring from '@chaitin/querystring';
 import auth from 'd2l-fetch-auth/src/unframed/index.js';
 import { d2lfetch } from 'd2l-fetch/src/index.js';
+import { parse } from './d2lrn';
 
 d2lfetch.use({ name: 'auth', fn: auth });
 
@@ -17,7 +18,10 @@ export default class ContentServiceClient {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/`,
 			method: 'POST',
-			body
+			body: {
+				...body,
+				clientApp: 'LMS/Content',
+			},
 		});
 	}
 
@@ -34,6 +38,13 @@ export default class ContentServiceClient {
 			path: `/api/${this.tenantId}/content/${contentId}`,
 			method: 'DELETE',
 			extractJsonBody: false
+		});
+	}
+
+	getRevisionByName(d2lrn) {
+		const { tenantId, contentId, revisionId } = parse(d2lrn);
+		return this._fetch({
+			path: `/api/${tenantId}/content/${contentId}/revisions/${revisionId}`,
 		});
 	}
 

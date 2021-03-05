@@ -3,15 +3,14 @@ import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/colors/colors.js';
 import { bodyCompactStyles, bodySmallStyles, bodyStandardStyles, heading2Styles } from '@brightspace-ui/core/components/typography/styles.js';
 import { css, html, LitElement } from 'lit-element';
-import { DependencyRequester } from '../../mixins/dependency-requester-mixin';
-import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin';
+import { DependencyRequester } from '../mixins/dependency-requester-mixin';
+import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin';
 
-class ContentFileDrop extends DependencyRequester(InternalLocalizeMixin(LitElement)) {
+export default class extends DependencyRequester(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
 			_supportedMimeTypes: { type: Array, attribute: false },
-			enableFileDrop: { type: Boolean, attribute: 'enable-file-drop', reflect: true },
-			errorMessage: { type: String, attribute: 'error-message', reflect: true }
+			errorMessage: { type: String, attribute: 'error-message', reflect: true },
 		};
 	}
 
@@ -69,43 +68,28 @@ class ContentFileDrop extends DependencyRequester(InternalLocalizeMixin(LitEleme
 	}
 
 	render() {
-		const browseFileSection = html`
-			<d2l-button
-				description=${this.localize('browseForFile')}
-				@click=${this.onBrowseClick}
-				>
-				${this.localize('browse')}
-				<input
-					id="file-select"
-					type="file"
-					accept=${this._supportedMimeTypes.join(',')}
-					@change=${this.onFileInputChange} />
-			</d2l-button>
-			<p id="file-size-limit" class="d2l-body-small">${this.localize('fileLimit1Gb')}</p>
+		return html`
+			<file-drop @filedrop=${this.onFileDrop} accept=${this._supportedMimeTypes.join(',')}>
+				<center>
+					<h2 class="d2l-heading-2">${this.localize('dropAudioVideoFile')}</h2>
+					<p class="d2l-body-standard">${this.localize('or')}</p>
+					<d2l-button
+						description=${this.localize('browseForFile')}
+						@click=${this.onBrowseClick}
+					>
+						${this.localize('browse')}
+						<input
+							id="file-select"
+							type="file"
+							accept=${this._supportedMimeTypes.join(',')}
+							@change=${this.onFileInputChange}
+						/>
+					</d2l-button>
+					<p id="file-size-limit" class="d2l-body-small">${this.localize('fileLimit1Gb')}</p>
+					<p id="error-message" class="d2l-body-compact">${this.errorMessage}&nbsp;</p>
+				</center>
+			</file-drop>
 		`;
-		const errorMessageText = html`<p id="error-message" class="d2l-body-compact">${this.errorMessage}&nbsp;</p>`;
-
-		if (this.enableFileDrop) {
-			return html`
-				<file-drop @filedrop=${this.onFileDrop} accept=${this._supportedMimeTypes.join(',')}>
-					<center>
-						<h2 class="d2l-heading-2">${this.localize('dropAudioVideoFile')}</h2>
-						<p class="d2l-body-standard">${this.localize('or')}</p>
-						${browseFileSection}
-						${errorMessageText}
-					</center>
-				</file-drop>
-			`;
-		} else {
-			return html`
-				<div id="no-file-drop-container">
-					<center>
-						${browseFileSection}
-						${errorMessageText}
-					</center>
-				</div>
-			`;
-		}
 	}
 
 	onBrowseClick() {
@@ -113,16 +97,16 @@ class ContentFileDrop extends DependencyRequester(InternalLocalizeMixin(LitEleme
 	}
 
 	onFileDrop(event) {
-		this.stageFile(event._files);
+		this.processFiles(event.files);
 	}
 
 	onFileInputChange(event) {
-		this.stageFile(event.target.files);
+		this.processFiles(event.target.files);
 	}
 
-	stageFile(files) {
+	processFiles(files) {
 		if (files.length !== 1) {
-			this.dispatchEvent(new CustomEvent('upload-error', {
+			this.dispatchEvent(new CustomEvent('file-drop-error', {
 				detail: {
 					message: this.localize('mayOnlyUpload1File')
 				},
@@ -134,7 +118,7 @@ class ContentFileDrop extends DependencyRequester(InternalLocalizeMixin(LitEleme
 
 		const file = files[0];
 		if (!this._supportedMimeTypes.includes(file.type)) {
-			this.dispatchEvent(new CustomEvent('upload-error', {
+			this.dispatchEvent(new CustomEvent('file-error', {
 				detail: {
 					message: this.localize('invalidFileType')
 				},
@@ -144,7 +128,7 @@ class ContentFileDrop extends DependencyRequester(InternalLocalizeMixin(LitEleme
 			return;
 		}
 		if (file.size > Math.pow(2, 30)) {
-			this.dispatchEvent(new CustomEvent('upload-error', {
+			this.dispatchEvent(new CustomEvent('file-error', {
 				detail: {
 					message: this.localize('fileTooLarge')
 				},
@@ -154,7 +138,7 @@ class ContentFileDrop extends DependencyRequester(InternalLocalizeMixin(LitEleme
 			return;
 		}
 
-		this.dispatchEvent(new CustomEvent('stage-file-for-upload', {
+		this.dispatchEvent(new CustomEvent('file-change', {
 			detail: { file },
 			bubbles: true,
 			composed: true
@@ -162,4 +146,3 @@ class ContentFileDrop extends DependencyRequester(InternalLocalizeMixin(LitEleme
 	}
 }
 
-window.customElements.define('content-file-drop', ContentFileDrop);

@@ -82,7 +82,8 @@ export class Uploader {
 				this.content.id,
 				{
 					title,
-					extension
+					extension,
+					formats: ['hd', 'mp3']
 				}
 			);
 

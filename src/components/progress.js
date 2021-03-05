@@ -1,9 +1,9 @@
 import '@brightspace-ui/core/components/meter/meter-linear.js';
 import { css, html, LitElement } from 'lit-element';
 import { bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
-import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin';
+import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin';
 
-class UploadProgressIndicator extends InternalLocalizeMixin(LitElement) {
+export default class extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
 			fileName: { type: String, attribute: 'file-name', reflect: true },
@@ -43,4 +43,3 @@ class UploadProgressIndicator extends InternalLocalizeMixin(LitElement) {
 	}
 }
 
-window.customElements.define('upload-progress-indicator', UploadProgressIndicator);
