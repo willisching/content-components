@@ -1,0 +1,39 @@
+{
+  "name": "@brightspace/content-components",
+  "description": "Web components for content in Brightspace",
+  "version": "0.0.1",
+  "scripts": {
+    "lint": "npm run lint:eslint && npm run lint:lit",
+    "lint:eslint": "eslint . --ext .js,.html",
+    "lint:lit": "lit-analyzer  \"{components,test,demo}/**/*.js\" --strict",
+    "test": "npm run lint && npm run test:headless",
+    "test:headless": "karma start --coverage",
+    "test:sauce": "karma start karma.sauce.conf.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Brightspace/content-components.git"
+  },
+  "author": "D2L Corporation",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@babel/eslint-parser": "^7",
+    "@open-wc/testing": "^2",
+    "@open-wc/testing-karma": "^3",
+    "@webcomponents/webcomponentsjs": "^2",
+    "deepmerge": "^3",
+    "es-dev-server": "^1",
+    "eslint": "^6",
+    "eslint-config-brightspace": "^0.13",
+    "eslint-plugin-html": "^6",
+    "eslint-plugin-lit": "^1",
+    "eslint-plugin-sort-class-members": "^1",
+    "karma-sauce-launcher": "^2",
+    "lit-analyzer": "^1"
+  },
+  "dependencies": {
+    "@brightspace-ui/core": "^1",
+    "lit-element": "^2",
+    "lit-html": "^1.3.0"
+  }
+}

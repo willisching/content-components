@@ -1,0 +1,6 @@
+node_modules/
+package-lock.json
+test/screenshots/current/
+test/screenshots/golden/
+.nyc_output
+coverage/
