@@ -1,12 +1,12 @@
 {
-  "name": "<%= packageName %>",
-  "description": "<%= description %>",
-  "repository": "https://github.com/<%= githubOrg %>/<%= shortName %>.git",
-  <%= publishInfo %>,
+  "name": "@brightspace/content-service-viewer",
+  "description": "Viewer for content in the content service",
+  "repository": "https://github.com/Brightspace/content-service-viewer.git",
+  "private": true,
   "scripts": {
     "lint": "npm run lint:eslint && npm run lint:lit",
     "lint:eslint": "eslint . --ext .js,.html",
-    "lint:lit": "lit-analyzer <%= shortName %>.js demo test",
+    "lint:lit": "lit-analyzer content-service-viewer.js demo test",
     "start": "es-dev-server --app-index demo/index.html --node-resolve --dedupe --open --watch",
     "test": "npm run lint && npm run test:headless && npm run test:diff",
     "test:headless": "karma start",
