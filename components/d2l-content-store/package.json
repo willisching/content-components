@@ -1,0 +1,103 @@
+{
+  "name": "d2l-content-store",
+  "description": "d2l-content-store",
+  "repository": "https://github.com/Brightspace/d2l-content-store.git",
+  "version": "0.0.4",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "lint": "xo",
+    "lint:fix": "xo --fix",
+    "start": "es-dev-server --node-resolve --dedupe --watch --open",
+    "test": "npm run lint && npm run test:headless",
+    "test:headless": "karma start",
+    "test:headless:watch": "karma start --auto-watch=true --single-run=false",
+    "test:sauce": "karma start karma.sauce.conf.js"
+  },
+  "author": "D2L Corporation",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@open-wc/testing": "^2",
+    "@open-wc/testing-karma": "^3",
+    "@webcomponents/webcomponentsjs": "^2",
+    "axe-core": "^3",
+    "babel-eslint": "^10",
+    "chai": "^4",
+    "chalk": "^3",
+    "deepmerge": "^4.2.2",
+    "eslint-config-brightspace": "^0.6",
+    "eslint-plugin-html": "^6",
+    "eslint-plugin-lit": "^1",
+    "eslint-plugin-sort-class-members": "^1",
+    "frau-ci": "^1",
+    "karma-sauce-launcher": "^2",
+    "lit-analyzer": "^1",
+    "mocha": "^7",
+    "sinon": "^9",
+    "xo": "^0.25.4"
+  },
+  "dependencies": {
+    "@adobe/lit-mobx": "0.0.2",
+    "@brightspace-ui/core": "^1",
+    "@brightspace-ui/intl": "^3",
+    "@chaitin/querystring": "^1.1.0",
+    "@polymer/polymer": "^3.2.0",
+    "d2l-alert": "BrightspaceUI/alert#semver:^4",
+    "d2l-dropdown": "BrightspaceUI/dropdown#semver:^7",
+    "d2l-fetch": "Brightspace/d2l-fetch.git#semver:^2",
+    "d2l-fetch-auth": "^1.5.2",
+    "d2l-resize-aware": "BrightspaceUI/resize-aware#semver:^1",
+    "file-drop-element": "^0",
+    "lit-element": "^2",
+    "mobx": "^5.15.4",
+    "page": "^1.11.5",
+    "pwa-helpers": "^0.9.1"
+  },
+  "xo": {
+    "env": [
+      "es6",
+      "mocha"
+    ],
+    "extends": "brightspace/lit-config",
+    "extensions": [
+      "html"
+    ],
+    "overrides": [
+      {
+        "files": "test/**/*.html",
+        "extends": "brightspace/wct-lit-config"
+      },
+      {
+        "files": [
+          "**/test/*.test.js"
+        ],
+        "rules": {
+          "no-unused-expressions": "off"
+        }
+      }
+    ],
+    "parser": "babel-eslint",
+    "parserOptions": {
+      "sourceType": "module"
+    },
+    "plugins": [
+      "html"
+    ],
+    "ignores": [],
+    "rules": {
+      "capitalized-comments": "off",
+      "import/no-unassigned-import": "off",
+      "import/extensions": [
+        "error",
+        "always"
+      ],
+      "new-cap": "off",
+      "object-curly-spacing": [
+        "error",
+        "always"
+      ],
+      "sort-imports": "off"
+    }
+  }
+}

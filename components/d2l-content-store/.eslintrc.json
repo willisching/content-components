@@ -1,0 +1,10 @@
+{
+  "extends": "brightspace/lit-config",
+  "rules": {
+    "sort-imports": 0,
+    "no-unassigned-import": 0
+  },
+  "env": {
+    "mocha": true
+  }
+}
