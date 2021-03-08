@@ -73,11 +73,11 @@ class DemoVideoProducer extends LitElement {
 						primary
 						text="Save"
 					></d2l-button-icon>
-					<d2l-labs-video-producer-language-selector
+					<d2l-video-producer-language-selector
 						.languages="${this.languages}"
 						.selectedLanguage="${this.selectedLanguage}"
 						@selected-language-changed="${this._handleSelectedLanguageChanged}"
-					></d2l-labs-video-producer-language-selector>
+					></d2l-video-producer-language-selector>
 					<d2l-button
 						?disabled="${this._saving || this._publishing || this._loading}"
 						@click="${this._handlePublish}"
@@ -93,13 +93,13 @@ class DemoVideoProducer extends LitElement {
 					</d2l-button>
 				</div>
 
-				<d2l-labs-video-producer
+				<d2l-video-producer
 					.defaultLanguage="${this.defaultLanguage}"
 					.metadata="${this.metadata}"
 					.selectedLanguage="${this.selectedLanguage}"
 					@metadata-changed="${this._handleMetadataChanged}"
 					src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-				></d2l-labs-video-producer>
+				></d2l-video-producer>
 
 				<d2l-alert-toast type="default">
 					${this._alertMessage}
@@ -180,4 +180,4 @@ class DemoVideoProducer extends LitElement {
 	}
 }
 
-customElements.define('d2l-labs-video-producer-demo-producer', DemoVideoProducer);
+customElements.define('d2l-video-producer-demo-producer', DemoVideoProducer);

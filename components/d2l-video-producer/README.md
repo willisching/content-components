@@ -1,4 +1,4 @@
-# d2l-labs-video-producer
+# d2l-video-producer
 
 [![NPM version](https://img.shields.io/npm/v/@brightspace-ui-labs/video-producer.svg)](https://www.npmjs.org/package/@brightspace-ui-labs/video-producer)
 
@@ -40,13 +40,13 @@ class MyComponent {
 	// ...
 	render() {
 		return html`
-			<d2l-labs-video-producer
+			<d2l-video-producer
 				.defaultLanguage="${defaultLanguage}"
 				.metadata="${metadata}"
 				.selectedLanguage="${selectedLanguage}"
 				@metadata-changed="${handleMetadataChanged}"
 				src="..."
-			></d2l-labs-video-producer>
+			></d2l-video-producer>
 		`;
 	}
 }
@@ -85,11 +85,11 @@ class MyComponent {
 	// ...
 	render() {
 		return html`
-			<d2l-labs-video-producer-language-selector
+			<d2l-video-producer-language-selector
 				.languages="${languages}"
 				.selectedLanguage="${selectedLanguage}"
 				@selected-language-changed="${handleSelectedLanguageChanged}"
-			></d2l-labs-video-producer-language-selector>
+			></d2l-video-producer-language-selector>
 		`;
 	}
 }

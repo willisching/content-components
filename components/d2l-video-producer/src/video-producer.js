@@ -92,7 +92,7 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	firstUpdated() {
 		super.firstUpdated();
 		this._video = this.shadowRoot.querySelector('d2l-labs-media-player');
-		this._chapters = this.shadowRoot.querySelector('d2l-labs-video-producer-chapters');
+		this._chapters = this.shadowRoot.querySelector('d2l-video-producer-chapters');
 		this._configureStage();
 		this._configureModes();
 
@@ -120,7 +120,7 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 						controls
 						src="${this.src}"
 					></d2l-labs-media-player>
-					<d2l-labs-video-producer-chapters
+					<d2l-video-producer-chapters
 						.chapters="${this.metadata && this.metadata.chapters}"
 						.defaultLanguage="${this.defaultLanguage}"
 						.selectedLanguage="${this.selectedLanguage}"
@@ -128,7 +128,7 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 						@add-new-chapter="${this._addNewChapter}"
 						@chapters-changed="${this._handleChaptersChanged}"
 						@set-chapter-to-current-time="${this._setChapterToCurrentTime}"
-					></d2l-labs-video-producer-chapters>
+					></d2l-video-producer-chapters>
 				</div>
 				<div class="d2l-video-producer-timeline">
 					<canvas width="985" height="90" id="timeline-canvas"></canvas>
@@ -886,4 +886,4 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._stage.update();
 	}
 }
-customElements.define('d2l-labs-video-producer', VideoProducer);
+customElements.define('d2l-video-producer', VideoProducer);
