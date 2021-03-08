@@ -13,7 +13,7 @@ const prompts = [
 	{ prompt: 'Publish to NPM [yes | no]', property: 'publish', expected: ['yes', 'no'], default: 'yes' },
 	{ prompt: 'Component Type [labs | official]', property: 'type', expected: ['labs', 'official'], default: 'labs' },
 	{ prompt: 'Localization [yes | no]', property: 'localization', expected: ['yes', 'no'], default: 'no' },
-	{ prompt: 'Localization Resources [static | dynamic]', property: 'localizationResources', expected: ['static', 'dynamic'], default: 'static'}
+	{ prompt: 'Localization Resources [static | dynamic]', property: 'localizationResources', expected: ['static', 'dynamic'], default: 'static' }
 ];
 
 let counter = 0;

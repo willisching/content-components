@@ -13,9 +13,10 @@ export default class ContentServiceClient {
 		this.tenant = tenant;
 	}
 
-	_url(path, query) {
-		const qs = query ? `?${querystring.stringify(query)}` : '';
-		return `${this.endpoint}${path}${qs}`;
+	getDownloadUrl({ resource, context }) {
+		return this._fetch({
+			path: `/api/resources/download?resource=${resource}&context=${context}`
+		});
 	}
 
 	async _fetch({
@@ -51,10 +52,8 @@ export default class ContentServiceClient {
 
 		return response;
 	}
-
-	getDownloadUrl({ resource, context }) {
-		return this._fetch({
-			path: `/api/resources/download?resource=${resource}&context=${context}`
-		});
+	_url(path, query) {
+		const qs = query ? `?${querystring.stringify(query)}` : '';
+		return `${this.endpoint}${path}${qs}`;
 	}
 }

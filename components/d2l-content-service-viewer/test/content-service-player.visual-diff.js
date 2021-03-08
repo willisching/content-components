@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer');
 const VisualDiff = require('@brightspace-ui/visual-diff');
 
-describe('d2l-labs-content-service-viewer', () => {
+describe('d2l-content-service-viewer', () => {
 
 	const visualDiff = new VisualDiff('content-service-viewer', __dirname);
 
@@ -10,8 +10,8 @@ describe('d2l-labs-content-service-viewer', () => {
 	before(async() => {
 		browser = await puppeteer.launch();
 		page = await visualDiff.createPage(browser);
-		await page.setViewport({width: 800, height: 800, deviceScaleFactor: 2});
-		await page.goto(`${visualDiff.getBaseUrl()}/test/content-service-viewer.visual-diff.html`, {waitUntil: ['networkidle0', 'load']});
+		await page.setViewport({ width: 800, height: 800, deviceScaleFactor: 2 });
+		await page.goto(`${visualDiff.getBaseUrl()}/test/content-service-viewer.visual-diff.html`, { waitUntil: ['networkidle0', 'load'] });
 		await page.bringToFront();
 	});
 

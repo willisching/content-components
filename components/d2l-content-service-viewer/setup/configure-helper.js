@@ -57,6 +57,28 @@ class Helper {
 		}
 	}
 
+	updateLabsChecklist() {
+		let checklist = '';
+		if (this.type === 'labs-') {
+			checklist = `> Note: this is a ["labs" component](https://github.com/BrightspaceUI/guide/wiki/Component-Tiers). While functional, these tasks are prerequisites to promotion to BrightspaceUI "official" status:
+>
+> - [ ] [Design organization buy-in](https://github.com/BrightspaceUI/guide/wiki/Before-you-build#working-with-design)
+> - [ ] [design.d2l entry](http://design.d2l/)
+> - [ ] [Architectural sign-off](https://github.com/BrightspaceUI/guide/wiki/Before-you-build#web-component-architecture)
+> - [ ] [Continuous integration](https://github.com/BrightspaceUI/guide/wiki/Testing#testing-continuously-with-travis-ci)
+> - [ ] [Cross-browser testing](https://github.com/BrightspaceUI/guide/wiki/Testing#cross-browser-testing-with-sauce-labs)
+> - [ ] [Unit tests](https://github.com/BrightspaceUI/guide/wiki/Testing#testing-with-polymer-test) (if applicable)
+> - [ ] [Accessibility tests](https://github.com/BrightspaceUI/guide/wiki/Testing#automated-accessibility-testing-with-axe)
+> - [ ] [Visual diff tests](https://github.com/BrightspaceUI/visual-diff)
+> - [ ] [Localization](https://github.com/BrightspaceUI/guide/wiki/Localization) with Serge (if applicable)
+> - [ ] Demo page
+> - [ ] README documentation
+
+`;
+		}
+		this.replaceText('_README.md', '<%= labsChecklist %>', checklist);
+	}
+
 	updateLocalizationInfo() {
 		let localizeExtends, localizeMixin, localizeResources, localizedDemo;
 		if (this.localization === 'yes') {
@@ -118,28 +140,6 @@ class Helper {
 		this.replaceText('_element.js', '<%= localizeMixin %>', localizeMixin);
 		this.replaceText('_element.js', '<%= localizeResources %>', localizeResources);
 		this.replaceText('_element.js', '<%= localizedDemo %>', localizedDemo);
-	}
-
-	updateLabsChecklist() {
-		let checklist = '';
-		if (this.type === 'labs-') {
-			checklist = `> Note: this is a ["labs" component](https://github.com/BrightspaceUI/guide/wiki/Component-Tiers). While functional, these tasks are prerequisites to promotion to BrightspaceUI "official" status:
->
-> - [ ] [Design organization buy-in](https://github.com/BrightspaceUI/guide/wiki/Before-you-build#working-with-design)
-> - [ ] [design.d2l entry](http://design.d2l/)
-> - [ ] [Architectural sign-off](https://github.com/BrightspaceUI/guide/wiki/Before-you-build#web-component-architecture)
-> - [ ] [Continuous integration](https://github.com/BrightspaceUI/guide/wiki/Testing#testing-continuously-with-travis-ci)
-> - [ ] [Cross-browser testing](https://github.com/BrightspaceUI/guide/wiki/Testing#cross-browser-testing-with-sauce-labs)
-> - [ ] [Unit tests](https://github.com/BrightspaceUI/guide/wiki/Testing#testing-with-polymer-test) (if applicable)
-> - [ ] [Accessibility tests](https://github.com/BrightspaceUI/guide/wiki/Testing#automated-accessibility-testing-with-axe)
-> - [ ] [Visual diff tests](https://github.com/BrightspaceUI/visual-diff)
-> - [ ] [Localization](https://github.com/BrightspaceUI/guide/wiki/Localization) with Serge (if applicable)
-> - [ ] Demo page
-> - [ ] README documentation
-
-`;
-		}
-		this.replaceText('_README.md', '<%= labsChecklist %>', checklist);
 	}
 
 	updatePublishInfo() {

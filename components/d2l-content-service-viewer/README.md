@@ -1,8 +1,4 @@
-# d2l-labs-content-service-viewer
-
-[![NPM version](https://img.shields.io/npm/v/@brightspace-ui-labs/content-service-viewer.svg)](https://www.npmjs.org/package/@brightspace-ui-labs/content-service-viewer)
-[![Dependabot badge](https://flat.badgen.net/dependabot/BrightspaceUILabs/content-service-viewer?icon=dependabot)](https://app.dependabot.com/)
-[![Build status](https://travis-ci.com/@brightspace-ui-labs/content-service-viewer.svg?branch=master)](https://travis-ci.com/@brightspace-ui-labs/content-service-viewer)
+# d2l-content-service-viewer
 
 > Note: this is a ["labs" component](https://github.com/BrightspaceUI/guide/wiki/Component-Tiers). While functional, these tasks are prerequisites to promotion to BrightspaceUI "official" status:
 >
@@ -34,7 +30,7 @@ npm install @brightspace-ui-labs/content-service-viewer
 <script type="module">
     import '@brightspace-ui-labs/content-service-viewer/content-service-viewer.js';
 </script>
-<d2l-labs-content-service-viewer>My element</d2l-labs-content-service-viewer>
+<d2l-content-service-viewer>My element</d2l-content-service-viewer>
 ```
 
 **Properties:**
@@ -45,7 +41,7 @@ npm install @brightspace-ui-labs/content-service-viewer
 
 **Accessibility:**
 
-To make your usage of `d2l-labs-content-service-viewer` accessible, use the following properties when applicable:
+To make your usage of `d2l-content-service-viewer` accessible, use the following properties when applicable:
 
 | Attribute | Description |
 |--|--|

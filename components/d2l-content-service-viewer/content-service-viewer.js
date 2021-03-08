@@ -34,16 +34,6 @@ class ContentServiceViewer extends LitElement {
 		this.loadContent();
 	}
 
-	async loadContent() {
-		const response = await this.client.getDownloadUrl({
-			resource: this.resource,
-			context: this.context,
-		});
-		this._expires = response.expireTime;
-		this._signedUrl = response.value;
-		this.requestUpdate();
-	}
-
 	render() {
 		// <track src="sample.vtt" kind="subtitles" srclang="en" label="L1 (vtt)">
 		// <track src="sample-2.vtt" kind="subtitles" srclang="fr" label="L2 (vtt)">
@@ -53,6 +43,16 @@ class ContentServiceViewer extends LitElement {
 		return this._signedUrl && html`
 			<d2l-labs-media-player src="${this._signedUrl}"></d2l-labs-media-player>
 		`;
+	}
+
+	async loadContent() {
+		const response = await this.client.getDownloadUrl({
+			resource: this.resource,
+			context: this.context,
+		});
+		this._expires = response.expireTime;
+		this._signedUrl = response.value;
+		this.requestUpdate();
 	}
 }
 customElements.define('d2l-content-service-viewer', ContentServiceViewer);
