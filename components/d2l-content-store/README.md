@@ -1,11 +1,5 @@
 # d2l-content-store
 
-[![NPM version](https://img.shields.io/npm/v/Brightspace/d2l-content-store.svg)](https://www.npmjs.org/package/Brightspace/d2l-content-store)
-[![Greenkeeper badge](https://badges.greenkeeper.io/Brightspace/d2l-content-store.svg)](https://greenkeeper.io/)
-[![Build status](https://travis-ci.com/Brightspace/d2l-content-store.svg?branch=master)](https://travis-ci.com/Brightspace/d2l-content-store)
-
-d2l-content-store
-
 ## Installation
 
 To install from NPM:
