@@ -124,15 +124,49 @@ class ContentListItem extends DependencyRequester(InternalLocalizeMixin(LitEleme
 		`;
 	}
 
-	openPreview() {
+	adjustDropdownBoundary() {
+		const target = this.shadowRoot.querySelector('d2l-dropdown-more');
+		const topOffsetForDropdownMenu = 25;
+		const minimumBoundingTop = 70;
+
+		if (target) {
+			const distanceToTop = target.getBoundingClientRect().top;
+			const finalBoundingTop = distanceToTop - rootStore.appTop - topOffsetForDropdownMenu;
+
+			this.dropdownBoundary = {
+				above: Math.max(finalBoundingTop, minimumBoundingTop)
+			};
+		}
+	}
+
+	delete() {
 		return async() => {
-			const previewWindow = window.open('', '_blank');
-			const { previewUrl } = await this.apiClient.getPreviewUrl({
-				contentId: this.id,
-				revisionId: this.revisionId
+			await this.apiClient.deleteContent({
+				contentId: this.id
 			});
-			previewWindow.location.href = previewUrl;
+			this.dispatchDeletedEvent();
 		};
+	}
+
+	dispatchDeletedEvent() {
+		this.dispatchEvent(new CustomEvent('content-list-item-deleted', {
+			bubbles: true,
+			composed: true,
+			detail: {
+				id: this.id
+			}
+		}));
+	}
+
+	dispatchRenameEvent(title) {
+		this.dispatchEvent(new CustomEvent('content-list-item-renamed', {
+			bubbles: true,
+			composed: true,
+			detail: {
+				id: this.id,
+				title
+			}
+		}));
 	}
 
 	download() {
@@ -176,21 +210,6 @@ class ContentListItem extends DependencyRequester(InternalLocalizeMixin(LitEleme
 		}
 	}
 
-	adjustDropdownBoundary() {
-		const target = this.shadowRoot.querySelector('d2l-dropdown-more');
-		const topOffsetForDropdownMenu = 25;
-		const minimumBoundingTop = 70;
-
-		if (target) {
-			const distanceToTop = target.getBoundingClientRect().top;
-			const finalBoundingTop = distanceToTop - rootStore.appTop - topOffsetForDropdownMenu;
-
-			this.dropdownBoundary = {
-				above: Math.max(finalBoundingTop, minimumBoundingTop)
-			};
-		}
-	}
-
 	openDialog() {
 		return async() => {
 			const action = await this.shadowRoot.querySelector('#rename-dialog').open();
@@ -200,6 +219,17 @@ class ContentListItem extends DependencyRequester(InternalLocalizeMixin(LitEleme
 			} else {
 				titleInputElement.value = this.title;
 			}
+		};
+	}
+
+	openPreview() {
+		return async() => {
+			const previewWindow = window.open('', '_blank');
+			const { previewUrl } = await this.apiClient.getPreviewUrl({
+				contentId: this.id,
+				revisionId: this.revisionId
+			});
+			previewWindow.location.href = previewUrl;
 		};
 	}
 
@@ -222,40 +252,10 @@ class ContentListItem extends DependencyRequester(InternalLocalizeMixin(LitEleme
 		}
 	}
 
-	dispatchRenameEvent(title) {
-		this.dispatchEvent(new CustomEvent('content-list-item-renamed', {
-			bubbles: true,
-			composed: true,
-			detail: {
-				id: this.id,
-				title
-			}
-		}));
-	}
-
 	titleInputChangedHandler() {
 		const titleInputElement = this.shadowRoot.querySelector('#rename-input');
 		const titleInputValue = titleInputElement && titleInputElement.value;
 		this.confirmDisabled = !titleInputValue || titleInputValue.trim().length === 0;
-	}
-
-	delete() {
-		return async() => {
-			await this.apiClient.deleteContent({
-				contentId: this.id
-			});
-			this.dispatchDeletedEvent();
-		};
-	}
-
-	dispatchDeletedEvent() {
-		this.dispatchEvent(new CustomEvent('content-list-item-deleted', {
-			bubbles: true,
-			composed: true,
-			detail: {
-				id: this.id
-			}
-		}));
 	}
 }
 

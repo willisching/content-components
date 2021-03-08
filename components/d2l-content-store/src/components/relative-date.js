@@ -1,4 +1,4 @@
-import { LitElement, html } from 'lit-element';
+import { html, LitElement } from 'lit-element';
 import { formatDateTime } from '@brightspace-ui/intl/lib/dateTime.js';
 import { formatRelativeDate } from '../util/date-time.js';
 
@@ -15,9 +15,16 @@ class RelativeDate extends LitElement {
 		this.setupFormatRelativeDate();
 	}
 
-	stopWatchingRelativeDate() {
-		if (this.res && this.res.stop) {
-			this.res.stop();
+	render() {
+		return html`
+		<div title="${this.absolute}">
+			${this.relative}
+		</div>`;
+	}
+
+	updated(changedProperties) {
+		if (this.value !== changedProperties.value) {
+			this.setupFormatRelativeDate();
 		}
 	}
 
@@ -38,16 +45,9 @@ class RelativeDate extends LitElement {
 		});
 	}
 
-	render() {
-		return html`
-		<div title="${this.absolute}">
-			${this.relative}
-		</div>`;
-	}
-
-	updated(changedProperties) {
-		if (this.value !== changedProperties.value) {
-			this.setupFormatRelativeDate();
+	stopWatchingRelativeDate() {
+		if (this.res && this.res.stop) {
+			this.res.stop();
 		}
 	}
 }

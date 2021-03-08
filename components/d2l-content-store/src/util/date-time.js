@@ -1,4 +1,4 @@
-import { formatDateTime, formatDate } from '@brightspace-ui/intl/lib/dateTime.js';
+import { formatDate, formatDateTime } from '@brightspace-ui/intl/lib/dateTime.js';
 import { getLanguage } from '@brightspace-ui/intl/lib/common.js';
 
 const second = 1000;

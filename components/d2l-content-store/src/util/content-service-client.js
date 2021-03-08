@@ -17,9 +17,153 @@ export default class ContentServiceClient {
 		this.onUploadProgress = onUploadProgress;
 	}
 
-	_url(path, query) {
-		const qs = query ? `?${querystring.stringify(query)}` : '';
-		return `${this.endpoint}${path}${qs}`;
+	createContent(body) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/`,
+			method: 'POST',
+			body
+		});
+	}
+
+	createRevision(contentId, body) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions`,
+			method: 'POST',
+			body
+		});
+	}
+
+	deleteContent({ contentId }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}`,
+			method: 'DELETE',
+			extractJsonBody: false
+		});
+	}
+
+	deleteRevision({ contentId, revisionId }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}`,
+			method: 'DELETE'
+		});
+	}
+
+	getPreviewUrl({
+		contentId,
+		revisionId
+	}) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/preview-url`
+		});
+	}
+
+	getRevision({ contentId, revisionId }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}`
+		});
+	}
+
+	getSignedUrlForRevision({
+		contentId,
+		revisionId
+	}) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/signedUrl`
+		});
+	}
+
+	getSupportedMimeTypes() {
+		return this._fetch({ path: '/api/conf/supported-mime-types' });
+	}
+
+	getUploadContext({
+		contentId,
+		revisionId
+	}) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/upload/context`
+		});
+	}
+
+	getWorkflowProgress({
+		contentId,
+		revisionId
+	}) {
+		const headers = new Headers();
+		headers.append('pragma', 'no-cache');
+		headers.append('cache-control', 'no-cache');
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/progress`,
+			headers
+		});
+	}
+
+	listContent({ ids = null } = {}) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content`,
+			...ids && { queryParams: ids.join(',') }
+		});
+	}
+
+	processRevision({
+		contentId,
+		revisionId
+	}) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/process`,
+			method: 'POST'
+		});
+	}
+
+	searchContent({ start = 0, size = 20, sort, query = '', contentType = '', updatedAt = '', createdAt = '' }) {
+		const headers = new Headers();
+		headers.append('pragma', 'no-cache');
+		headers.append('cache-control', 'no-cache');
+
+		return this._fetch({
+			path: `/api/${this.tenantId}/search/content`,
+			query: {
+				start,
+				size,
+				sort,
+				query,
+				contentType: contentFilterToSearchQuery(contentType),
+				updatedAt: dateFilterToSearchQuery(updatedAt),
+				createdAt: dateFilterToSearchQuery(createdAt)
+			},
+			headers
+		});
+	}
+
+	signUploadRequest({
+		fileName,
+		contentType,
+		contentDisposition
+	}) {
+		return this._fetch({
+			path: '/api/s3/sign',
+			query: {
+				fileName,
+				contentType,
+				contentDisposition
+			}
+		});
+	}
+
+	undeleteContent({ contentId }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}`,
+			method: 'PUT',
+			body: { id: contentId, deletedAt: null }
+		});
+	}
+
+	updateRevision({ contentId, revisionId, revision }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}`,
+			method: 'PUT',
+			body: revision
+		});
 	}
 
 	async _fetch({
@@ -55,152 +199,8 @@ export default class ContentServiceClient {
 		return response;
 	}
 
-	searchContent({ start = 0, size = 20, sort, query = '', contentType = '', updatedAt = '', createdAt = '' }) {
-		const headers = new Headers();
-		headers.append('pragma', 'no-cache');
-		headers.append('cache-control', 'no-cache');
-
-		return this._fetch({
-			path: `/api/${this.tenantId}/search/content`,
-			query: {
-				start,
-				size,
-				sort,
-				query,
-				contentType: contentFilterToSearchQuery(contentType),
-				updatedAt: dateFilterToSearchQuery(updatedAt),
-				createdAt: dateFilterToSearchQuery(createdAt)
-			},
-			headers
-		});
-	}
-
-	listContent({ ids = null } = {}) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content`,
-			...ids && { queryParams: ids.join(',') }
-		});
-	}
-
-	createContent(body) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/`,
-			method: 'POST',
-			body
-		});
-	}
-
-	createRevision(contentId, body) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions`,
-			method: 'POST',
-			body
-		});
-	}
-
-	deleteRevision({ contentId, revisionId }) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}`,
-			method: 'DELETE'
-		});
-	}
-
-	processRevision({
-		contentId,
-		revisionId
-	}) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/process`,
-			method: 'POST'
-		});
-	}
-
-	getPreviewUrl({
-		contentId,
-		revisionId
-	}) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/preview-url`
-		});
-	}
-
-	getUploadContext({
-		contentId,
-		revisionId
-	}) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/upload/context`
-		});
-	}
-
-	getWorkflowProgress({
-		contentId,
-		revisionId
-	}) {
-		const headers = new Headers();
-		headers.append('pragma', 'no-cache');
-		headers.append('cache-control', 'no-cache');
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/progress`,
-			headers
-		});
-	}
-
-	signUploadRequest({
-		fileName,
-		contentType,
-		contentDisposition
-	}) {
-		return this._fetch({
-			path: '/api/s3/sign',
-			query: {
-				fileName,
-				contentType,
-				contentDisposition
-			}
-		});
-	}
-
-	getSignedUrlForRevision({
-		contentId,
-		revisionId
-	}) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/signedUrl`
-		});
-	}
-
-	getSupportedMimeTypes() {
-		return this._fetch({ path: '/api/conf/supported-mime-types' });
-	}
-
-	getRevision({ contentId, revisionId }) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}`
-		});
-	}
-
-	updateRevision({ contentId, revisionId, revision }) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}`,
-			method: 'PUT',
-			body: revision
-		});
-	}
-
-	deleteContent({ contentId }) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}`,
-			method: 'DELETE',
-			extractJsonBody: false
-		});
-	}
-
-	undeleteContent({ contentId }) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}`,
-			method: 'PUT',
-			body: { id: contentId, deletedAt: null }
-		});
+	_url(path, query) {
+		const qs = query ? `?${querystring.stringify(query)}` : '';
+		return `${this.endpoint}${path}${qs}`;
 	}
 }

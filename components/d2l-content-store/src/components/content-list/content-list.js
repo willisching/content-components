@@ -85,13 +85,158 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 		this.reloadPage();
 	}
 
-	onWindowScroll() {
-		const contentListElem = this.shadowRoot.querySelector('#d2l-content-store-list');
-		const bottom = contentListElem.getBoundingClientRect().top + window.pageYOffset + contentListElem.clientHeight;
-		const scrollY = window.pageYOffset + window.innerHeight;
-		if (bottom - scrollY < this.infiniteScrollThreshold && this.hasNextPage && !this.loading) {
-			this.loadNext();
+	render() {
+		return html`
+			<content-list-header @change-sort=${this.changeSort}></content-list-header>
+			<content-file-drop>
+				<div id="d2l-content-store-list" class="d2l-navigation-gutters">
+					${this.renderNotFound()}
+					${this.contentItems.map(item => this.renderContentItem(item))}
+					${this.renderGhosts()}
+				</div>
+			</content-file-drop>
+
+			<d2l-alert-toast
+				id="delete-toast"
+				type="default"
+				button-text=${this.alertToastButtonText}
+				announce-text=${this.alertToastMessage}
+				@d2l-alert-button-pressed=${this.undoDeleteHandler}>
+				${this.alertToastMessage}
+			</d2l-alert-toast>
+		`;
+	}
+
+	async addNewItemIntoContentItems(item) {
+		if (!item || !item.revision || !item.content || !item.upload) {
+			return;
 		}
+
+		const { id: lastRevId, title: lastRevTitle, type: lastRevType } = item.revision;
+		const { id } = item.content;
+		const updatedAt = (new Date()).toISOString();
+
+		await this.insertIntoContentItemsBasedOnSort({
+			id, lastRevType, lastRevTitle, lastRevId, updatedAt
+		});
+	}
+
+	areAnyFiltersActive() {
+		return this.queryParams.searchQuery ||
+			this.queryParams.contentType ||
+			this.queryParams.dateModified ||
+			this.queryParams.dateCreated;
+	}
+
+	changeSort({ detail = {} }) {
+		const { sortKey, sortQuery } = detail;
+		if (/^(createdAt|updatedAt)$/.test(sortKey)) {
+			this.dateField = sortKey;
+		}
+
+		this._navigate('/manage/content', {
+			...this.queryParams,
+			sortQuery
+		});
+	}
+
+	contentListItemDeletedHandler(e) {
+		if (e && e.detail && e.detail.id) {
+			const { id } = e.detail;
+			const index = this.contentItems.findIndex(c => c.id === id);
+
+			if (index >= 0 && index < this.contentItems.length) {
+				this.undoDeleteObject = this.contentItems[index];
+				this.contentItems.splice(index, 1);
+				this.requestUpdate();
+				this.showUndoDeleteToast();
+
+				if (this.contentItems.length < this.resultSize && this.hasNextPage && !this.loading) {
+					this.loadNext();
+				}
+			}
+		}
+	}
+
+	contentListItemRenamedHandler(e) {
+		const { detail } = e;
+
+		if (!detail) {
+			return;
+		}
+
+		const { id, title } = detail;
+
+		if (id && title) {
+			const index = this.contentItems.findIndex(c => c.id === id);
+			if (index >= 0 && index < this.contentItems.length) {
+				this.contentItems[index].lastRevTitle = title;
+				this.contentItems[index][this.dateField] = (new Date()).toISOString();
+				this.requestUpdate();
+			}
+		}
+	}
+
+	getCompareBasedOnSort(item) {
+		const itemUpdatedAtDate = new Date(item.updatedAt);
+		switch (this.queryParams.sortQuery) {
+			case 'updatedAt:desc':
+				return e => {
+					const elementUpdatedAtDate = new Date(e.updatedAt);
+					return elementUpdatedAtDate <= itemUpdatedAtDate;
+				};
+
+			case 'updatedAt:asc':
+				return e => {
+					const elementUpdatedAtDate = new Date(e.updatedAt);
+					return elementUpdatedAtDate >= itemUpdatedAtDate;
+				};
+
+			case 'lastRevTitle.keyword:desc':
+				return e => {
+					return e.lastRevTitle.toLowerCase() <= item.lastRevTitle.toLowerCase();
+				};
+
+			case 'lastRevTitle.keyword:asc':
+				return e => {
+					return e.lastRevTitle.toLowerCase() >= item.lastRevTitle.toLowerCase();
+				};
+
+			default:
+				return () => true;
+		}
+	}
+
+	async insertIntoContentItemsBasedOnSort(item) {
+		let indexToInsertAt = this.contentItems.findIndex(this.getCompareBasedOnSort(item));
+		if (indexToInsertAt === -1) {
+			indexToInsertAt = this.contentItems.length;
+		}
+
+		if (!this.hasNextPage || indexToInsertAt !== this.contentItems.length) {
+			this.contentItems.splice(indexToInsertAt, 0, item);
+			this.requestUpdate();
+			await this.updateComplete;
+		}
+	}
+
+	async loadNext() {
+		this.loading = true;
+		const { sortQuery, searchQuery, contentType, dateModified, dateCreated } = this.queryParams;
+		const searchResult = await this.apiClient.searchContent({
+			start: this.searchQueryStart,
+			size: this.resultSize,
+			sort: sortQuery,
+			query: searchQuery,
+			contentType,
+			updatedAt: dateModified,
+			createdAt: dateCreated
+		});
+		this.totalResults = searchResult.hits.total;
+		this.searchQueryStart += searchResult.hits.hits.length;
+		this.hasNextPage = this.searchQueryStart < this.totalResults;
+		this.contentItems.push(...searchResult.hits.hits.map(item => item._source));
+		this.loading = false;
 	}
 
 	observeQueryParams() {
@@ -147,16 +292,13 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 		);
 	}
 
-	changeSort({ detail = {} }) {
-		const { sortKey, sortQuery } = detail;
-		if (/^(createdAt|updatedAt)$/.test(sortKey)) {
-			this.dateField = sortKey;
+	onWindowScroll() {
+		const contentListElem = this.shadowRoot.querySelector('#d2l-content-store-list');
+		const bottom = contentListElem.getBoundingClientRect().top + window.pageYOffset + contentListElem.clientHeight;
+		const scrollY = window.pageYOffset + window.innerHeight;
+		if (bottom - scrollY < this.infiniteScrollThreshold && this.hasNextPage && !this.loading) {
+			this.loadNext();
 		}
-
-		this._navigate('/manage/content', {
-			...this.queryParams,
-			sortQuery
-		});
 	}
 
 	async reloadPage() {
@@ -172,47 +314,6 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 			this.contentItems = [];
 			this.searchQueryStart = 0;
 		}
-	}
-
-	async loadNext() {
-		this.loading = true;
-		const { sortQuery, searchQuery, contentType, dateModified, dateCreated } = this.queryParams;
-		const searchResult = await this.apiClient.searchContent({
-			start: this.searchQueryStart,
-			size: this.resultSize,
-			sort: sortQuery,
-			query: searchQuery,
-			contentType,
-			updatedAt: dateModified,
-			createdAt: dateCreated
-		});
-		this.totalResults = searchResult.hits.total;
-		this.searchQueryStart += searchResult.hits.hits.length;
-		this.hasNextPage = this.searchQueryStart < this.totalResults;
-		this.contentItems.push(...searchResult.hits.hits.map(item => item._source));
-		this.loading = false;
-	}
-
-	render() {
-		return html`
-			<content-list-header @change-sort=${this.changeSort}></content-list-header>
-			<content-file-drop>
-				<div id="d2l-content-store-list" class="d2l-navigation-gutters">
-					${this.renderNotFound()}
-					${this.contentItems.map(item => this.renderContentItem(item))}
-					${this.renderGhosts()}
-				</div>
-			</content-file-drop>
-
-			<d2l-alert-toast
-				id="delete-toast"
-				type="default"
-				button-text=${this.alertToastButtonText}
-				announce-text=${this.alertToastMessage}
-				@d2l-alert-button-pressed=${this.undoDeleteHandler}>
-				${this.alertToastMessage}
-			</d2l-alert-toast>
-		`;
 	}
 
 	renderContentItem(item) {
@@ -253,100 +354,6 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 		` : html``;
 	}
 
-	contentListItemRenamedHandler(e) {
-		const { detail } = e;
-
-		if (!detail) {
-			return;
-		}
-
-		const { id, title } = detail;
-
-		if (id && title) {
-			const index = this.contentItems.findIndex(c => c.id === id);
-			if (index >= 0 && index < this.contentItems.length) {
-				this.contentItems[index].lastRevTitle = title;
-				this.contentItems[index][this.dateField] = (new Date()).toISOString();
-				this.requestUpdate();
-			}
-		}
-	}
-
-	async addNewItemIntoContentItems(item) {
-		if (!item || !item.revision || !item.content || !item.upload) {
-			return;
-		}
-
-		const { id: lastRevId, title: lastRevTitle, type: lastRevType } = item.revision;
-		const { id } = item.content;
-		const updatedAt = (new Date()).toISOString();
-
-		await this.insertIntoContentItemsBasedOnSort({
-			id, lastRevType, lastRevTitle, lastRevId, updatedAt
-		});
-	}
-
-	async insertIntoContentItemsBasedOnSort(item) {
-		let indexToInsertAt = this.contentItems.findIndex(this.getCompareBasedOnSort(item));
-		if (indexToInsertAt === -1) {
-			indexToInsertAt = this.contentItems.length;
-		}
-
-		if (!this.hasNextPage || indexToInsertAt !== this.contentItems.length) {
-			this.contentItems.splice(indexToInsertAt, 0, item);
-			this.requestUpdate();
-			await this.updateComplete;
-		}
-	}
-
-	getCompareBasedOnSort(item) {
-		const itemUpdatedAtDate = new Date(item.updatedAt);
-		switch (this.queryParams.sortQuery) {
-			case 'updatedAt:desc':
-				return e => {
-					const elementUpdatedAtDate = new Date(e.updatedAt);
-					return elementUpdatedAtDate <= itemUpdatedAtDate;
-				};
-
-			case 'updatedAt:asc':
-				return e => {
-					const elementUpdatedAtDate = new Date(e.updatedAt);
-					return elementUpdatedAtDate >= itemUpdatedAtDate;
-				};
-
-			case 'lastRevTitle.keyword:desc':
-				return e => {
-					return e.lastRevTitle.toLowerCase() <= item.lastRevTitle.toLowerCase();
-				};
-
-			case 'lastRevTitle.keyword:asc':
-				return e => {
-					return e.lastRevTitle.toLowerCase() >= item.lastRevTitle.toLowerCase();
-				};
-
-			default:
-				return () => true;
-		}
-	}
-
-	contentListItemDeletedHandler(e) {
-		if (e && e.detail && e.detail.id) {
-			const { id } = e.detail;
-			const index = this.contentItems.findIndex(c => c.id === id);
-
-			if (index >= 0 && index < this.contentItems.length) {
-				this.undoDeleteObject = this.contentItems[index];
-				this.contentItems.splice(index, 1);
-				this.requestUpdate();
-				this.showUndoDeleteToast();
-
-				if (this.contentItems.length < this.resultSize && this.hasNextPage && !this.loading) {
-					this.loadNext();
-				}
-			}
-		}
-	}
-
 	showUndoDeleteToast() {
 		const deleteToastElement = this.shadowRoot.querySelector('#delete-toast');
 
@@ -375,13 +382,6 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 			this.requestUpdate();
 			deleteToastElement.setAttribute('open', true);
 		}
-	}
-
-	areAnyFiltersActive() {
-		return this.queryParams.searchQuery ||
-			this.queryParams.contentType ||
-			this.queryParams.dateModified ||
-			this.queryParams.dateCreated;
 	}
 }
 

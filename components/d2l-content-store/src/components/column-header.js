@@ -110,10 +110,6 @@ class ColumnHeaderChoice extends LitElement {
 		`];
 	}
 
-	get sortQuery() {
-		return `${this.sortKey}:${this.currentSortDesc ? 'desc' : 'asc'}`;
-	}
-
 	firstUpdated() {
 		super.firstUpdated();
 		this.defaultSortDesc = this.currentSortDesc;
@@ -135,13 +131,6 @@ class ColumnHeaderChoice extends LitElement {
 		`;
 	}
 
-	toggleSort() {
-		this.setBooleanAttribute('current-sort-desc',
-			this.currentSort ? !this.currentSortDesc : this.defaultSortDesc);
-		this.setBooleanAttribute('current-sort', true);
-		this.dispatchEvent(this.changeSortEvent());
-	}
-
 	changeSortEvent() {
 		return new CustomEvent('change-sort', {
 			bubbles: true,
@@ -161,6 +150,18 @@ class ColumnHeaderChoice extends LitElement {
 			this.removeAttribute(name);
 		}
 	}
+
+	get sortQuery() {
+		return `${this.sortKey}:${this.currentSortDesc ? 'desc' : 'asc'}`;
+	}
+
+	toggleSort() {
+		this.setBooleanAttribute('current-sort-desc',
+			this.currentSort ? !this.currentSortDesc : this.defaultSortDesc);
+		this.setBooleanAttribute('current-sort', true);
+		this.dispatchEvent(this.changeSortEvent());
+	}
+
 }
 
 window.customElements.define('column-header-choice', ColumnHeaderChoice);

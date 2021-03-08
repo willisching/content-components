@@ -1,5 +1,5 @@
 import { css, html } from 'lit-element/lit-element.js';
-import { heading2Styles, bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
+import { bodyStandardStyles, heading2Styles } from '@brightspace-ui/core/components/typography/styles.js';
 import { observe } from 'mobx';
 import { DependencyRequester } from './mixins/dependency-requester-mixin.js';
 import { PageViewElement } from './components/page-view-element.js';
@@ -111,6 +111,92 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 		}
 	}
 
+	render() {
+		return html`
+			<two-column-layout>
+				<div slot="sidebar">
+					${this.renderSidebar()}
+				</div>
+				<div slot="primary">
+					${this.renderPrimary()}
+				</div>
+			</two-column-layout>
+			<upload-status-management id="upload-status-management"></upload-status-management>
+		`;
+	}
+
+	goToContentPage() {
+		this._navigate('/manage/content', { sortBy: 'date', page: Math.floor(Math.random() * 10) });
+	}
+
+	goToRecycleBin() {
+		this._navigate('/manage/trash');
+	}
+
+	handleFileChange(event) {
+		this.uploader.uploadFiles(event.target.files);
+		event.target.value = '';
+	}
+
+	handleFileUploadClick() {
+		this.shadowRoot.querySelector('#fileInput').click();
+	}
+
+	loadSubView(subView) {
+		switch (subView) {
+			/* eslint-disable no-unused-expressions */
+			case '':
+				this._navigate('/manage/content');
+				return;
+			case 'content':
+				import('./pages/content-page.js');
+				break;
+			case 'trash':
+				import('./pages/trash-page.js');
+				break;
+			default:
+				this.rootStore.routingStore.setPage('404');
+				import('./d2l-content-store-404.js');
+				return;
+			/* eslint-enable no-unused-expressions */
+		}
+
+		this.page = subView;
+	}
+
+	openPicker(type) {
+		return () => {
+			const openerName = type === 'GoogleDrive' ?
+				'D2L.ContentStore.AddGoogleDriveLinkDialogOpener' :
+				'D2L.ContentStore.AddOneDriveLinkDialogOpener';
+
+			const opener = D2L.LP.Web.UI.ObjectRepository.TryGet(openerName);
+			if (!opener) {
+				return;
+			}
+
+			const event = opener();
+			event.AddListener(async e => {
+				const { id: contentId } = await this.apiClient.createContent();
+				if (contentId) {
+					const { id: revisionId } = await this.apiClient.createRevision(contentId, {
+						type,
+						title: e.m_title,
+						link: e.m_url
+					});
+
+					await this.apiClient.processRevision({ contentId, revisionId });
+				}
+			});
+		};
+	}
+	renderPrimary() {
+		return html`
+			<content-page class="page" ?active=${this.page === 'content'}></content-page>
+			<trash-page class="page" ?active=${this.page === 'trash'}></trash-page>
+		`;
+	}
+
 	renderSidebar() {
 		return html`
 		<div class="sidebar-container d2l-navigation-gutters">
@@ -144,92 +230,6 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 		`;
 	}
 
-	renderPrimary() {
-		return html`
-			<content-page class="page" ?active=${this.page === 'content'}></content-page>
-			<trash-page class="page" ?active=${this.page === 'trash'}></trash-page>
-		`;
-	}
-
-	loadSubView(subView) {
-		switch (subView) {
-			/* eslint-disable no-unused-expressions */
-			case '':
-				this._navigate('/manage/content');
-				return;
-			case 'content':
-				import('./pages/content-page.js');
-				break;
-			case 'trash':
-				import('./pages/trash-page.js');
-				break;
-			default:
-				this.rootStore.routingStore.setPage('404');
-				import('./d2l-content-store-404.js');
-				return;
-			/* eslint-enable no-unused-expressions */
-		}
-
-		this.page = subView;
-	}
-
-	render() {
-		return html`
-			<two-column-layout>
-				<div slot="sidebar">
-					${this.renderSidebar()}
-				</div>
-				<div slot="primary">
-					${this.renderPrimary()}
-				</div>
-			</two-column-layout>
-			<upload-status-management id="upload-status-management"></upload-status-management>
-		`;
-	}
-
-	handleFileUploadClick() {
-		this.shadowRoot.querySelector('#fileInput').click();
-	}
-
-	handleFileChange(event) {
-		this.uploader.uploadFiles(event.target.files);
-		event.target.value = '';
-	}
-
-	openPicker(type) {
-		return () => {
-			const openerName = type === 'GoogleDrive' ?
-				'D2L.ContentStore.AddGoogleDriveLinkDialogOpener' :
-				'D2L.ContentStore.AddOneDriveLinkDialogOpener';
-
-			const opener = D2L.LP.Web.UI.ObjectRepository.TryGet(openerName);
-			if (!opener) {
-				return;
-			}
-
-			const event = opener();
-			event.AddListener(async e => {
-				const { id: contentId } = await this.apiClient.createContent();
-				if (contentId) {
-					const { id: revisionId } = await this.apiClient.createRevision(contentId, {
-						type,
-						title: e.m_title,
-						link: e.m_url
-					});
-
-					await this.apiClient.processRevision({ contentId, revisionId });
-				}
-			});
-		};
-	}
-
-	goToContentPage() {
-		this._navigate('/manage/content', { sortBy: 'date', page: Math.floor(Math.random() * 10) });
-	}
-
-	goToRecycleBin() {
-		this._navigate('/manage/trash');
-	}
 }
 
 window.customElements.define('d2l-content-store-manage', D2lContentStoreManage);

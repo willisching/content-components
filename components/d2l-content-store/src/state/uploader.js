@@ -1,4 +1,4 @@
-import { decorate, observable, action, flow } from 'mobx';
+import { action, decorate, flow, observable } from 'mobx';
 
 import { S3Uploader } from '../util/s3-uploader.js';
 import resolveWorkerError from '../util/resolve-worker-error.js';
@@ -54,6 +54,29 @@ export class Uploader {
 			}
 			/* eslint-enable no-invalid-this */
 		});
+	}
+
+	clearCompletedUploads() {
+		this.uploads = this.uploads.filter(upload => upload.progress !== 100 && !upload.error);
+	}
+
+	getUploads() {
+		return this.uploads;
+	}
+
+	showStatusWindow(show) {
+		this.statusWindowVisible = show;
+	}
+
+	uploadFiles(files) {
+		this._batch += 1;
+		for (const file of files) {
+			this.uploadFile(file, this._batch);
+		}
+
+		if (files.length > 0) {
+			this.statusWindowVisible = true;
+		}
 	}
 
 	async _monitorProgressAsync(
@@ -177,29 +200,6 @@ export class Uploader {
 				await this._uploadWorkflowAsync(this.queuedUploads.shift());
 			}
 		}
-	}
-
-	uploadFiles(files) {
-		this._batch += 1;
-		for (const file of files) {
-			this.uploadFile(file, this._batch);
-		}
-
-		if (files.length > 0) {
-			this.statusWindowVisible = true;
-		}
-	}
-
-	getUploads() {
-		return this.uploads;
-	}
-
-	clearCompletedUploads() {
-		this.uploads = this.uploads.filter(upload => upload.progress !== 100 && !upload.error);
-	}
-
-	showStatusWindow(show) {
-		this.statusWindowVisible = show;
 	}
 }
 

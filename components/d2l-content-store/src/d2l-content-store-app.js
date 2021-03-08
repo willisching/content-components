@@ -42,19 +42,16 @@ class D2lContentStoreApp extends NavigationMixin(InternalLocalizeMixin(MobxReact
 		this._setupPageNavigation();
 	}
 
-	_resized() {
-		rootStore.appTop = this.offsetTop;
-	}
-
-	_setupPageNavigation() {
-		page.base(BASE_PATH);
-
-		page('/404', this.setupPage.bind(this));
-		page('/my-objects', this.setupPage.bind(this));
-		page('/manage/:subview/', this.setupPage.bind(this));
-		page('', this.setupPage.bind(this));
-		page('*', this.setupPage.bind(this));
-		page();
+	render() {
+		return html`
+		<main id="main" role="main">
+			<d2l-content-store-manage
+				class="page"
+				?active=${rootStore.routingStore.page === 'manage'}>
+			</d2l-content-store-manage>
+			<d2l-content-store-404 class="page" ?active=${rootStore.routingStore.page === '404'}></d2l-content-store-404>
+		</main>
+		`;
 	}
 
 	setupPage(ctx) {
@@ -77,16 +74,19 @@ class D2lContentStoreApp extends NavigationMixin(InternalLocalizeMixin(MobxReact
 		}
 	}
 
-	render() {
-		return html`
-		<main id="main" role="main">
-			<d2l-content-store-manage
-				class="page"
-				?active=${rootStore.routingStore.page === 'manage'}>
-			</d2l-content-store-manage>
-			<d2l-content-store-404 class="page" ?active=${rootStore.routingStore.page === '404'}></d2l-content-store-404>
-		</main>
-		`;
+	_resized() {
+		rootStore.appTop = this.offsetTop;
+	}
+
+	_setupPageNavigation() {
+		page.base(BASE_PATH);
+
+		page('/404', this.setupPage.bind(this));
+		page('/my-objects', this.setupPage.bind(this));
+		page('/manage/:subview/', this.setupPage.bind(this));
+		page('', this.setupPage.bind(this));
+		page('*', this.setupPage.bind(this));
+		page();
 	}
 }
 

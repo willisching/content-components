@@ -1,4 +1,4 @@
-import { LitElement, css, html } from 'lit-element';
+import { css, html, LitElement } from 'lit-element';
 import '@brightspace-ui/core/components/colors/colors.js';
 
 class GhostBox extends LitElement {

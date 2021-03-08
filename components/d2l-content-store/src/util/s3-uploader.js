@@ -11,6 +11,12 @@ export class S3Uploader {
 		this.onProgress = onProgress;
 	}
 
+	abort() {
+		if (this.httprequest) {
+			this.httprequest.abort();
+		}
+	}
+
 	createRequest(method, url, opts = {}) {
 		const xhr = new XMLHttpRequest();
 		xhr.open(method, url, true);
@@ -19,15 +25,6 @@ export class S3Uploader {
 		}
 
 		return xhr;
-	}
-
-	_getErrorRequestContext(xhr) {
-		return {
-			response: xhr.responseText,
-			status: xhr.status,
-			statusText: xhr.statusText,
-			readyState: xhr.readyState
-		};
 	}
 
 	async upload() {
@@ -67,9 +64,12 @@ export class S3Uploader {
 		});
 	}
 
-	abort() {
-		if (this.httprequest) {
-			this.httprequest.abort();
-		}
+	_getErrorRequestContext(xhr) {
+		return {
+			response: xhr.responseText,
+			status: xhr.status,
+			statusText: xhr.statusText,
+			readyState: xhr.readyState
+		};
 	}
 }

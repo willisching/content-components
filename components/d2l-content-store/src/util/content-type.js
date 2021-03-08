@@ -41,6 +41,8 @@ export const contentTypeFilters = [
 	'scorm'
 ];
 
+const fullKey = key => `contentType${key}`;
+
 export const contentFilterToSearchQuery = type => {
 	switch (type.toLowerCase()) {
 		case 'scorm':
@@ -130,8 +132,6 @@ export const useNewWindowForDownload = type => {
 			return true;
 	}
 };
-
-const fullKey = key => `contentType${key}`;
 
 export default {
 	toColors: typeToColors,

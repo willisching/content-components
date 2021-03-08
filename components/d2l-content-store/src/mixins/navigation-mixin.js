@@ -4,12 +4,6 @@ import page from 'page/page.mjs';
 
 /* @polymerMixin */
 export const navigationMixin = superClass => class extends (superClass) {
-	_navigate(path, queryStringCollection) {
-		const pathWithQs = `${path}${this.__stringifyQueryStringCollection(queryStringCollection)}`;
-		page(pathWithQs);
-		window.scrollTo(0, 0);
-	}
-
 	__stringifyQueryStringCollection(queryStringCollection) {
 		let qs = '';
 		if (queryStringCollection) {
@@ -22,6 +16,12 @@ export const navigationMixin = superClass => class extends (superClass) {
 		}
 
 		return qs;
+	}
+
+	_navigate(path, queryStringCollection) {
+		const pathWithQs = `${path}${this.__stringifyQueryStringCollection(queryStringCollection)}`;
+		page(pathWithQs);
+		window.scrollTo(0, 0);
 	}
 };
 

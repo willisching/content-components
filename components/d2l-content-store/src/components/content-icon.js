@@ -1,4 +1,5 @@
-import { LitElement, css, html } from 'lit-element';
+import { css, html, LitElement } from 'lit-element';
+import { ifDefined } from 'lit-html/directives/if-defined.js';
 import '@brightspace-ui/core/components/icons/icon.js';
 import '@brightspace-ui/core/components/colors/colors.js';
 import Type from '../util/content-type.js';
@@ -39,7 +40,7 @@ class ContentIcon extends LitElement {
 			<d2l-icon
 				class="${this.type ? 'icon' : 'spacer'}"
 				icon=${`tier1:${Type.toIcon(this.type)}`}
-				style=${this.colorStyle}
+				style=${ifDefined(this.colorStyle)}
 			></d2l-icon>`;
 	}
 }

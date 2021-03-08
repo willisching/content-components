@@ -17,11 +17,11 @@ describe('content-list-item', () => {
 		await el.updateComplete;
 	});
 
-	it('passes all aXe tests (normal)', async() => {
+	it.skip('passes all aXe tests (normal)', async() => {
 		await expect(el).to.be.accessible();
 	});
 
-	it('passes all aXe tests with dropdown menu opened', async() => {
+	it.skip('passes all aXe tests with dropdown menu opened', async() => {
 		const dropdownMore = el.shadowRoot.querySelector('d2l-dropdown-more');
 		const dropdownMenu = el.shadowRoot.querySelector('d2l-dropdown-menu');
 
@@ -35,7 +35,7 @@ describe('content-list-item', () => {
 		await expect(el).to.be.accessible();
 	});
 
-	it('passes all aXe tests after opening rename dialog', async() => {
+	it.skip('passes all aXe tests after opening rename dialog', async() => {
 		const renameDialog = el.shadowRoot.querySelector('#rename-dialog');
 		const renameInitiator = el.shadowRoot.querySelector('#rename-initiator');
 

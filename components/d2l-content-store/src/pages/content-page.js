@@ -62,19 +62,19 @@ class ContentPage extends PageViewElement {
 		`;
 	}
 
+	_handleFilterChange({ detail = {} }) {
+		this._navigate('/manage/content', {
+			...this.rootStore.routingStore.getQueryParams(),
+			...detail
+		});
+	}
+
 	_handleFilterCleared() {
 		const queryParams = this.rootStore.routingStore.getQueryParams();
 		delete queryParams.dateCreated;
 		delete queryParams.dateModified;
 		delete queryParams.contentType;
 		this._navigate('/manage/content', queryParams);
-	}
-
-	_handleFilterChange({ detail = {} }) {
-		this._navigate('/manage/content', {
-			...this.rootStore.routingStore.getQueryParams(),
-			...detail
-		});
 	}
 
 	_handleSearch({ detail = {} }) {

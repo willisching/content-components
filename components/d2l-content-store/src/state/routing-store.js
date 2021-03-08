@@ -1,4 +1,4 @@
-import { decorate, observable, action, toJS } from 'mobx';
+import { action, decorate, observable, toJS } from 'mobx';
 import * as querystring from '@chaitin/querystring';
 
 export const BASE_PATH = '/d2l/contentstore';
@@ -12,6 +12,22 @@ export class RoutingStore {
 		this.page = '';
 		this.queryParams = {};
 		this.subView = '';
+	}
+
+	getPage() {
+		return this.page;
+	}
+
+	getQueryParams() {
+		return toJS(this.queryParams);
+	}
+
+	getSubView() {
+		return this.subView;
+	}
+
+	setPage(page) {
+		this.page = page;
 	}
 
 	setRouteCtx(routeCtx) {
@@ -28,22 +44,6 @@ export class RoutingStore {
 		this.page = page;
 		this.subView = subView;
 		this.queryParams = queryParams;
-	}
-
-	getPage() {
-		return this.page;
-	}
-
-	setPage(page) {
-		this.page = page;
-	}
-
-	getQueryParams() {
-		return toJS(this.queryParams);
-	}
-
-	getSubView() {
-		return this.subView;
 	}
 
 	setSubView(subView) {
