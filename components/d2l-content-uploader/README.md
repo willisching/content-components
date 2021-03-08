@@ -1,7 +1,4 @@
-# d2l-content-store-add-content
-
-[![Dependabot badge](https://flat.badgen.net/dependabot/Brightspace/content-store-add-content?icon=dependabot)](https://app.dependabot.com/)
-[![Build status](https://travis-ci.com/brightspace/content-store-add-content.svg?branch=master)](https://travis-ci.com/brightspace/content-store-add-content)
+# d2l-content-uploader
 
 Dialog for adding content.
 
@@ -9,12 +6,12 @@ Dialog for adding content.
 
 ```html
 <script type="module">
-    import 'd2l-content-store-add-content/d2l-content-store-add-content.js';
+    import 'd2l-content-uploader/d2l-content-uploader.js';
 </script>
-<d2l-content-store-add-content
+<d2l-content-uploader
 	tenant-id="00000000-0000-0000-0000-000000000000"
 	api-endpoint="https://api.us-east-1.content-service.brightspace.com"
-	>My element</d2l-content-store-add-content>
+	>My element</d2l-content-uploader>
 ```
 
 **Properties:**
@@ -26,7 +23,7 @@ Dialog for adding content.
 
 **Accessibility:**
 
-To make your usage of `d2l-content-store-add-content` accessible, use the following properties when applicable:
+To make your usage of `d2l-content-uploadert` accessible, use the following properties when applicable:
 
 | Attribute | Description |
 |--|--|
@@ -38,10 +35,10 @@ To make your usage of `d2l-content-store-add-content` accessible, use the follow
 
 1. After cloning the repo, run `npm install` to install dependencies.
 2. Create a local clone of [BSI](https://github.com/Brightspace/brightspace-integration). In its directory, run `npm install`.
-3. cd to your local `d2l-content-store-add-content` repo.\
+3. cd to your local `d2l-content-uploader` repo.\
    Run: `node ./scripts/install-missing-bsi-dependencies.js <path to your local BSI instance>`\
    and: `npm link`
-4. cd to your BSI clone and run `npm link d2l-content-store-add-content`.
+4. cd to your BSI clone and run `npm link d2l-content-uploader`.
 
 ### Running the demos
 

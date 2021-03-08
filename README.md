@@ -4,9 +4,8 @@ A collection of components used for content in Brightspace.
 
 ## Components
 
-*
-*
-*
+* [d2l-content-store](components/d2l-content-store): d2l-content-store
+* [d2l-content-uploader](components/d2l-content-uploader): d2l-content-uploader
 
 ## Developing, Testing and Contributing
 

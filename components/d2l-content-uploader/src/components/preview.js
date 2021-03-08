@@ -32,7 +32,7 @@ export default class extends InternalLocalizeMixin(LitElement) {
 			#file-details {
 				font-weight: 600;
 				word-break: break-word;
-				overflow-break: break-word;
+				overflow-wrap: break-word;
 			}
 		`];
 	}

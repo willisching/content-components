@@ -3,6 +3,7 @@ import ContentServiceClient from '../util/content-service-client';
 import { DependencyProvider } from '../mixins/dependency-provider-mixin';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { Uploader } from '../state/uploader';
+import '../../d2l-content-uploader';
 
 const VIEW = Object.freeze({
 	UPLOAD: 'UPLOAD',
@@ -76,31 +77,31 @@ export default class extends MobxReactionUpdate(DependencyProvider(LitElement)) 
 
 			case VIEW.UPLOAD:
 				view = html`
-					<d2l-content-store-add-content-upload
+					<d2l-content-uploader-upload
 						id="prompt-with-file-drop-enabled"
 						error-message=${this._errorMessage}
 						enable-file-drop
 						@file-change=${this.onFileChange}
 						@file-error=${this.onUploadError}>
-					</d2l-content-store-add-content-upload>
+					</d2l-content-uploader-upload>
 					`;
 				break;
 			case VIEW.PREVIEW:
 				view = html`
-					<d2l-content-store-add-content-preview
+					<d2l-content-uploader-preview
 						file-name=${this._fileName}
 						file-size=${this._fileSize}
 						file-type=${this._fileType}
 						@cancel=${this.onDiscardStagedFile}>
-					</d2l-content-store-add-content-preview>
+					</d2l-content-uploader-preview>
 					`;
 				break;
 			case VIEW.PROGRESS:
 				view = html`
-					<d2l-content-store-add-content-progress
+					<d2l-content-uploader-progress
 						file-name=${this._fileName}
 						upload-progress=${this._uploader.uploadProgress}>
-					</d2l-content-store-add-content-progress>
+					</d2l-content-uploader-progress>
 				`;
 		}
 
