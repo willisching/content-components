@@ -22,9 +22,15 @@ class RelativeDate extends LitElement {
 		this.setupFormatRelativeDate();
 	}
 
-	stopWatchingRelativeDate() {
-		if (this.res && this.res.stop) {
-			this.res.stop();
+	render() {
+		return html`
+		<div class="relative-date" title="${this.absolute}">
+			${this.relative}
+		</div>`;
+	}
+	updated(changedProperties) {
+		if (this.value !== changedProperties.value) {
+			this.setupFormatRelativeDate();
 		}
 	}
 
@@ -45,16 +51,9 @@ class RelativeDate extends LitElement {
 		});
 	}
 
-	render() {
-		return html`
-		<div class="relative-date" title="${this.absolute}">
-			${this.relative}
-		</div>`;
-	}
-
-	updated(changedProperties) {
-		if (this.value !== changedProperties.value) {
-			this.setupFormatRelativeDate();
+	stopWatchingRelativeDate() {
+		if (this.res && this.res.stop) {
+			this.res.stop();
 		}
 	}
 }

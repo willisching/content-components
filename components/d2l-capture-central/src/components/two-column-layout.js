@@ -117,11 +117,6 @@ class TwoColumnLayout extends RtlMixin(LitElement) {
 		`;
 	}
 
-	_resized() {
-		this._adjustSidebar();
-		this._adjustPrimary();
-	}
-
 	_adjustPrimary() {
 		const sidebarElement = this.shadowRoot.querySelector('#sidebar');
 		const primaryElement = this.shadowRoot.querySelector('#primary');
@@ -141,6 +136,11 @@ class TwoColumnLayout extends RtlMixin(LitElement) {
 			sidebarElement.style.top = difference < 0 ? '0px' : `${difference}px`;
 			sidebarElement.style.height = `calc( 100vh - ${sidebarElement.offsetTop}px - 8px )`;
 		}
+	}
+
+	_resized() {
+		this._adjustSidebar();
+		this._adjustPrimary();
 	}
 }
 

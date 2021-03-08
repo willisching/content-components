@@ -12,9 +12,104 @@ export default class CaptureServiceClient {
 		this.endpoint = endpoint;
 	}
 
-	_url(path, query) {
-		const qs = query ? `?${querystring.stringify(query)}` : '';
-		return `${this.endpoint}${path}${qs}`;
+	createEvent({
+		title,
+		presenter,
+		description,
+		startTime,
+		endTime,
+		status,
+		enableChat,
+		layoutName
+	}) {
+		const body = {
+			title,
+			presenter,
+			description,
+			startTime,
+			endTime,
+			status: status.toLowerCase(),
+			enableChat,
+			layoutName
+		};
+		return this._fetch({
+			path: '/events',
+			method: 'POST',
+			query: {
+				orgUnitId: this.getOrgUnitId()
+			},
+			body
+		});
+	}
+
+	deleteEvent({ id }) {
+		return this._fetch({
+			path: `/events/${id}`,
+			method: 'DELETE',
+			query: {
+				orgUnitId: this.getOrgUnitId()
+			},
+			extractJsonBody: false
+		});
+	}
+
+	getEvent({ id }) {
+		return this._fetch({
+			path: `/events/${id}`,
+			query: {
+				orgUnitId: this.getOrgUnitId()
+			},
+			doNotUseCache: true
+		});
+	}
+
+	getOrgUnitId() {
+		return rootStore.routingStore.orgUnitId;
+	}
+
+	listEvents({ title = '' } = {}) {
+		const query = { orgUnitId: this.getOrgUnitId() };
+
+		if (title) {
+			query.title = title;
+		}
+
+		return this._fetch({
+			path: '/events',
+			query,
+			doNotUseCache: true
+		});
+	}
+
+	updateEvent({
+		id,
+		title,
+		presenter,
+		description,
+		startTime,
+		endTime,
+		status,
+		enableChat,
+		layoutName
+	}) {
+		const body = {
+			title,
+			presenter,
+			description,
+			startTime,
+			endTime,
+			status: status.toLowerCase(),
+			enableChat,
+			layoutName
+		};
+		return this._fetch({
+			path: `/events/${id}`,
+			method: 'PUT',
+			query: {
+				orgUnitId: this.getOrgUnitId()
+			},
+			body
+		});
 	}
 
 	async _fetch({
@@ -56,103 +151,8 @@ export default class CaptureServiceClient {
 		return response;
 	}
 
-	getOrgUnitId() {
-		return rootStore.routingStore.orgUnitId;
-	}
-
-	listEvents({ title = '' } = {}) {
-		const query = { orgUnitId: this.getOrgUnitId() };
-
-		if (title) {
-			query.title = title;
-		}
-
-		return this._fetch({
-			path: '/events',
-			query,
-			doNotUseCache: true
-		});
-	}
-
-	createEvent({
-		title,
-		presenter,
-		description,
-		startTime,
-		endTime,
-		status,
-		enableChat,
-		layoutName
-	}) {
-		const body = {
-			title,
-			presenter,
-			description,
-			startTime,
-			endTime,
-			status: status.toLowerCase(),
-			enableChat,
-			layoutName
-		};
-		return this._fetch({
-			path: '/events',
-			method: 'POST',
-			query: {
-				orgUnitId: this.getOrgUnitId()
-			},
-			body
-		});
-	}
-
-	updateEvent({
-		id,
-		title,
-		presenter,
-		description,
-		startTime,
-		endTime,
-		status,
-		enableChat,
-		layoutName
-	}) {
-		const body = {
-			title,
-			presenter,
-			description,
-			startTime,
-			endTime,
-			status: status.toLowerCase(),
-			enableChat,
-			layoutName
-		};
-		return this._fetch({
-			path: `/events/${id}`,
-			method: 'PUT',
-			query: {
-				orgUnitId: this.getOrgUnitId()
-			},
-			body
-		});
-	}
-
-	getEvent({ id }) {
-		return this._fetch({
-			path: `/events/${id}`,
-			query: {
-				orgUnitId: this.getOrgUnitId()
-			},
-			doNotUseCache: true
-		});
-	}
-
-	deleteEvent({ id }) {
-		return this._fetch({
-			path: `/events/${id}`,
-			method: 'DELETE',
-			query: {
-				orgUnitId: this.getOrgUnitId()
-			},
-			extractJsonBody: false
-		});
+	_url(path, query) {
+		const qs = query ? `?${querystring.stringify(query)}` : '';
+		return `${this.endpoint}${path}${qs}`;
 	}
 }

@@ -99,103 +99,6 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 		});
 	}
 
-	get producer() {
-		return this.shadowRoot.querySelector('d2l-labs-video-producer');
-	}
-
-	async _setupLanguages() {
-		const { Items } = await this.userBrightspaceClient.getLocales();
-		this._languages = Items.map(({ LocaleName, CultureCode, IsDefault }) => {
-			const code = CultureCode.toLowerCase();
-			return { name: LocaleName, code, isDefault: IsDefault  };
-		});
-		this._selectedLanguage = this._languages.find(language => language.isDefault);
-		this._defaultLanguage = this._selectedLanguage;
-	}
-
-	async _handlePublish() {
-		this._publishing = true;
-
-		await this.apiClient.updateMetadata({
-			contentId: this._content.id,
-			metadata: this._metadata,
-			revisionId: 'latest',
-		});
-		const { id, ...revision } = this._content.revisions[this._content.revisions.length - 1];
-		let newRevision;
-		try {
-			newRevision = await this.apiClient.createRevision({
-				contentId: this._content.id,
-				body: {
-					title: this._content.name,
-					extension: revision.extension,
-					sourceFormat: 'hd',
-					formats: ['ld'],
-				},
-				sourceRevisionId: id
-			});
-			await this.apiClient.processRevision({
-				contentId: this._content.id,
-				revisionId: newRevision.id,
-				body: { sourceRevisionId: id }
-			});
-		} catch (error) {
-			if (newRevision) {
-				await this.apiClient.deleteRevision({
-					contentId: this._content.id, revisionId: newRevision.id
-				});
-			}
-			this._errorOccurred = true;
-		}
-		this._alertMessage = this._errorOccurred
-			? this.localize('publishError')
-			: this.localize('publishSuccess');
-		this.shadowRoot.querySelector('d2l-alert-toast').open = true;
-		this._publishing = false;
-	}
-
-	_handleMetadataChanged(e) {
-		this._metadata = e.detail;
-	}
-
-	async _handleSave() {
-		this._saving = true;
-		try {
-			await this.apiClient.updateMetadata({
-				contentId: this._content.id,
-				draft: true,
-				metadata: this._metadata,
-				revisionId: 'latest',
-			});
-		} catch (error) {
-			this._errorOccurred = true;
-		}
-		this._alertMessage = this._errorOccurred
-			? this.localize('saveError')
-			: this.localize('saveSuccess');
-		this.shadowRoot.querySelector('d2l-alert-toast').open = true;
-		this._saving = false;
-	}
-
-	_handleSelectedLanguageChanged(e) {
-		this._selectedLanguage = e.detail.selectedLanguage;
-	}
-
-	_renderBreadcrumbs() {
-		return html`
-			<d2l-breadcrumbs>
-				<d2l-breadcrumb
-					@click=${this._goTo(`/${pageNames.myVideos}`)}
-					href=""
-					text="${this.localize('myVideos')}"
-				></d2l-breadcrumb>
-				<d2l-breadcrumb-current-page
-					text="${this._content.title}"
-				></d2l-breadcrumb-current-page>
-			</d2l-breadcrumbs>
-		`;
-	}
-
 	render() {
 		if (this._loading) {
 			return html`<d2l-loading-spinner size=150></d2l-loading-spinner>`;
@@ -248,5 +151,101 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 		`;
 	}
 
+	get producer() {
+		return this.shadowRoot.querySelector('d2l-labs-video-producer');
+	}
+
+	_handleMetadataChanged(e) {
+		this._metadata = e.detail;
+	}
+
+	async _handlePublish() {
+		this._publishing = true;
+
+		await this.apiClient.updateMetadata({
+			contentId: this._content.id,
+			metadata: this._metadata,
+			revisionId: 'latest',
+		});
+		const { id, ...revision } = this._content.revisions[this._content.revisions.length - 1];
+		let newRevision;
+		try {
+			newRevision = await this.apiClient.createRevision({
+				contentId: this._content.id,
+				body: {
+					title: this._content.name,
+					extension: revision.extension,
+					sourceFormat: 'hd',
+					formats: ['ld'],
+				},
+				sourceRevisionId: id
+			});
+			await this.apiClient.processRevision({
+				contentId: this._content.id,
+				revisionId: newRevision.id,
+				body: { sourceRevisionId: id }
+			});
+		} catch (error) {
+			if (newRevision) {
+				await this.apiClient.deleteRevision({
+					contentId: this._content.id, revisionId: newRevision.id
+				});
+			}
+			this._errorOccurred = true;
+		}
+		this._alertMessage = this._errorOccurred
+			? this.localize('publishError')
+			: this.localize('publishSuccess');
+		this.shadowRoot.querySelector('d2l-alert-toast').open = true;
+		this._publishing = false;
+	}
+
+	async _handleSave() {
+		this._saving = true;
+		try {
+			await this.apiClient.updateMetadata({
+				contentId: this._content.id,
+				draft: true,
+				metadata: this._metadata,
+				revisionId: 'latest',
+			});
+		} catch (error) {
+			this._errorOccurred = true;
+		}
+		this._alertMessage = this._errorOccurred
+			? this.localize('saveError')
+			: this.localize('saveSuccess');
+		this.shadowRoot.querySelector('d2l-alert-toast').open = true;
+		this._saving = false;
+	}
+
+	_handleSelectedLanguageChanged(e) {
+		this._selectedLanguage = e.detail.selectedLanguage;
+	}
+
+	_renderBreadcrumbs() {
+		return html`
+			<d2l-breadcrumbs>
+				<d2l-breadcrumb
+					@click=${this._goTo(`/${pageNames.myVideos}`)}
+					href=""
+					text="${this.localize('myVideos')}"
+				></d2l-breadcrumb>
+				<d2l-breadcrumb-current-page
+					text="${this._content.title}"
+				></d2l-breadcrumb-current-page>
+			</d2l-breadcrumbs>
+		`;
+	}
+
+	async _setupLanguages() {
+		const { Items } = await this.userBrightspaceClient.getLocales();
+		this._languages = Items.map(({ LocaleName, CultureCode, IsDefault }) => {
+			const code = CultureCode.toLowerCase();
+			return { name: LocaleName, code, isDefault: IsDefault  };
+		});
+		this._selectedLanguage = this._languages.find(language => language.isDefault);
+		this._defaultLanguage = this._selectedLanguage;
+	}
 }
 customElements.define('d2l-capture-central-producer', D2LCaptureCentralProducer);

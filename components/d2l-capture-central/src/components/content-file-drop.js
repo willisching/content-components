@@ -34,10 +34,6 @@ class ContentFileDrop extends DependencyRequester(LitElement) {
 		this._supportedMimeTypes = [];
 	}
 
-	onFileDrop(event) {
-		this.uploader.uploadFiles(event._files);
-	}
-
 	async connectedCallback() {
 		super.connectedCallback();
 		this.uploader = this.requestDependency('uploader');
@@ -51,6 +47,9 @@ class ContentFileDrop extends DependencyRequester(LitElement) {
 				<slot></slot>
 			</file-drop>
 		`;
+	}
+	onFileDrop(event) {
+		this.uploader.uploadFiles(event._files);
 	}
 }
 

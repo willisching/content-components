@@ -61,22 +61,6 @@ class D2LCaptureLiveEventsReporting extends DependencyRequester(PageViewElement)
 		}];
 	}
 
-	_renderAuditLogsReporting() {
-		return this._liveEventLogs.map(row => html`
-			<tr>
-				<td>${row.id}</td>
-				<td>${row.name}</td>
-				<td>${row.time}</td>
-				<td class="d2l-capture-central-live-events-reporting-td-button">
-					<d2l-button-icon
-						text=${this.localize('exportAsCsv')}
-						icon="tier1:file-document"
-					></d2l-button-icon>
-				</td>
-			</tr>
-		`);
-	}
-
 	render() {
 		return html`
 			<div class="d2l-capture-central-manage-container">
@@ -123,6 +107,22 @@ class D2LCaptureLiveEventsReporting extends DependencyRequester(PageViewElement)
 				<d2l-labs-pagination page-number="1" max-page-number="5"></d2l-labs-pagination>
 			</div>
 		`;
+	}
+
+	_renderAuditLogsReporting() {
+		return this._liveEventLogs.map(row => html`
+			<tr>
+				<td>${row.id}</td>
+				<td>${row.name}</td>
+				<td>${row.time}</td>
+				<td class="d2l-capture-central-live-events-reporting-td-button">
+					<d2l-button-icon
+						text=${this.localize('exportAsCsv')}
+						icon="tier1:file-document"
+					></d2l-button-icon>
+				</td>
+			</tr>
+		`);
 	}
 }
 

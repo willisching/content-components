@@ -233,6 +233,34 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 		});
 	}
 
+	render() {
+		return html`
+			<div class="d2l-capture-central-course-videos">
+				<h2 class="d2l-capture-central-course-videos-header d2l-heading-2">${this.localize('courseVideos')}</h2>
+				<d2l-input-search
+					@d2l-input-search-searched=${this._handleVideoSearched}
+					class="d2l-capture-central-search-videos"
+					label="${this.localize('searchLabel')}"
+					placeholder="${this.localize('searchPlaceholder')}"
+				></d2l-input-search>
+				${this._renderVideos()}
+				${this._renderGhosts()}
+			</div>
+			<d2l-button
+				?hidden="${this._loading || !this._moreResultsAvailable}"
+				class="d2l-capture-central-load-more-button"
+				@click=${this._handleLoadMoreVideosClicked}
+			>${this.localize('loadMore')}
+			</d2l-button>
+		`;
+	}
+
+	async _handleLoadMoreVideosClicked() {
+		this._loading = true;
+		await this._handleLoadMoreVideos();
+		this._loading = false;
+	}
+
 	async _handleVideoSearched() {
 		this._loading = true;
 		// TODO: Add video search back in once adding videos to course is available
@@ -241,12 +269,6 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 		// } else {
 		// 	await this._handleVideoSearch();
 		// }
-		this._loading = false;
-	}
-
-	async _handleLoadMoreVideosClicked() {
-		this._loading = true;
-		await this._handleLoadMoreVideos();
 		this._loading = false;
 	}
 
@@ -289,28 +311,6 @@ class D2LCaptureCentralCourseVideos extends contentSearchMixin(DependencyRequest
 				</div>
 			</d2l-card>
 		`);
-	}
-
-	render() {
-		return html`
-			<div class="d2l-capture-central-course-videos">
-				<h2 class="d2l-capture-central-course-videos-header d2l-heading-2">${this.localize('courseVideos')}</h2>
-				<d2l-input-search
-					@d2l-input-search-searched=${this._handleVideoSearched}
-					class="d2l-capture-central-search-videos"
-					label="${this.localize('searchLabel')}"
-					placeholder="${this.localize('searchPlaceholder')}"
-				></d2l-input-search>
-				${this._renderVideos()}
-				${this._renderGhosts()}
-			</div>
-			<d2l-button
-				?hidden="${this._loading || !this._moreResultsAvailable}"
-				class="d2l-capture-central-load-more-button"
-				@click=${this._handleLoadMoreVideosClicked}
-			>${this.localize('loadMore')}
-			</d2l-button>
-		`;
 	}
 }
 customElements.define('d2l-capture-central-course-videos', D2LCaptureCentralCourseVideos);

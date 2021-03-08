@@ -7,19 +7,6 @@ export class PermissionStore {
 		this.permissions = {};
 	}
 
-	setPermissions(permissions) {
-		this.permissions = permissions;
-	}
-
-	getPermissions() {
-		return toJS(this.permissions);
-	}
-
-	getCanViewLiveEvents() {
-		return this.permissions.canAccessCaptureCentral === 'true' &&
-			this.permissions.canViewLiveEvents === 'true';
-	}
-
 	getCanManageCaptureCentral() {
 		return true; // TODO: update after permission is added
 	}
@@ -27,6 +14,19 @@ export class PermissionStore {
 	getCanManageLiveEvents() {
 		return this.permissions.canAccessCaptureCentral === 'true' &&
 			this.permissions.canManageLiveEvents === 'true';
+	}
+
+	getCanViewLiveEvents() {
+		return this.permissions.canAccessCaptureCentral === 'true' &&
+			this.permissions.canViewLiveEvents === 'true';
+	}
+
+	getPermissions() {
+		return toJS(this.permissions);
+	}
+
+	setPermissions(permissions) {
+		this.permissions = permissions;
 	}
 }
 

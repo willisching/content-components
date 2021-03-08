@@ -56,33 +56,6 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 		this.observeQueryParams();
 	}
 
-	observeQueryParams() {
-		observe(
-			rootStore.routingStore,
-			'queryParams',
-			change => {
-				if (this.loading) {
-					return;
-				}
-
-				const { dateModified = '', dateCreated = '' } =
-					toJS(change.newValue);
-
-				if (dateModified === this.selectedFilterParams.dateModified &&
-					dateCreated === this.selectedFilterParams.dateCreated
-				) {
-					return;
-				}
-
-				this.selectedFilterParams = { dateModified, dateCreated };
-			}
-		);
-	}
-
-	get filterOptions() {
-		return this.shadowRoot.querySelectorAll('select');
-	}
-
 	render() {
 		return html`
 			<d2l-dropdown-button-subtle text="${this.localize('filterCount', { count: this.numSelectedFilters})}" primary>
@@ -109,7 +82,6 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 			</d2l-dropdown-button-subtle>
 		`;
 	}
-
 	clearFilters() {
 		this.numSelectedFilters = 0;
 		this.filterOptions.forEach(option => {
@@ -119,6 +91,42 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 			bubbles: true,
 			composed: true
 		}));
+	}
+
+	get filterOptions() {
+		return this.shadowRoot.querySelectorAll('select');
+	}
+
+	observeQueryParams() {
+		observe(
+			rootStore.routingStore,
+			'queryParams',
+			change => {
+				if (this.loading) {
+					return;
+				}
+
+				const { dateModified = '', dateCreated = '' } =
+					toJS(change.newValue);
+
+				if (dateModified === this.selectedFilterParams.dateModified &&
+					dateCreated === this.selectedFilterParams.dateCreated
+				) {
+					return;
+				}
+
+				this.selectedFilterParams = { dateModified, dateCreated };
+			}
+		);
+	}
+
+	renderFilterOptions(filterOptions, filterType) {
+		return filterOptions.map(filter => html`
+			<option
+				value="${filter}"
+				?selected=${this.selectedFilterParams[filterType] === filter}
+			>${this.localize(filter)}</option>
+		`);
 	}
 
 	updateFilters() {
@@ -135,15 +143,6 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 			composed: true,
 			detail
 		}));
-	}
-
-	renderFilterOptions(filterOptions, filterType) {
-		return filterOptions.map(filter => html`
-			<option
-				value="${filter}"
-				?selected=${this.selectedFilterParams[filterType] === filter}
-			>${this.localize(filter)}</option>
-		`);
 	}
 }
 

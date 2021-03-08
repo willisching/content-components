@@ -56,6 +56,33 @@ export class Uploader {
 		});
 	}
 
+	clearCompletedUploads() {
+		this.uploads = this.uploads.filter(upload => upload.progress !== 100 && !upload.error);
+	}
+
+	getSuccessfulUpload() {
+		return toJS(this.successfulUpload);
+	}
+
+	getUploads() {
+		return toJS(this.uploads);
+	}
+
+	showStatusWindow(show) {
+		this.statusWindowVisible = show;
+	}
+
+	uploadFiles(files) {
+		this._batch += 1;
+		for (const file of files) {
+			this.uploadFile(file, this._batch);
+		}
+
+		if (files.length > 0) {
+			this.statusWindowVisible = true;
+		}
+	}
+
 	async _monitorProgressAsync(
 		content,
 		revision,
@@ -179,33 +206,6 @@ export class Uploader {
 				await this._uploadWorkflowAsync(this.queuedUploads.shift());
 			}
 		}
-	}
-
-	uploadFiles(files) {
-		this._batch += 1;
-		for (const file of files) {
-			this.uploadFile(file, this._batch);
-		}
-
-		if (files.length > 0) {
-			this.statusWindowVisible = true;
-		}
-	}
-
-	getUploads() {
-		return toJS(this.uploads);
-	}
-
-	getSuccessfulUpload() {
-		return toJS(this.successfulUpload);
-	}
-
-	clearCompletedUploads() {
-		this.uploads = this.uploads.filter(upload => upload.progress !== 100 && !upload.error);
-	}
-
-	showStatusWindow(show) {
-		this.statusWindowVisible = show;
 	}
 }
 

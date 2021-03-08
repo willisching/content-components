@@ -46,30 +46,17 @@ class D2LCaptureLiveEventsCreate extends DependencyRequester(PageViewElement) {
 		}
 	}
 
-	observeSubView() {
-		observe(
-			rootStore.routingStore,
-			'subView',
-			async change => {
-				if (!change.oldValue &&
-					change.newValue === pageNames.manageLiveEventsCreate) {
-					this.reloadPage();
-				}
-			}
-		);
-	}
-
-	async reloadPage() {
+	render() {
 		if (!rootStore.permissionStore.getCanManageLiveEvents()) {
-			return;
+			return html`
+				<unauthorized-message></unauthorized-message>
+			`;
 		}
 
-		const createLiveEventForm = this.shadowRoot.querySelector('#create-live-event-form');
-		if (createLiveEventForm) {
-			createLiveEventForm.reload();
-		}
+		return html`
+			<live-event-form id="create-live-event-form"></live-event-form>
+		`;
 	}
-
 	async handleCreateEvent(event) {
 		if (event && event.detail) {
 			const {
@@ -104,16 +91,28 @@ class D2LCaptureLiveEventsCreate extends DependencyRequester(PageViewElement) {
 		}
 	}
 
-	render() {
+	observeSubView() {
+		observe(
+			rootStore.routingStore,
+			'subView',
+			async change => {
+				if (!change.oldValue &&
+					change.newValue === pageNames.manageLiveEventsCreate) {
+					this.reloadPage();
+				}
+			}
+		);
+	}
+
+	async reloadPage() {
 		if (!rootStore.permissionStore.getCanManageLiveEvents()) {
-			return html`
-				<unauthorized-message></unauthorized-message>
-			`;
+			return;
 		}
 
-		return html`
-			<live-event-form id="create-live-event-form"></live-event-form>
-		`;
+		const createLiveEventForm = this.shadowRoot.querySelector('#create-live-event-form');
+		if (createLiveEventForm) {
+			createLiveEventForm.reload();
+		}
 	}
 }
 

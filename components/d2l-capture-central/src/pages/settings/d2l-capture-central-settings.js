@@ -76,6 +76,7 @@ class D2lCaptureSettings extends DependencyRequester(PageViewElement) {
 					class="d2l-capture-central-edit-save-changes-button"
 					primary
 				>${this.localize('saveChanges')}
+				</d2l-button>
 			</div>
 		`;
 	}

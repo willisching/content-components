@@ -18,6 +18,27 @@ export class RoutingStore {
 		this.subView = '';
 	}
 
+	getPage() {
+		return this.page;
+	}
+
+	getQueryParams() {
+		return toJS(this.queryParams);
+	}
+
+	getSubView() {
+		return this.subView;
+	}
+
+	setPage(page) {
+		this.page = page;
+	}
+
+	setPreviousPage() {
+		this.previousPage = this.page;
+		this.previousSubView = this.subView;
+	}
+
 	setRouteCtx(routeCtx) {
 		if (!(routeCtx && routeCtx.pathname)) {
 			return;
@@ -41,29 +62,8 @@ export class RoutingStore {
 		this.subView = subView;
 	}
 
-	getPage() {
-		return this.page;
-	}
-
-	getQueryParams() {
-		return toJS(this.queryParams);
-	}
-
-	getSubView() {
-		return this.subView;
-	}
-
-	setPage(page) {
-		this.page = page;
-	}
-
 	setSubView(subView) {
 		this.subView = subView;
-	}
-
-	setPreviousPage() {
-		this.previousPage = this.page;
-		this.previousSubView = this.subView;
 	}
 }
 

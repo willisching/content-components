@@ -54,28 +54,6 @@ class D2LCaptureAuditLogs extends DependencyRequester(PageViewElement) {
 		}];
 	}
 
-	_renderAuditLogs() {
-		if (!this._auditLogs.length) {
-			return html`
-				<tr>
-					<td
-						class="d2l-capture-central-table-no-results"
-						colspan=5
-					>${this.localize('noResults')}
-					</td>
-				</tr>`;
-		}
-		return this._auditLogs.map(row => html`
-			<tr>
-				<td>${row.action}</td>
-				<td>${row.type}</td>
-				<td>${row.name}</td>
-				<td>${row.user}</td>
-				<td>${row.dateTime}</td>
-			</tr>
-		`);
-	}
-
 	render() {
 		return html`
 			<div class="d2l-capture-central-manage-container">
@@ -144,6 +122,28 @@ class D2LCaptureAuditLogs extends DependencyRequester(PageViewElement) {
 				<d2l-labs-pagination page-number="1" max-page-number="5"></d2l-labs-pagination>
 			</div>
 		`;
+	}
+
+	_renderAuditLogs() {
+		if (!this._auditLogs.length) {
+			return html`
+				<tr>
+					<td
+						class="d2l-capture-central-table-no-results"
+						colspan=5
+					>${this.localize('noResults')}
+					</td>
+				</tr>`;
+		}
+		return this._auditLogs.map(row => html`
+			<tr>
+				<td>${row.action}</td>
+				<td>${row.type}</td>
+				<td>${row.name}</td>
+				<td>${row.user}</td>
+				<td>${row.dateTime}</td>
+			</tr>
+		`);
 	}
 }
 

@@ -82,6 +82,104 @@ class LiveEventForm extends MobxReactionUpdate(NavigationMixin(RtlMixin(Internal
 		this.reload();
 	}
 
+	render() {
+		return html`
+			<div class="d2l-capture-central-edit-container">
+				<d2l-breadcrumbs>
+					<d2l-breadcrumb @click=${this._goTo(`/${pageNames.manageLiveEvents}`)} href="#" text="${this.localize('liveEvents')}"></d2l-breadcrumb>
+					<d2l-breadcrumb-current-page text="${this.getCurrentPageLabel()}"></d2l-breadcrumb-current-page>
+				</d2l-breadcrumbs>
+				<div class="d2l-heading-2">${this.getCurrentPageLabel()}</div>
+				<div>
+					<d2l-alert
+						id="live-event-form-critical-alert"
+						class="d2l-capture-central-live-event-form-critical-alert"
+						type="critical">
+						${this._alertMessage}
+					</d2l-alert>
+				</div>
+				<div id="input-container" class="d2l-capture-central-live-event-form-input-container">
+					<d2l-input-text
+						id="title-input"
+						label="${this.localize('title')}"
+						placeholder="${this.localize('title')}"
+						required
+					></d2l-input-text>
+					<d2l-input-text
+						id="presenter-input"
+						label="${this.localize('presenter')}"
+						placeholder="${this.localize('presenter')}"
+					></d2l-input-text>
+					<div class="d2l-capture-central-edit-textarea-container">
+						<div class="d2l-label-text">${this.localize('description')}</div>
+						<textarea
+							id="description-input"
+							class="d2l-input"
+							rows="${this._descriptionTextAreaRows}"
+							maxlength=${this._descriptionMaxCharacters}
+						></textarea
+					></div>
+					<div class="d2l-capture-central-edit-live-events-start-end-times">
+						<d2l-input-date-time-range
+							id="date-time-range-input"
+							label-hidden
+							label="${this.localize('startEndDates')}"
+							required
+						></d2l-input-date-time-range>
+					</div>
+					${this._renderSettings()}
+					${this._renderSubmitButton()}
+				</div>
+			</div>
+		`;
+	}
+
+	getCurrentPageLabel() {
+		if (this.isEdit) {
+			return this.localize('editEvent');
+		} else {
+			return this.localize('createLiveEvent');
+		}
+	}
+
+	getPresentationLayoutSelection() {
+		const layoutCameraInputElement = this.shadowRoot.querySelector('#presentation-layout-camera');
+		const layoutScreenInputElement = this.shadowRoot.querySelector('#presentation-layout-screen');
+		const layoutCameraAndScreenInputElement = this.shadowRoot.querySelector('#presentation-layout-camera-and-screen');
+
+		if (layoutCameraInputElement && layoutCameraInputElement.checked) {
+			return layoutNames.camera;
+		}
+
+		if (layoutScreenInputElement && layoutScreenInputElement.checked) {
+			return layoutNames.screen;
+		}
+
+		if (layoutCameraAndScreenInputElement && layoutCameraAndScreenInputElement.checked) {
+			return layoutNames.cameraAndScreen;
+		}
+
+		return layoutNames.default;
+	}
+
+	hideAccordions() {
+		const accessControlAccordionElement = this.shadowRoot.querySelector('#access-control-accordion');
+		if (accessControlAccordionElement) {
+			accessControlAccordionElement.removeAttribute('opened');
+		}
+	}
+
+	hideFailureAlert() {
+		const criticalAlert = this.shadowRoot.querySelector('#live-event-form-critical-alert');
+		if (criticalAlert) {
+			criticalAlert.style.display = 'none';
+			const inputContainerElement = this.shadowRoot.querySelector('#input-container');
+			if (inputContainerElement) {
+				inputContainerElement.style.display = 'flex';
+			}
+		}
+	}
+
 	reload() {
 		const titleInputElement = this.shadowRoot.querySelector('#title-input');
 		if (titleInputElement) {
@@ -126,6 +224,33 @@ class LiveEventForm extends MobxReactionUpdate(NavigationMixin(RtlMixin(Internal
 		this.hideFailureAlert();
 	}
 
+	renderFailureAlert({ message, hideInputs = false}) {
+		const criticalAlert = this.shadowRoot.querySelector('#live-event-form-critical-alert');
+		if (criticalAlert) {
+			this._alertMessage = message;
+			criticalAlert.style.display = 'block';
+			this.scrollToTop();
+
+			const inputContainerElement = this.shadowRoot.querySelector('#input-container');
+			if (hideInputs && inputContainerElement) {
+				inputContainerElement.style.display = 'none';
+				this.requestUpdate();
+			}
+		}
+	}
+
+	scrollToTop() {
+		document.body.scrollTop = 0; // For Safari
+		document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+	}
+
+	setFocus() {
+		const titleInputElement = this.shadowRoot.querySelector('#title-input');
+		if (titleInputElement) {
+			titleInputElement.focus();
+		}
+	}
+
 	setLiveEvent(liveEvent) {
 		this._liveEvent = liveEvent;
 
@@ -166,44 +291,17 @@ class LiveEventForm extends MobxReactionUpdate(NavigationMixin(RtlMixin(Internal
 		this.hideFailureAlert();
 	}
 
-	_getInputs() {
-		const titleInputElement = this.shadowRoot.querySelector('#title-input');
-		const title = titleInputElement && titleInputElement.value;
+	setPresentationLayoutSelection({ layoutName }) {
+		const layoutCameraInputElement = this.shadowRoot.querySelector('#presentation-layout-camera');
+		const layoutScreenInputElement = this.shadowRoot.querySelector('#presentation-layout-screen');
+		const layoutCameraAndScreenInputElement = this.shadowRoot.querySelector('#presentation-layout-camera-and-screen');
 
-		const presenterInputElement = this.shadowRoot.querySelector('#presenter-input');
-		const presenter = (presenterInputElement && presenterInputElement.value) || '';
-
-		const descriptionInputElement = this.shadowRoot.querySelector('#description-input');
-		const description = (descriptionInputElement && descriptionInputElement.value) || '';
-
-		const dateTimeRangeInputElement = this.shadowRoot.querySelector('#date-time-range-input');
-		const startTime = dateTimeRangeInputElement && dateTimeRangeInputElement.getAttribute('start-value');
-		const endTime = dateTimeRangeInputElement && dateTimeRangeInputElement.getAttribute('end-value');
-
-		const streamingStatusInputElement = this.shadowRoot.querySelector('#streaming-status-select');
-		const status = streamingStatusInputElement.value;
-
-		const enableChatElement = this.shadowRoot.querySelector('#enable-chat-checkbox');
-		const enableChat = enableChatElement.checked;
-
-		const layoutName = this.getPresentationLayoutSelection();
-
-		return {
-			title,
-			presenter,
-			description,
-			startTime: startTime === 'undefined' ? '' : startTime,
-			endTime: endTime === 'undefined' ? '' : endTime,
-			status,
-			enableChat,
-			layoutName: layoutName
-		};
-	}
-
-	setFocus() {
-		const titleInputElement = this.shadowRoot.querySelector('#title-input');
-		if (titleInputElement) {
-			titleInputElement.focus();
+		if (layoutCameraInputElement && layoutName === layoutNames.camera) {
+			layoutCameraInputElement.checked = true;
+		} else if (layoutScreenInputElement && layoutName === layoutNames.screen) {
+			layoutScreenInputElement.checked = true;
+		} else if (layoutCameraAndScreenInputElement) {
+			layoutCameraAndScreenInputElement.checked = true;
 		}
 	}
 
@@ -248,104 +346,38 @@ class LiveEventForm extends MobxReactionUpdate(NavigationMixin(RtlMixin(Internal
 		this.dispatchEvent(event);
 	}
 
-	renderFailureAlert({ message, hideInputs = false}) {
-		const criticalAlert = this.shadowRoot.querySelector('#live-event-form-critical-alert');
-		if (criticalAlert) {
-			this._alertMessage = message;
-			criticalAlert.style.display = 'block';
-			this.scrollToTop();
+	_getInputs() {
+		const titleInputElement = this.shadowRoot.querySelector('#title-input');
+		const title = titleInputElement && titleInputElement.value;
 
-			const inputContainerElement = this.shadowRoot.querySelector('#input-container');
-			if (hideInputs && inputContainerElement) {
-				inputContainerElement.style.display = 'none';
-				this.requestUpdate();
-			}
-		}
-	}
+		const presenterInputElement = this.shadowRoot.querySelector('#presenter-input');
+		const presenter = (presenterInputElement && presenterInputElement.value) || '';
 
-	scrollToTop() {
-		document.body.scrollTop = 0; // For Safari
-		document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
-	}
+		const descriptionInputElement = this.shadowRoot.querySelector('#description-input');
+		const description = (descriptionInputElement && descriptionInputElement.value) || '';
 
-	hideFailureAlert() {
-		const criticalAlert = this.shadowRoot.querySelector('#live-event-form-critical-alert');
-		if (criticalAlert) {
-			criticalAlert.style.display = 'none';
-			const inputContainerElement = this.shadowRoot.querySelector('#input-container');
-			if (inputContainerElement) {
-				inputContainerElement.style.display = 'flex';
-			}
-		}
-	}
+		const dateTimeRangeInputElement = this.shadowRoot.querySelector('#date-time-range-input');
+		const startTime = dateTimeRangeInputElement && dateTimeRangeInputElement.getAttribute('start-value');
+		const endTime = dateTimeRangeInputElement && dateTimeRangeInputElement.getAttribute('end-value');
 
-	hideAccordions() {
-		const accessControlAccordionElement = this.shadowRoot.querySelector('#access-control-accordion');
-		if (accessControlAccordionElement) {
-			accessControlAccordionElement.removeAttribute('opened');
-		}
-	}
+		const streamingStatusInputElement = this.shadowRoot.querySelector('#streaming-status-select');
+		const status = streamingStatusInputElement.value;
 
-	getCurrentPageLabel() {
-		if (this.isEdit) {
-			return this.localize('editEvent');
-		} else {
-			return this.localize('createLiveEvent');
-		}
-	}
+		const enableChatElement = this.shadowRoot.querySelector('#enable-chat-checkbox');
+		const enableChat = enableChatElement.checked;
 
-	getPresentationLayoutSelection() {
-		const layoutCameraInputElement = this.shadowRoot.querySelector('#presentation-layout-camera');
-		const layoutScreenInputElement = this.shadowRoot.querySelector('#presentation-layout-screen');
-		const layoutCameraAndScreenInputElement = this.shadowRoot.querySelector('#presentation-layout-camera-and-screen');
+		const layoutName = this.getPresentationLayoutSelection();
 
-		if (layoutCameraInputElement && layoutCameraInputElement.checked) {
-			return layoutNames.camera;
-		}
-
-		if (layoutScreenInputElement && layoutScreenInputElement.checked) {
-			return layoutNames.screen;
-		}
-
-		if (layoutCameraAndScreenInputElement && layoutCameraAndScreenInputElement.checked) {
-			return layoutNames.cameraAndScreen;
-		}
-
-		return layoutNames.default;
-	}
-
-	setPresentationLayoutSelection({ layoutName }) {
-		const layoutCameraInputElement = this.shadowRoot.querySelector('#presentation-layout-camera');
-		const layoutScreenInputElement = this.shadowRoot.querySelector('#presentation-layout-screen');
-		const layoutCameraAndScreenInputElement = this.shadowRoot.querySelector('#presentation-layout-camera-and-screen');
-
-		if (layoutCameraInputElement && layoutName === layoutNames.camera) {
-			layoutCameraInputElement.checked = true;
-		} else if (layoutScreenInputElement && layoutName === layoutNames.screen) {
-			layoutScreenInputElement.checked = true;
-		} else if (layoutCameraAndScreenInputElement) {
-			layoutCameraAndScreenInputElement.checked = true;
-		}
-	}
-
-	_renderSubmitButton() {
-		if (this.isEdit) {
-			return html`
-				<d2l-button
-					class="d2l-capture-central-edit-save-changes-button"
-					primary
-					@click=${this._editEvent}
-				>${this.localize('saveChanges')}
-				</d2l-button>`;
-		} else {
-			return html`
-				<d2l-button
-					class="d2l-capture-central-edit-save-changes-button"
-					primary
-					@click=${this._createEvent}
-				>${this.localize('create')}
-				</d2l-button>`;
-		}
+		return {
+			title,
+			presenter,
+			description,
+			startTime: startTime === 'undefined' ? '' : startTime,
+			endTime: endTime === 'undefined' ? '' : endTime,
+			status,
+			enableChat,
+			layoutName: layoutName
+		};
 	}
 
 	_renderSettings() {
@@ -397,56 +429,24 @@ class LiveEventForm extends MobxReactionUpdate(NavigationMixin(RtlMixin(Internal
 		`;
 	}
 
-	render() {
-		return html`
-			<div class="d2l-capture-central-edit-container">
-				<d2l-breadcrumbs>
-					<d2l-breadcrumb @click=${this._goTo(`/${pageNames.manageLiveEvents}`)} href="#" text="${this.localize('liveEvents')}"></d2l-breadcrumb>
-					<d2l-breadcrumb-current-page text="${this.getCurrentPageLabel()}"></d2l-breadcrumb-current-page>
-				</d2l-breadcrumbs>
-				<div class="d2l-heading-2">${this.getCurrentPageLabel()}</div>
-				<div>
-					<d2l-alert
-						id="live-event-form-critical-alert"
-						class="d2l-capture-central-live-event-form-critical-alert"
-						type="critical">
-						${this._alertMessage}
-					</d2l-alert>
-				</div>
-				<div id="input-container" class="d2l-capture-central-live-event-form-input-container">
-					<d2l-input-text
-						id="title-input"
-						label="${this.localize('title')}"
-						placeholder="${this.localize('title')}"
-						required
-					></d2l-input-text>
-					<d2l-input-text
-						id="presenter-input"
-						label="${this.localize('presenter')}"
-						placeholder="${this.localize('presenter')}"
-					></d2l-input-text>
-					<div class="d2l-capture-central-edit-textarea-container">
-						<div class="d2l-label-text">${this.localize('description')}</div>
-						<textarea
-							id="description-input"
-							class="d2l-input"
-							rows="${this._descriptionTextAreaRows}"
-							maxlength=${this._descriptionMaxCharacters}
-						></textarea
-					></div>
-					<div class="d2l-capture-central-edit-live-events-start-end-times">
-						<d2l-input-date-time-range
-							id="date-time-range-input"
-							label-hidden
-							label="${this.localize('startEndDates')}"
-							required
-						></d2l-input-date-time-range>
-					</div>
-					${this._renderSettings()}
-					${this._renderSubmitButton()}
-				</div>
-			</div>
-		`;
+	_renderSubmitButton() {
+		if (this.isEdit) {
+			return html`
+				<d2l-button
+					class="d2l-capture-central-edit-save-changes-button"
+					primary
+					@click=${this._editEvent}
+				>${this.localize('saveChanges')}
+				</d2l-button>`;
+		} else {
+			return html`
+				<d2l-button
+					class="d2l-capture-central-edit-save-changes-button"
+					primary
+					@click=${this._createEvent}
+				>${this.localize('create')}
+				</d2l-button>`;
+		}
 	}
 }
 

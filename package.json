@@ -38,6 +38,11 @@
     "@adobe/lit-mobx": "0.0.4",
     "@brightspace-ui/core": "^1",
     "@brightspace-ui/intl": "^3",
+    "@brightspace-ui-labs/accordion": "^2",
+    "@brightspace-ui-labs/file-uploader": "^2",
+    "@brightspace-ui-labs/media-player": "^1",
+    "@brightspace-ui-labs/pagination": "^1",
+    "@brightspace-ui-labs/video-producer": "^0",
     "@chaitin/querystring": "^1.1.0",
     "@polymer/polymer": "^3.4.1",
     "d2l-alert": "BrightspaceUI/alert#semver:^4",
@@ -48,7 +53,7 @@
     "file-drop-element": "^1.0.1",
     "lit-element": "^2",
     "lit-html": "^1.3.0",
-    "mobx": "^5.15.4",
-    "page": "^1.11.5"
+    "mobx": "^5.15.6",
+    "page": "^1.11.6"
   }
 }

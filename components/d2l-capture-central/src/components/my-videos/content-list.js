@@ -87,15 +87,154 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 		this.reloadPage();
 	}
 
-	onWindowScroll() {
-		const contentListElem = this.shadowRoot.querySelector('#d2l-content-store-list');
-		if (contentListElem) {
-			const bottom = contentListElem.getBoundingClientRect().top + window.pageYOffset + contentListElem.clientHeight;
-			const scrollY = window.pageYOffset + window.innerHeight;
-			if (bottom - scrollY < this.infiniteScrollThreshold && this._moreResultsAvailable && !this.loading) {
-				this.loadNext();
+	render() {
+		return html`
+			<content-list-header @change-sort=${this.changeSort}></content-list-header>
+			<content-file-drop>
+			<d2l-list>
+				<div id="d2l-content-store-list">
+					${this.renderNotFound()}
+					${this._videos.map(item => this.renderContentItem(item))}
+					${this.renderGhosts()}
+				</div>
+			</d2l-list>
+			</content-file-drop>
+
+			<d2l-alert-toast
+				id="delete-toast"
+				type="default"
+				button-text=${this.alertToastButtonText}
+				announce-text=${this.alertToastMessage}
+				@d2l-alert-button-pressed=${this.undoDeleteHandler}>
+				${this.alertToastMessage}
+			</d2l-alert-toast>
+		`;
+	}
+
+	async addNewItemIntoContentItems(item) {
+		if (!item || !item.revision || !item.content || !item.upload) {
+			return;
+		}
+
+		const { id: revisionId, title, type } = item.revision;
+		const { id } = item.content;
+		const updatedAt = (new Date()).toISOString();
+
+		await this.insertIntoContentItemsBasedOnSort({
+			id, revisionId, type, title, updatedAt
+		});
+	}
+
+	areAnyFiltersActive() {
+		return this.queryParams.searchQuery ||
+			this.queryParams.dateModified ||
+			this.queryParams.dateCreated;
+	}
+
+	changeSort({ detail = {} }) {
+		const { sortKey, sortQuery } = detail;
+		if (/^(createdAt|updatedAt)$/.test(sortKey)) {
+			this.dateField = sortKey;
+		}
+
+		this._navigate('/my-videos', {
+			...this.queryParams,
+			sortQuery
+		});
+	}
+
+	contentListItemDeletedHandler(e) {
+		if (e && e.detail && e.detail.id) {
+			const { id } = e.detail;
+			const index = this._videos.findIndex(c => c.id === id);
+
+			if (index >= 0 && index < this._videos.length) {
+				this.undoDeleteObject = this._videos[index];
+				this._videos.splice(index, 1);
+				this.requestUpdate();
+				this.showUndoDeleteToast();
+
+				if (this._videos.length < this._resultSize && this._moreResultsAvailable && !this.loading) {
+					this.loadNext();
+				}
 			}
 		}
+	}
+
+	contentListItemRenamedHandler(e) {
+		const { detail } = e;
+
+		if (!detail) {
+			return;
+		}
+
+		const { id, title } = detail;
+
+		if (id && title) {
+			const index = this._videos.findIndex(c => c.id === id);
+			if (index >= 0 && index < this._videos.length) {
+				this._videos[index].title = title;
+				this._videos[index][this.dateField] = (new Date()).toISOString();
+				this.requestUpdate();
+			}
+		}
+	}
+
+	getCompareBasedOnSort(item) {
+		const itemUpdatedAtDate = new Date(item.updatedAt);
+		switch (this.queryParams.sortQuery) {
+			case 'updatedAt:desc':
+				return e => {
+					const elementUpdatedAtDate = new Date(e.updatedAt);
+					return elementUpdatedAtDate <= itemUpdatedAtDate;
+				};
+
+			case 'updatedAt:asc':
+				return e => {
+					const elementUpdatedAtDate = new Date(e.updatedAt);
+					return elementUpdatedAtDate >= itemUpdatedAtDate;
+				};
+
+			case 'lastRevTitle.keyword:desc':
+				return e => {
+					return e.lastRevTitle.toLowerCase() <= item.lastRevTitle.toLowerCase();
+				};
+
+			case 'lastRevTitle.keyword:asc':
+				return e => {
+					return e.lastRevTitle.toLowerCase() >= item.lastRevTitle.toLowerCase();
+				};
+
+			default:
+				return () => true;
+		}
+	}
+
+	async insertIntoContentItemsBasedOnSort(item) {
+		let indexToInsertAt = this._videos.findIndex(this.getCompareBasedOnSort(item));
+		if (indexToInsertAt === -1) {
+			indexToInsertAt = this._videos.length;
+		}
+
+		if (!this._moreResultsAvailable || indexToInsertAt !== this._videos.length) {
+			this._videos.splice(indexToInsertAt, 0, item);
+			this.requestUpdate();
+			await this.updateComplete;
+		}
+	}
+
+	async loadNext({ append = true } = {}) {
+		this.loading = true;
+		const { sortQuery, searchQuery, dateModified, dateCreated } = this.queryParams;
+		await this._handleVideoSearch({
+			append,
+			createdAt: dateCreated,
+			query: searchQuery,
+			sort: sortQuery,
+			updatedAt: dateModified,
+		});
+
+		this.loading = false;
 	}
 
 	observeQueryParams() {
@@ -148,16 +287,15 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 		);
 	}
 
-	changeSort({ detail = {} }) {
-		const { sortKey, sortQuery } = detail;
-		if (/^(createdAt|updatedAt)$/.test(sortKey)) {
-			this.dateField = sortKey;
+	onWindowScroll() {
+		const contentListElem = this.shadowRoot.querySelector('#d2l-content-store-list');
+		if (contentListElem) {
+			const bottom = contentListElem.getBoundingClientRect().top + window.pageYOffset + contentListElem.clientHeight;
+			const scrollY = window.pageYOffset + window.innerHeight;
+			if (bottom - scrollY < this.infiniteScrollThreshold && this._moreResultsAvailable && !this.loading) {
+				this.loadNext();
+			}
 		}
-
-		this._navigate('/my-videos', {
-			...this.queryParams,
-			sortQuery
-		});
 	}
 
 	async reloadPage() {
@@ -173,44 +311,6 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 			this._videos = [];
 			this._start = 0;
 		}
-	}
-
-	async loadNext({ append = true } = {}) {
-		this.loading = true;
-		const { sortQuery, searchQuery, dateModified, dateCreated } = this.queryParams;
-		await this._handleVideoSearch({
-			append,
-			createdAt: dateCreated,
-			query: searchQuery,
-			sort: sortQuery,
-			updatedAt: dateModified,
-		});
-
-		this.loading = false;
-	}
-
-	render() {
-		return html`
-			<content-list-header @change-sort=${this.changeSort}></content-list-header>
-			<content-file-drop>
-			<d2l-list>
-				<div id="d2l-content-store-list">
-					${this.renderNotFound()}
-					${this._videos.map(item => this.renderContentItem(item))}
-					${this.renderGhosts()}
-				</div>
-			</d2l-list>
-			</content-file-drop>
-
-			<d2l-alert-toast
-				id="delete-toast"
-				type="default"
-				button-text=${this.alertToastButtonText}
-				announce-text=${this.alertToastMessage}
-				@d2l-alert-button-pressed=${this.undoDeleteHandler}>
-				${this.alertToastMessage}
-			</d2l-alert-toast>
-		`;
 	}
 
 	renderContentItem(item) {
@@ -247,100 +347,6 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 		` : html``;
 	}
 
-	contentListItemRenamedHandler(e) {
-		const { detail } = e;
-
-		if (!detail) {
-			return;
-		}
-
-		const { id, title } = detail;
-
-		if (id && title) {
-			const index = this._videos.findIndex(c => c.id === id);
-			if (index >= 0 && index < this._videos.length) {
-				this._videos[index].title = title;
-				this._videos[index][this.dateField] = (new Date()).toISOString();
-				this.requestUpdate();
-			}
-		}
-	}
-
-	async addNewItemIntoContentItems(item) {
-		if (!item || !item.revision || !item.content || !item.upload) {
-			return;
-		}
-
-		const { id: revisionId, title, type } = item.revision;
-		const { id } = item.content;
-		const updatedAt = (new Date()).toISOString();
-
-		await this.insertIntoContentItemsBasedOnSort({
-			id, revisionId, type, title, updatedAt
-		});
-	}
-
-	async insertIntoContentItemsBasedOnSort(item) {
-		let indexToInsertAt = this._videos.findIndex(this.getCompareBasedOnSort(item));
-		if (indexToInsertAt === -1) {
-			indexToInsertAt = this._videos.length;
-		}
-
-		if (!this._moreResultsAvailable || indexToInsertAt !== this._videos.length) {
-			this._videos.splice(indexToInsertAt, 0, item);
-			this.requestUpdate();
-			await this.updateComplete;
-		}
-	}
-
-	getCompareBasedOnSort(item) {
-		const itemUpdatedAtDate = new Date(item.updatedAt);
-		switch (this.queryParams.sortQuery) {
-			case 'updatedAt:desc':
-				return e => {
-					const elementUpdatedAtDate = new Date(e.updatedAt);
-					return elementUpdatedAtDate <= itemUpdatedAtDate;
-				};
-
-			case 'updatedAt:asc':
-				return e => {
-					const elementUpdatedAtDate = new Date(e.updatedAt);
-					return elementUpdatedAtDate >= itemUpdatedAtDate;
-				};
-
-			case 'lastRevTitle.keyword:desc':
-				return e => {
-					return e.lastRevTitle.toLowerCase() <= item.lastRevTitle.toLowerCase();
-				};
-
-			case 'lastRevTitle.keyword:asc':
-				return e => {
-					return e.lastRevTitle.toLowerCase() >= item.lastRevTitle.toLowerCase();
-				};
-
-			default:
-				return () => true;
-		}
-	}
-
-	contentListItemDeletedHandler(e) {
-		if (e && e.detail && e.detail.id) {
-			const { id } = e.detail;
-			const index = this._videos.findIndex(c => c.id === id);
-
-			if (index >= 0 && index < this._videos.length) {
-				this.undoDeleteObject = this._videos[index];
-				this._videos.splice(index, 1);
-				this.requestUpdate();
-				this.showUndoDeleteToast();
-
-				if (this._videos.length < this._resultSize && this._moreResultsAvailable && !this.loading) {
-					this.loadNext();
-				}
-			}
-		}
-	}
-
 	showUndoDeleteToast() {
 		const deleteToastElement = this.shadowRoot.querySelector('#delete-toast');
 
@@ -369,12 +375,6 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 			this.requestUpdate();
 			deleteToastElement.setAttribute('open', true);
 		}
-	}
-
-	areAnyFiltersActive() {
-		return this.queryParams.searchQuery ||
-			this.queryParams.dateModified ||
-			this.queryParams.dateCreated;
 	}
 }
 

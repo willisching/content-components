@@ -22,30 +22,6 @@ export const contentSearchMixin = superClass => class extends superClass {
 		this._totalResults = 0;
 	}
 
-	_updateVideoList(hits, append = false) {
-		function getRandomInt(min, max) {
-			min = Math.ceil(min);
-			max = Math.floor(max);
-			return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
-		}
-		const content = hits.map(hit => hit._source);
-		const results = content.map(result => {
-			const randomSeconds = getRandomInt(1, 60);
-			return {
-				duration: `${getRandomInt(0, 20)}:${randomSeconds < 10 ? '0' : ''}${randomSeconds}`,
-				id: result.id,
-				revisionId: result.lastRevId,
-				thumbnail: result.thumbnail,
-				title: result.lastRevTitle,
-				type: result.lastRevType,
-				updatedAt: result.updatedAt,
-				uploadDate: formatDate(new Date(result.createdAt)),
-				views: getRandomInt(0, 100000)
-			};
-		});
-		this._videos = append ? this._videos.concat(results) : results;
-	}
-
 	async _handleInputVideoSearch({ detail: { value: query } }) {
 		this._start = 0;
 		this._query = query;
@@ -84,5 +60,29 @@ export const contentSearchMixin = superClass => class extends superClass {
 		this._updateVideoList(hits, append);
 		this._totalResults = total;
 		this._moreResultsAvailable = this._videos.length < total;
+	}
+
+	_updateVideoList(hits, append = false) {
+		function getRandomInt(min, max) {
+			min = Math.ceil(min);
+			max = Math.floor(max);
+			return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+		}
+		const content = hits.map(hit => hit._source);
+		const results = content.map(result => {
+			const randomSeconds = getRandomInt(1, 60);
+			return {
+				duration: `${getRandomInt(0, 20)}:${randomSeconds < 10 ? '0' : ''}${randomSeconds}`,
+				id: result.id,
+				revisionId: result.lastRevId,
+				thumbnail: result.thumbnail,
+				title: result.lastRevTitle,
+				type: result.lastRevType,
+				updatedAt: result.updatedAt,
+				uploadDate: formatDate(new Date(result.createdAt)),
+				views: getRandomInt(0, 100000)
+			};
+		});
+		this._videos = append ? this._videos.concat(results) : results;
 	}
 };

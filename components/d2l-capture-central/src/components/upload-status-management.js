@@ -137,6 +137,11 @@ class UploadStatusManagement extends InternalLocalizeMixin(RtlMixin(MobxReaction
 		this.toggleShowHideIcon = '';
 	}
 
+	connectedCallback() {
+		super.connectedCallback();
+		this.uploader = this.requestDependency('uploader') || rootStore.uploader;
+	}
+
 	firstUpdated() {
 		super.firstUpdated();
 
@@ -144,50 +149,24 @@ class UploadStatusManagement extends InternalLocalizeMixin(RtlMixin(MobxReaction
 		this.toggleShowHideIcon = 'd2l-tier1:chevron-down';
 	}
 
-	renderHeaderTitle() {
-		let message = '';
-
-		if (this.uploader.uploadsInProgress > 0) {
-			message = this.localize('uploaderStatusInProgress', { count: this.uploader.uploadsInProgress });
-		} else if (this.uploader.uploads.length > 0) {
-			message = this.localize('uploaderStatusCompleted', {
-				count: this.uploader.uploads.filter(upload => upload.progress === 100).length
-			});
-		} else {
-			message = '';
-		}
-
-		return html`<span role="status" aria-live="polite" class="header-title d2l-heading-4">${message}</span>`;
-	}
-
-	renderUploadProgress({ progress, file }) {
-		let progressIndicator = html``;
-		if (progress === 100) {
-			progressIndicator = html`
-				<d2l-icon class="upload-file-complete" icon="tier2:check"></d2l-icon>
-			`;
-		} else {
-			progressIndicator = html`
-				<d2l-meter-circle class="upload-file-progress" value=${progress} max="100" percent></d2l-meter-circle>
-			`;
-		}
-
+	render() {
 		return html`
-			<div class="upload-file-name-container">
-				<span class="upload-file-name">${file.name}</span>
-			</div>
-			${progressIndicator}
-		`;
-	}
-
-	renderUploadError(upload) {
-		return html`
-			<div class="upload-file-name-container">
-				<div class="upload-file-name error">${upload.file.name}</div>
-			</div>
-			<d2l-icon class="upload-file-error" icon="tier2:alert"></d2l-icon>
-
-		`;
+			<div class="container" id="container" ?hidden="${!this.uploader.statusWindowVisible}">
+				<div class="header">
+					${this.renderHeaderTitle()}
+					<div class="header-icons-container">
+						<d2l-button-icon
+							icon="${this.toggleShowHideIcon}"
+							text="${this.toggleShowHideText}"
+							@click="${this._toggleShowHideDialog}">
+						</d2l-button-icon>
+						<d2l-button-icon icon="d2l-tier1:close-small" text="${this.localize('close')}" @click="${this._closeDialog}"></d2l-button-icon>
+					</div>
+				</div>
+				<div class="content" id="content" tabindex="0">
+					${this.renderContent()}
+				</div>
+			</div>`;
 	}
 
 	renderContent() {
@@ -211,29 +190,55 @@ class UploadStatusManagement extends InternalLocalizeMixin(RtlMixin(MobxReaction
 		`;
 	}
 
-	render() {
-		return html`
-			<div class="container" id="container" ?hidden="${!this.uploader.statusWindowVisible}">
-				<div class="header">
-					${this.renderHeaderTitle()}
-					<div class="header-icons-container">
-						<d2l-button-icon
-							icon="${this.toggleShowHideIcon}"
-							text="${this.toggleShowHideText}"
-							@click="${this._toggleShowHideDialog}">
-						</d2l-button-icon>
-						<d2l-button-icon icon="d2l-tier1:close-small" text="${this.localize('close')}" @click="${this._closeDialog}"></d2l-button-icon>
-					</div>
-				</div>
-				<div class="content" id="content" tabindex="0">
-					${this.renderContent()}
-				</div>
-			</div>`;
+	renderHeaderTitle() {
+		let message = '';
+
+		if (this.uploader.uploadsInProgress > 0) {
+			message = this.localize('uploaderStatusInProgress', { count: this.uploader.uploadsInProgress });
+		} else if (this.uploader.uploads.length > 0) {
+			message = this.localize('uploaderStatusCompleted', {
+				count: this.uploader.uploads.filter(upload => upload.progress === 100).length
+			});
+		} else {
+			message = '';
+		}
+
+		return html`<span role="status" aria-live="polite" class="header-title d2l-heading-4">${message}</span>`;
 	}
 
-	connectedCallback() {
-		super.connectedCallback();
-		this.uploader = this.requestDependency('uploader') || rootStore.uploader;
+	renderUploadError(upload) {
+		return html`
+			<div class="upload-file-name-container">
+				<div class="upload-file-name error">${upload.file.name}</div>
+			</div>
+			<d2l-icon class="upload-file-error" icon="tier2:alert"></d2l-icon>
+
+		`;
+	}
+
+	renderUploadProgress({ progress, file }) {
+		let progressIndicator = html``;
+		if (progress === 100) {
+			progressIndicator = html`
+				<d2l-icon class="upload-file-complete" icon="tier2:check"></d2l-icon>
+			`;
+		} else {
+			progressIndicator = html`
+				<d2l-meter-circle class="upload-file-progress" value=${progress} max="100" percent></d2l-meter-circle>
+			`;
+		}
+
+		return html`
+			<div class="upload-file-name-container">
+				<span class="upload-file-name">${file.name}</span>
+			</div>
+			${progressIndicator}
+		`;
+	}
+
+	_closeDialog() {
+		this.uploader.clearCompletedUploads();
+		this.uploader.showStatusWindow(false);
 	}
 
 	_toggleShowHideDialog() {
@@ -247,11 +252,6 @@ class UploadStatusManagement extends InternalLocalizeMixin(RtlMixin(MobxReaction
 			this.toggleShowHideText = this.localize('show');
 			this.toggleShowHideIcon = 'd2l-tier1:chevron-up';
 		}
-	}
-
-	_closeDialog() {
-		this.uploader.clearCompletedUploads();
-		this.uploader.showStatusWindow(false);
 	}
 }
 

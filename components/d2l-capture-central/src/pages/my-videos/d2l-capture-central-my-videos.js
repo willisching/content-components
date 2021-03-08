@@ -88,38 +88,6 @@ class D2LCaptureCentralMyVideos extends contentSearchMixin(DependencyRequester(P
 		this.uploader = this.requestDependency('uploader');
 	}
 
-	_handleFileUploadClick() {
-		this.shadowRoot.querySelector('#fileInput').click();
-	}
-
-	_handleFileChange(event) {
-		this.uploader.uploadFiles(event.target.files);
-		event.target.value = '';
-	}
-
-	_handleFilterCleared() {
-		const queryParams = this.rootStore.routingStore.getQueryParams();
-		delete queryParams.dateCreated;
-		delete queryParams.dateModified;
-		this._navigate('/my-videos', queryParams);
-	}
-
-	_handleFilterChange({ detail = {} }) {
-		this._navigate('/my-videos', {
-			...this.rootStore.routingStore.getQueryParams(),
-			...detail
-		});
-	}
-
-	_handleSearch(event) {
-		const { value } = event.detail;
-
-		this._navigate('/my-videos', {
-			...this.rootStore.routingStore.getQueryParams(),
-			searchQuery: value
-		});
-	}
-
 	render() {
 		if (!rootStore.permissionStore.getCanManageCaptureCentral()) {
 			return html`
@@ -154,6 +122,38 @@ class D2LCaptureCentralMyVideos extends contentSearchMixin(DependencyRequester(P
 			<upload-status-management id="upload-status-management"></upload-status-management>
 			<input type="file" id="fileInput" @change=${this._handleFileChange} style="display:none" multiple />
 		`;
+	}
+
+	_handleFileChange(event) {
+		this.uploader.uploadFiles(event.target.files);
+		event.target.value = '';
+	}
+
+	_handleFileUploadClick() {
+		this.shadowRoot.querySelector('#fileInput').click();
+	}
+
+	_handleFilterChange({ detail = {} }) {
+		this._navigate('/my-videos', {
+			...this.rootStore.routingStore.getQueryParams(),
+			...detail
+		});
+	}
+
+	_handleFilterCleared() {
+		const queryParams = this.rootStore.routingStore.getQueryParams();
+		delete queryParams.dateCreated;
+		delete queryParams.dateModified;
+		this._navigate('/my-videos', queryParams);
+	}
+
+	_handleSearch(event) {
+		const { value } = event.detail;
+
+		this._navigate('/my-videos', {
+			...this.rootStore.routingStore.getQueryParams(),
+			searchQuery: value
+		});
 	}
 }
 customElements.define('d2l-capture-central-my-videos', D2LCaptureCentralMyVideos);

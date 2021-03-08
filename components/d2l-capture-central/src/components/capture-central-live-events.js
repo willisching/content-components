@@ -87,6 +87,62 @@ class CaptureCentralLiveEvents extends DependencyRequester(InternalLocalizeMixin
 		await this.reload({ searchQuery: rootStore.routingStore.getQueryParams().searchQuery });
 	}
 
+	render() {
+		if (this._loading) {
+			return html`<d2l-loading-spinner size=150></d2l-loading-spinner>`;
+		}
+
+		if (!this._canView || this._isErrorState) {
+			return html`
+				<d2l-alert
+					type="critical">
+					${this._alertMessage}
+				</d2l-alert>
+			`;
+		}
+
+		return html`
+			<div class="d2l-capture-central-manage-container">
+				<div class="d2l-capture-central-live-events-header">
+					<d2l-input-search
+						label="${this.localize('searchPlaceholder')}"
+						placeholder="${this.localize('searchPlaceholder')}"
+						@d2l-input-search-searched=${this._handleSearch}
+						maxlength="100"
+						value=${rootStore.routingStore.getQueryParams().searchQuery || ''}>
+					></d2l-input-search>
+					${this._canManage ? html`
+						<d2l-button-icon
+							text="${this.localize('delete')}"
+							icon="tier2:delete"
+							@click=${this._bulkDelete}>
+						</d2l-button-icon>` : ''}
+				</div>
+				<div class="d2l-capture-central-manage-options">
+					${this._canManage ? html`
+						<d2l-button primary @click=${this._goTo('/manage-live-events/create')}>
+							${this.localize('createLiveEvent')}
+						</d2l-button>` : ''}
+				</div>
+				<d2l-alert
+					id="live-events-inline-critical-alert"
+					class="d2l-capture-central-live-events-inline-critical-alert"
+					type="critical">
+					${this._alertMessage}
+				</d2l-alert>
+				${this._renderTable()}
+			</div>
+		`;
+	}
+
+	hideAlerts() {
+		const inlineCriticalAlertElement = this.shadowRoot.querySelector('#live-events-inline-critical-alert');
+		if (inlineCriticalAlertElement) {
+			inlineCriticalAlertElement.style.display = 'none';
+			this._alertMessage = '';
+		}
+	}
+
 	observeQueryParams() {
 		observe(
 			rootStore.routingStore,
@@ -135,14 +191,6 @@ class CaptureCentralLiveEvents extends DependencyRequester(InternalLocalizeMixin
 		this._loading = false;
 	}
 
-	hideAlerts() {
-		const inlineCriticalAlertElement = this.shadowRoot.querySelector('#live-events-inline-critical-alert');
-		if (inlineCriticalAlertElement) {
-			inlineCriticalAlertElement.style.display = 'none';
-			this._alertMessage = '';
-		}
-	}
-
 	_addAllToSelection(e) {
 		const checkboxes = this.shadowRoot.querySelectorAll('tbody d2l-input-checkbox');
 
@@ -165,11 +213,6 @@ class CaptureCentralLiveEvents extends DependencyRequester(InternalLocalizeMixin
 
 		this._updateLiveEventForSelection({ id: selectedEventId, selected: e.target.checked });
 		this.requestUpdate();
-	}
-
-	_updateLiveEventForSelection({ id, selected }) {
-		const selectedEvent = this._liveEvents.find(liveEvent => liveEvent.id === id);
-		selectedEvent.state = { selected };
 	}
 
 	async _bulkDelete() {
@@ -212,49 +255,6 @@ class CaptureCentralLiveEvents extends DependencyRequester(InternalLocalizeMixin
 		}
 	}
 
-	_sortLiveEvents(sortName = sortNames.default) {
-		let compareFunction = null;
-		if (sortName === sortNames.name) {
-			compareFunction = (a, b) => {
-				const titleA = a.title.toLowerCase();
-				const titleB = b.title.toLowerCase();
-				if (titleA > titleB) {
-					return this._sortIsDesc ? -1 : 1;
-				} else if (titleA < titleB) {
-					return this._sortIsDesc ? 1 : -1;
-				} else {
-					return 0;
-				}
-			};
-		} else if (sortName === sortNames.startTime) {
-			compareFunction = (a, b) => {
-				const dateA = new Date(a.startTime);
-				const dateB = new Date(b.startTime);
-				if (dateA > dateB) {
-					return this._sortIsDesc ? -1 : 1;
-				} else if (dateA < dateB) {
-					return this._sortIsDesc ? 1 : -1;
-				} else {
-					return 0;
-				}
-			};
-		} else if (sortName === sortNames.status) {
-			compareFunction = (a, b) => {
-				if (a.status > b.status) {
-					return this._sortIsDesc ? -1 : 1;
-				} else if (a.status < b.status) {
-					return this._sortIsDesc ? 1 : -1;
-				} else {
-					return 0;
-				}
-			};
-		}
-
-		if (compareFunction) {
-			this._liveEvents.sort(compareFunction);
-		}
-	}
-
 	_handleSort(e = {}) {
 		const sortHeaderElement = e.target;
 		const sortName = sortHeaderElement.getAttribute('value');
@@ -268,6 +268,20 @@ class CaptureCentralLiveEvents extends DependencyRequester(InternalLocalizeMixin
 
 		this._currentSort = sortName;
 		this._sortLiveEvents(this._currentSort);
+	}
+
+	_renderLiveEvents() {
+		if (this._canManage) {
+			return this._renderLiveEventsForManage();
+		}
+
+		return this._liveEvents.map(row => html`
+			<tr>
+				<td><d2l-link @click=${this._goTo('/view-live-event', { id: row.id })}>${row.title}</d2l-link></td>
+				<td>${row.startTime ? formatDateTime(new Date(row.startTime)) : ''}</td>
+				<td>${this.localize(row.status)}</td>
+			</tr>
+		`);
 	}
 
 	_renderLiveEventsForManage() {
@@ -302,77 +316,6 @@ class CaptureCentralLiveEvents extends DependencyRequester(InternalLocalizeMixin
 				</td>
 			</tr>
 		`);
-	}
-
-	_renderLiveEvents() {
-		if (this._canManage) {
-			return this._renderLiveEventsForManage();
-		}
-
-		return this._liveEvents.map(row => html`
-			<tr>
-				<td><d2l-link @click=${this._goTo('/view-live-event', { id: row.id })}>${row.title}</d2l-link></td>
-				<td>${row.startTime ? formatDateTime(new Date(row.startTime)) : ''}</td>
-				<td>${this.localize(row.status)}</td>
-			</tr>
-		`);
-	}
-
-	_renderTableForManage() {
-		return html`
-			<d2l-table-wrapper type="light" sticky-headers>
-				<p class="d2l-capture-central-table-caption" id="d2l-capture-central-table-caption">
-					${this.localize('liveEvents')}
-				</p>
-				<table class="d2l-table" aria-describedby="d2l-capture-central-table-caption">
-					<thead>
-						<tr>
-							<th class="d2l-capture-central-th-checkbox-container">
-								<d2l-input-checkbox
-									id="toggle-select-all-checkbox"
-									aria-label=${this.localize('selectAllLiveEvents')}
-									@change=${this._addAllToSelection}>
-								</d2l-input-checkbox>
-							</th>
-							<th>
-								<d2l-table-col-sort-button
-									id="table-header-sort-by-name"
-									@click=${this._handleSort}
-									?nosort=${this._currentSort !== sortNames.name}
-									?desc=${this._sortIsDesc}
-									value="name">
-									${this.localize('name')}
-								</d2l-table-col-sort-button>
-							</th>
-							<th>
-								<d2l-table-col-sort-button
-									id="table-header-sort-by-start-time"
-									@click=${this._handleSort}
-									?nosort=${this._currentSort !== sortNames.startTime}
-									?desc=${this._sortIsDesc}
-									value="startTime">
-									${this.localize('startTime')}
-								</d2l-table-col-sort-button>
-							</th>
-							<th>
-								<d2l-table-col-sort-button
-									id="table-header-sort-by-status"
-									@click=${this._handleSort}
-									?nosort=${this._currentSort !== sortNames.status}
-									?desc=${this._sortIsDesc}
-									value="status">
-									${this.localize('status')}
-								</d2l-table-col-sort-button>
-							</th>
-							<th class="d2l-capture-central-th-more-options-container"></th>
-						</tr>
-					</thead>
-					<tbody>
-						${this._renderLiveEvents()}
-					</tbody>
-				</table>
-			</d2l-table-wrapper>
-		`;
 	}
 
 	_renderTable() {
@@ -436,52 +379,109 @@ class CaptureCentralLiveEvents extends DependencyRequester(InternalLocalizeMixin
 		`;
 	}
 
-	render() {
-		if (this._loading) {
-			return html`<d2l-loading-spinner size=150></d2l-loading-spinner>`;
-		}
-
-		if (!this._canView || this._isErrorState) {
-			return html`
-				<d2l-alert
-					type="critical">
-					${this._alertMessage}
-				</d2l-alert>
-			`;
-		}
-
+	_renderTableForManage() {
 		return html`
-			<div class="d2l-capture-central-manage-container">
-				<div class="d2l-capture-central-live-events-header">
-					<d2l-input-search
-						label="${this.localize('searchPlaceholder')}"
-						placeholder="${this.localize('searchPlaceholder')}"
-						@d2l-input-search-searched=${this._handleSearch}
-						maxlength="100"
-						value=${rootStore.routingStore.getQueryParams().searchQuery || ''}>
-					></d2l-input-search>
-					${this._canManage ? html`
-						<d2l-button-icon
-							text="${this.localize('delete')}"
-							icon="tier2:delete"
-							@click=${this._bulkDelete}>
-						</d2l-button-icon>` : ''}
-				</div>
-				<div class="d2l-capture-central-manage-options">
-					${this._canManage ? html`
-						<d2l-button primary @click=${this._goTo('/manage-live-events/create')}>
-							${this.localize('createLiveEvent')}
-						</d2l-button>` : ''}
-				</div>
-				<d2l-alert
-					id="live-events-inline-critical-alert"
-					class="d2l-capture-central-live-events-inline-critical-alert"
-					type="critical">
-					${this._alertMessage}
-				</d2l-alert>
-				${this._renderTable()}
-			</div>
+			<d2l-table-wrapper type="light" sticky-headers>
+				<p class="d2l-capture-central-table-caption" id="d2l-capture-central-table-caption">
+					${this.localize('liveEvents')}
+				</p>
+				<table class="d2l-table" aria-describedby="d2l-capture-central-table-caption">
+					<thead>
+						<tr>
+							<th class="d2l-capture-central-th-checkbox-container">
+								<d2l-input-checkbox
+									id="toggle-select-all-checkbox"
+									aria-label=${this.localize('selectAllLiveEvents')}
+									@change=${this._addAllToSelection}>
+								</d2l-input-checkbox>
+							</th>
+							<th>
+								<d2l-table-col-sort-button
+									id="table-header-sort-by-name"
+									@click=${this._handleSort}
+									?nosort=${this._currentSort !== sortNames.name}
+									?desc=${this._sortIsDesc}
+									value="name">
+									${this.localize('name')}
+								</d2l-table-col-sort-button>
+							</th>
+							<th>
+								<d2l-table-col-sort-button
+									id="table-header-sort-by-start-time"
+									@click=${this._handleSort}
+									?nosort=${this._currentSort !== sortNames.startTime}
+									?desc=${this._sortIsDesc}
+									value="startTime">
+									${this.localize('startTime')}
+								</d2l-table-col-sort-button>
+							</th>
+							<th>
+								<d2l-table-col-sort-button
+									id="table-header-sort-by-status"
+									@click=${this._handleSort}
+									?nosort=${this._currentSort !== sortNames.status}
+									?desc=${this._sortIsDesc}
+									value="status">
+									${this.localize('status')}
+								</d2l-table-col-sort-button>
+							</th>
+							<th class="d2l-capture-central-th-more-options-container"></th>
+						</tr>
+					</thead>
+					<tbody>
+						${this._renderLiveEvents()}
+					</tbody>
+				</table>
+			</d2l-table-wrapper>
 		`;
+	}
+
+	_sortLiveEvents(sortName = sortNames.default) {
+		let compareFunction = null;
+		if (sortName === sortNames.name) {
+			compareFunction = (a, b) => {
+				const titleA = a.title.toLowerCase();
+				const titleB = b.title.toLowerCase();
+				if (titleA > titleB) {
+					return this._sortIsDesc ? -1 : 1;
+				} else if (titleA < titleB) {
+					return this._sortIsDesc ? 1 : -1;
+				} else {
+					return 0;
+				}
+			};
+		} else if (sortName === sortNames.startTime) {
+			compareFunction = (a, b) => {
+				const dateA = new Date(a.startTime);
+				const dateB = new Date(b.startTime);
+				if (dateA > dateB) {
+					return this._sortIsDesc ? -1 : 1;
+				} else if (dateA < dateB) {
+					return this._sortIsDesc ? 1 : -1;
+				} else {
+					return 0;
+				}
+			};
+		} else if (sortName === sortNames.status) {
+			compareFunction = (a, b) => {
+				if (a.status > b.status) {
+					return this._sortIsDesc ? -1 : 1;
+				} else if (a.status < b.status) {
+					return this._sortIsDesc ? 1 : -1;
+				} else {
+					return 0;
+				}
+			};
+		}
+
+		if (compareFunction) {
+			this._liveEvents.sort(compareFunction);
+		}
+	}
+
+	_updateLiveEventForSelection({ id, selected }) {
+		const selectedEvent = this._liveEvents.find(liveEvent => liveEvent.id === id);
+		selectedEvent.state = { selected };
 	}
 }
 

@@ -62,6 +62,63 @@ class D2LCaptureLiveEventsEdit extends DependencyRequester(PageViewElement) {
 		}
 	}
 
+	render() {
+		if (!rootStore.permissionStore.getCanManageLiveEvents()) {
+			return html`
+				<unauthorized-message></unauthorized-message>
+			`;
+		}
+
+		return html`
+			<d2l-loading-spinner
+				id="loading-spinner"
+				class="${this._loading ? 'visible' : 'hidden'}"
+				size=150>
+			</d2l-loading-spinner>
+			<live-event-form
+				id="edit-live-event-form"
+				class="${this._loading ? 'hidden' : 'visible'}"
+				is-edit>
+			</live-event-form>
+		`;
+	}
+
+	async handleEditEvent(event) {
+		if (event && event.detail) {
+			const {
+				id,
+				title,
+				presenter,
+				description,
+				startTime,
+				endTime,
+				status,
+				enableChat,
+				layoutName
+			}  = event.detail;
+
+			try {
+				await this.captureApiClient.updateEvent({
+					id,
+					title,
+					presenter,
+					description,
+					startTime,
+					endTime,
+					status,
+					enableChat,
+					layoutName
+				});
+			} catch (error) {
+				const editLiveEventForm = this.shadowRoot.querySelector('#edit-live-event-form');
+				editLiveEventForm.renderFailureAlert({ message: this.localize('updateLiveEventError') });
+				return;
+			}
+
+			this._navigate('/');
+		}
+	}
+
 	observeQueryParams() {
 		observe(
 			rootStore.routingStore,
@@ -102,63 +159,6 @@ class D2LCaptureLiveEventsEdit extends DependencyRequester(PageViewElement) {
 		}
 
 		this._loading = false;
-	}
-
-	async handleEditEvent(event) {
-		if (event && event.detail) {
-			const {
-				id,
-				title,
-				presenter,
-				description,
-				startTime,
-				endTime,
-				status,
-				enableChat,
-				layoutName
-			}  = event.detail;
-
-			try {
-				await this.captureApiClient.updateEvent({
-					id,
-					title,
-					presenter,
-					description,
-					startTime,
-					endTime,
-					status,
-					enableChat,
-					layoutName
-				});
-			} catch (error) {
-				const editLiveEventForm = this.shadowRoot.querySelector('#edit-live-event-form');
-				editLiveEventForm.renderFailureAlert({ message: this.localize('updateLiveEventError') });
-				return;
-			}
-
-			this._navigate('/');
-		}
-	}
-
-	render() {
-		if (!rootStore.permissionStore.getCanManageLiveEvents()) {
-			return html`
-				<unauthorized-message></unauthorized-message>
-			`;
-		}
-
-		return html`
-			<d2l-loading-spinner
-				id="loading-spinner"
-				class="${this._loading ? 'visible' : 'hidden'}"
-				size=150>
-			</d2l-loading-spinner>
-			<live-event-form
-				id="edit-live-event-form"
-				class="${this._loading ? 'hidden' : 'visible'}"
-				is-edit>
-			</live-event-form>
-		`;
 	}
 }
 

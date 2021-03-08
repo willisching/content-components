@@ -10,9 +10,30 @@ export default class UserBrightspaceClient {
 		this.endpoint = window.location.origin;
 	}
 
-	_url(path, query) {
-		const qs = query ? `?${querystring.stringify(query)}` : '';
-		return `${this.endpoint}${path}${qs}`;
+	getLocales() {
+		const headers = new Headers();
+		headers.append('pragma', 'no-cache');
+		headers.append('cache-control', 'no-cache');
+
+		return this._fetch({
+			path: '/d2l/api/lp/unstable/locales/',
+			headers
+		});
+	}
+
+	getOrgUnitId() {
+		return rootStore.routingStore.orgUnitId;
+	}
+
+	getPermissions() {
+		const headers = new Headers();
+		headers.append('pragma', 'no-cache');
+		headers.append('cache-control', 'no-cache');
+
+		return this._fetch({
+			path: `/d2l/api/le/1.48/wcs/permissions/${this.getOrgUnitId()}`,
+			headers
+		});
 	}
 
 	async _fetch({
@@ -48,29 +69,8 @@ export default class UserBrightspaceClient {
 		return response;
 	}
 
-	getOrgUnitId() {
-		return rootStore.routingStore.orgUnitId;
-	}
-
-	getPermissions() {
-		const headers = new Headers();
-		headers.append('pragma', 'no-cache');
-		headers.append('cache-control', 'no-cache');
-
-		return this._fetch({
-			path: `/d2l/api/le/1.48/wcs/permissions/${this.getOrgUnitId()}`,
-			headers
-		});
-	}
-
-	getLocales() {
-		const headers = new Headers();
-		headers.append('pragma', 'no-cache');
-		headers.append('cache-control', 'no-cache');
-
-		return this._fetch({
-			path: '/d2l/api/lp/unstable/locales/',
-			headers
-		});
+	_url(path, query) {
+		const qs = query ? `?${querystring.stringify(query)}` : '';
+		return `${this.endpoint}${path}${qs}`;
 	}
 }

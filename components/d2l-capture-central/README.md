@@ -1,8 +1,5 @@
 # d2l-capture-central
 
-[![Dependabot badge](https://flat.badgen.net/dependabot/Brightspace/d2l-capture-central?icon=dependabot)](https://app.dependabot.com/)
-[![Build status](https://travis-ci.com/brightspace/d2l-capture-central.svg?branch=master)](https://travis-ci.com/brightspace/d2l-capture-central)
-
 ## Installation
 
 To install from GitHub:

@@ -105,34 +105,35 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 		}
 	}
 
-	_resized() {
-		rootStore.appTop = this.offsetTop;
-	}
-
-	_setupPageNavigation() {
-		page.base(BASE_PATH);
-
-		const routes = [
-			`/:orgUnitId/${pageNames.page404}`,
-			`/:orgUnitId/${pageNames.auditLogs}`,
-			`/:orgUnitId/${pageNames.clips}`,
-			`/:orgUnitId/${pageNames.courseVideos}`,
-			`/:orgUnitId/${pageNames.courseVideos}/:id`,
-			`/:orgUnitId/${pageNames.folders}`,
-			`/:orgUnitId/${pageNames.viewLiveEvent}`,
-			`/:orgUnitId/${pageNames.manageLiveEvents}`,
-			`/:orgUnitId/${pageNames.manageLiveEvents}/create`,
-			`/:orgUnitId/${pageNames.manageLiveEvents}/edit`,
-			`/:orgUnitId/${pageNames.myVideos}`,
-			`/:orgUnitId/${pageNames.liveEventsReporting}`,
-			`/:orgUnitId/${pageNames.producer}/:id`,
-			`/:orgUnitId/${pageNames.settings}`,
-			`/:orgUnitId/${pageNames.visits}`,
-			'/:orgUnitId/',
-			'/*',
-		];
-		routes.forEach(route => page(route, this.setupPage.bind(this)));
-		page();
+	render() {
+		if (this._permissionError) {
+			return html `
+				${this.localize('unableToGetPermissions')}
+			`;
+		}
+		const renderContent = () => {
+			if (this._shouldRenderSidebar === null) {
+				return;
+			} else if (this._shouldRenderSidebar) {
+				return html`
+					<two-column-layout>
+						<div slot="sidebar">
+							${this._renderSidebar()}
+						</div>
+						<div slot="primary">
+							${this._renderPrimary()}
+						</div>
+					</two-column-layout>
+				`;
+			} else {
+				return html`${this._renderPrimary()}`;
+			}
+		};
+		return html`
+			<div class="d2l-capture-central">
+				${renderContent()}
+			</div>
+		`;
 	}
 
 	setupPage(ctx) {
@@ -205,6 +206,30 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 		}
 	}
 
+	_renderPrimary() {
+		const { page: currentPage, subView } = rootStore.routingStore;
+		return html`
+			<div class="d2l-capture-central-primary d2l-navigation-gutters ${this._shouldRenderSidebar ? 'sidebar' : ''}">
+				<d2l-capture-central-landing class="page" ?active=${currentPage === pageNames.landing}></d2l-capture-central-landing>
+				<d2l-capture-central-audit-logs class="page" ?active=${currentPage === pageNames.auditLogs}></d2l-capture-central-audit-logs>
+				<d2l-capture-central-course-videos class="page ${this._shouldRenderSidebar ? 'sidebar' : ''}" ?active=${currentPage === pageNames.courseVideos && !subView}></d2l-capture-central-course-videos>
+				<d2l-capture-central-course-video-player class="page" ?active=${currentPage === pageNames.courseVideos && !!subView}></d2l-capture-central-course-video-player>
+				<d2l-capture-central-clips class="page" ?active=${currentPage === pageNames.clips}></d2l-capture-central-clips>
+				<d2l-capture-central-folders class="page" ?active=${currentPage === pageNames.folders}></d2l-capture-central-folders>
+				<d2l-capture-central-live-events class="page" ?active=${currentPage === pageNames.manageLiveEvents && !subView}></d2l-capture-central-live-events>
+				<d2l-capture-central-live-events-view class="page" ?active=${currentPage === pageNames.viewLiveEvent && subView === 'view'}></d2l-capture-central-live-events-view>
+				<d2l-capture-central-live-events-edit class="page" ?active=${currentPage === pageNames.manageLiveEvents && subView === 'edit'}></d2l-capture-central-live-events-edit>
+				<d2l-capture-central-live-events-create class="page" ?active=${currentPage === pageNames.manageLiveEvents && subView === 'create'}></d2l-capture-central-live-events-create>
+				<d2l-capture-central-live-events-reporting class="page" ?active=${currentPage === pageNames.liveEventsReporting}></d2l-capture-central-live-events-reporting>
+				<d2l-capture-central-my-videos class="page" ?active=${currentPage === pageNames.myVideos}></d2l-capture-central-my-videos>
+				<d2l-capture-central-producer class="page" ?active=${currentPage === pageNames.producer && !!subView}></d2l-capture-central-producer>
+				<d2l-capture-central-settings class="page" ?active=${currentPage === pageNames.settings}></d2l-capture-central-settings>
+				<d2l-capture-central-visits class="page" ?active=${currentPage === pageNames.visits}></d2l-capture-central-visits>
+				<d2l-capture-central-404 class="page" ?active=${currentPage === pageNames.page404}></d2l-capture-central-404>
+			</div>
+		`;
+	}
+
 	_renderSidebar() {
 		const sidebarItems = [{
 			langterm: 'courseVideos',
@@ -251,59 +276,34 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 		`;
 	}
 
-	_renderPrimary() {
-		const { page: currentPage, subView } = rootStore.routingStore;
-		return html`
-			<div class="d2l-capture-central-primary d2l-navigation-gutters ${this._shouldRenderSidebar ? 'sidebar' : ''}">
-				<d2l-capture-central-landing class="page" ?active=${currentPage === pageNames.landing}></d2l-capture-central-landing>
-				<d2l-capture-central-audit-logs class="page" ?active=${currentPage === pageNames.auditLogs}></d2l-capture-central-audit-logs>
-				<d2l-capture-central-course-videos class="page ${this._shouldRenderSidebar ? 'sidebar' : ''}" ?active=${currentPage === pageNames.courseVideos && !subView}></d2l-capture-central-course-videos>
-				<d2l-capture-central-course-video-player class="page" ?active=${currentPage === pageNames.courseVideos && subView}></d2l-capture-central-course-video-player>
-				<d2l-capture-central-clips class="page" ?active=${currentPage === pageNames.clips}></d2l-capture-central-clips>
-				<d2l-capture-central-folders class="page" ?active=${currentPage === pageNames.folders}></d2l-capture-central-folders>
-				<d2l-capture-central-live-events class="page" ?active=${currentPage === pageNames.manageLiveEvents && !subView}></d2l-capture-central-live-events>
-				<d2l-capture-central-live-events-view class="page" ?active=${currentPage === pageNames.viewLiveEvent && subView === 'view'}></d2l-capture-central-live-events-view>
-				<d2l-capture-central-live-events-edit class="page" ?active=${currentPage === pageNames.manageLiveEvents && subView === 'edit'}></d2l-capture-central-live-events-edit>
-				<d2l-capture-central-live-events-create class="page" ?active=${currentPage === pageNames.manageLiveEvents && subView === 'create'}></d2l-capture-central-live-events-create>
-				<d2l-capture-central-live-events-reporting class="page" ?active=${currentPage === pageNames.liveEventsReporting}></d2l-capture-central-live-events-reporting>
-				<d2l-capture-central-my-videos class="page" ?active=${currentPage === pageNames.myVideos}></d2l-capture-central-my-videos>
-				<d2l-capture-central-producer class="page" ?active=${currentPage === pageNames.producer && subView}></d2l-capture-central-producer>
-				<d2l-capture-central-settings class="page" ?active=${currentPage === pageNames.settings}></d2l-capture-central-settings>
-				<d2l-capture-central-visits class="page" ?active=${currentPage === pageNames.visits}></d2l-capture-central-visits>
-				<d2l-capture-central-404 class="page" ?active=${currentPage === pageNames.page404}></d2l-capture-central-404>
-			</div>
-		`;
+	_resized() {
+		rootStore.appTop = this.offsetTop;
 	}
 
-	render() {
-		if (this._permissionError) {
-			return html `
-				${this.localize('unableToGetPermissions')}
-			`;
-		}
-		const renderContent = () => {
-			if (this._shouldRenderSidebar === null) {
-				return;
-			} else if (this._shouldRenderSidebar) {
-				return html`
-					<two-column-layout>
-						<div slot="sidebar">
-							${this._renderSidebar()}
-						</div>
-						<div slot="primary">
-							${this._renderPrimary()}
-						</div>
-					</two-column-layout>
-				`;
-			} else {
-				return html`${this._renderPrimary()}`;
-			}
-		};
-		return html`
-			<div class="d2l-capture-central">
-				${renderContent()}
-			</div>
-		`;
+	_setupPageNavigation() {
+		page.base(BASE_PATH);
+
+		const routes = [
+			`/:orgUnitId/${pageNames.page404}`,
+			`/:orgUnitId/${pageNames.auditLogs}`,
+			`/:orgUnitId/${pageNames.clips}`,
+			`/:orgUnitId/${pageNames.courseVideos}`,
+			`/:orgUnitId/${pageNames.courseVideos}/:id`,
+			`/:orgUnitId/${pageNames.folders}`,
+			`/:orgUnitId/${pageNames.viewLiveEvent}`,
+			`/:orgUnitId/${pageNames.manageLiveEvents}`,
+			`/:orgUnitId/${pageNames.manageLiveEvents}/create`,
+			`/:orgUnitId/${pageNames.manageLiveEvents}/edit`,
+			`/:orgUnitId/${pageNames.myVideos}`,
+			`/:orgUnitId/${pageNames.liveEventsReporting}`,
+			`/:orgUnitId/${pageNames.producer}/:id`,
+			`/:orgUnitId/${pageNames.settings}`,
+			`/:orgUnitId/${pageNames.visits}`,
+			'/:orgUnitId/',
+			'/*',
+		];
+		routes.forEach(route => page(route, this.setupPage.bind(this)));
+		page();
 	}
 }
 

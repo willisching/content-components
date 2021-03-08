@@ -17,9 +17,215 @@ export default class ContentServiceClient {
 		this.onUploadProgress = onUploadProgress;
 	}
 
-	_url(path, query) {
-		const qs = query ? `?${querystring.stringify(query)}` : '';
-		return `${this.endpoint}${path}${qs}`;
+	createContent(body) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/`,
+			method: 'POST',
+			body
+		});
+	}
+
+	createRevision({ contentId, body, sourceRevisionId }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions`,
+			method: 'POST',
+			body,
+			query: { sourceRevisionId }
+		});
+	}
+
+	deleteContent({ contentId }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}`,
+			method: 'DELETE',
+			extractJsonBody: false
+		});
+	}
+
+	deleteMetadata({ contentId, revisionId, draft = false }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/metadata`,
+			method: 'DELETE',
+			query: { draft }
+		});
+	}
+
+	deleteRevision({ contentId, revisionId }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}`,
+			method: 'DELETE'
+		});
+	}
+
+	get dump() {
+		return `Content Service Client: ${this.endpoint}`;
+	}
+
+	getContent(id) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${id}`
+		});
+	}
+
+	getMetadata({ contentId, revisionId, draft = false }) {
+		const headers = new Headers();
+		headers.append('pragma', 'no-cache');
+		headers.append('cache-control', 'no-cache');
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/metadata`,
+			query: { draft },
+			headers
+		});
+	}
+
+	getPreviewUrl({
+		contentId,
+		revisionId
+	}) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/preview-url`
+		});
+	}
+
+	getRevision({ contentId, revisionId }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}`
+		});
+	}
+
+	getSignedUrl(contentId) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/signedUrl`
+		});
+	}
+
+	getSignedUrlForRevision({ contentId, revisionId }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/signedUrl`
+		});
+	}
+
+	getSupportedMimeTypes() {
+		return this._fetch({ path: '/api/conf/supported-mime-types' });
+	}
+
+	getUploadContext({
+		contentId,
+		revisionId
+	}) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/upload/context`
+		});
+	}
+
+	getWorkflowProgress({
+		contentId,
+		revisionId
+	}) {
+		const headers = new Headers();
+		headers.append('pragma', 'no-cache');
+		headers.append('cache-control', 'no-cache');
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/progress`,
+			headers
+		});
+	}
+
+	listContent({ ids = null } = {}) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content`,
+			...ids && { queryParams: ids.join(',') }
+		});
+	}
+
+	processRevision({
+		contentId,
+		revisionId,
+		body,
+	}) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/process`,
+			method: 'POST',
+			body,
+		});
+	}
+
+	searchContent({
+		start = 0,
+		size = 15,
+		sort = 'updatedAt:desc',
+		query = '',
+		contentType = '',
+		updatedAt = '',
+		createdAt = '',
+		includeThumbnails = false
+	}) {
+		const headers = new Headers();
+		headers.append('pragma', 'no-cache');
+		headers.append('cache-control', 'no-cache');
+
+		return this._fetch({
+			path: `/api/${this.tenantId}/search/content`,
+			query: {
+				start,
+				size,
+				sort,
+				query,
+				contentType: contentFilterToSearchQuery(contentType),
+				updatedAt: dateFilterToSearchQuery(updatedAt),
+				createdAt: dateFilterToSearchQuery(createdAt),
+				includeThumbnails
+			},
+			headers
+		});
+	}
+
+	signUploadRequest({
+		fileName,
+		contentType,
+		contentDisposition
+	}) {
+		return this._fetch({
+			path: '/api/s3/sign',
+			query: {
+				fileName,
+				contentType,
+				contentDisposition
+			}
+		});
+	}
+
+	undeleteContent({ contentId }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}`,
+			method: 'PUT',
+			body: { id: contentId, deletedAt: null }
+		});
+	}
+
+	updateContent({id, body}) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${id}`,
+			method: 'PUT',
+			body
+		});
+	}
+
+	updateMetadata({ contentId, revisionId, draft = false, metadata }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/metadata`,
+			method: 'PUT',
+			query: { draft },
+			body: metadata
+		});
+	}
+
+	updateRevision({ contentId, revisionId, revision }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}`,
+			method: 'PUT',
+			body: revision
+		});
 	}
 
 	async _fetch({
@@ -55,214 +261,8 @@ export default class ContentServiceClient {
 		return response;
 	}
 
-	searchContent({
-		start = 0,
-		size = 15,
-		sort = 'updatedAt:desc',
-		query = '',
-		contentType = '',
-		updatedAt = '',
-		createdAt = '',
-		includeThumbnails = false
-	}) {
-		const headers = new Headers();
-		headers.append('pragma', 'no-cache');
-		headers.append('cache-control', 'no-cache');
-
-		return this._fetch({
-			path: `/api/${this.tenantId}/search/content`,
-			query: {
-				start,
-				size,
-				sort,
-				query,
-				contentType: contentFilterToSearchQuery(contentType),
-				updatedAt: dateFilterToSearchQuery(updatedAt),
-				createdAt: dateFilterToSearchQuery(createdAt),
-				includeThumbnails
-			},
-			headers
-		});
-	}
-
-	listContent({ ids = null } = {}) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content`,
-			...ids && { queryParams: ids.join(',') }
-		});
-	}
-
-	getContent(id) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${id}`
-		});
-	}
-
-	updateContent({id, body}) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${id}`,
-			method: 'PUT',
-			body
-		});
-	}
-
-	createContent(body) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/`,
-			method: 'POST',
-			body
-		});
-	}
-
-	createRevision({ contentId, body, sourceRevisionId }) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions`,
-			method: 'POST',
-			body,
-			query: { sourceRevisionId }
-		});
-	}
-
-	deleteRevision({ contentId, revisionId }) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}`,
-			method: 'DELETE'
-		});
-	}
-
-	processRevision({
-		contentId,
-		revisionId,
-		body,
-	}) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/process`,
-			method: 'POST',
-			body,
-		});
-	}
-
-	getPreviewUrl({
-		contentId,
-		revisionId
-	}) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/preview-url`
-		});
-	}
-
-	getUploadContext({
-		contentId,
-		revisionId
-	}) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/upload/context`
-		});
-	}
-
-	getWorkflowProgress({
-		contentId,
-		revisionId
-	}) {
-		const headers = new Headers();
-		headers.append('pragma', 'no-cache');
-		headers.append('cache-control', 'no-cache');
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/progress`,
-			headers
-		});
-	}
-
-	signUploadRequest({
-		fileName,
-		contentType,
-		contentDisposition
-	}) {
-		return this._fetch({
-			path: '/api/s3/sign',
-			query: {
-				fileName,
-				contentType,
-				contentDisposition
-			}
-		});
-	}
-
-	getSignedUrlForRevision({ contentId, revisionId }) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/signedUrl`
-		});
-	}
-
-	getSignedUrl(contentId) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/signedUrl`
-		});
-	}
-
-	getSupportedMimeTypes() {
-		return this._fetch({ path: '/api/conf/supported-mime-types' });
-	}
-
-	getRevision({ contentId, revisionId }) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}`
-		});
-	}
-
-	updateRevision({ contentId, revisionId, revision }) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}`,
-			method: 'PUT',
-			body: revision
-		});
-	}
-
-	deleteContent({ contentId }) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}`,
-			method: 'DELETE',
-			extractJsonBody: false
-		});
-	}
-
-	undeleteContent({ contentId }) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}`,
-			method: 'PUT',
-			body: { id: contentId, deletedAt: null }
-		});
-	}
-
-	getMetadata({ contentId, revisionId, draft = false }) {
-		const headers = new Headers();
-		headers.append('pragma', 'no-cache');
-		headers.append('cache-control', 'no-cache');
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/metadata`,
-			query: { draft },
-			headers
-		});
-	}
-
-	deleteMetadata({ contentId, revisionId, draft = false }) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/metadata`,
-			method: 'DELETE',
-			query: { draft }
-		});
-	}
-
-	updateMetadata({ contentId, revisionId, draft = false, metadata }) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/metadata`,
-			method: 'PUT',
-			query: { draft },
-			body: metadata
-		});
-	}
-
-	get dump() {
-		return `Content Service Client: ${this.endpoint}`;
+	_url(path, query) {
+		const qs = query ? `?${querystring.stringify(query)}` : '';
+		return `${this.endpoint}${path}${qs}`;
 	}
 }

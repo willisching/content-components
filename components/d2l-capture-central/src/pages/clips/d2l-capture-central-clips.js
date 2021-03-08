@@ -49,46 +49,6 @@ class D2lCaptureClips extends DependencyRequester(PageViewElement) {
 		}];
 	}
 
-	_addAllToSelection(e) {
-		const checkboxes = this.shadowRoot.querySelectorAll('tbody d2l-input-checkbox');
-		let numAddedToSelection = 0;
-		checkboxes.forEach(checkbox => {
-			if (checkbox.checked !== e.target.checked) {
-				numAddedToSelection += 1;
-			}
-			checkbox.checked = e.target.checked;
-		});
-		this._numSelectedClips += numAddedToSelection * (e.target.checked ? 1 : -1);
-	}
-
-	_addToSelection(e) {
-		this._numSelectedClips += e.target.checked ? 1 : -1;
-	}
-
-	_renderClips() {
-		return this._clips.map(row => html`
-			<tr>
-				<td>
-					<d2l-input-checkbox
-						aria-label=${this.localize('selectOption', { option: row.name })}
-						@change=${this._addToSelection}
-					></d2l-input-checkbox>
-				</td>
-				<td>${row.name}</td>
-				<td>
-					<d2l-dropdown-context-menu>
-						<d2l-dropdown-menu>
-							<d2l-menu label="${this.localize('moreOptions')}">
-								<d2l-menu-item text="${this.localize('download')}"></d2l-menu-item>
-								<d2l-menu-item text="${this.localize('delete')}"></d2l-menu-item>
-							</d2l-menu>
-						</d2l-dropdown-menu>
-					</d2l-dropdown-context-menu>
-				</td>
-			</tr>
-		`);
-	}
-
 	render() {
 		return html`
 			<div class="d2l-capture-central-manage-container">
@@ -135,6 +95,46 @@ class D2lCaptureClips extends DependencyRequester(PageViewElement) {
 				<d2l-labs-pagination page-number="1" max-page-number="5"></d2l-labs-pagination>
 			</div>
 		`;
+	}
+
+	_addAllToSelection(e) {
+		const checkboxes = this.shadowRoot.querySelectorAll('tbody d2l-input-checkbox');
+		let numAddedToSelection = 0;
+		checkboxes.forEach(checkbox => {
+			if (checkbox.checked !== e.target.checked) {
+				numAddedToSelection += 1;
+			}
+			checkbox.checked = e.target.checked;
+		});
+		this._numSelectedClips += numAddedToSelection * (e.target.checked ? 1 : -1);
+	}
+
+	_addToSelection(e) {
+		this._numSelectedClips += e.target.checked ? 1 : -1;
+	}
+
+	_renderClips() {
+		return this._clips.map(row => html`
+			<tr>
+				<td>
+					<d2l-input-checkbox
+						aria-label=${this.localize('selectOption', { option: row.name })}
+						@change=${this._addToSelection}
+					></d2l-input-checkbox>
+				</td>
+				<td>${row.name}</td>
+				<td>
+					<d2l-dropdown-context-menu>
+						<d2l-dropdown-menu>
+							<d2l-menu label="${this.localize('moreOptions')}">
+								<d2l-menu-item text="${this.localize('download')}"></d2l-menu-item>
+								<d2l-menu-item text="${this.localize('delete')}"></d2l-menu-item>
+							</d2l-menu>
+						</d2l-dropdown-menu>
+					</d2l-dropdown-context-menu>
+				</td>
+			</tr>
+		`);
 	}
 }
 

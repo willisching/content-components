@@ -88,6 +88,32 @@ class D2lCaptureAddVideosDialog extends contentSearchMixin(DependencyRequester(I
 		this._selectedVideos = [];
 	}
 
+	render() {
+		return html`
+			<d2l-dialog async title-text="${this.localize('addToCourseVideos')}" width="900">
+				<div class="d2l-capture-central-manage-options">
+					<div class="d2l-capture-central-manage-num-selected">
+						${this.localize('numPresentationsSelected', { count: this._numSelectedVideos })}
+					</div>
+					<d2l-input-search
+						@d2l-input-search-searched=${this._handleInputVideoSearch}
+						label="${this.localize('searchCourseVideos')}"
+						placeholder="${this.localize('searchCourseVideos')}"
+					></d2l-input-search>
+				</div>
+				${this._renderVideos()}
+				<d2l-button
+					?disabled="${this._numSelectedVideos === 0}"
+					slot="footer"
+					@click=${this._addCourseVideos}
+					primary .data-dialog-action="${this._selectedVideos}"
+				>${this.localize('add')}
+				</d2l-button>
+				<d2l-button slot="footer" data-dialog-action>${this.localize('cancel')}</d2l-button>
+			</d2l-dialog>
+		`;
+	}
+
 	async open() {
 		this._moreResultsAvailable = false;
 		this._query = '';
@@ -153,32 +179,6 @@ class D2lCaptureAddVideosDialog extends contentSearchMixin(DependencyRequester(I
 				>${this.localize('loadMore')}
 				</d2l-button>
 			</d2l-list>
-		`;
-	}
-
-	render() {
-		return html`
-			<d2l-dialog async title-text="${this.localize('addToCourseVideos')}" width="900">
-				<div class="d2l-capture-central-manage-options">
-					<div class="d2l-capture-central-manage-num-selected">
-						${this.localize('numPresentationsSelected', { count: this._numSelectedVideos })}
-					</div>
-					<d2l-input-search
-						@d2l-input-search-searched=${this._handleInputVideoSearch}
-						label="${this.localize('searchCourseVideos')}"
-						placeholder="${this.localize('searchCourseVideos')}"
-					></d2l-input-search>
-				</div>
-				${this._renderVideos()}
-				<d2l-button
-					?disabled="${this._numSelectedVideos === 0}"
-					slot="footer"
-					@click=${this._addCourseVideos}
-					primary data-dialog-action="${this._selectedVideos}"
-				>${this.localize('add')}
-				</d2l-button>
-				<d2l-button slot="footer" data-dialog-action>${this.localize('cancel')}</d2l-button>
-			</d2l-dialog>
 		`;
 	}
 }

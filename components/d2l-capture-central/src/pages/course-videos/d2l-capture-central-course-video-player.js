@@ -71,17 +71,6 @@ class D2LCaptureCentralCourseVideoPlayer extends DependencyRequester(PageViewEle
 		});
 	}
 
-	_updateBreadcrumbs() {
-		const { previousPage } = this.rootStore.routingStore;
-		let langterm = 'courseVideos';
-		let previousLocation = '/course-videos';
-		if (previousPage === 'my-videos') {
-			langterm = 'myVideos';
-			previousLocation = `/${pageNames.myVideos}`;
-		}
-		this._navigationInfo = { langterm, previousLocation };
-	}
-
 	render() {
 		if (this._loading) {
 			return html`
@@ -105,5 +94,15 @@ class D2LCaptureCentralCourseVideoPlayer extends DependencyRequester(PageViewEle
 		`;
 	}
 
+	_updateBreadcrumbs() {
+		const { previousPage } = this.rootStore.routingStore;
+		let langterm = 'courseVideos';
+		let previousLocation = '/course-videos';
+		if (previousPage === 'my-videos') {
+			langterm = 'myVideos';
+			previousLocation = `/${pageNames.myVideos}`;
+		}
+		this._navigationInfo = { langterm, previousLocation };
+	}
 }
 customElements.define('d2l-capture-central-course-video-player', D2LCaptureCentralCourseVideoPlayer);

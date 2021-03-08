@@ -72,19 +72,6 @@ class D2LCaptureVisits extends DependencyRequester(PageViewElement) {
 		}];
 	}
 
-	_renderAuditLogsReporting() {
-		return this._visitLogs.map(row => html`
-			<tr>
-				<td>${row.type}</td>
-				<td>${row.title}</td>
-				<td>${row.ip}</td>
-				<td>${row.dateTime}</td>
-				<td>${row.user}</td>
-				<td>${row.duration}</td>
-			</tr>
-		`);
-	}
-
 	render() {
 		return html`
 			<div class="d2l-capture-central-manage-container">
@@ -134,6 +121,19 @@ class D2LCaptureVisits extends DependencyRequester(PageViewElement) {
 				<d2l-labs-pagination page-number="1" max-page-number="5"></d2l-labs-pagination>
 			</div>
 		`;
+	}
+
+	_renderAuditLogsReporting() {
+		return this._visitLogs.map(row => html`
+			<tr>
+				<td>${row.type}</td>
+				<td>${row.title}</td>
+				<td>${row.ip}</td>
+				<td>${row.dateTime}</td>
+				<td>${row.user}</td>
+				<td>${row.duration}</td>
+			</tr>
+		`);
 	}
 }
 

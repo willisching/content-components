@@ -52,31 +52,6 @@ class D2lCaptureFolders extends DependencyRequester(PageViewElement) {
 		}];
 	}
 
-	_addAllToSelection(e) {
-		const checkboxes = this.shadowRoot.querySelectorAll('tbody d2l-input-checkbox');
-		let numAddedToSelection = 0;
-		checkboxes.forEach(checkbox => {
-			if (checkbox.checked !== e.target.checked) {
-				numAddedToSelection += 1;
-			}
-			checkbox.checked = e.target.checked;
-		});
-		this._numSelectedFolders += numAddedToSelection * (e.target.checked ? 1 : -1);
-	}
-
-	_addToSelection(e) {
-		this._numSelectedFolders += e.target.checked ? 1 : -1;
-	}
-
-	_renderFolders() {
-		return this._folders.map(row => html`
-			<tr>
-				<td><d2l-input-checkbox aria-label=${this.localize('selectOption', { option: row.name })} @change=${this._addToSelection}></d2l-input-checkbox></td>
-				<td><d2l-link @click=${this._goTo('/folders/edit', { id: row.id })}>${row.name}</d2l-link></td>
-			</tr>
-		`);
-	}
-
 	render() {
 		return html`
 			<div class="d2l-capture-central-manage-container">
@@ -128,6 +103,31 @@ class D2lCaptureFolders extends DependencyRequester(PageViewElement) {
 				<d2l-labs-pagination page-number="1" max-page-number="5"></d2l-labs-pagination>
 			</div>
 		`;
+	}
+
+	_addAllToSelection(e) {
+		const checkboxes = this.shadowRoot.querySelectorAll('tbody d2l-input-checkbox');
+		let numAddedToSelection = 0;
+		checkboxes.forEach(checkbox => {
+			if (checkbox.checked !== e.target.checked) {
+				numAddedToSelection += 1;
+			}
+			checkbox.checked = e.target.checked;
+		});
+		this._numSelectedFolders += numAddedToSelection * (e.target.checked ? 1 : -1);
+	}
+
+	_addToSelection(e) {
+		this._numSelectedFolders += e.target.checked ? 1 : -1;
+	}
+
+	_renderFolders() {
+		return this._folders.map(row => html`
+			<tr>
+				<td><d2l-input-checkbox aria-label=${this.localize('selectOption', { option: row.name })} @change=${this._addToSelection}></d2l-input-checkbox></td>
+				<td><d2l-link @click=${this._goTo('/folders/edit', { id: row.id })}>${row.name}</d2l-link></td>
+			</tr>
+		`);
 	}
 }
 

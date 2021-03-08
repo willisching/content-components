@@ -123,6 +123,51 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 		`;
 	}
 
+	adjustDropdownBoundary() {
+		const target = this.shadowRoot.querySelector('d2l-dropdown-more');
+		const topOffsetForDropdownMenu = 25;
+		const minimumBoundingTop = 70;
+
+		if (target) {
+			const distanceToTop = target.getBoundingClientRect().top;
+			const finalBoundingTop = distanceToTop - rootStore.appTop - topOffsetForDropdownMenu;
+
+			this.dropdownBoundary = {
+				above: Math.max(finalBoundingTop, minimumBoundingTop)
+			};
+		}
+	}
+
+	delete() {
+		return async() => {
+			await this.apiClient.deleteContent({
+				contentId: this.id
+			});
+			this.dispatchDeletedEvent();
+		};
+	}
+
+	dispatchDeletedEvent() {
+		this.dispatchEvent(new CustomEvent('content-list-item-deleted', {
+			bubbles: true,
+			composed: true,
+			detail: {
+				id: this.id
+			}
+		}));
+	}
+
+	dispatchRenameEvent(title) {
+		this.dispatchEvent(new CustomEvent('content-list-item-renamed', {
+			bubbles: true,
+			composed: true,
+			detail: {
+				id: this.id,
+				title
+			}
+		}));
+	}
+
 	download() {
 		// Safari blocks calls to window.open within an async call
 		const downloadWindow = window.open('', '_blank');
@@ -162,21 +207,6 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 		}
 	}
 
-	adjustDropdownBoundary() {
-		const target = this.shadowRoot.querySelector('d2l-dropdown-more');
-		const topOffsetForDropdownMenu = 25;
-		const minimumBoundingTop = 70;
-
-		if (target) {
-			const distanceToTop = target.getBoundingClientRect().top;
-			const finalBoundingTop = distanceToTop - rootStore.appTop - topOffsetForDropdownMenu;
-
-			this.dropdownBoundary = {
-				above: Math.max(finalBoundingTop, minimumBoundingTop)
-			};
-		}
-	}
-
 	openDialog() {
 		return async() => {
 			const action = await this.shadowRoot.querySelector('#rename-dialog').open();
@@ -208,40 +238,10 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 		}
 	}
 
-	dispatchRenameEvent(title) {
-		this.dispatchEvent(new CustomEvent('content-list-item-renamed', {
-			bubbles: true,
-			composed: true,
-			detail: {
-				id: this.id,
-				title
-			}
-		}));
-	}
-
 	titleInputChangedHandler() {
 		const titleInputElement = this.shadowRoot.querySelector('#rename-input');
 		const titleInputValue = titleInputElement && titleInputElement.value;
 		this.confirmDisabled = !titleInputValue || titleInputValue.trim().length === 0;
-	}
-
-	delete() {
-		return async() => {
-			await this.apiClient.deleteContent({
-				contentId: this.id
-			});
-			this.dispatchDeletedEvent();
-		};
-	}
-
-	dispatchDeletedEvent() {
-		this.dispatchEvent(new CustomEvent('content-list-item-deleted', {
-			bubbles: true,
-			composed: true,
-			detail: {
-				id: this.id
-			}
-		}));
 	}
 }
 
