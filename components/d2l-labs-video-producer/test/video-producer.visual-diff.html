@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<script type="module">
+			import '@brightspace-ui/core/components/typography/typography.js';
+			import '../src/video-producer.js';
+		</script>
+		<title>d2l-labs-video-producer visual-diff tests</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta charset="UTF-8">
+	</head>
+	<body class="d2l-typography">
+		<div id="default">
+			<d2l-labs-video-producer>
+			</d2l-labs-video-producer>
+		</div>
+		<script>
+			document.querySelector('d2l-labs-video-producer').selectedLanguage = { code: 'en' };
+		</script>
+	</body>
+</html>
