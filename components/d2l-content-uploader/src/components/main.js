@@ -3,7 +3,10 @@ import ContentServiceClient from '../util/content-service-client';
 import { DependencyProvider } from '../mixins/dependency-provider-mixin';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { Uploader } from '../state/uploader';
-import '../../d2l-content-uploader';
+
+import './upload.js';
+import './preview.js';
+import './progress.js';
 
 const VIEW = Object.freeze({
 	UPLOAD: 'UPLOAD',
@@ -12,7 +15,7 @@ const VIEW = Object.freeze({
 	LOADING: 'LOADING'
 });
 
-export default class extends MobxReactionUpdate(DependencyProvider(LitElement)) {
+export class Main extends MobxReactionUpdate(DependencyProvider(LitElement)) {
 	static get properties() {
 		return {
 			apiEndpoint: { type: String, attribute: 'api-endpoint' },
@@ -92,7 +95,9 @@ export default class extends MobxReactionUpdate(DependencyProvider(LitElement)) 
 						file-name=${this._fileName}
 						file-size=${this._fileSize}
 						file-type=${this._fileType}
-						@cancel=${this.onDiscardStagedFile}>
+						resource=${this.value}
+						@cancel=${this.onDiscardStagedFile}
+					>
 					</d2l-content-uploader-preview>
 					`;
 				break;
@@ -176,3 +181,5 @@ export default class extends MobxReactionUpdate(DependencyProvider(LitElement)) 
 		}));
 	}
 }
+
+customElements.define('d2l-content-uploader', Main);

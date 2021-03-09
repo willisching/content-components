@@ -48,6 +48,13 @@ export default class ContentServiceClient {
 		});
 	}
 
+	getSecureUrlByName(d2lrn) {
+		const { tenantId, contentId, revisionId } = parse(d2lrn);
+		return this._fetch({
+			path: `/api/${tenantId}/content/${contentId}/revisions/${revisionId}/signed-url`,
+		});
+	}
+
 	getSupportedMimeTypes() {
 		return this._fetch({ path: '/api/conf/supported-mime-types' });
 	}
