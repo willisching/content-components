@@ -46,4 +46,4 @@ class VideoProducerLanguageSelector extends InternalLocalizeMixin(LitElement) {
 		`;
 	}
 }
-customElements.define('d2l-labs-video-producer-language-selector', VideoProducerLanguageSelector);
+customElements.define('d2l-video-producer-language-selector', VideoProducerLanguageSelector);

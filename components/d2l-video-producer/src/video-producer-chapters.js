@@ -307,4 +307,4 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 		};
 	}
 }
-customElements.define('d2l-labs-video-producer-chapters', VideoProducerChapters);
+customElements.define('d2l-video-producer-chapters', VideoProducerChapters);

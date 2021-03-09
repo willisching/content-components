@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer');
 const VisualDiff = require('@brightspace-ui/visual-diff');
 
-describe('d2l-labs-video-producer', () => {
+describe('d2l-video-producer', () => {
 
 	const visualDiff = new VisualDiff('video-producer', __dirname);
 
@@ -21,7 +21,7 @@ describe('d2l-labs-video-producer', () => {
 	after(async() => await browser.close());
 
 	it('passes visual-diff comparison', async function() {
-		await page.$eval('#default d2l-labs-video-producer', (elem)  => {
+		await page.$eval('#default d2l-video-producer', (elem)  => {
 			return new Promise((resolve) => {
 				elem._video.addEventListener('loadeddata', resolve);
 				elem.setAttribute('src', 'sample.webm');
