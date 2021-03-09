@@ -3,7 +3,7 @@ import { css, html, LitElement } from 'lit-element';
 import { bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin';
 
-export default class extends InternalLocalizeMixin(LitElement) {
+export class Progress extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
 			fileName: { type: String, attribute: 'file-name', reflect: true },
@@ -43,3 +43,4 @@ export default class extends InternalLocalizeMixin(LitElement) {
 	}
 }
 
+customElements.define('d2l-content-uploader-progress', Progress);

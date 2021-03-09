@@ -6,7 +6,7 @@ import { css, html, LitElement } from 'lit-element';
 import { DependencyRequester } from '../mixins/dependency-requester-mixin';
 import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin';
 
-export default class extends DependencyRequester(InternalLocalizeMixin(LitElement)) {
+export class Upload extends DependencyRequester(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
 			_supportedMimeTypes: { type: Array, attribute: false },
@@ -146,3 +146,4 @@ export default class extends DependencyRequester(InternalLocalizeMixin(LitElemen
 	}
 }
 
+customElements.define('d2l-content-uploader-upload', Upload);
