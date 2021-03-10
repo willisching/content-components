@@ -1,11 +1,11 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
-import CaptureServiceClient from './util/capture-service-client.js';
-import ContentServiceClient from './util/content-service-client.js';
-import { DependencyProvider } from './mixins/dependency-provider-mixin.js';
-import { rootStore } from './state/root-store.js';
-import { Uploader } from './state/uploader.js';
-import UserBrightspaceClient from './util/user-brightspace-client.js';
+import CaptureServiceClient from './src/util/capture-service-client.js';
+import ContentServiceClient from './src/util/content-service-client.js';
+import { DependencyProvider } from './src/mixins/dependency-provider-mixin.js';
+import { rootStore } from './src/state/root-store.js';
+import { Uploader } from './src/state/uploader.js';
+import UserBrightspaceClient from './src/util/user-brightspace-client.js';
 
 class D2lCaptureCentral extends DependencyProvider(LitElement) {
 	static get properties() {
@@ -33,7 +33,7 @@ class D2lCaptureCentral extends DependencyProvider(LitElement) {
 
 	constructor() {
 		super();
-		import('./d2l-capture-central-app.js');
+		import('./src/d2l-capture-central-app.js');
 	}
 
 	firstUpdated() {

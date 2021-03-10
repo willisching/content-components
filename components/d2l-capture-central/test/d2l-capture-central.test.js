@@ -1,4 +1,5 @@
-import '../src/d2l-capture-central.js';
+import '../d2l-capture-central.js';
+
 import { expect, fixture, html } from '@open-wc/testing';
 import { runConstructor } from '@brightspace-ui/core/tools/constructor-test-helper.js';
 

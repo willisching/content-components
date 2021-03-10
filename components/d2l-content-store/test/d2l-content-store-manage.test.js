@@ -1,5 +1,5 @@
 import { expect, fixture, html } from '@open-wc/testing';
-import '../d2l-content-store-manage.js';
+import '../src/d2l-content-store-manage.js';
 
 describe('d2l-content-store-manage', () => {
 	it('passes all aXe tests (normal)', async() => {

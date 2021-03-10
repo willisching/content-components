@@ -1,9 +1,9 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
-import ContentServiceClient from './util/content-service-client.js';
-import { DependencyProvider } from './mixins/dependency-provider-mixin.js';
-import { rootStore } from './state/root-store.js';
-import { Uploader } from './state/uploader.js';
+import ContentServiceClient from './src/util/content-service-client.js';
+import { DependencyProvider } from './src/mixins/dependency-provider-mixin.js';
+import { rootStore } from './src/state/root-store.js';
+import { Uploader } from './src/state/uploader.js';
 
 class D2lContentStore extends DependencyProvider(LitElement) {
 	static get properties() {
@@ -31,7 +31,7 @@ class D2lContentStore extends DependencyProvider(LitElement) {
 		super();
 
 		// eslint-disable-next-line no-unused-expressions
-		import('./d2l-content-store-app.js');
+		import('./src/d2l-content-store-app.js');
 	}
 
 	firstUpdated() {

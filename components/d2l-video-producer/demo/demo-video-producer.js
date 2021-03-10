@@ -1,10 +1,9 @@
-import '../src/video-producer.js';
-import '../src/video-producer-chapters.js';
-import '../src/video-producer-language-selector.js';
 import '@brightspace-ui/core/components/alert/alert-toast.js';
 import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
 import '@brightspace-ui/core/components/button/button-icon.js';
 import '@brightspace-ui/core/components/button/button.js';
+import '../d2l-video-producer.js';
+import '../src/d2l-video-producer-language-selector.js';
 
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 class DemoVideoProducer extends LitElement {
