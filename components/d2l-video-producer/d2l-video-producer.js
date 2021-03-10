@@ -2,12 +2,12 @@ import '@brightspace-ui/core/components/button/button-icon.js';
 import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/colors/colors.js';
 import '@brightspace-ui-labs/media-player/media-player.js';
-import './video-producer-chapters.js';
+import './src/d2l-video-producer-chapters.js';
 
 import { Container, Shape, Stage, Text } from '@createjs/easeljs';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
-import constants from './constants.js';
-import { InternalLocalizeMixin } from './internal-localize-mixin.js';
+import constants from './src/constants.js';
+import { InternalLocalizeMixin } from './src/internal-localize-mixin.js';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';
 

@@ -1,4 +1,4 @@
-import '../content-service-viewer.js';
+import '../d2l-content-service-viewer.js';
 import { expect, fixture, html } from '@open-wc/testing';
 import { runConstructor } from '@brightspace-ui/core/tools/constructor-test-helper.js';
 
