@@ -26,7 +26,7 @@ export class S3Uploader {
 		return xhr;
 	}
 
-	async upload(callback) {
+	async upload() {
 		const { file, key } = this;
 		const signResult = await this.signRequest({ file, key });
 		return new Promise((resolve, reject) => {
@@ -34,7 +34,6 @@ export class S3Uploader {
 			xhr.addEventListener('load', () => {
 				if (xhr.status >= 200 && xhr.status <= 299) {
 					this.onProgress(100);
-					resolve();
 				} else {
 					reject(new Error(`Failed to upload file ${file.name}: ${xhr.status} ${xhr.statusText}`));
 				}
@@ -59,7 +58,7 @@ export class S3Uploader {
 
 			xhr.setRequestHeader('x-amz-acl', 'private');
 			this.httprequest = xhr;
-			xhr.onload = callback;
+			xhr.onload = () => resolve(xhr.response);
 			xhr.send(file);
 		});
 	}

@@ -21,6 +21,7 @@ export class Main extends MobxReactionUpdate(DependencyProvider(LitElement)) {
 			apiEndpoint: { type: String, attribute: 'api-endpoint' },
 			tenantId: { type: String, attribute: 'tenant-id' },
 			value: { type: String, reflect: true },
+			filename: { type: String, reflect: true },
 
 			_currentView: { type: Number, attribute: false },
 			_errorMessage: { type: String, attribute: false },
@@ -175,6 +176,7 @@ export class Main extends MobxReactionUpdate(DependencyProvider(LitElement)) {
 
 	updateValue(value) {
 		this.value = value;
+		this.filename = this._fileName;
 		this.dispatchEvent(new Event('change', {
 			bubbles: true,
 			composed: true

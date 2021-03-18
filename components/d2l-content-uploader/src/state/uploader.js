@@ -100,14 +100,15 @@ export class Uploader {
 					this.uploadProgress = progress / 2;
 				}
 			});
-			this.s3Uploader.upload(async() => {
-				await this.apiClient.processRevision({
-					contentId: this.content.id,
-					revisionId: this.revision.id
-				});
 
-				await this._monitorProgressAsync();
+			await this.s3Uploader.upload();
+
+			await this.apiClient.processRevision({
+				contentId: this.content.id,
+				revisionId: this.revision.id
 			});
+
+			await this._monitorProgressAsync();
 		} catch (error) {
 			this.onError(resolveWorkerError(error));
 		}
