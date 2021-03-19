@@ -6,10 +6,7 @@ import ContentServiceClient from './clients/content-service-client.js';
 class ContentServiceViewer extends LitElement {
 	static get properties() {
 		return {
-			endpoint: { type: String, attribute: 'endpoint' },
-			tenant: { type: String, attribute: 'tenant' },
-			resource: { type: String, attribute: 'resource' },
-			context: { type: String, attribute: 'context' },
+			href: { type: String, attribute: 'href' },
 		};
 	}
 
@@ -28,8 +25,7 @@ class ContentServiceViewer extends LitElement {
 	firstUpdated() {
 		super.firstUpdated();
 		this.client = new ContentServiceClient({
-			endpoint: this.endpoint,
-			tenant: this.tenant
+			href: this.href,
 		});
 		this.loadContent();
 	}
@@ -46,12 +42,9 @@ class ContentServiceViewer extends LitElement {
 	}
 
 	async loadContent() {
-		const response = await this.client.getDownloadUrl({
-			resource: this.resource,
-			context: this.context,
-		});
-		this._expires = response.expireTime;
-		this._signedUrl = response.value;
+		const { Value, ExpireTime } = await this.client.getDownloadUrl();
+		this._expires = ExpireTime;
+		this._signedUrl = Value;
 		this.requestUpdate();
 	}
 }
