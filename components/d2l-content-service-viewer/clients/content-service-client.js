@@ -6,16 +6,14 @@ d2lfetch.use({ name: 'auth', fn: auth });
 
 export default class ContentServiceClient {
 	constructor({
-		endpoint,
-		tenant,
+		href,
 	}) {
-		this.endpoint = endpoint;
-		this.tenant = tenant;
+		this.href = href;
 	}
 
-	getDownloadUrl({ resource, context }) {
+	getDownloadUrl() {
 		return this._fetch({
-			path: `/api/resources/download?resource=${resource}&context=${context}`
+			path: this.href
 		});
 	}
 
@@ -37,7 +35,6 @@ export default class ContentServiceClient {
 				body: JSON.stringify(body)
 			},
 			headers,
-			credentials: 'include',
 		};
 		const request = new Request(this._url(path, query), requestInit);
 
@@ -52,8 +49,9 @@ export default class ContentServiceClient {
 
 		return response;
 	}
+
 	_url(path, query) {
 		const qs = query ? `?${querystring.stringify(query)}` : '';
-		return `${this.endpoint}${path}${qs}`;
+		return `${path}${qs}`;
 	}
 }
