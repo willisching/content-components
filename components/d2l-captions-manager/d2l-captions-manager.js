@@ -189,8 +189,8 @@ class CaptionsManager extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 					name: deletedCaptions.LanguageName,
 				};
 				this._captionsList = (this._captionsList.filter(captions => (!this._captionsAreEqual(captions, deletedCaptions)))).sort(this._compareCaptions);
-				this._uncaptionedLanguages.push(newUncaptionedLanguage);
-				this._uncaptionedLanguages.sort(this._compareLanguages);
+				const updatedUncaptionedLanguages = [ ...this._uncaptionedLanguages, newUncaptionedLanguage ];
+				this._uncaptionedLanguages = updatedUncaptionedLanguages.sort(this._compareLanguages);
 				this.emitEvent('d2l-captions-manager-captions-changed');
 			} catch (error) {
 				this.emitEvent('d2l-captions-manager-telemetry', { name: telemetryNames.deleteCaptionsError, error });
