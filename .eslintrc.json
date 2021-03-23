@@ -11,8 +11,7 @@
   "rules": {
     "object-curly-spacing": "off",
     "sort-imports": "off",
-    "no-console": "warn",
-    "lit/no-template-arrow": "off"
+    "no-console": "warn"
   },
   "env": {
     "mocha": true

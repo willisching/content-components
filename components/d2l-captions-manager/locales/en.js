@@ -6,7 +6,6 @@ export const val = {
 	clickHereToReload: 'Click here to try reloading captions.',
 	deletingFile: 'Deleting {filename}...',
 	failedToLoadCaptions: 'Failed to load captions for this topic.',
-	hello: 'hello en',
 	loading: 'Loading...',
 	manageCaptions: 'Manage Captions',
 	noCaptionsForTopic: 'There are currently no captions for this topic.',

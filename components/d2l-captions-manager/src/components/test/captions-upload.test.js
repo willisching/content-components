@@ -11,7 +11,7 @@ describe('captions-upload', () => {
 			await expect(el).to.be.accessible();
 		});
 
-		it('should pass all axe tests with unpcationed languages', async() => {
+		it('should pass all axe tests with uncaptioned languages', async() => {
 			const uncaptionedLanguages = [
 				{ code: 'ab', name: 'Abkhazian' },
 				{ code: 'cs', name: 'Czech' },

@@ -80,7 +80,7 @@ class CaptionsList extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	render() {
-		if (this.captionsList.length <= 0) {
+		if (this.captionsList.length === 0) {
 			return html`
 				<div class="empty-captions-list-container">
 					<p class="d2l-body-compact">
@@ -113,6 +113,8 @@ class CaptionsList extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	_renderCaption(caption) {
 		const languageCode = caption.LanguageCode + (caption.LanguageCulture ? `-${  caption.LanguageCulture}` : '');
 		const buttonAccessibilityText = this.localize('removeCaptionsForLanguage', { langName: caption.LanguageName });
+		const deleteCaptionsHandler = () => this._onDeleteCaptionsButtonClick(caption);
+
 		return html`
 			<div key=${caption.LanguageCode + (caption.LanguageCulture || '')} class="captions-list-item">
 				<span><p>${caption.LanguageName} — <i>${languageCode}</i></p></span>
@@ -123,7 +125,7 @@ class CaptionsList extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 						icon='tier1:close-default'
 						text=${buttonAccessibilityText}
 						aria-label=${buttonAccessibilityText}
-						@click=${() => this._onDeleteCaptionsButtonClick(caption)}>
+						@click=${deleteCaptionsHandler}>
 					</d2l-button-icon>
 
 				</span>
