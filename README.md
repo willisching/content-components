@@ -9,6 +9,7 @@ A collection of components used for content in Brightspace.
 * [d2l-capture-central](components/d2l-capture-central)
 * [d2l-video-producer](components/d2l-video-producer)
 * [d2l-content-service-viewer](components/d2l-content-service-viewer)
+* [d2l-captions-manager](components/d2l-captions-manager)
 
 ## Developing, Testing and Contributing
 
