@@ -106,5 +106,32 @@
       "zh-cn zh",
       "zh-tw zh-tw"
     ]
+  },
+  {
+    "name": "CaptionsManager",
+    "source_dir": "components/d2l-captions-manager/locales",
+    "source_match": "en\\.js$",
+    "output_file_path": "components/d2l-captions-manager/locales/%LANG%.js",
+    "parser_plugin": {
+      "plugin": "parse_js"
+    },
+    "output_lang_rewrite": [
+      "ar-sa ar",
+      "da-dk da",
+      "de-de de",
+      "es-mx es",
+      "fr-ca fr-ca",
+      "fr-fr fr",
+      "es-es es",
+      "cy-gb cy",
+      "ja-jp ja",
+      "ko-kr ko",
+      "nl-nl nl",
+      "pt-br pt",
+      "sv-se sv",
+      "tr-tr tr",
+      "zh-cn zh",
+      "zh-tw zh-tw"
+    ]
   }
 ]
