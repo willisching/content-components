@@ -4,12 +4,15 @@ A collection of components used for content in Brightspace.
 
 ## Components
 
-* [d2l-content-store](components/d2l-content-store)
-* [d2l-content-uploader](components/d2l-content-uploader)
-* [d2l-capture-central](components/d2l-capture-central)
-* [d2l-video-producer](components/d2l-video-producer)
-* [d2l-content-service-viewer](components/d2l-content-service-viewer)
-* [d2l-captions-manager](components/d2l-captions-manager)
+### Core
+* [d2l-content-store](core/d2l-content-store)
+* [d2l-content-uploader](core/d2l-content-uploader)
+* [d2l-content-service-viewer](core/d2l-content-service-viewer)
+* [d2l-captions-manager](core/d2l-captions-manager)
+
+### Capture
+* [d2l-capture-central](capture/d2l-capture-central)
+* [d2l-video-producer](capture/d2l-video-producer)
 
 ## Developing, Testing and Contributing
 

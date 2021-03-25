@@ -1,9 +1,9 @@
 [
   {
     "name": "CaptureCentral",
-    "source_dir": "components/d2l-capture-central/locales",
+    "source_dir": "capture/d2l-capture-central/locales",
     "source_match": "en\\.js$",
-    "output_file_path": "components/d2l-capture-central/locales/%LANG%.js",
+    "output_file_path": "capture/d2l-capture-central/locales/%LANG%.js",
     "parser_plugin": {
       "plugin": "parse_js"
     },
@@ -28,9 +28,9 @@
   },
   {
     "name": "ContentStore",
-    "source_dir": "components/d2l-content-store/locales",
+    "source_dir": "core/d2l-content-store/locales",
     "source_match": "en\\.js$",
-    "output_file_path": "components/d2l-content-store/locales/%LANG%.js",
+    "output_file_path": "core/d2l-content-store/locales/%LANG%.js",
     "parser_plugin": {
       "plugin": "parse_js"
     },
@@ -55,9 +55,9 @@
   },
   {
     "name": "ContentUploader",
-    "source_dir": "components/d2l-content-uploader/locales",
+    "source_dir": "core/d2l-content-uploader/locales",
     "source_match": "en\\.js$",
-    "output_file_path": "components/d2l-content-uploader/locales/%LANG%.js",
+    "output_file_path": "core/d2l-content-uploader/locales/%LANG%.js",
     "parser_plugin": {
       "plugin": "parse_js"
     },
@@ -82,9 +82,9 @@
   },
   {
     "name": "VideoProducer",
-    "source_dir": "components/d2l-video-producer/locales",
+    "source_dir": "capture/d2l-video-producer/locales",
     "source_match": "en\\.js$",
-    "output_file_path": "components/d2l-video-producer/locales/%LANG%.js",
+    "output_file_path": "capture/d2l-video-producer/locales/%LANG%.js",
     "parser_plugin": {
       "plugin": "parse_js"
     },
@@ -109,9 +109,9 @@
   },
   {
     "name": "CaptionsManager",
-    "source_dir": "components/d2l-captions-manager/locales",
+    "source_dir": "core/d2l-captions-manager/locales",
     "source_match": "en\\.js$",
-    "output_file_path": "components/d2l-captions-manager/locales/%LANG%.js",
+    "output_file_path": "core/d2l-captions-manager/locales/%LANG%.js",
     "parser_plugin": {
       "plugin": "parse_js"
     },
