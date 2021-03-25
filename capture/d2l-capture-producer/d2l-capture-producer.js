@@ -886,4 +886,4 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._stage.update();
 	}
 }
-customElements.define('d2l-video-producer', VideoProducer);
+customElements.define('d2l-capture-producer', VideoProducer);

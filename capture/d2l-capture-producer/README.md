@@ -1,4 +1,4 @@
-# d2l-video-producer
+# d2l-capture-producer
 
 [![NPM version](https://img.shields.io/npm/v/@brightspace-ui-labs/video-producer.svg)](https://www.npmjs.org/package/@brightspace-ui-labs/video-producer)
 
@@ -40,13 +40,13 @@ class MyComponent {
 	// ...
 	render() {
 		return html`
-			<d2l-video-producer
+			<d2l-capture-producer
 				.defaultLanguage="${defaultLanguage}"
 				.metadata="${metadata}"
 				.selectedLanguage="${selectedLanguage}"
 				@metadata-changed="${handleMetadataChanged}"
 				src="..."
-			></d2l-video-producer>
+			></d2l-capture-producer>
 		`;
 	}
 }
