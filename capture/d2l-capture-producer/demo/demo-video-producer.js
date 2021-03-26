@@ -2,7 +2,7 @@ import '@brightspace-ui/core/components/alert/alert-toast.js';
 import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
 import '@brightspace-ui/core/components/button/button-icon.js';
 import '@brightspace-ui/core/components/button/button.js';
-import '../d2l-video-producer.js';
+import '../d2l-capture-producer.js';
 import '../src/d2l-video-producer-language-selector.js';
 
 import { css, html, LitElement } from 'lit-element/lit-element.js';
@@ -92,13 +92,13 @@ class DemoVideoProducer extends LitElement {
 					</d2l-button>
 				</div>
 
-				<d2l-video-producer
+				<d2l-capture-producer
 					.defaultLanguage="${this.defaultLanguage}"
 					.metadata="${this.metadata}"
 					.selectedLanguage="${this.selectedLanguage}"
 					@metadata-changed="${this._handleMetadataChanged}"
 					src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-				></d2l-video-producer>
+				></d2l-capture-producer>
 
 				<d2l-alert-toast type="default">
 					${this._alertMessage}

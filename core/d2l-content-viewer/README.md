@@ -1,4 +1,4 @@
-# d2l-content-service-viewer
+# d2l-content-viewer
 
 > Note: this is a ["labs" component](https://github.com/BrightspaceUI/guide/wiki/Component-Tiers). While functional, these tasks are prerequisites to promotion to BrightspaceUI "official" status:
 >
@@ -21,16 +21,16 @@ Media player for content in the content service
 To install from NPM:
 
 ```shell
-npm install @brightspace-ui-labs/content-service-viewer
+npm install @brightspace/content-components
 ```
 
 ## Usage
 
 ```html
 <script type="module">
-    import '@brightspace-ui-labs/content-service-viewer/content-service-viewer.js';
+	import '@brightspace/content-components/core/d2l-content-viewer.js';
 </script>
-<d2l-content-service-viewer>My element</d2l-content-service-viewer>
+<d2l-content-viewer>My element</d2l-content-viewer>
 ```
 
 **Properties:**
@@ -41,7 +41,7 @@ npm install @brightspace-ui-labs/content-service-viewer
 
 **Accessibility:**
 
-To make your usage of `d2l-content-service-viewer` accessible, use the following properties when applicable:
+To make your usage of `d2l-content-viewer` accessible, use the following properties when applicable:
 
 | Attribute | Description |
 |--|--|

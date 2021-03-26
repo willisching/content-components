@@ -11,7 +11,7 @@ import { InternalLocalizeMixin } from './src/internal-localize-mixin.js';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';
 
-class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
+class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
 			defaultLanguage: { type: Object },
@@ -886,4 +886,4 @@ class VideoProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._stage.update();
 	}
 }
-customElements.define('d2l-video-producer', VideoProducer);
+customElements.define('d2l-capture-producer', CaptureProducer);

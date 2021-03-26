@@ -3,7 +3,7 @@ import { css, html, LitElement } from 'lit-element/lit-element.js';
 
 import ContentServiceClient from './clients/content-service-client.js';
 
-class ContentServiceViewer extends LitElement {
+class ContentViewer extends LitElement {
 	static get properties() {
 		return {
 			href: { type: String, attribute: 'href' },
@@ -48,4 +48,4 @@ class ContentServiceViewer extends LitElement {
 		this.requestUpdate();
 	}
 }
-customElements.define('d2l-content-service-viewer', ContentServiceViewer);
+customElements.define('d2l-content-viewer', ContentViewer);
