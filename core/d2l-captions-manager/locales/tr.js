@@ -1,0 +1,18 @@
+export const val = {
+	addCaptions: 'Alt yazıları ekleyin',
+	browseForCaptionsFile: 'Cihazınızda alt yazı dosyalarını arayın.',
+	captionsFile: 'Alt yazı Dosyası',
+	captionsLanguage: 'Alt yazı Dili',
+	clickHereToReload: 'Altyazıları yeniden yüklemeyi denemek için buraya tıklayın.',
+	deletingFile: '{filename} siliniyor...',
+	failedToLoadCaptions: 'Bu konu için altyazı yüklenemedi.',
+	loading: 'Yükleniyor...',
+	manageCaptions: 'Altyazıları Yönetin',
+	noCaptionsForTopic: 'Bu başlık için şu anda altyazı yok.',
+	removeCaptionsForLanguage: '{langName} dilindeki alt yazıları kaldırın.',
+	selectALanguage: 'Bir Dil Seçin...',
+	selectLanguageForNewCaptions: 'Eklenecek alt yazılar için bir dil seçin. Seçimden sonra altyazı dosyanızı seçmeniz için aşağıda bir Gözat düğmesi görünür.',
+	supportedTypesAndRenameConvention: 'SRT ve WebVTT altyazı biçimlerini destekliyoruz. Alt yazı dosyanız, seçildikten sonra otomatik olarak kaydedilir. Alt yazı dosyanız, aşağıdaki adlandırma kuralı kullanılarak yeniden adlandırılacak: <videofilename>.<language>.<filetype>',
+	uploadingFile: '{filename} yükleniyor...',
+	useControlsToAddCaptions: 'Alt yazı dosyası yüklemek için aşağıdaki kontrolleri kullanın.',
+};
