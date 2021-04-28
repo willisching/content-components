@@ -1,0 +1,15 @@
+export const val = {
+	addNewChapter: 'Tilføj et nyt kapitel',
+	chapterTitle: 'Titel på kapitel',
+	cut: 'Klip',
+	delete: 'Slet',
+	editingOverrides: 'Redigeringssprog: {language}',
+	languages: 'Sprog',
+	mark: 'Mærke',
+	noChapters: 'Der er ingen kapitler tilføjet.',
+	publish: 'Udgiv',
+	save: 'Gem',
+	seek: 'Søg',
+	tableOfContents: 'Indholdsfortegnelse',
+	timeToSeekPosition: 'Indstillet tid til at søge efter position',
+};

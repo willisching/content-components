@@ -1,0 +1,15 @@
+export const val = {
+	addNewChapter: 'Yeni bölüm ekle',
+	chapterTitle: 'Bölüm başlığı',
+	cut: 'Kes',
+	delete: 'Sil',
+	editingOverrides: 'Dil düzenleme: {language}',
+	languages: 'Diller',
+	mark: 'İşaretle',
+	noChapters: 'Eklenen bölüm yok.',
+	publish: 'Yayınla',
+	save: 'Kaydet',
+	seek: 'Ara',
+	tableOfContents: 'İçindekiler',
+	timeToSeekPosition: 'Pozisyonu arama zamanı ayarla',
+};

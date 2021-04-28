@@ -1,0 +1,15 @@
+export const val = {
+	addNewChapter: 'Nieuw hoofdstuk toevoegen',
+	chapterTitle: 'Hoofdstuktitel',
+	cut: 'Knippen',
+	delete: 'verwijderen',
+	editingOverrides: 'Bewerkingstaal: {language}',
+	languages: 'Talen',
+	mark: 'Markeren',
+	noChapters: 'Er zijn geen hoofdstukken toegevoegd.',
+	publish: 'Publiceren',
+	save: 'Opslaan',
+	seek: 'Zoeken',
+	tableOfContents: 'Inhoudsopgave',
+	timeToSeekPosition: 'Tijd instellen om positie te zoeken',
+};

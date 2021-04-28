@@ -1,0 +1,18 @@
+export const val = {
+	addCaptions: '新增字幕',
+	browseForCaptionsFile: '瀏覽您的裝置以尋找字幕檔案。',
+	captionsFile: '字幕檔案',
+	captionsLanguage: '字幕語言',
+	clickHereToReload: '請按一下這裡，嘗試重新載入字幕。',
+	deletingFile: '正在刪除 {filename}...',
+	failedToLoadCaptions: '無法載入此主題的字幕。',
+	loading: '正在載入...',
+	manageCaptions: '管理字幕',
+	noCaptionsForTopic: '此主題目前沒有任何字幕。',
+	removeCaptionsForLanguage: '移除 {langName} 語言的字幕。',
+	selectALanguage: '選取語言...',
+	selectLanguageForNewCaptions: '選取要新增字幕的語言。選取後，下方會顯示瀏覽按鈕以選擇您的字幕檔案。',
+	supportedTypesAndRenameConvention: '我們可支援 SRT 和 WebVTT 字幕格式。您的字幕檔案會在選取後自動儲存。它會按照以下命名慣例重新命名：<videofilename>.<language>.<filetype>',
+	uploadingFile: '正在上傳 {filename}...',
+	useControlsToAddCaptions: '使用下列控制項以上傳字幕檔案。',
+};

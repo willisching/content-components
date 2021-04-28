@@ -1,0 +1,15 @@
+export const val = {
+	addNewChapter: '添加新章节',
+	chapterTitle: '章节标题',
+	cut: '剪切',
+	delete: '删除',
+	editingOverrides: '编辑语言：{language}',
+	languages: '语言',
+	mark: '标记',
+	noChapters: '未添加章节。',
+	publish: '发布',
+	save: '保存',
+	seek: '搜索',
+	tableOfContents: '目录',
+	timeToSeekPosition: '设置搜索位置的时间',
+};

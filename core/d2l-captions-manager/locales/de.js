@@ -1,0 +1,18 @@
+export const val = {
+	addCaptions: 'Untertitel hinzufügen',
+	browseForCaptionsFile: 'Durchsuchen Sie das Gerät nach einer Untertiteldatei.',
+	captionsFile: 'Untertiteldatei',
+	captionsLanguage: 'Untertitelsprache',
+	clickHereToReload: 'Klicken Sie hier, um die Untertitel erneut zu laden.',
+	deletingFile: '{filename} wird gelöscht...',
+	failedToLoadCaptions: 'Untertitel für dieses Thema konnten nicht geladen werden.',
+	loading: 'Laden...',
+	manageCaptions: 'Beschriftungen verwalten',
+	noCaptionsForTopic: 'Für dieses Thema sind derzeit keine Untertitel vorhanden.',
+	removeCaptionsForLanguage: 'Untertitel für Sprache {langName} entfernen.',
+	selectALanguage: 'Sprache auswählen...',
+	selectLanguageForNewCaptions: 'Wählen Sie eine Sprache für die Untertitel aus, die hinzugefügt werden sollen. Nach der Auswahl wird unten eine Schaltfläche „Durchsuchen“ angezeigt, über die Sie die Untertiteldatei auswählen können.',
+	supportedTypesAndRenameConvention: 'Wir unterstützen die Untertitelformate SRT und WebVTT. Die Untertiteldatei wird automatisch gespeichert, nachdem Sie sie ausgewählt haben. Sie wird anhand der folgenden Namenskonvention umbenannt: <Videodateiname>.<Sprache>.<Dateityp>',
+	uploadingFile: '{filename} wird hochgeladen...',
+	useControlsToAddCaptions: 'Verwenden Sie die Steuerelemente unten, um eine Untertiteldatei hochzuladen.',
+};
