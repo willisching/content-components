@@ -1,0 +1,18 @@
+export const val = {
+	addCaptions: 'Ondertiteling toevoegen',
+	browseForCaptionsFile: 'Blader op uw apparaat naar een ondertitelingsbestand.',
+	captionsFile: 'Ondertitelingsbestand',
+	captionsLanguage: 'Taal voor ondertiteling',
+	clickHereToReload: 'Klik hier om de ondertiteling opnieuw te laden.',
+	deletingFile: '{filename} verwijderen...',
+	failedToLoadCaptions: 'Kan ondertiteling voor dit onderwerp niet laden.',
+	loading: 'Laden...',
+	manageCaptions: 'Ondertiteling beheren',
+	noCaptionsForTopic: 'Er is momenteel geen ondertiteling voor dit onderwerp.',
+	removeCaptionsForLanguage: 'Verwijder de ondertiteling voor taal {langName}.',
+	selectALanguage: 'Een taal selecteren...',
+	selectLanguageForNewCaptions: 'Selecteer een taal voor de ondertiteling die u wilt toevoegen. Nadat u de taal hebt geselecteerd, wordt hieronder een knop Bladeren weergegeven waarmee u uw ondertitelingsbestand kunt selecteren.',
+	supportedTypesAndRenameConvention: 'SRT- en WebVTT-indelingen voor ondertiteling worden ondersteund. Uw ondertitelingsbestand wordt automatisch opgeslagen nadat u het hebt geselecteerd. De naam wordt gewijzigd met de volgende naamgevingsconventie: <videobestandsnaam>.<taal>.<bestandstype>',
+	uploadingFile: '{filename} uploaden...',
+	useControlsToAddCaptions: 'Gebruik de onderstaande besturingselementen om een ondertitelingsbestand te uploaden.',
+};

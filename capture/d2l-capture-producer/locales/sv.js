@@ -1,0 +1,15 @@
+export const val = {
+	addNewChapter: 'Lägg till nytt kapitel',
+	chapterTitle: 'Kapitelrubrik',
+	cut: 'Klipp ut',
+	delete: 'Ta bort',
+	editingOverrides: 'Redigeringsspråk: {language}',
+	languages: 'Språk',
+	mark: 'Markera',
+	noChapters: 'Inga kapitel har lagts till.',
+	publish: 'Publicera',
+	save: 'Spara',
+	seek: 'Sök',
+	tableOfContents: 'Innehållsförteckning',
+	timeToSeekPosition: 'Ställ in tid för sökposition',
+};
