@@ -6,7 +6,7 @@ export const val = {
 	editingOverrides: 'Modification de la langue : {language}',
 	languages: 'Langues',
 	mark: 'Marqueur',
-	noChapters: 'Aucun chapitre n'a été ajouté.',
+	noChapters: 'Aucun chapitre n\'a été ajouté.',
 	publish: 'Publier',
 	save: 'Enregistrer',
 	seek: 'Rechercher',

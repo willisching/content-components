@@ -7,7 +7,7 @@ export const val = {
 	fileLimit1Gb: 'Maksimum 1 GB boyutunda dosya yükleyebilirsiniz.',
 	mayOnlyUpload1File: 'Yalnızca 1 dosya yükleyebilirsiniz.',
 	invalidFileType: 'Geçersiz dosya türü.',
-	fileTooLarge: 'Dosya boyutu 1 GB'den büyük.',
+	fileTooLarge: 'Dosya boyutu 1 GB\'den büyük.',
 	title: 'Başlık',
 	titleForUpload: 'Yüklenecek dosyanızın başlığı',
 	changeFile: 'Dosya Değiştir',

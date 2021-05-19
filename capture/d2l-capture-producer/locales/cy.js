@@ -6,7 +6,7 @@ export const val = {
 	editingOverrides: 'Iaith golygu: {language}',
 	languages: 'Ieithoedd',
 	mark: 'Marcio',
-	noChapters: 'Nid oes unrhyw benodau wedi'u hychwanegu.',
+	noChapters: 'Nid oes unrhyw benodau wedi\'u hychwanegu.',
 	publish: 'Cyhoeddi',
 	save: 'Cadw',
 	seek: 'Cyrchu',
