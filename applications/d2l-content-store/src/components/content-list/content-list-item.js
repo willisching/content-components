@@ -72,6 +72,7 @@ class ContentListItem extends DependencyRequester(InternalLocalizeMixin(LitEleme
 		<d2l-list separators="all">
 			<d2l-list-item class="d2l-body-compact"
 				?disabled=${this.disabled}
+				label="${this.title}"
 				?selectable=${this.selectable}
 			>
 				<div slot="illustration">
