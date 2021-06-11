@@ -41,7 +41,7 @@ To run both linting and unit tests:
 npm test
 ```
 
-## Versioning & Releasing
+## Versioning & Releasing 
 
 > TL;DR: Commits prefixed with `fix:` and `feat:` will trigger patch and minor releases when merged to `main`. Read on for more details...
 
