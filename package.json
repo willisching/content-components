@@ -7,6 +7,7 @@
     "lint": "npm run lint:eslint && npm run lint:lit",
     "lint:eslint": "eslint . --ext .js,.html",
     "lint:lit": "lit-analyzer  \"{applications,core,capture,test,demo}/**/*.js\" --strict --rules.no-unknown-tag-name off --rules.no-unknown-attribute off",
+    "start:d2l-capture-producer": "es-dev-server --app-index capture/d2l-capture-producer/demo/index.html --node-resolve --dedupe --open --watch",
     "test": "npm run lint && npm run test:headless",
     "test:headless": "karma start --coverage",
     "test:headless:watch": "karma start --auto-watch=true --single-run=false",
