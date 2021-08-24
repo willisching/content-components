@@ -6,14 +6,48 @@ const constants = {
 		CUT: 'cut',
 	},
 
+	// Canvas
+	CANVAS_BORDER_WIDTH: 1,
+	get CANVAS_CONTAINER_HEIGHT() {
+		return constants.CANVAS_HEIGHT + constants.CANVAS_BORDER_WIDTH * 2;
+	},
+	get CANVAS_CONTAINER_WIDTH() {
+		return constants.CANVAS_WIDTH + constants.CANVAS_BORDER_WIDTH * 2;
+	},
+	get CANVAS_HEIGHT() {
+		return constants.TIMELINE_OFFSET_Y + constants.TIMELINE_HEIGHT_MIN + constants.ZOOM_HANDLE_HEIGHT + constants.ZOOM_HANDLE_MAX_DEPTH + constants.TIMELINE_OFFSET_Y;
+	},
+	CANVAS_WIDTH: 985,
+
 	// Timeline
-	TIMELINE_HEIGHT: 30,
-	TIMELINE_WIDTH: 965,
-	TIMELINE_OFFSET_X: 10,
+	TIMELINE_HEIGHT_MIN: 30,
+	get TIMELINE_WIDTH(){
+		return constants.CANVAS_WIDTH - constants.TIMELINE_OFFSET_X * 2;
+	},
+	get TIMELINE_OFFSET_X() {
+		return constants.ZOOM_HANDLE_WIDTH / 2;
+	},
 	TIMELINE_OFFSET_Y: 12,
 
+	// Zoom
+	ZOOM_HANDLE_WIDTH: 30,
+	ZOOM_HANDLE_HEIGHT: 10,
+	get ZOOM_HANDLE_MAX_DEPTH() {
+		return constants.TIMELINE_HEIGHT_MIN * 3;
+	},
+	ZOOM_MULTIPLIER_DISPLAY: {
+		TOTAL_TIME: 2000,
+		FADE_INTERVAL: 10,
+		FADE_TIME: 500,
+		get TIME_BEFORE_FADE() {
+			return constants.ZOOM_MULTIPLIER_DISPLAY.TOTAL_TIME - constants.ZOOM_MULTIPLIER_DISPLAY.FADE_TIME;
+		},
+	},
+
 	// Cursor
-	CURSOR_OFFSET_X: -5,
+	get CURSOR_OFFSET_X() {
+		return -constants.MARK_WIDTH / 2;
+	},
 	get CURSOR_OFFSET_Y() {
 		return constants.TIMELINE_OFFSET_Y - 5;
 	},
@@ -34,7 +68,7 @@ const constants = {
 		return -(constants.TIME_TEXT_BORDER_WIDTH / 2);
 	},
 	get TIME_CONTAINER_OFFSET_Y() {
-		return constants.TIMELINE_OFFSET_Y + 40;
+		return constants.TIMELINE_OFFSET_Y + constants.TIMELINE_HEIGHT_MIN + constants.CANVAS_BORDER_WIDTH + constants.ZOOM_HANDLE_HEIGHT;
 	},
 
 	// Cue Types
