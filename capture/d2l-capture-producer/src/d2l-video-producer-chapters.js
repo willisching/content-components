@@ -135,6 +135,10 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 		}
 	}
 
+	get activeChapter() {
+		return this._activeChapterIndex === null ? null : this.chapters[this._activeChapterIndex];
+	}
+
 	addNewChapter(chapterTime) {
 		if (!this._newChapterTitle) {
 			return;
