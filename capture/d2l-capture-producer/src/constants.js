@@ -21,7 +21,7 @@ const constants = {
 
 	// Timeline
 	TIMELINE_HEIGHT_MIN: 30,
-	get TIMELINE_WIDTH(){
+	get TIMELINE_WIDTH() {
 		return constants.CANVAS_WIDTH - constants.TIMELINE_OFFSET_X * 2;
 	},
 	get TIMELINE_OFFSET_X() {

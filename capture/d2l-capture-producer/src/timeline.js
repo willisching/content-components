@@ -1,3 +1,161 @@
+class Cut {
+	constructor(inSeconds, outSeconds, timeline) {
+		this.in = inSeconds;
+		this.out = outSeconds;
+		this.timeline = timeline;
+		this.displayObject = null;
+	}
+
+	/**
+	 * Determines the pixels along the timeline that this cut begins and ends at.
+	 * @returns {[number, number]} If the cut is on the timeline, returns an array. Otherwise, returns null.
+	 * 								[0]: Pixels along the timeline of the start of the cut. If the cut actually starts before the timeline, it will be the start of the timeline.
+	 * 								[1]: Pixels along the timeline of the end of the cut. If the cut actually ends after the timeline, it will be the end of the timeline.
+	 */
+	getPixelsAlongTimeline() {
+		if (!this.isOnTimeline()) return null;
+
+		const actualInPixels = this.timeline.getPixelsAlongTimelineFromTime(this.in);
+		const inPixels = actualInPixels !== null ? actualInPixels : 0;
+
+		const actualOutPixels = this.timeline.getPixelsAlongTimelineFromTime(this.out);
+		const outPixels = actualOutPixels !== null ? actualOutPixels : this.timeline.widthPixels;
+
+		return [inPixels, outPixels];
+	}
+
+	/**
+	 * Determines if the cut is on the timeline.
+	 * @returns {boolean} Returns true if the cut is on the timeline. Otherwise, false.
+	 */
+	isOnTimeline() {
+		const [lowerBoundSeconds, upperBoundSeconds] = this.timeline.getTimeBoundsOnTimeline();
+
+		return this.in <= upperBoundSeconds && this.out > lowerBoundSeconds;
+	}
+
+	/**
+	 * Determines if the cut is over the time.
+	 * @param {number} seconds Time in seconds.
+	 * @returns {boolean} True if the cut is over the time. Otherwise, false.
+	 */
+	isOverTime(seconds) {
+		return this.in <= seconds && this.out > seconds;
+	}
+
+	/**
+	 * Removes this cut from the timeline.
+	 */
+	removeFromTimeline() {
+		delete this.timeline._cuts[this.in];
+	}
+}
+
+class Mark {
+	constructor(seconds, timeline) {
+		this.seconds = seconds;
+		this.timeline = timeline;
+		this.displayObject = null;
+	}
+
+	/**
+	 * Determines the pixels along the timeline that this marker is at.
+	 * @returns {number} The pixels along the timeline that this marker is at. Returns null if it is not on the timeline.
+	 */
+	getPixelsAlongTimeline() {
+		return this.timeline.getPixelsAlongTimelineFromTime(this.seconds);
+	}
+
+	/**
+	 * Determines if the mark is on the timeline.
+	 * @returns {boolean} Returns true if the mark is on the timeline. Otherwise, false.
+	 */
+	isOnTimeline() {
+		const [lowerBoundSeconds, upperBoundSeconds] = this.timeline.getTimeBoundsOnTimeline();
+
+		return this.seconds >= lowerBoundSeconds && this.seconds <= upperBoundSeconds;
+	}
+
+	/**
+	 * Moves this mark to another point.
+	 *
+	 * Any cuts that start or end at the mark will be compressed or stretched (depending on direction of move).
+	 *
+	 * Cannot move past the end of the timeline or any other mark.
+	 * @param {number} pixelsAlongTimelineToMoveTo Point along the timeline to move this mark to.
+	 * @returns {[Cut, Cut]} Cuts that were affected by the move. If the move did not happen, returns null.
+	 * 							[0]: Cut ending at the mark that was stretched or compressed.
+	 * 							[1]: Cut starting at the mark that was stretched or compressed.
+	 */
+	move(pixelsAlongTimelineToMoveTo) {
+		const timeToMoveTo = this.timeline.getTimeFromPixelsAlongTimeline(pixelsAlongTimelineToMoveTo);
+
+		if (timeToMoveTo === this.seconds) return null;
+		else if (timeToMoveTo > this.seconds) { // moving mark forward
+			for (const mark of this.timeline.getMarks()) {
+				// Other mark exists between this mark and the time to move to
+				if (mark !== this && mark.seconds > this.seconds && mark.seconds <= timeToMoveTo) return null;
+			}
+		} else { // moving mark backward
+			for (const mark of this.timeline.getMarks()) {
+				// Other mark exists between this mark and the time to move to
+				if (mark !== this && mark.seconds < this.seconds && mark.seconds >= timeToMoveTo) return null;
+			}
+		}
+
+		const cutStartingAtMark = this.timeline._getCutStartingAtTime(this.seconds);
+
+		if (cutStartingAtMark) {
+			delete this.timeline._cuts[cutStartingAtMark.in];
+
+			cutStartingAtMark.in = timeToMoveTo;
+			this.timeline._cuts[timeToMoveTo] = cutStartingAtMark;
+		}
+
+		const cutEndingAtMark = this.timeline._getCutEndingAtTime(this.seconds);
+
+		if (cutEndingAtMark) {
+			cutEndingAtMark.out = timeToMoveTo;
+		}
+
+		delete this.timeline._marks[this.seconds];
+
+		this.seconds = timeToMoveTo;
+
+		this.timeline._marks[timeToMoveTo] = this;
+
+		return [cutEndingAtMark, cutStartingAtMark];
+	}
+
+	/**
+	 * Removes this mark from the timeline.
+	 * @returns {[Cut, Cut]} Two cuts that were affected by the removal of this mark.
+	 * 							[0]: The cut that ended at this mark, which needed to be extended. If none existed, is null.
+	 * 							[1]: The cut that started at thsi mark, which needed to be removed. If none existed, is null.
+	 */
+	removeFromTimeline() {
+		const cutStartingAtMark = this.timeline._getCutStartingAtTime(this.seconds);
+
+		// Need to remove cut starting here
+		if (cutStartingAtMark) delete this.timeline._cuts[cutStartingAtMark.in];
+
+		const cutEndingAtMark = this.timeline._getCutEndingAtTime(this.seconds);
+
+		// Need to extend cut to the next mark, or the very end
+		if (cutEndingAtMark) {
+			const nextMark = this.timeline._getNextMarkFromTime(this.seconds);
+
+			const outSeconds = nextMark ? nextMark.seconds : this.timeline.durationSeconds;
+
+			cutEndingAtMark.out = outSeconds;
+		}
+
+		delete this.timeline._marks[this.seconds];
+
+		return [cutEndingAtMark, cutStartingAtMark];
+	}
+}
+
 class Timeline {
 	constructor(durationSeconds, widthPixels, cuts = [], zoomMultiplier = 1, pixelsAlongTimelineToZoomAround = Math.round(widthPixels / 2)) {
 		this.durationSeconds = durationSeconds;
@@ -60,23 +218,6 @@ class Timeline {
 	}
 
 	/**
-	 * Gets the pixel bounds of the marks around a point.
-	 * @param {*} pixelsAlongTimeline Point on the timeline.
-	 * @returns {[number, number]} The upper and lower bounds of the marks around the point.
-	 */
-	getPixelBoundsAtPoint(pixelsAlongTimeline) {
-		const leftBoundMark = this._getLatestMarkAtOrBeforePoint(pixelsAlongTimeline);
-
-		const leftBoundPixels = leftBoundMark ? leftBoundMark.getPixelsAlongTimeline() : 0;
-
-		const rightBoundMark = this._getEarliestMarkAfterPoint(pixelsAlongTimeline);
-
-		const rightBoundPixels = rightBoundMark ? rightBoundMark.getPixelsAlongTimeline() : this.widthPixels;
-
-		return [leftBoundPixels, rightBoundPixels];
-	}
-
-	/**
 	 * Gets a list of all the cuts.
 	 * @returns {Cut[]} The list of all the cuts, including those that are not displayed on
 	 * the timeline.
@@ -91,6 +232,17 @@ class Timeline {
 	 */
 	getCutsOnTimeline() {
 		return Object.values(this._cuts).filter(cut => cut.isOnTimeline()).sort((a, b) => a.in - b.in);
+	}
+
+	/**
+	 * Gets the mark at a time.
+	 * @param {number} seconds Time in seconds.
+	 * @returns {Mark} Mark at the time. If none exist, returns null.
+	 */
+	getMarkAtTime(seconds) {
+		const mark = this._marks[seconds];
+
+		return mark ? mark : null;
 	}
 
 	/**
@@ -110,30 +262,20 @@ class Timeline {
 	}
 
 	/**
-	 * Gets the upper and lower bounds of the time in seconds of the timeline.
-	 * @returns {[number, number]} The upper and lower bounds of the time in seconds on the timeline.
+	 * Gets the pixel bounds of the marks around a point.
+	 * @param {*} pixelsAlongTimeline Point on the timeline.
+	 * @returns {[number, number]} The upper and lower bounds of the marks around the point.
 	 */
-	getTimeBoundsOnTimeline() {
-		const zoomedDuration = Math.round(this.durationSeconds / this.zoomMultiplier);
+	getPixelBoundsAtPoint(pixelsAlongTimeline) {
+		const leftBoundMark = this._getLatestMarkAtOrBeforePoint(pixelsAlongTimeline);
 
-		const halfZoomedDuration = Math.ceil(zoomedDuration / 2);
+		const leftBoundPixels = leftBoundMark ? leftBoundMark.getPixelsAlongTimeline() : 0;
 
-		const timeToZoomAround = Math.round(this.durationSeconds * this.pixelsAlongTimelineToZoomAround / this.widthPixels);
+		const rightBoundMark = this._getEarliestMarkAfterPoint(pixelsAlongTimeline);
 
-		if (timeToZoomAround < halfZoomedDuration) return [0, zoomedDuration];
-		else if (timeToZoomAround + halfZoomedDuration > this.durationSeconds) return [Math.round(this.durationSeconds - zoomedDuration), Math.ceil(this.durationSeconds)];
-		else return [timeToZoomAround - halfZoomedDuration, timeToZoomAround + halfZoomedDuration];
-	}
+		const rightBoundPixels = rightBoundMark ? rightBoundMark.getPixelsAlongTimeline() : this.widthPixels;
 
-	/**
-	 * Gets the mark at a time.
-	 * @param {number} seconds Time in seconds.
-	 * @returns {Mark} Mark at the time. If none exist, returns null.
-	 */
-	getMarkAtTime(seconds) {
-		const mark = this._marks[seconds];
-
-		return mark ? mark : null;
+		return [leftBoundPixels, rightBoundPixels];
 	}
 
 	/**
@@ -151,6 +293,22 @@ class Timeline {
 		const progress = (seconds - lowerBoundSeconds) / totalTimeOnTimeline;
 
 		return progress * this.widthPixels;
+	}
+
+	/**
+	 * Gets the upper and lower bounds of the time in seconds of the timeline.
+	 * @returns {[number, number]} The upper and lower bounds of the time in seconds on the timeline.
+	 */
+	getTimeBoundsOnTimeline() {
+		const zoomedDuration = Math.round(this.durationSeconds / this.zoomMultiplier);
+
+		const halfZoomedDuration = Math.ceil(zoomedDuration / 2);
+
+		const timeToZoomAround = Math.round(this.durationSeconds * this.pixelsAlongTimelineToZoomAround / this.widthPixels);
+
+		if (timeToZoomAround < halfZoomedDuration) return [0, zoomedDuration];
+		else if (timeToZoomAround + halfZoomedDuration > this.durationSeconds) return [Math.round(this.durationSeconds - zoomedDuration), Math.ceil(this.durationSeconds)];
+		else return [timeToZoomAround - halfZoomedDuration, timeToZoomAround + halfZoomedDuration];
 	}
 
 	/**
@@ -227,30 +385,6 @@ class Timeline {
 	}
 
 	/**
-	 * Gets the mark at a time, or the closest previous mark.
-	 * @param {number} seconds Time in seconds.
-	 * @returns {Mark} Mark at the time, or the closest previous mark. If none exist, returns null.
-	 */
-	_getMarkAtTimeOrPrevious(seconds) {
-		let previousMark = null;
-		let closestTime = null;
-
-		for (const mark of Object.values(this._marks)) {
-			if (mark.seconds === seconds) return mark;
-			else if (mark.seconds < seconds) {
-				if (closestTime === null) closestTime = mark.seconds;
-
-				if (mark.seconds >= closestTime) {
-					closestTime = mark.seconds;
-					previousMark = mark;
-				}
-			}
-		}
-
-		return previousMark;
-	}
-
-	/**
 	 * Gets the latest mark at or before a point on the timeline.
 	 * @param {number} pixelsAlongTimeline Point on the timeline.
 	 * @returns {Mark} Latest mark at or before the point on the timeline. If none exist, returns null.
@@ -285,6 +419,30 @@ class Timeline {
 		const mark = this._marks[seconds];
 
 		return mark ? mark : null;
+	}
+
+	/**
+	 * Gets the mark at a time, or the closest previous mark.
+	 * @param {number} seconds Time in seconds.
+	 * @returns {Mark} Mark at the time, or the closest previous mark. If none exist, returns null.
+	 */
+	_getMarkAtTimeOrPrevious(seconds) {
+		let previousMark = null;
+		let closestTime = null;
+
+		for (const mark of Object.values(this._marks)) {
+			if (mark.seconds === seconds) return mark;
+			else if (mark.seconds < seconds) {
+				if (closestTime === null) closestTime = mark.seconds;
+
+				if (mark.seconds >= closestTime) {
+					closestTime = mark.seconds;
+					previousMark = mark;
+				}
+			}
+		}
+
+		return previousMark;
 	}
 
 	/**
@@ -356,166 +514,6 @@ class Timeline {
 	}
 }
 
-class Cut {
-	constructor(inSeconds, outSeconds, timeline) {
-		this.in = inSeconds;
-		this.out = outSeconds;
-		this.timeline = timeline;
-		this.displayObject = null;
-	}
-
-	/**
-	 * Determines if the cut is on the timeline.
-	 * @returns {boolean} Returns true if the cut is on the timeline. Otherwise, false.
-	 */
-	isOnTimeline() {
-		const [lowerBoundSeconds, upperBoundSeconds] = this.timeline.getTimeBoundsOnTimeline();
-
-		return this.in <= upperBoundSeconds && this.out > lowerBoundSeconds;
-	}
-
-	/**
-	 * Determines if the cut is over the time.
-	 * @param {number} seconds Time in seconds.
-	 * @returns {boolean} True if the cut is over the time. Otherwise, false.
-	 */
-	isOverTime(seconds) {
-		return this.in <= seconds && this.out > seconds;
-	}
-
-	/**
-	 * Determines the pixels along the timeline that this cut begins and ends at.
-	 * @returns {[number, number]} If the cut is on the timeline, returns an array. Otherwise, returns null.
-	 * 								[0]: Pixels along the timeline of the start of the cut. If the cut actually starts before the timeline, it will be the start of the timeline.
-	 * 								[1]: Pixels along the timeline of the end of the cut. If the cut actually ends after the timeline, it will be the end of the timeline.
-	 */
-	getPixelsAlongTimeline() {
-		if (!this.isOnTimeline()) return null;
-
-		const actualInPixels = this.timeline.getPixelsAlongTimelineFromTime(this.in);
-		const inPixels = actualInPixels !== null ? actualInPixels : 0;
-
-		const actualOutPixels = this.timeline.getPixelsAlongTimelineFromTime(this.out);
-		const outPixels = actualOutPixels !== null ? actualOutPixels : this.timeline.widthPixels;
-
-		return [inPixels, outPixels];
-	}
-
-	/**
-	 * Removes this cut from the timeline.
-	 */
-	removeFromTimeline() {
-		delete this.timeline._cuts[this.in];
-	}
-}
-
-class Mark {
-	constructor(seconds, timeline) {
-		this.seconds = seconds;
-		this.timeline = timeline;
-		this.displayObject = null;
-	}
-
-	/**
-	 * Determines if the mark is on the timeline.
-	 * @returns {boolean} Returns true if the mark is on the timeline. Otherwise, false.
-	 */
-	isOnTimeline() {
-		const [lowerBoundSeconds, upperBoundSeconds] = this.timeline.getTimeBoundsOnTimeline();
-
-		return this.seconds >= lowerBoundSeconds && this.seconds <= upperBoundSeconds;
-	}
-
-	/**
-	 * Determines the pixels along the timeline that this marker is at.
-	 * @returns {number} The pixels along the timeline that this marker is at. Returns null if it is not on the timeline.
-	 */
-	getPixelsAlongTimeline() {
-		return this.timeline.getPixelsAlongTimelineFromTime(this.seconds);
-	}
-
-	/**
-	 * Removes this mark from the timeline.
-	 * @returns {[Cut, Cut]} Two cuts that were affected by the removal of this mark.
-	 * 							[0]: The cut that ended at this mark, which needed to be extended. If none existed, is null.
-	 * 							[1]: The cut that started at thsi mark, which needed to be removed. If none existed, is null.
-	 */
-	removeFromTimeline() {
-		const cutStartingAtMark = this.timeline._getCutStartingAtTime(this.seconds);
-
-		// Need to remove cut starting here
-		if (cutStartingAtMark) delete this.timeline._cuts[cutStartingAtMark.in];
-
-		const cutEndingAtMark = this.timeline._getCutEndingAtTime(this.seconds);
-
-		// Need to extend cut to the next mark, or the very end
-		if (cutEndingAtMark) {
-			const nextMark = this.timeline._getNextMarkFromTime(this.seconds);
-
-			const outSeconds = nextMark ? nextMark.seconds : this.timeline.durationSeconds;
-
-			cutEndingAtMark.out = outSeconds;
-		}
-
-		delete this.timeline._marks[this.seconds];
-
-		return [cutEndingAtMark, cutStartingAtMark];
-	}
-
-	/**
-	 * Moves this mark to another point.
-	 *
-	 * Any cuts that start or end at the mark will be compressed or stretched (depending on direction of move).
-	 *
-	 * Cannot move past the end of the timeline or any other mark.
-	 * @param {number} pixelsAlongTimelineToMoveTo Point along the timeline to move this mark to.
-	 * @returns {[Cut, Cut]} Cuts that were affected by the move. If the move did not happen, returns null.
-	 * 							[0]: Cut ending at the mark that was stretched or compressed.
-	 * 							[1]: Cut starting at the mark that was stretched or compressed.
-	 */
-	move(pixelsAlongTimelineToMoveTo) {
-		const timeToMoveTo = this.timeline.getTimeFromPixelsAlongTimeline(pixelsAlongTimelineToMoveTo);
-
-		if (timeToMoveTo === this.seconds) return null;
-		else if (timeToMoveTo > this.seconds) { // moving mark forward
-			for (const mark of this.timeline.getMarks()) {
-				// Other mark exists between this mark and the time to move to
-				if (mark !== this && mark.seconds > this.seconds && mark.seconds <= timeToMoveTo) return null;
-			}
-		} else { // moving mark backward
-			for (const mark of this.timeline.getMarks()) {
-				// Other mark exists between this mark and the time to move to
-				if (mark !== this && mark.seconds < this.seconds && mark.seconds >= timeToMoveTo) return null;
-			}
-		}
-
-		const cutStartingAtMark = this.timeline._getCutStartingAtTime(this.seconds);
-
-		if (cutStartingAtMark) {
-			delete this.timeline._cuts[cutStartingAtMark.in];
-
-			cutStartingAtMark.in = timeToMoveTo;
-			this.timeline._cuts[timeToMoveTo] = cutStartingAtMark;
-		}
-
-		const cutEndingAtMark = this.timeline._getCutEndingAtTime(this.seconds);
-
-		if (cutEndingAtMark) {
-			cutEndingAtMark.out = timeToMoveTo;
-		}
-
-		delete this.timeline._marks[this.seconds];
-
-		this.seconds = timeToMoveTo;
-
-		this.timeline._marks[timeToMoveTo] = this;
-
-		return [cutEndingAtMark, cutStartingAtMark];
-	}
-}
-
 export {
-	Cut,
-	Mark,
 	Timeline,
 };
