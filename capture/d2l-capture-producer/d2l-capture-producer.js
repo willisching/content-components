@@ -661,7 +661,6 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 		if (zoomMultiplier <= 10) return `${Math.round(zoomMultiplier * 100)}%`;
 
-
 		return `${Math.round(zoomMultiplier)}x`;
 	}
 

@@ -326,7 +326,7 @@ class Timeline {
 			upperTimeBound = zoomedDuration;
 		} else if (timeToZoomAround + halfZoomedDuration > this.durationSeconds) {
 			lowerTimeBound = Math.round(this.durationSeconds - zoomedDuration);
-			upperTimeBound = Math.ceil(this.durationSeconds)
+			upperTimeBound = Math.ceil(this.durationSeconds);
 		} else {
 			lowerTimeBound = timeToZoomAround - halfZoomedDuration;
 			upperTimeBound = timeToZoomAround + halfZoomedDuration;
