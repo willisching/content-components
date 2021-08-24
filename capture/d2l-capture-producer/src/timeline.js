@@ -8,9 +8,9 @@ class Cut {
 
 	/**
 	 * Determines the pixels along the timeline that this cut begins and ends at.
-	 * @returns {[number, number]} If the cut is on the timeline, returns an array. Otherwise, returns null.
-	 * 								[0]: Pixels along the timeline of the start of the cut. If the cut actually starts before the timeline, it will be the start of the timeline.
-	 * 								[1]: Pixels along the timeline of the end of the cut. If the cut actually ends after the timeline, it will be the end of the timeline.
+	 * @returns {{ inPixels: number, outPixels: number }} If the cut is on the timeline, returns an object. Otherwise, returns null.
+	 * 								inPixels: Pixels along the timeline of the start of the cut. If the cut actually starts before the timeline, it will be the start of the timeline.
+	 * 								outPixels: Pixels along the timeline of the end of the cut. If the cut actually ends after the timeline, it will be the end of the timeline.
 	 */
 	getPixelsAlongTimeline() {
 		if (!this.isOnTimeline()) return null;
@@ -21,7 +21,7 @@ class Cut {
 		const actualOutPixels = this.timeline.getPixelsAlongTimelineFromTime(this.out);
 		const outPixels = actualOutPixels !== null ? actualOutPixels : this.timeline.widthPixels;
 
-		return [inPixels, outPixels];
+		return { inPixels, outPixels };
 	}
 
 	/**
@@ -29,9 +29,9 @@ class Cut {
 	 * @returns {boolean} Returns true if the cut is on the timeline. Otherwise, false.
 	 */
 	isOnTimeline() {
-		const [lowerBoundSeconds, upperBoundSeconds] = this.timeline.getTimeBoundsOnTimeline();
+		const { lowerTimeBound, upperTimeBound } = this.timeline.getTimeBoundsOnTimeline();
 
-		return this.in <= upperBoundSeconds && this.out > lowerBoundSeconds;
+		return this.in <= upperTimeBound && this.out > lowerTimeBound;
 	}
 
 	/**
@@ -71,9 +71,9 @@ class Mark {
 	 * @returns {boolean} Returns true if the mark is on the timeline. Otherwise, false.
 	 */
 	isOnTimeline() {
-		const [lowerBoundSeconds, upperBoundSeconds] = this.timeline.getTimeBoundsOnTimeline();
+		const { lowerTimeBound, upperTimeBound } = this.timeline.getTimeBoundsOnTimeline();
 
-		return this.seconds >= lowerBoundSeconds && this.seconds <= upperBoundSeconds;
+		return this.seconds >= lowerTimeBound && this.seconds <= upperTimeBound;
 	}
 
 	/**
@@ -83,9 +83,9 @@ class Mark {
 	 *
 	 * Cannot move past the end of the timeline or any other mark.
 	 * @param {number} pixelsAlongTimelineToMoveTo Point along the timeline to move this mark to.
-	 * @returns {[Cut, Cut]} Cuts that were affected by the move. If the move did not happen, returns null.
-	 * 							[0]: Cut ending at the mark that was stretched or compressed.
-	 * 							[1]: Cut starting at the mark that was stretched or compressed.
+	 * @returns {{ cutEndingAtMark: Cut, cutStartingAtMark: Cut }} Cuts that were affected by the move. If the move did not happen, returns null.
+	 * 							cutEndingAtMark: Cut ending at the mark that was stretched or compressed. Null if no cut ends at the mark.
+	 * 							cutStartingAtMark: Cut starting at the mark that was stretched or compressed. Null if no cut starts at the mark.
 	 */
 	move(pixelsAlongTimelineToMoveTo) {
 		const timeToMoveTo = this.timeline.getTimeFromPixelsAlongTimeline(pixelsAlongTimelineToMoveTo);
@@ -124,14 +124,14 @@ class Mark {
 
 		this.timeline._marks[timeToMoveTo] = this;
 
-		return [cutEndingAtMark, cutStartingAtMark];
+		return { cutEndingAtMark, cutStartingAtMark };
 	}
 
 	/**
 	 * Removes this mark from the timeline.
-	 * @returns {[Cut, Cut]} Two cuts that were affected by the removal of this mark.
-	 * 							[0]: The cut that ended at this mark, which needed to be extended. If none existed, is null.
-	 * 							[1]: The cut that started at thsi mark, which needed to be removed. If none existed, is null.
+	 * @returns {{ cutEndingAtMark: Cut, cutStartingAtMark: Cut }} Two cuts that were affected by the removal of this mark.
+	 * 							cutEndingAtMark: The cut that ended at this mark, which needed to be extended. If none existed, is null.
+	 * 							cutStartingAtMark: The cut that started at thsi mark, which needed to be removed. If none existed, is null.
 	 */
 	removeFromTimeline() {
 		const cutStartingAtMark = this.timeline._getCutStartingAtTime(this.seconds);
@@ -152,12 +152,18 @@ class Mark {
 
 		delete this.timeline._marks[this.seconds];
 
-		return [cutEndingAtMark, cutStartingAtMark];
+		return { cutEndingAtMark, cutStartingAtMark };
 	}
 }
 
 class Timeline {
-	constructor(durationSeconds, widthPixels, cuts = [], zoomMultiplier = 1, pixelsAlongTimelineToZoomAround = Math.round(widthPixels / 2)) {
+	constructor({
+		durationSeconds,
+		widthPixels,
+		cuts = [],
+		zoomMultiplier = 1,
+		pixelsAlongTimelineToZoomAround = Math.round(widthPixels / 2)
+	}) {
 		this.durationSeconds = durationSeconds;
 		this.widthPixels = widthPixels;
 		this.zoomMultiplier = zoomMultiplier;
@@ -194,8 +200,10 @@ class Timeline {
 	 * Adds a mark at a point on the timeline. If a cut existed over the time represented by the point, it is reduced to
 	 * end at the new mark. If a mark already exists at the time represented by the point, nothing happens.
 	 * @param {number} pixelsAlongTimeline Point on the timeline.
-	 * @returns {[Mark, Cut]} If the mark is added, returns the newly added mark and the cut (if it existed) that was reduced. If a mark already
+	 * @returns {{ mark: Mark, cut: Cut }} If the mark is added, returns the newly added mark and the cut (if it existed) that was reduced. If a mark already
 	 * existed at the time represented by the point, returns null.
+	 * 										mark: Added mark.
+	 * 										cut: Cut that existed over the point, and needed to be reduced. Null if none exists.
 	 */
 	addMarkToTimelineAtPoint(pixelsAlongTimeline) {
 		const time = this.getTimeFromPixelsAlongTimeline(pixelsAlongTimeline);
@@ -208,13 +216,13 @@ class Timeline {
 
 		this._marks[mark.seconds] = mark;
 
-		const cutOverTime = this._getCutOverTime(mark.seconds);
+		const cut = this._getCutOverTime(mark.seconds);
 
-		if (cutOverTime) { // need to end cut at mark
-			cutOverTime.out = mark.seconds;
+		if (cut) { // need to end cut at mark
+			cut.out = mark.seconds;
 		}
 
-		return [mark, cutOverTime];
+		return { mark, cut };
 	}
 
 	/**
@@ -264,7 +272,9 @@ class Timeline {
 	/**
 	 * Gets the pixel bounds of the marks around a point.
 	 * @param {*} pixelsAlongTimeline Point on the timeline.
-	 * @returns {[number, number]} The upper and lower bounds of the marks around the point.
+	 * @returns {{ leftBoundPixels: number, rightBoundPixels: number }} The upper and lower bounds of the marks around the point.
+	 * 																	leftBoundPixels: Left bound of the area. If no mark exists to the left, then 0.
+	 * 																	rightBoundPixels: Right bound of the area. If no mark exists to the right, then widthPixels.
 	 */
 	getPixelBoundsAtPoint(pixelsAlongTimeline) {
 		const leftBoundMark = this._getLatestMarkAtOrBeforePoint(pixelsAlongTimeline);
@@ -275,7 +285,7 @@ class Timeline {
 
 		const rightBoundPixels = rightBoundMark ? rightBoundMark.getPixelsAlongTimeline() : this.widthPixels;
 
-		return [leftBoundPixels, rightBoundPixels];
+		return { leftBoundPixels, rightBoundPixels };
 	}
 
 	/**
@@ -284,20 +294,22 @@ class Timeline {
 	 * @returns {number} Point along the timeline that represents the time.
 	 */
 	getPixelsAlongTimelineFromTime(seconds) {
-		const [lowerBoundSeconds, upperBoundSeconds] = this.getTimeBoundsOnTimeline();
+		const { lowerTimeBound, upperTimeBound } = this.getTimeBoundsOnTimeline();
 
-		if (seconds < lowerBoundSeconds || seconds > upperBoundSeconds) return null;
+		if (seconds < lowerTimeBound || seconds > upperTimeBound) return null;
 
-		const totalTimeOnTimeline = upperBoundSeconds - lowerBoundSeconds;
+		const totalTimeOnTimeline = upperTimeBound - lowerTimeBound;
 
-		const progress = (seconds - lowerBoundSeconds) / totalTimeOnTimeline;
+		const progress = (seconds - lowerTimeBound) / totalTimeOnTimeline;
 
 		return progress * this.widthPixels;
 	}
 
 	/**
 	 * Gets the upper and lower bounds of the time in seconds of the timeline.
-	 * @returns {[number, number]} The upper and lower bounds of the time in seconds on the timeline.
+	 * @returns {{ lowerTimeBound: number, upperTimeBound: number }} The upper and lower bounds of the time in seconds on the timeline.
+	 * 																	lowerTimeBound: Lower time bound of the timeline in seconds.
+	 * 																	upperTimeBound: Upper time bound of the timeline in seconds.
 	 */
 	getTimeBoundsOnTimeline() {
 		const zoomedDuration = Math.round(this.durationSeconds / this.zoomMultiplier);
@@ -306,9 +318,21 @@ class Timeline {
 
 		const timeToZoomAround = Math.round(this.durationSeconds * this.pixelsAlongTimelineToZoomAround / this.widthPixels);
 
-		if (timeToZoomAround < halfZoomedDuration) return [0, zoomedDuration];
-		else if (timeToZoomAround + halfZoomedDuration > this.durationSeconds) return [Math.round(this.durationSeconds - zoomedDuration), Math.ceil(this.durationSeconds)];
-		else return [timeToZoomAround - halfZoomedDuration, timeToZoomAround + halfZoomedDuration];
+		let lowerTimeBound;
+		let upperTimeBound;
+
+		if (timeToZoomAround < halfZoomedDuration) {
+			lowerTimeBound = 0;
+			upperTimeBound = zoomedDuration;
+		} else if (timeToZoomAround + halfZoomedDuration > this.durationSeconds) {
+			lowerTimeBound = Math.round(this.durationSeconds - zoomedDuration);
+			upperTimeBound = Math.ceil(this.durationSeconds)
+		} else {
+			lowerTimeBound = timeToZoomAround - halfZoomedDuration;
+			upperTimeBound = timeToZoomAround + halfZoomedDuration;
+		}
+
+		return { lowerTimeBound, upperTimeBound };
 	}
 
 	/**
@@ -317,9 +341,9 @@ class Timeline {
 	 * @returns {number} Gets the time in seconds represented by the point along the timeline.
 	 */
 	getTimeFromPixelsAlongTimeline(pixelsAlongTimeline) {
-		const [lowerBoundSeconds, upperBoundSeconds] = this.getTimeBoundsOnTimeline();
+		const { lowerTimeBound, upperTimeBound } = this.getTimeBoundsOnTimeline();
 
-		return Math.round((upperBoundSeconds - lowerBoundSeconds) * pixelsAlongTimeline / this.widthPixels) + lowerBoundSeconds;
+		return Math.round((upperTimeBound - lowerTimeBound) * pixelsAlongTimeline / this.widthPixels) + lowerTimeBound;
 	}
 
 	/**
