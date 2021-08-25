@@ -205,7 +205,7 @@ class Timeline {
 	 * 										mark: Added mark.
 	 * 										cut: Cut that existed over the point, and needed to be reduced. Null if none exists.
 	 */
-	addMarkToTimelineAtPoint(pixelsAlongTimeline) {
+	addMarkAtPoint(pixelsAlongTimeline) {
 		const time = this.getTimeFromPixelsAlongTimeline(pixelsAlongTimeline);
 
 		const existingMark = this._getMarkAtTime(time);
@@ -216,13 +216,26 @@ class Timeline {
 
 		this._marks[mark.seconds] = mark;
 
-		const cut = this._getCutOverTime(mark.seconds);
+		const cut = this.getCutOverTime(mark.seconds);
 
 		if (cut) { // need to end cut at mark
 			cut.out = mark.seconds;
 		}
 
 		return { mark, cut };
+	}
+
+	/**
+	 * Gets the cut that is over the time.
+	 * @param {number} seconds Time in seconds.
+	 * @returns {Cut} Cut that is over the time. If none exist, returns null.
+	 */
+	getCutOverTime(seconds) {
+		for (const cut of Object.values(this._cuts)) {
+			if (cut.isOverTime(seconds)) return cut;
+		}
+
+		return null;
 	}
 
 	/**
@@ -271,7 +284,7 @@ class Timeline {
 
 	/**
 	 * Gets the pixel bounds of the marks around a point.
-	 * @param {*} pixelsAlongTimeline Point on the timeline.
+	 * @param {number} pixelsAlongTimeline Point on the timeline.
 	 * @returns {{ leftBoundPixels: number, rightBoundPixels: number }} The upper and lower bounds of the marks around the point.
 	 * 																	leftBoundPixels: Left bound of the area. If no mark exists to the left, then 0.
 	 * 																	rightBoundPixels: Right bound of the area. If no mark exists to the right, then widthPixels.
@@ -360,19 +373,6 @@ class Timeline {
 	}
 
 	/**
-	 * Gets the cut that is over the time.
-	 * @param {number} seconds Time in seconds.
-	 * @returns {Cut} Cut that is over the time. If none exist, returns null.
-	 */
-	_getCutOverTime(seconds) {
-		for (const cut of Object.values(this._cuts)) {
-			if (cut.isOverTime(seconds)) return cut;
-		}
-
-		return null;
-	}
-
-	/**
 	 * Gets the cut that starts at a time.
 	 * @param {number} seconds Time in seconds.
 	 * @returns {Cut} Cut that starts at the time. If none exist, returns null.
@@ -394,6 +394,8 @@ class Timeline {
 
 		for (const mark of Object.values(this._marks)) {
 			const pixelsAlongTimelineOfMark = mark.getPixelsAlongTimeline();
+
+			if (pixelsAlongTimelineOfMark === null) continue;
 
 			if (pixelsAlongTimelineOfMark > pixelsAlongTimeline) {
 				if (earliestSeconds === null) earliestSeconds = mark.seconds;
@@ -419,6 +421,8 @@ class Timeline {
 
 		for (const mark of Object.values(this._marks)) {
 			const pixelsAlongTimelineOfMark = mark.getPixelsAlongTimeline();
+
+			if (pixelsAlongTimelineOfMark === null) continue;
 
 			if (pixelsAlongTimelineOfMark === pixelsAlongTimeline) return mark;
 			else if (pixelsAlongTimelineOfMark < pixelsAlongTimeline) {
@@ -467,20 +471,6 @@ class Timeline {
 		}
 
 		return previousMark;
-	}
-
-	/**
-	 * Gets the marks at a point on the timeline.
-	 * @param {number} pixelsAlongTimeline Point on the timeline.
-	 * @returns {Mark[]} Marks at the point on the timeline.
-	 */
-	_getMarksAtPoint(pixelsAlongTimeline) {
-		const marks = [];
-		for (const mark of Object.values(this._marks)) {
-			if (mark.getPixelsAlongTimeline() === pixelsAlongTimeline) marks.push(mark);
-		}
-
-		return marks;
 	}
 
 	/**
