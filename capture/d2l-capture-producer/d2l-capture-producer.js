@@ -483,7 +483,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			timelineMouseUp: (event) => {
 				const pixelsAlongTimeline = CaptureProducer._getPixelsAlongTimelineFromStageX(event.stageX);
 
-				const cut = this._timeline.addCutToTimelineAtPoint(pixelsAlongTimeline);
+				const cut = this._timeline.addCutAtPoint(pixelsAlongTimeline);
 
 				if (cut) this._addCutToStage(cut);
 			},
@@ -587,7 +587,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	_getSeekModeHandlers() {
 		const seek = event => {
 			if (this._video.duration > 0) {
-				const { lowerTimeBound, upperTimeBound } = this._timeline.getTimeBoundsOnTimeline();
+				const { lowerTimeBound, upperTimeBound } = this._timeline.getTimeBoundsOfTimeline();
 				const progress = event.localX / constants.TIMELINE_WIDTH;
 
 				this._mouseTime = (upperTimeBound - lowerTimeBound) * progress + lowerTimeBound;
@@ -948,7 +948,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			this._mouseTime = null;
 		}
 
-		const { lowerTimeBound, upperTimeBound } = this._timeline.getTimeBoundsOnTimeline();
+		const { lowerTimeBound, upperTimeBound } = this._timeline.getTimeBoundsOfTimeline();
 
 		const time = this._mouseTime || this._video.currentTime;
 
@@ -971,6 +971,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 		const zoomHandleValue = this._getZoomHandleValue();
 
+		// See US130745 for details on this calculation
 		this._zoomMultiplier = Math.max(Math.pow(Math.pow((2 * this._video.duration * constants.MARK_WIDTH / constants.TIMELINE_WIDTH), 1 / constants.ZOOM_HANDLE_MAX_DEPTH), zoomHandleValue), 1);
 
 		this._timeline.zoomMultiplier = this._zoomMultiplier;

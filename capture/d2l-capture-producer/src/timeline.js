@@ -29,7 +29,7 @@ class Cut {
 	 * @returns {boolean} Returns true if the cut is on the timeline. Otherwise, false.
 	 */
 	isOnTimeline() {
-		const { lowerTimeBound, upperTimeBound } = this.timeline.getTimeBoundsOnTimeline();
+		const { lowerTimeBound, upperTimeBound } = this.timeline.getTimeBoundsOfTimeline();
 
 		return this.in <= upperTimeBound && this.out > lowerTimeBound;
 	}
@@ -71,7 +71,7 @@ class Mark {
 	 * @returns {boolean} Returns true if the mark is on the timeline. Otherwise, false.
 	 */
 	isOnTimeline() {
-		const { lowerTimeBound, upperTimeBound } = this.timeline.getTimeBoundsOnTimeline();
+		const { lowerTimeBound, upperTimeBound } = this.timeline.getTimeBoundsOfTimeline();
 
 		return this.seconds >= lowerTimeBound && this.seconds <= upperTimeBound;
 	}
@@ -180,7 +180,7 @@ class Timeline {
 	 * @param {number} pixelsAlongTimeline Point on the timeline.
 	 * @returns {Cut} Newly created cut. If one already existed at the time, returns null.
 	 */
-	addCutToTimelineAtPoint(pixelsAlongTimeline) {
+	addCutAtPoint(pixelsAlongTimeline) {
 		const leftBoundingMark = this._getLatestMarkAtOrBeforePoint(pixelsAlongTimeline);
 		const inSeconds = leftBoundingMark ? leftBoundingMark.seconds : 0;
 
@@ -231,7 +231,7 @@ class Timeline {
 	 * @returns {Cut} Cut that is over the time. If none exist, returns null.
 	 */
 	getCutOverTime(seconds) {
-		for (const cut of Object.values(this._cuts)) {
+		for (const cut of this.getCuts()) {
 			if (cut.isOverTime(seconds)) return cut;
 		}
 
@@ -292,11 +292,15 @@ class Timeline {
 	getPixelBoundsAtPoint(pixelsAlongTimeline) {
 		const leftBoundMark = this._getLatestMarkAtOrBeforePoint(pixelsAlongTimeline);
 
-		const leftBoundPixels = leftBoundMark ? leftBoundMark.getPixelsAlongTimeline() : 0;
+		const leftBoundMarkPixelsAlongTimeline = leftBoundMark === null ? null : leftBoundMark.getPixelsAlongTimeline();
+
+		const leftBoundPixels = leftBoundMarkPixelsAlongTimeline === null ? 0 : leftBoundMarkPixelsAlongTimeline;
 
 		const rightBoundMark = this._getEarliestMarkAfterPoint(pixelsAlongTimeline);
 
-		const rightBoundPixels = rightBoundMark ? rightBoundMark.getPixelsAlongTimeline() : this.widthPixels;
+		const rightBoundMarkPixelsAlongTimeline = rightBoundMark === null ? null : rightBoundMark.getPixelsAlongTimeline();
+
+		const rightBoundPixels = rightBoundMarkPixelsAlongTimeline === null ? this.widthPixels : rightBoundMarkPixelsAlongTimeline;
 
 		return { leftBoundPixels, rightBoundPixels };
 	}
@@ -307,7 +311,7 @@ class Timeline {
 	 * @returns {number} Point along the timeline that represents the time.
 	 */
 	getPixelsAlongTimelineFromTime(seconds) {
-		const { lowerTimeBound, upperTimeBound } = this.getTimeBoundsOnTimeline();
+		const { lowerTimeBound, upperTimeBound } = this.getTimeBoundsOfTimeline();
 
 		if (seconds < lowerTimeBound || seconds > upperTimeBound) return null;
 
@@ -315,7 +319,7 @@ class Timeline {
 
 		const progress = (seconds - lowerTimeBound) / totalTimeOnTimeline;
 
-		return progress * this.widthPixels;
+		return Math.round(progress * this.widthPixels);
 	}
 
 	/**
@@ -324,7 +328,7 @@ class Timeline {
 	 * 																	lowerTimeBound: Lower time bound of the timeline in seconds.
 	 * 																	upperTimeBound: Upper time bound of the timeline in seconds.
 	 */
-	getTimeBoundsOnTimeline() {
+	getTimeBoundsOfTimeline() {
 		const zoomedDuration = Math.round(this.durationSeconds / this.zoomMultiplier);
 
 		const halfZoomedDuration = Math.ceil(zoomedDuration / 2);
@@ -354,7 +358,7 @@ class Timeline {
 	 * @returns {number} Gets the time in seconds represented by the point along the timeline.
 	 */
 	getTimeFromPixelsAlongTimeline(pixelsAlongTimeline) {
-		const { lowerTimeBound, upperTimeBound } = this.getTimeBoundsOnTimeline();
+		const { lowerTimeBound, upperTimeBound } = this.getTimeBoundsOfTimeline();
 
 		return Math.round((upperTimeBound - lowerTimeBound) * pixelsAlongTimeline / this.widthPixels) + lowerTimeBound;
 	}
@@ -389,21 +393,24 @@ class Timeline {
 	 * @returns {Mark} Earliest mark after the point on the timeline. If none exist, returns null.
 	 */
 	_getEarliestMarkAfterPoint(pixelsAlongTimeline) {
+		const time = this.getTimeFromPixelsAlongTimeline(pixelsAlongTimeline);
 		let earliestSeconds = null;
 		let closestMark = null;
 
 		for (const mark of Object.values(this._marks)) {
 			const pixelsAlongTimelineOfMark = mark.getPixelsAlongTimeline();
 
-			if (pixelsAlongTimelineOfMark === null) continue;
+			// Ignore marks off of the timeline, to the left of the timeline
+			if (pixelsAlongTimelineOfMark === null && mark.seconds < time) continue;
 
-			if (pixelsAlongTimelineOfMark > pixelsAlongTimeline) {
-				if (earliestSeconds === null) earliestSeconds = mark.seconds;
+			// Ignore marks on the timeline, at or to the left of the point
+			if (pixelsAlongTimelineOfMark !== null && pixelsAlongTimelineOfMark <= pixelsAlongTimeline) continue;
 
-				if (mark.seconds <= earliestSeconds) {
-					earliestSeconds = mark.seconds;
-					closestMark = mark;
-				}
+			if (earliestSeconds === null) earliestSeconds = mark.seconds;
+
+			if (mark.seconds <= earliestSeconds) {
+				earliestSeconds = mark.seconds;
+				closestMark = mark;
 			}
 		}
 
@@ -411,27 +418,29 @@ class Timeline {
 	}
 
 	/**
-	 * Gets the latest mark at or before a point on the timeline.
+	 * Gets the latest mark at or before a point.
 	 * @param {number} pixelsAlongTimeline Point on the timeline.
-	 * @returns {Mark} Latest mark at or before the point on the timeline. If none exist, returns null.
+	 * @returns {Mark} Latest mark at or before the point, and may be to the left of the timeline. If none exist, returns null.
 	 */
 	_getLatestMarkAtOrBeforePoint(pixelsAlongTimeline) {
+		const time = this.getTimeFromPixelsAlongTimeline(pixelsAlongTimeline);
 		let latestSeconds = null;
 		let closestMark = null;
 
 		for (const mark of Object.values(this._marks)) {
 			const pixelsAlongTimelineOfMark = mark.getPixelsAlongTimeline();
 
-			if (pixelsAlongTimelineOfMark === null) continue;
+			// Ignore marks off of the timeline, to the right of the timeline
+			if (pixelsAlongTimelineOfMark === null && mark.seconds > time) continue;
 
-			if (pixelsAlongTimelineOfMark === pixelsAlongTimeline) return mark;
-			else if (pixelsAlongTimelineOfMark < pixelsAlongTimeline) {
-				if (latestSeconds === null) latestSeconds = mark.seconds;
+			// Ignore marks on the timeline, to the right of the point
+			if (pixelsAlongTimelineOfMark !== null && pixelsAlongTimelineOfMark > pixelsAlongTimeline) continue;
 
-				if (mark.seconds >= latestSeconds) {
-					latestSeconds = mark.seconds;
-					closestMark = mark;
-				}
+			if (latestSeconds === null) latestSeconds = mark.seconds;
+
+			if (mark.seconds >= latestSeconds) {
+				latestSeconds = mark.seconds;
+				closestMark = mark;
 			}
 		}
 
