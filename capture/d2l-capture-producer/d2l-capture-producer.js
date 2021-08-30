@@ -1,7 +1,10 @@
+import '@brightspace-ui/core/components/tabs/tabs.js';
+import '@brightspace-ui/core/components/tabs/tab-panel.js';
 import '@brightspace-ui/core/components/button/button-icon.js';
 import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/colors/colors.js';
 import '@brightspace-ui-labs/media-player/media-player.js';
+import './src/d2l-video-producer-captions.js';
 import './src/d2l-video-producer-chapters.js';
 
 import { Container, Shape, Stage, Text } from '@createjs/easeljs';
@@ -156,15 +159,29 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 						controls
 						src="${this.src}"
 					></d2l-labs-media-player>
-					<d2l-video-producer-chapters
-						.chapters="${this.metadata && this.metadata.chapters}"
-						.defaultLanguage="${this.defaultLanguage}"
-						.selectedLanguage="${this.selectedLanguage}"
-						?loading="${this._loading}"
-						@add-new-chapter="${this._addNewChapter}"
-						@chapters-changed="${this._handleChaptersChanged}"
-						@set-chapter-to-current-time="${this._setChapterToCurrentTime}"
-					></d2l-video-producer-chapters>
+					<d2l-tabs>
+						<d2l-tab-panel
+							selected
+							no-padding
+							text=${this.localize('tableOfContents')}
+						>
+							<d2l-video-producer-chapters
+								.chapters="${this.metadata && this.metadata.chapters}"
+								.defaultLanguage="${this.defaultLanguage}"
+								.selectedLanguage="${this.selectedLanguage}"
+								?loading="${this._loading}"
+								@add-new-chapter="${this._addNewChapter}"
+								@chapters-changed="${this._handleChaptersChanged}"
+								@set-chapter-to-current-time="${this._setChapterToCurrentTime}"
+							></d2l-video-producer-chapters>
+						</d2l-tab-panel>
+						<d2l-tab-panel
+							no-padding
+							text=${this.localize('closedCaptions')}
+						>
+							<d2l-video-producer-captions></d2l-video-producer-captions>
+						</d2l-tab-panel>
+					</d2l-tabs>
 				</div>
 				<div class="d2l-video-producer-timeline">
 					<div id="canvas-container">

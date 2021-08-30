@@ -1,6 +1,7 @@
 export const val = {
 	addNewChapter: 'Add new chapter',
 	chapterTitle: 'Chapter title',
+	closedCaptions: 'Closed Captions',
 	cut: 'Cut',
 	delete: 'Delete',
 	editingOverrides: 'Editing language: {language}',
