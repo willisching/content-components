@@ -27,7 +27,7 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 			.d2l-video-producer-chapters {
 				border: 1px solid var(--d2l-color-mica);
 				box-sizing: border-box;
-				height: 580px;
+				height: 532px;
 				position: relative;
 				width: 360px;
 			}
@@ -44,7 +44,7 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 			.d2l-video-producer-chapters-container {
 				display: flex;
 				flex-direction: column;
-				height: 440px;
+				height: 423px;
 				overflow-y: scroll;
 				padding: 10px;
 				position: relative;
@@ -95,7 +95,6 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 		return html`
 			<div class="d2l-video-producer-chapters">
 				<h3 class="d2l-heading-3 d2l-video-producer-chapters-heading">
-					${this.localize('tableOfContents')}
 					<div class="d2l-body-small ${this._editingOverrides ? '' : 'hidden'}">
 						${this.localize('editingOverrides', { language: this.selectedLanguage && this.selectedLanguage.name })}
 					</div>
