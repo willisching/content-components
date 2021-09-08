@@ -1,6 +1,6 @@
 {
   "extends": "brightspace/lit-config",
-  "ignorePatterns": ["coverage/**/*"],
+  "ignorePatterns": ["coverage/**/*", "capture/d2l-capture-producer/scripts/*"],
   "parser": "@babel/eslint-parser",
   "parserOptions": {
     "requireConfigFile": false

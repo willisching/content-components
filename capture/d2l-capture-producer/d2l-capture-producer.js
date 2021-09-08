@@ -179,7 +179,10 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 							no-padding
 							text=${this.localize('closedCaptions')}
 						>
-							<d2l-video-producer-captions></d2l-video-producer-captions>
+							<d2l-video-producer-captions
+								.defaultLanguage="${this.defaultLanguage}"
+								.selectedLanguage="${this.selectedLanguage}"
+							></d2l-video-producer-captions>
 						</d2l-tab-panel>
 					</d2l-tabs>
 				</div>

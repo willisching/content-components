@@ -19,6 +19,10 @@ const constants = {
 	},
 	CANVAS_WIDTH: 985,
 
+	// Captions
+	MAX_CAPTIONS_UPLOAD_SIZE_IN_BYTES: 1024 * 1024 * 1024,
+	NUM_OF_VISIBLE_CAPTIONS_CUES: 50,
+
 	// Timeline
 	TIMELINE_HEIGHT_MIN: 30,
 	get TIMELINE_WIDTH() {
