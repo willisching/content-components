@@ -283,8 +283,14 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 	// <script> tags must be added via Javascript in LitElement.
 	// https://stackoverflow.com/a/55693185
 	_appendVttScript() {
+		// Using a relative path (e.g. './scripts/vtt.min.js') in the <script> tag
+		// won't work because the script is on a separate domain from the LMS page.
+		// So we need to construct the absolute URL to the vtt script.
+		const urlOfThisFile = new URL(import.meta.url);
+		const vttScriptUrlPrefix = urlOfThisFile.href.slice(0, urlOfThisFile.href.indexOf('src'));
+
 		const script = document.createElement('script');
-		script.src = '../scripts/vtt.min.js';
+		script.src = `${vttScriptUrlPrefix}scripts/vtt.min.js`;
 		return script;
 	}
 

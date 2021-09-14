@@ -5,6 +5,7 @@ import '@brightspace-ui/core/components/breadcrumbs/breadcrumbs.js';
 import '@brightspace-ui-labs/video-producer/src/video-producer.js';
 import '@brightspace-ui-labs/video-producer/src/video-producer-language-selector.js';
 import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
+import '../../../../../capture/d2l-capture-producer.js';
 
 import { css, html } from 'lit-element/lit-element.js';
 import { autorun } from 'mobx';
@@ -136,13 +137,13 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 					</d2l-button>
 				</div>
 
-				<d2l-labs-video-producer
+				<d2l-capture-producer
 					.defaultLanguage="${this._defaultLanguage}"
 					.metadata="${this._metadata}"
 					.selectedLanguage="${this._selectedLanguage}"
 					@metadata-changed="${this._handleMetadataChanged}"
 					src="${this._sourceUrl}"
-				></d2l-labs-video-producer>
+				></d2l-capture-producer>
 
 				<d2l-alert-toast type="${this.errorOccurred ? 'error' : 'default'}">
 					${this._alertMessage}
