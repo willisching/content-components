@@ -216,7 +216,8 @@ export default class ContentServiceClient {
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/metadata`,
 			method: 'PUT',
 			query: { draft },
-			body: metadata
+			body: metadata,
+			extractJsonBody: false // The PUT metadata route returns no content (status 204)
 		});
 	}
 

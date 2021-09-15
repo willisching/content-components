@@ -2,6 +2,9 @@ import '@brightspace-ui/core/components/alert/alert-toast.js';
 import '@brightspace-ui/core/components/breadcrumbs/breadcrumb.js';
 import '@brightspace-ui/core/components/breadcrumbs/breadcrumb-current-page.js';
 import '@brightspace-ui/core/components/breadcrumbs/breadcrumbs.js';
+import '@brightspace-ui/core/components/dialog/dialog-confirm.js';
+import '@brightspace-ui/core/components/dropdown/dropdown-button-subtle.js';
+import '@brightspace-ui/core/components/dropdown/dropdown-menu.js';
 import '@brightspace-ui-labs/video-producer/src/video-producer.js';
 import '@brightspace-ui-labs/video-producer/src/video-producer-language-selector.js';
 import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
@@ -21,13 +24,17 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 			_content: { type: String, attribute: false },
 			_defaultLanguage: { type: String, attribute: false },
 			_errorOccurred: { type: Boolean, attribute: false },
+			_finishing: { type: Boolean },
 			_languages: { type: String, attribute: false },
 			_loading: { type: Boolean, attribute: false },
 			_metadata: { type: Object, attribute: false },
-			_publishing: { type: Boolean },
+			_revisionIndexToLoad: { type: Number, attribute: false },
+			_revisionsLatestToOldest: { type: Object, attribute: false },
 			_saving: { type: Boolean },
 			_selectedLanguage: { type: String, attribute: false },
+			_selectedRevisionIndex: { type: Number, attribute: false },
 			_sourceUrl: { type: String, attribute: false },
+			_unsavedChanges: { type: String, attribute: false }
 		};
 	}
 
@@ -44,8 +51,12 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 				margin-bottom: 15px;
 			}
 
-			.d2l-capture-central-producer-controls-save-button {
+			d2l-labs-video-producer-language-selector {
 				margin-right: auto;
+			}
+
+			.d2l-capture-central-producer-controls-revision-dropdown {
+				margin-right: 10px;
 			}
 
 			.d2l-capture-central-producer-controls-publish-button {
@@ -76,6 +87,9 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 		super();
 		this._alertMessage = '';
 		this._errorOccurred = false;
+		this._revisionIndexToLoad = 0;
+		this._selectedRevisionIndex = 0;
+		this._unsavedChanges = false;
 	}
 
 	async connectedCallback() {
@@ -88,6 +102,9 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 			) {
 				this._loading = true;
 				this._content = await this.apiClient.getContent(this.rootStore.routingStore.params.id);
+				if (this._content?.revisions) {
+					this._revisionsLatestToOldest = this._content.revisions.slice().reverse();
+				}
 				this._sourceUrl = (await this.apiClient.getSignedUrl(this.rootStore.routingStore.params.id)).value;
 				this._setupLanguages();
 				this._metadata = await this.apiClient.getMetadata({
@@ -109,30 +126,42 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 			<div class="d2l-capture-central-producer">
 				${this._renderBreadcrumbs()}
 				<div class="d2l-capture-central-producer-controls">
-					<d2l-button-icon
-						?disabled="${this._saving || this._publishing}"
-						@click="${this._handleSave}"
-						class="d2l-capture-central-producer-controls-save-button"
-						icon="tier1:save"
-						primary
-						text="${this.localize('save')}"
-					></d2l-button-icon>
 					<d2l-labs-video-producer-language-selector
 						.languages="${this._languages}"
 						.selectedLanguage="${this._selectedLanguage}"
 						@selected-language-changed="${this._handleSelectedLanguageChanged}"
 					></d2l-labs-video-producer-language-selector>
+					<d2l-dropdown-button-subtle
+						class="d2l-capture-central-producer-controls-revision-dropdown"
+						text="${this.localize('revisionNumber', { number: (this._revisionsLatestToOldest ? this._revisionsLatestToOldest.length - this._selectedRevisionIndex : 1) })}"
+					>
+						<d2l-dropdown-menu
+							@d2l-menu-item-select="${this._handleSelectedRevisionChanged}"
+						>
+							<d2l-menu label="${this.localize('revisions')}">
+								${this._revisionsLatestToOldest ? this._revisionsLatestToOldest.map((revision, index) => html`<d2l-menu-item data-revision-index="${index}" text="${this.localize('revisionNumber', { number: this._revisionsLatestToOldest.length - index })}"></d2l-menu-item>`) : ''}
+							</d2l-menu>
+						</d2l-dropdown-menu>
+					</d2l-dropdown-button-subtle>
 					<d2l-button
-						?disabled="${this._saving || this._publishing}"
-						@click="${this._handlePublish}"
+						class="d2l-capture-central-producer-controls-save-button"
+						@click="${this._handleSave}"
+						?disabled="${this._saving || this._finishing}"
+						text="${this.localize('saveDraft')}"
+					>
+						${this.localize('saveDraft')}
+					</d2l-button>
+					<d2l-button
+						?disabled="${this._saving || this._finishing}"
+						@click="${this._handleFinish}"
 						class="d2l-capture-central-producer-controls-publish-button"
 						primary
-					><div class="d2l-capture-central-producer-controls-publishing" style="${!this._publishing ? 'display: none' : ''}">
+					><div class="d2l-capture-central-producer-controls-publishing" style="${!this._finishing ? 'display: none' : ''}">
 							<d2l-loading-spinner size="20"></d2l-loading-spinner>
-							${this.localize('publishing')}
+							${this.localize('finishing')}
 						</div>
-						<div ?hidden="${this._publishing}">
-							${this.localize('publish')}
+						<div ?hidden="${this._finishing}">
+							${this.localize('finish')}
 						</div>
 					</d2l-button>
 				</div>
@@ -148,6 +177,26 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 				<d2l-alert-toast type="${this.errorOccurred ? 'error' : 'default'}">
 					${this._alertMessage}
 				</d2l-alert-toast>
+
+				<d2l-dialog-confirm
+					class="d2l-capture-central-producer-dialog-confirm-revision-change"
+					text="${this.localize('confirmRevisionChangeWithUnsavedData')}"
+				>
+					<d2l-button
+						@click="${this._loadNewlySelectedRevision}"
+						data-dialog-action="yes"
+						slot="footer"
+					>
+						${this.localize('yes')}
+					</d2l-button>
+					<d2l-button
+						data-dialog-action="no"
+						primary
+						slot="footer"
+					>
+						${this.localize('no')}
+					</d2l-button>
+				</d2l-dialog-confirm>
 			</div>
 		`;
 	}
@@ -156,19 +205,15 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 		return this.shadowRoot.querySelector('d2l-labs-video-producer');
 	}
 
-	_handleMetadataChanged(e) {
-		this._metadata = e.detail;
-	}
-
-	async _handlePublish() {
-		this._publishing = true;
+	async _handleFinish() {
+		this._finishing = true;
 
 		await this.apiClient.updateMetadata({
 			contentId: this._content.id,
 			metadata: this._metadata,
 			revisionId: 'latest',
 		});
-		const { id, ...revision } = this._content.revisions[this._content.revisions.length - 1];
+		const { id, ...revision } = this._revisionsLatestToOldest[0];
 		let newRevision;
 		try {
 			newRevision = await this.apiClient.createRevision({
@@ -186,6 +231,7 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 				revisionId: newRevision.id,
 				body: { sourceRevisionId: id }
 			});
+			this._unsavedChanges = false;
 		} catch (error) {
 			if (newRevision) {
 				await this.apiClient.deleteRevision({
@@ -198,7 +244,12 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 			? this.localize('publishError')
 			: this.localize('publishSuccess');
 		this.shadowRoot.querySelector('d2l-alert-toast').open = true;
-		this._publishing = false;
+		this._finishing = false;
+	}
+
+	_handleMetadataChanged(e) {
+		this._metadata = e.detail;
+		this._unsavedChanges = true;
 	}
 
 	async _handleSave() {
@@ -210,6 +261,7 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 				metadata: this._metadata,
 				revisionId: 'latest',
 			});
+			this._unsavedChanges = false;
 		} catch (error) {
 			this._errorOccurred = true;
 		}
@@ -222,6 +274,32 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 
 	_handleSelectedLanguageChanged(e) {
 		this._selectedLanguage = e.detail.selectedLanguage;
+	}
+
+	async _handleSelectedRevisionChanged(e) {
+		const newlySelectedRevisionIndex = Number.parseInt(e.target.dataset.revisionIndex);
+		if (newlySelectedRevisionIndex === this._selectedRevisionIndex) {
+			return;
+		}
+		this._revisionIndexToLoad = newlySelectedRevisionIndex;
+		if (this._unsavedChanges) {
+			this.shadowRoot.querySelector('.d2l-capture-central-producer-dialog-confirm-revision-change').open();
+		} else {
+			this._loadNewlySelectedRevision();
+		}
+	}
+
+	async _loadNewlySelectedRevision() {
+		const revisionId = this._revisionsLatestToOldest[this._revisionIndexToLoad].id;
+		this._loading = true;
+		this._metadata = await this.apiClient.getMetadata({
+			contentId: this._content.id,
+			revisionId: revisionId,
+			draft: true
+		});
+		this._selectedRevisionIndex = this._revisionIndexToLoad;
+		this._loading = false;
+		this._unsavedChanges = false;
 	}
 
 	_renderBreadcrumbs() {
