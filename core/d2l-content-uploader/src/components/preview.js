@@ -3,12 +3,12 @@ import '@brightspace-ui/core/components/inputs/input-text.js';
 import '@brightspace-ui-labs/media-player/media-player.js';
 import { css, html, LitElement } from 'lit-element';
 import { bodyCompactStyles } from '@brightspace-ui/core/components/typography/styles.js';
-import { DependencyRequester } from '../mixins/dependency-requester-mixin';
+import { RequesterMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
 import { formatFileSize } from '@brightspace-ui/intl/lib/fileSize.js';
 import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
 
-export class Preview extends MobxReactionUpdate(DependencyRequester(InternalLocalizeMixin(LitElement))) {
+export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
 		return {
 			fileName: { type: String, attribute: 'file-name', reflect: true },
@@ -56,7 +56,7 @@ export class Preview extends MobxReactionUpdate(DependencyRequester(InternalLoca
 		super.connectedCallback();
 
 		if (this.resource) {
-			const client = this.requestDependency('content-service-client');
+			const client = this.requestInstance('content-service-client');
 			const { value } = await client.getSecureUrlByName(this.resource);
 			this._mediaSrc = value;
 		} else {

@@ -24,9 +24,9 @@ export class Uploader {
 
 		this.uploadProgress = 0;
 
-		this.uploadFile = flow((function * (file, title) {
+		this.uploadFile = flow((function * (file, title, captionLanguages) {
 			/* eslint-disable no-invalid-this */
-			yield this._uploadWorkflowAsync(file, title);
+			yield this._uploadWorkflowAsync(file, title, captionLanguages);
 			/* eslint-enable no-invalid-this */
 		}));
 	}
@@ -74,8 +74,9 @@ export class Uploader {
 		await this._monitorProgressAsync(this.content, this.revision);
 	}
 
-	async _uploadWorkflowAsync(file, title) {
+	async _uploadWorkflowAsync(file, title, captionLanguages) {
 		try {
+			const sourceLanguage = captionLanguages?.length && captionLanguages[0];
 			const extension = file.name.split('.').pop();
 			this.content = await this.apiClient.createContent();
 			this.revision = await this.apiClient.createRevision(
@@ -83,7 +84,8 @@ export class Uploader {
 				{
 					title,
 					extension,
-					formats: ['hd', 'mp3']
+					formats: ['hd', 'mp3'],
+					...(sourceLanguage && { sourceLanguage })
 				}
 			);
 
@@ -105,7 +107,8 @@ export class Uploader {
 
 			await this.apiClient.processRevision({
 				contentId: this.content.id,
-				revisionId: this.revision.id
+				revisionId: this.revision.id,
+				captionLanguages,
 			});
 
 			await this._monitorProgressAsync();

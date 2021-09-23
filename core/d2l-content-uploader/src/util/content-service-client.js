@@ -84,11 +84,13 @@ export default class ContentServiceClient {
 
 	processRevision({
 		contentId,
-		revisionId
+		revisionId,
+		captionLanguages,
 	}) {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/process`,
-			method: 'POST'
+			method: 'POST',
+			...(captionLanguages && { body: { captionLanguages } })
 		});
 	}
 

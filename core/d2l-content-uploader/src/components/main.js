@@ -1,6 +1,7 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import ContentServiceClient from '../util/content-service-client';
-import { DependencyProvider } from '../mixins/dependency-provider-mixin';
+import UserBrightspaceClient from '../util/user-brightspace-client.js';
+import { ProviderMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { Uploader } from '../state/uploader';
 
@@ -15,7 +16,7 @@ const VIEW = Object.freeze({
 	LOADING: 'LOADING'
 });
 
-export class Main extends MobxReactionUpdate(DependencyProvider(LitElement)) {
+export class Main extends MobxReactionUpdate(ProviderMixin(LitElement)) {
 	static get properties() {
 		return {
 			apiEndpoint: { type: String, attribute: 'api-endpoint' },
@@ -55,7 +56,10 @@ export class Main extends MobxReactionUpdate(DependencyProvider(LitElement)) {
 			endpoint: this.apiEndpoint,
 			tenantId: this.tenantId
 		});
-		this.provideDependency('content-service-client', apiClient);
+		this.provideInstance('content-service-client', apiClient);
+
+		const userBrightspaceClient = new UserBrightspaceClient();
+		this.provideInstance('user-brightspace-client', userBrightspaceClient);
 
 		this._uploader = new Uploader({
 			apiClient,
@@ -142,7 +146,7 @@ export class Main extends MobxReactionUpdate(DependencyProvider(LitElement)) {
 		this._fileSize = event.detail.file.size;
 		this._fileType = event.detail.file.type;
 		this._errorMessage = '';
-		this.startUpload();
+		this.startUpload({ captionLanguages: event.detail?.captionLanguages });
 	}
 
 	onUploadError(event) {
@@ -169,9 +173,9 @@ export class Main extends MobxReactionUpdate(DependencyProvider(LitElement)) {
 		this._currentView = VIEW.PREVIEW;
 	}
 
-	startUpload() {
+	startUpload({ captionLanguages }) {
 		this._currentView = VIEW.PROGRESS;
-		this._uploader.uploadFile(this._file, this._fileName);
+		this._uploader.uploadFile(this._file, this._fileName, captionLanguages);
 	}
 
 	updateValue(value) {

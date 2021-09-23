@@ -29,4 +29,7 @@ export const val = {
 	workerErrorUploadFailed: 'Upload failed',
 	workerErrorCancelUploadFailed: 'The upload could not be cancelled',
 	workerErrorZipFileCorrupted: 'The package zip file is corrupted',
+	selectALanguage: 'Select a Language...',
+	audioLanguageLabel: 'Audio Language:',
+	autoGenerateCaptionsFromAudio: 'Automatically generate captions from audio',
 };
