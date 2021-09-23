@@ -967,6 +967,11 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				body: { sourceRevisionId: id }
 			});
 			this._unsavedChanges = false;
+
+			// Load and display the newly-created revision.
+			this._revisionsLatestToOldest.unshift(newRevision);
+			this._revisionIndexToLoad = 0;
+			this._loadNewlySelectedRevision();
 		} catch (error) {
 			if (newRevision) {
 				await this.apiClient.deleteRevision({
@@ -976,8 +981,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			this._errorOccurred = true;
 		}
 		this._alertMessage = this._errorOccurred
-			? this.localize('publishError')
-			: this.localize('publishSuccess');
+			? this.localize('finishError')
+			: this.localize('finishSuccess');
 		this.shadowRoot.querySelector('d2l-alert-toast').open = true;
 		this._finishing = false;
 	}
