@@ -8,14 +8,16 @@ import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { inputStyles } from '@brightspace-ui/core/components/inputs/input-styles.js';
 import { InternalLocalizeMixin } from './internal-localize-mixin.js';
 import { labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
-import { formatTimestampText, parseSrtFile, parseWebVttFile }  from './captions-utils.js';
+import { formatTimestampText, convertSrtTextToVttText }  from './captions-utils.js';
 import constants from './constants.js';
 
 class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
-			captionsCue: { type: Object, attribute: 'captions-cue' },
-			expanded: { type: Boolean }
+			endTime: { type: String, attribute: 'end-time' },
+			expanded: { type: Boolean },
+			startTime: { type: String, attribute: 'start-time' },
+			text: { type: String, attribute: 'text' }
 		};
 	}
 
@@ -128,7 +130,7 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 							class="d2l-video-producer-captions-cue-start-timestamp"
 							label=${this.localize('captionsCueStartTimestamp')}
 							description=${this.localize('captionsCueStartTimestampDescription')}
-							value=${formatTimestampText(this.captionsCue.startTime)}
+							value=${formatTimestampText(this.startTime)}
 						></d2l-input-text>
 					</div>
 					<div class="d2l-video-producer-captions-cue-timestamp-container">
@@ -143,7 +145,7 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 							class="d2l-video-producer-captions-cue-end-timestamp"
 							label=${this.localize('captionsCueEndTimestamp')}
 							description=${this.localize('captionsCueEndTimestampDescription')}
-							value=${formatTimestampText(this.captionsCue.endTime)}
+							value=${formatTimestampText(this.endTime)}
 						></d2l-input-text>
 					</div>
 				</div>
@@ -158,7 +160,7 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 					class="d2l-input d2l-video-producer-captions-cue-text-input"
 					aria-label=${this.localize('captionsCueText')}
 					rows="2"
-				>${this.captionsCue.text}</textarea>
+				>${this.text}</textarea>
 				<div class="d2l-video-producer-captions-cue-main-controls-buttons">
 					<d2l-button-icon
 						text=${this.localize('deleteCaptionsCue')}
@@ -192,17 +194,25 @@ customElements.define('d2l-video-producer-captions-cues-list-item', CaptionsCueL
 class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
-			captionCues: { type: Object },
-			visibleCuesInList: { type: Object },
+			captions: { type: Object },
+			defaultLanguage: { type: Object },
+			loading: { type: Boolean },
+			selectedLanguage: { type: Object },
+
+			_numberOfVisibleCuesInList: { type: Number, attribute: false }
 		};
 	}
 
 	static get styles() {
 		return [ labelStyles, css`
 			.d2l-video-producer-captions {
+				align-items: center;
 				border: 1px solid var(--d2l-color-mica);
 				box-sizing: border-box;
+				display: flex;
+				flex-direction: column;
 				height: 532px;
+				justify-content: center;
 				position: relative;
 				width: 360px;
 			}
@@ -237,61 +247,53 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 
 	constructor() {
 		super();
-		this.captionCues = [];
-		this.visibleCuesInList = [];
-		this.intersectionObserver = null;
+		this.captions = [];
+		this._numberOfVisibleCuesInList = 0;
+		this.listBottomObserver = null;
 
-		this._updateVisibleCuesInList = this._updateVisibleCuesInList.bind(this);
-	}
-
-	async firstUpdated() {
-		const fileUploader = this.shadowRoot.querySelector('#file-uploader');
-		fileUploader.addEventListener('d2l-file-uploader-files-added', this._onFilesAdded.bind(this));
+		this._loadMoreVisibleCues = this._loadMoreVisibleCues.bind(this);
+		this._onFilesAdded = this._onFilesAdded.bind(this);
 	}
 
 	render() {
 		return html`
 			<div class="d2l-video-producer-captions">
-				${this.captionCues.length > 0 ? this._renderCuesList() : this._renderEmptyCaptionsMenu()}
+				${this._renderContent()}
 				<d2l-alert-toast
 					id="d2l-video-producer-captions-alert-toast"
 				></d2l-alert-toast>
 			</div>
-			${this._appendVttScript()}
 		`;
 	}
 
 	updated(changedProperties) {
 		changedProperties.forEach((oldValue, propName) => {
-			if (propName === 'captionCues') {
-				if (oldValue && oldValue.length === 0 && this.captionCues.length > 0) {
-					const options = {
-						root: this.shadowRoot.querySelector('.d2l-video-producer-captions-cues-list'),
-						rootMargin: '0px',
-						threshold: 0.1,
-					};
-					const listBottom = this.shadowRoot.querySelector('.d2l-video-producer-captions-cues-list-bottom');
-					this.intersectionObserver = new IntersectionObserver(this._updateVisibleCuesInList, options);
-					this.intersectionObserver.observe(listBottom);
-				} else if (this.intersectionObserver && oldValue.length > 0 && this.captionCues.length === 0) {
-					this.intersectionObserver.disconnect();
-				}
+			if (propName === 'captions') {
+				this._updateLazyLoadForCaptionsCuesList(oldValue);
+				this._updateNumberOfVisibleCuesInList();
 			}
 		});
 	}
 
-	// <script> tags must be added via Javascript in LitElement.
-	// https://stackoverflow.com/a/55693185
-	_appendVttScript() {
-		// Using a relative path (e.g. './scripts/vtt.min.js') in the <script> tag
-		// won't work because the script is on a separate domain from the LMS page.
-		// So we need to construct the absolute URL to the vtt script.
-		const urlOfThisFile = new URL(import.meta.url);
-		const vttScriptUrlPrefix = urlOfThisFile.href.slice(0, urlOfThisFile.href.indexOf('src'));
+	_dispatchCaptionsUploaded(vttString) {
+		this.dispatchEvent(new CustomEvent('captions-uploaded', {
+			detail: { vttString },
+			composed: false
+		}));
+	}
 
-		const script = document.createElement('script');
-		script.src = `${vttScriptUrlPrefix}scripts/vtt.min.js`;
-		return script;
+	_loadMoreVisibleCues(intersectionEntries) {
+		intersectionEntries.forEach(entry => {
+			if (entry.isIntersecting) {
+				if (this._numberOfVisibleCuesInList === 0) {
+					this._numberOfVisibleCuesInList = constants.NUM_OF_VISIBLE_CAPTIONS_CUES;
+				} else {
+					if (this._numberOfVisibleCuesInList < this.captions.length - 1) {
+						this._numberOfVisibleCuesInList += constants.NUM_OF_VISIBLE_CAPTIONS_CUES;
+					}
+				}
+			}
+		});
 	}
 
 	_onFilesAdded(event) {
@@ -309,18 +311,16 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 			const fileReader = new FileReader();
 			fileReader.addEventListener('load', event => {
 				try {
-					if (extension === 'srt') {
-						this.captionCues = parseSrtFile(event.target.result);
+					if (extension === 'vtt') {
+						this._dispatchCaptionsUploaded(event.target.result);
 					} else {
-						const vttLibrary = window.WebVTT;
-						const vttParser = new vttLibrary.Parser(window, vttLibrary.StringDecoder());
-						this.captionCues = parseWebVttFile(vttParser, event.target.result);
+						const vttText = convertSrtTextToVttText(event.target.result);
+						this._dispatchCaptionsUploaded(vttText);
 					}
 				} catch (error) {
 					this._openAlertToast({type: 'critical', text: this.localize(error.message) });
 					return;
 				}
-				this.visibleCuesInList = this.captionCues.slice(0, constants.NUM_OF_VISIBLE_CAPTIONS_CUES);
 			});
 			fileReader.addEventListener('error', () => {
 				this._openAlertToast({type: 'critical', text: this.localize('captionsReadError') });
@@ -336,12 +336,24 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 		alertToast.innerText = text;
 	}
 
+	_renderContent() {
+		if (this.loading) {
+			return this._renderLoadingIndicator();
+		} else if (this.captions.length === 0) {
+			return this._renderEmptyCaptionsMenu();
+		} else {
+			return this._renderCuesList();
+		}
+	}
+
 	_renderCuesList() {
 		return html`
 			<div class="d2l-video-producer-captions-cues-list">
-				${this.visibleCuesInList.map(captionCue => html`
+				${[...Array(Math.min(this._numberOfVisibleCuesInList, this.captions.length)).keys()].map(index => html`
 					<d2l-video-producer-captions-cues-list-item
-						captions-cue=${JSON.stringify(captionCue)}
+						start-time="${this.captions[index].startTime}"
+						end-time="${this.captions[index].endTime}"
+						text="${this.captions[index].text}"
 					></d2l-video-producer-captions-cues-list-item>
 				`)}
 				<div class="d2l-video-producer-captions-cues-list-bottom"></div>
@@ -354,22 +366,42 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 			<div class="d2l-video-producer-empty-captions-menu">
 				<p class="d2l-label-text">${this.localize('uploadSrtWebVttFile')}</p>
 				<d2l-labs-file-uploader
-					id="file-uploader"
+					@d2l-file-uploader-files-added="${this._onFilesAdded}"
 					label=${this.localize('browseForCaptionsFile')}>
 				</d2l-labs-file-uploader>
 			</div>
 		`;
 	}
 
-	_updateVisibleCuesInList(entries) {
-		entries.forEach(entry => {
-			if (entry.isIntersecting) {
-				const lastVisibleCueIndex = this.visibleCuesInList.length - 1;
-				if (lastVisibleCueIndex < this.captionCues.length - 1) {
-					this.visibleCuesInList = [...this.visibleCuesInList, ...this.captionCues.slice(lastVisibleCueIndex, lastVisibleCueIndex + constants.NUM_OF_VISIBLE_CAPTIONS_CUES)];
-				}
-			}
-		});
+	_renderLoadingIndicator() {
+		return html`<d2l-loading-spinner size="150"></d2l-loading-spinner>`;
+	}
+
+	_resetVisibleCuesInList() {
+		this.visibleCuesInList = this.captions.slice(0, constants.NUM_OF_VISIBLE_CAPTIONS_CUES);
+	}
+
+	_updateLazyLoadForCaptionsCuesList(oldCaptionsValue) {
+		if (!this.loading && oldCaptionsValue && oldCaptionsValue.length === 0 && this.captions.length > 0) {
+			const options = {
+				root: this.shadowRoot.querySelector('.d2l-video-producer-captions-cues-list'),
+				rootMargin: '0px',
+				threshold: 0.1,
+			};
+			const listBottom = this.shadowRoot.querySelector('.d2l-video-producer-captions-cues-list-bottom');
+			this.listBottomObserver = new IntersectionObserver(this._loadMoreVisibleCues, options);
+			this.listBottomObserver.observe(listBottom);
+		} else if (this.listBottomObserver && oldCaptionsValue && oldCaptionsValue.length > 0 && this.captions.length === 0) {
+			this.listBottomObserver.disconnect();
+		}
+	}
+
+	_updateNumberOfVisibleCuesInList() {
+		if ((this.captions.length > 0) && (this._numberOfVisibleCuesInList === 0)) {
+			this._numberOfVisibleCuesInList = constants.NUM_OF_VISIBLE_CAPTIONS_CUES;
+		} else if (this.captions.length < this._numberOfVisibleCuesInList) {
+			this._numberOfVisibleCuesInList = this.captions.length;
+		}
 	}
 }
 

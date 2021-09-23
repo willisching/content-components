@@ -36,16 +36,19 @@ let selectedLanguage = { code: 'fr-fr', name: 'French' };
 const metadata = { cuts: [], chapters: [] };
 const handleMetadataChanged = e => (metadata = e.detail);
 
+const contentServiceEndpoint = 'http://content-service-staging.brightspace.d2l.com';
+const tenantId = '0840bb02-1f06-431d-9ae8-70c18a4dbf6b';
+const contentId='c2c54ba6-845c-4711-8aa3-2af37827b344';
+const revisionId='51aa69b0-5eae-4f11-87b8-b30903c7df69';
+
 class MyComponent {
 	// ...
 	render() {
 		return html`
 			<d2l-capture-producer
-				.defaultLanguage="${defaultLanguage}"
-				.metadata="${metadata}"
-				.selectedLanguage="${selectedLanguage}"
-				@metadata-changed="${handleMetadataChanged}"
-				src="..."
+				.endpoint="${contentServiceEndpoint}"
+				.tenant-id="${tenantId}"
+				.content-id="${contentId}"
 			></d2l-capture-producer>
 		`;
 	}
@@ -57,16 +60,9 @@ class MyComponent {
 | Property | Type | Description |
 |--|--|--|
 | src | String | Source of the video file. |
-| .defaultLanguage | Object | An object representing the default language. Should have two properties: `code` and `name`. |
-| .selectedLanguage | Object | An object representing the currently selected language. Should have two properties: `code` and `name`. |
-| .metadata | Array | Object containing the cuts and chapters of the video. |
-
-**Events:**
-
-| Event | Description |
-|--|--|
-| @metadata-changed | Fired when the metadata has changed. This occurs whenever cuts/chapters are added/deleted, and chapter titles/times are updated. |
-
+| .endpoint | String | API endpoint URL for Content Service. |
+| .tenant-id | String | ID of the Brightspace tenant that owns the audio/video content. |
+| .content-id | String | ID of the audio/video content object. |
 
 ## `video-producer-language-selector`
 
@@ -80,12 +76,14 @@ const languages = [
 ];
 let selectedLanguage = { code: 'fr-fr', name: 'French' };
 const handleSelectedLanguageChanged = e => (selectedLanguage = e.detail.selectedLanguage);
+const disabled = false;
 
 class MyComponent {
 	// ...
 	render() {
 		return html`
 			<d2l-video-producer-language-selector
+				?disabled="${disabled}"
 				.languages="${languages}"
 				.selectedLanguage="${selectedLanguage}"
 				@selected-language-changed="${handleSelectedLanguageChanged}"
@@ -101,6 +99,7 @@ class MyComponent {
 |--|--|--|
 | .languages | Object | An array of objects representing the available languages to select. Each language object should have two properties: `code` and `name`. |
 | .selectedLanguage | Object | An object representing the currently selected language. Should have two properties: `code` and `name`. |
+| .disabled | Boolean | Enables or disables the language dropdown button. |
 
 **Events:**
 

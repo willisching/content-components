@@ -6,6 +6,7 @@ import { InternalLocalizeMixin } from './internal-localize-mixin.js';
 class VideoProducerLanguageSelector extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
+			disabled: { type: Boolean },
 			languages: { type: Array },
 			selectedLanguage: { type: Object },
 		};
@@ -13,6 +14,7 @@ class VideoProducerLanguageSelector extends InternalLocalizeMixin(LitElement) {
 
 	constructor() {
 		super();
+		this.disabled = false;
 		this.languages = null;
 		this.selectedLanguage = null;
 	}
@@ -34,7 +36,7 @@ class VideoProducerLanguageSelector extends InternalLocalizeMixin(LitElement) {
 		};
 
 		return html`
-			<d2l-dropdown-button-subtle text="${this.selectedLanguage.name}">
+			<d2l-dropdown-button-subtle ?disabled="${this.disabled}" text="${this.selectedLanguage.name}">
 				<d2l-dropdown-menu id="dropdown">
 					<d2l-menu label="${this.localize('languages')}">
 						${this.languages.map(language => html`

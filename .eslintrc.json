@@ -1,6 +1,6 @@
 {
   "extends": "brightspace/lit-config",
-  "ignorePatterns": ["coverage/**/*", "capture/d2l-capture-producer/scripts/*"],
+  "ignorePatterns": ["coverage/**/*", "capture/d2l-capture-producer/src/node-vtt-compiler.js"],
   "parser": "@babel/eslint-parser",
   "parserOptions": {
     "requireConfigFile": false

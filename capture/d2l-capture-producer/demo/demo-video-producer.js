@@ -93,11 +93,6 @@ class DemoVideoProducer extends LitElement {
 				</div>
 
 				<d2l-capture-producer
-					.defaultLanguage="${this.defaultLanguage}"
-					.metadata="${this.metadata}"
-					.selectedLanguage="${this.selectedLanguage}"
-					@metadata-changed="${this._handleMetadataChanged}"
-					src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
 				></d2l-capture-producer>
 
 				<d2l-alert-toast type="default">

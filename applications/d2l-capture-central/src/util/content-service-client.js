@@ -67,17 +67,6 @@ export default class ContentServiceClient {
 		});
 	}
 
-	getMetadata({ contentId, revisionId, draft = false }) {
-		const headers = new Headers();
-		headers.append('pragma', 'no-cache');
-		headers.append('cache-control', 'no-cache');
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/metadata`,
-			query: { draft },
-			headers
-		});
-	}
-
 	getPreviewUrl({
 		contentId,
 		revisionId
@@ -208,16 +197,6 @@ export default class ContentServiceClient {
 			path: `/api/${this.tenantId}/content/${id}`,
 			method: 'PUT',
 			body
-		});
-	}
-
-	updateMetadata({ contentId, revisionId, draft = false, metadata }) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/metadata`,
-			method: 'PUT',
-			query: { draft },
-			body: metadata,
-			extractJsonBody: false // The PUT metadata route returns no content (status 204)
 		});
 	}
 
