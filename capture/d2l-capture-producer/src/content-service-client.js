@@ -15,6 +15,15 @@ export default class ContentServiceClient {
 		this.onUploadProgress = onUploadProgress;
 	}
 
+	createRevision({ contentId, body, sourceRevisionId }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions`,
+			method: 'POST',
+			body,
+			query: { sourceRevisionId }
+		});
+	}
+
 	deleteMetadata({ contentId, revisionId, draft = false }) {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/metadata`,
