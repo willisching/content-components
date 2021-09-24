@@ -51,6 +51,10 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 				background-color: var(--d2l-color-gypsum);
 				border: 2px dashed var(--d2l-color-feedback-error);
 			}
+			.file-drop-content-container {
+				text-align: center;
+				margin: 1.5rem 0;
+			}
 			#file-select {
 				display: none;
 			}
@@ -106,7 +110,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 		return html`
 			<div class="upload-container">
 				<file-drop @filedrop=${this.onFileDrop} accept=${this._supportedMimeTypes.join(',')}>
-					<center>
+					<div class="file-drop-content-container">
 						<h2 class="d2l-heading-2">${this.localize('dropAudioVideoFile')}</h2>
 						<p class="d2l-body-standard">${this.localize('or')}</p>
 						<d2l-button
@@ -122,8 +126,8 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 							/>
 						</d2l-button>
 						<p id="file-size-limit" class="d2l-body-small">${this.localize('fileLimit1Gb')}</p>
-						<p id="error-message" class="d2l-body-compact">${this.errorMessage}&nbsp;</p>
-					</center>
+						${this.errorMessage ? html`<p id="error-message" class="d2l-body-compact">${this.errorMessage}&nbsp;</p>` : ''}
+					</div>
 				</file-drop>
 				<div class="upload-options-container">
 					${this._renderAutoCaptionsOption()}
