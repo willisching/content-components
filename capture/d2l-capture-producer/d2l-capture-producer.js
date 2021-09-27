@@ -926,7 +926,13 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._captionsLoading = true;
 		this._unsavedChanges = true;
 		const localVttUrl = window.URL.createObjectURL(new Blob([e.detail.vttString], { type: 'text/vtt' }));
-		this._captionsUrl = localVttUrl;
+		// Media Player's onSlotChange might not execute if the <track> slot's attributes change.
+		// To force it to execute, we need to temporarily remove the slot and re-add it.
+		// In render(), we hide the <track> slot when _captionsUrl is falsy.
+		this._captionsUrl = '';
+		setTimeout(() => {
+			this._captionsUrl = localVttUrl;
+		}, 500);
 	}
 
 	_handleChaptersChanged(e) {
