@@ -18,6 +18,7 @@ import { autorun } from 'mobx';
 import constants from './src/constants.js';
 import ContentServiceClient from './src/content-service-client.js';
 import { InternalLocalizeMixin } from './src/internal-localize-mixin.js';
+import { labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';
 import { styleMap } from 'lit-html/directives/style-map';
@@ -47,7 +48,6 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			_revisionsLatestToOldest: { type: Object, attribute: false },
 			_saving: { type: Boolean, attribute: false },
 			_selectedLanguage: { type: Object, attribute: false },
-			_selectedRevisionIndex: { type: Number, attribute: false },
 			_src: { type: String, attribute: false },
 			_unsavedChanges: { type: String, attribute: false },
 			_videoLoaded: { type: Boolean, attribute: false },
@@ -57,7 +57,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	static get styles() {
-		return [selectStyles, css`
+		return [labelStyles, selectStyles, css`
 			.d2l-video-producer-loading-container {
 				align-items: center;
 				display: flex;
@@ -78,6 +78,17 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 			d2l-video-producer-language-selector {
 				margin-right: auto;
+			}
+
+			.d2l-video-producer-saved-unsaved-indicator-container {
+				align-items: center;
+				display: flex;
+				flex-direction: row;
+				margin-right: 15px;
+			}
+
+			.d2l-video-producer-saved-unsaved-indicator-icon {
+				margin-left: 5px;
 			}
 
 			.d2l-video-producer-controls-revision-dropdown {
@@ -166,7 +177,6 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		super();
 
 		this._revisionIndexToLoad = 0;
-		this._selectedRevisionIndex = 0;
 		this._unsavedChanges = false;
 
 		this._alertMessage = '';
@@ -263,16 +273,17 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 						.selectedLanguage="${this._selectedLanguage}"
 						@selected-language-changed="${this._handleSelectedLanguageChanged}"
 					></d2l-video-producer-language-selector>
+					${this._renderSavedUnsavedIndicator()}
 					<d2l-dropdown-button-subtle
 						class="d2l-video-producer-controls-revision-dropdown"
 						?disabled="${this._saving || this._finishing}"
-						text="${this.localize('revisionNumber', { number: (this._revisionsLatestToOldest ? this._revisionsLatestToOldest.length - this._selectedRevisionIndex : 1) })}"
+						text="${this.localize('copyFromPastRevision')}"
 					>
 						<d2l-dropdown-menu
 							@d2l-menu-item-select="${this._handleSelectedRevisionChanged}"
 						>
 							<d2l-menu label="${this.localize('revisions')}">
-								${this._revisionsLatestToOldest ? this._revisionsLatestToOldest.map((revision, index) => html`<d2l-menu-item data-revision-index="${index}" text="${this.localize('revisionNumber', { number: this._revisionsLatestToOldest.length - index })}"></d2l-menu-item>`) : ''}
+								${this._renderRevisionsDropdownItems()}
 							</d2l-menu>
 						</d2l-dropdown-menu>
 					</d2l-dropdown-button-subtle>
@@ -359,8 +370,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 						${this._alertMessage}
 					</d2l-alert-toast>
 					<d2l-dialog-confirm
-						class="d2l-video-producer-dialog-confirm-revision-change"
-						text="${this.localize('confirmRevisionChangeWithUnsavedData')}"
+						class="d2l-video-producer-dialog-confirm-copy-from-revision"
+						text="${this.localize('confirmOverwriteFromPastRevision')}"
 					>
 						<d2l-button
 							@click="${this._loadNewlySelectedRevision}"
@@ -972,12 +983,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				revisionId: newRevision.id,
 				body: { sourceRevisionId: id }
 			});
-			this._unsavedChanges = false;
-
-			// Load and display the newly-created revision.
 			this._revisionsLatestToOldest.unshift(newRevision);
-			this._revisionIndexToLoad = 0;
-			this._loadNewlySelectedRevision();
+			this._unsavedChanges = false;
 		} catch (error) {
 			if (newRevision) {
 				await this.apiClient.deleteRevision({
@@ -1026,12 +1033,9 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 	async _handleSelectedRevisionChanged(e) {
 		const newlySelectedRevisionIndex = Number.parseInt(e.target.dataset.revisionIndex);
-		if (newlySelectedRevisionIndex === this._selectedRevisionIndex) {
-			return;
-		}
 		this._revisionIndexToLoad = newlySelectedRevisionIndex;
 		if (this._unsavedChanges) {
-			this.shadowRoot.querySelector('.d2l-video-producer-dialog-confirm-revision-change').open();
+			this.shadowRoot.querySelector('.d2l-video-producer-dialog-confirm-copy-from-revision').open();
 		} else {
 			this._loadNewlySelectedRevision();
 		}
@@ -1109,8 +1113,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		const revisionId = this._revisionsLatestToOldest[this._revisionIndexToLoad].id;
 		this._loadMetadata(revisionId);
 		this._loadCaptions(revisionId, this._selectedLanguage.code);
-		this._selectedRevisionIndex = this._revisionIndexToLoad;
-		this._unsavedChanges = false;
+		this._unsavedChanges = true;
 	}
 
 	_moveContentMarker(event) {
@@ -1194,6 +1197,40 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._zoomHandle.graphics.clear().beginFill(newZoomHandleColour).drawRect(0, 0, constants.ZOOM_HANDLE_WIDTH, constants.ZOOM_HANDLE_HEIGHT);
 
 		this._updateVideoTime();
+	}
+
+	_renderRevisionsDropdownItems() {
+		if (this._revisionsLatestToOldest) {
+			return this._revisionsLatestToOldest.map((revision, index) => {
+				let label;
+				if (index === 0) {
+					label = this.localize('currentDraft');
+				} else {
+					label = `${this.localize('revisionNumber', { number: this._revisionsLatestToOldest.length - index })}`;
+				}
+				return html`<d2l-menu-item data-revision-index="${index}" text="${label}"></d2l-menu-item>`;
+			});
+		} else {
+			return '';
+		}
+	}
+
+	_renderSavedUnsavedIndicator() {
+		let feedbackColor = 'var(--d2l-color-feedback-success)';
+		let icon = 'tier1:check-circle';
+		let langterm = 'saved';
+		if (this._unsavedChanges) {
+			feedbackColor = 'var(--d2l-color-feedback-warning)';
+			icon = 'tier1:alert';
+			langterm = 'unsaved';
+		}
+		return html`
+		  <div class="d2l-video-producer-saved-unsaved-indicator-container">
+			<p class="d2l-label-text" style="color: ${feedbackColor};">
+				${this.localize(langterm)}
+			</p>
+			<d2l-icon class="d2l-video-producer-saved-unsaved-indicator-icon" icon="${icon}" style="color: ${feedbackColor};"></d2l-icon>
+		  </div>`;
 	}
 
 	_resetTimelineWithNewCuts(cuts) {
