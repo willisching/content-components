@@ -64,6 +64,12 @@ class MyComponent {
 | .tenant-id | String | ID of the Brightspace tenant that owns the audio/video content. |
 | .content-id | String | ID of the audio/video content object. |
 
+**Events:**
+
+| Event | Description |
+|--|--|
+| @content-loaded | Fired when the content specified by contentId has been loaded. event.details contains a "content" object possessing the properties of the content object. |
+
 ## `video-producer-language-selector`
 
 ### Usage
