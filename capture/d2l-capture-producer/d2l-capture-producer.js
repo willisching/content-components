@@ -672,15 +672,6 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	//#endregion
-	_fireCaptionsChangedEvent(detail) {
-		this.dispatchEvent(new CustomEvent(
-			'captions-changed',
-			{
-				composed: false,
-				detail
-			}
-		));
-	}
 
 	_fireContentLoadedEvent(content) {
 		this.dispatchEvent(new CustomEvent(
