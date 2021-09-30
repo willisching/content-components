@@ -226,6 +226,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 		autorun(async() => {
 			this._content = await this.apiClient.getContent(this.contentId);
+			this._fireContentLoadedEvent(this._content);
 			if (this._content?.revisions) {
 				this._revisionsLatestToOldest = this._content.revisions.slice().reverse();
 			}
@@ -677,6 +678,16 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			{
 				composed: false,
 				detail
+			}
+		));
+	}
+
+	_fireContentLoadedEvent(content) {
+		this.dispatchEvent(new CustomEvent(
+			'content-loaded',
+			{
+				composed: false,
+				detail: { content }
 			}
 		));
 	}
