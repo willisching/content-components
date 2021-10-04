@@ -29,4 +29,7 @@ export const val = {
 	workerErrorUploadFailed: 'فشل التحميل',
 	workerErrorCancelUploadFailed: 'تعذر إلغاء التحميل',
 	workerErrorZipFileCorrupted: 'إن ملف الحزمة المضغوط تالف',
+	selectALanguage: 'تحديد لغة...',
+	audioLanguageLabel: 'Audio Language:',
+	autoGenerateCaptionsFromAudio: 'Automatically generate captions from audio',
 };

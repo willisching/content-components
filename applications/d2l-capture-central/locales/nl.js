@@ -45,6 +45,7 @@ export const val = {
 	exportAsCsv: 'Exporteer als een lijst met door komma\'s gescheiden waarden.',
 	filterCount: '{count, plural, =0 {Filter} =1 {filter ({count})} other {filters ({count})}}',
 	finish: 'Voltooien',
+	finishing: 'Voltooien…',
 	folder: 'Map',
 	folders: 'Mappen',
 	format: 'Indeling',

@@ -45,6 +45,7 @@ export const val = {
 	exportAsCsv: 'Eksportér som en liste med kommaseparerede værdier.',
 	filterCount: '{count, plural, =0 {Filter} =1 {Filter ({count})} other {Filtre ({count})}}',
 	finish: 'Afslut',
+	finishing: 'Afslutter…',
 	folder: 'Mappe',
 	folders: 'Mapper',
 	format: 'Format',

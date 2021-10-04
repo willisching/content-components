@@ -45,6 +45,7 @@ export const val = {
 	exportAsCsv: '쉼표로 구분된 값의 목록으로 내보내기',
 	filterCount: '{count, plural, =0 {필터} =1 {({count})개 필터} other {({count})}개 필터}',
 	finish: '완료',
+	finishing: '완료 중...',
 	folder: '폴더',
 	folders: '폴더',
 	format: '형식',

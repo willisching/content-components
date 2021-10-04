@@ -45,6 +45,7 @@ export const val = {
 	exportAsCsv: '导出逗号分隔值列表。',
 	filterCount: '{count, plural, =0 {Filter} =1 {Filter ({次数})} other {Filters ({次数})}}',
 	finish: '完成',
+	finishing: '即将完成…',
 	folder: '文件夹',
 	folders: '文件夹',
 	format: '格式',

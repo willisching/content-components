@@ -45,6 +45,7 @@ export const val = {
 	exportAsCsv: '匯出為逗點分隔值列表。',
 	filterCount: '{count, plural, =0 {篩選器} =1 {篩選器 ({count})} other {篩選器 ({count})}}',
 	finish: '結束',
+	finishing: '正在完成…',
 	folder: '資料夾',
 	folders: '資料夾',
 	format: '格式',

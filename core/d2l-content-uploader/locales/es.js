@@ -29,4 +29,7 @@ export const val = {
 	workerErrorUploadFailed: 'Error en la carga',
 	workerErrorCancelUploadFailed: 'No se pudo cancelar la carga',
 	workerErrorZipFileCorrupted: 'El paquete zip está dañado',
+	selectALanguage: 'Seleccione un idioma…',
+	audioLanguageLabel: 'Audio Language:',
+	autoGenerateCaptionsFromAudio: 'Automatically generate captions from audio',
 };

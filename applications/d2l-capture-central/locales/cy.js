@@ -45,6 +45,7 @@ export const val = {
 	exportAsCsv: 'Allforio fel rhestr o werthoedd sydd wedi’u gwahanu gan goma.',
 	filterCount: '{count, plural, =0 {Hidydd} =1 {Hidlydd ({count})} other {Hidlydd ({count})}}',
 	finish: 'Gorffen',
+	finishing: 'Wrthi\'n gorffen…',
 	folder: 'Ffolder',
 	folders: 'Ffolderi',
 	format: 'Fformat',

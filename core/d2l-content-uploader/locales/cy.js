@@ -29,4 +29,7 @@ export const val = {
 	workerErrorUploadFailed: 'Methodd y broses lanlwytho',
 	workerErrorCancelUploadFailed: 'Ni ellid canslo\'r uwchlwythiad',
 	workerErrorZipFileCorrupted: 'Mae ffeil sip y pecyn wedi’i llygru',
+	selectALanguage: 'Dewiswch iaith...',
+	audioLanguageLabel: 'Audio Language:',
+	autoGenerateCaptionsFromAudio: 'Automatically generate captions from audio',
 };
