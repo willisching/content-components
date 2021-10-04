@@ -45,6 +45,7 @@ export const val = {
 	exportAsCsv: 'Exportar como una lista de valores separados por coma.',
 	filterCount: '{count, plural, =0 {Filtro} =1 {Filtro ({count})} other {Filtros ({count})}}',
 	finish: 'Finalizar',
+	finishing: 'Finalizando…',
 	folder: 'Carpeta',
 	folders: 'Carpetas',
 	format: 'Formato',

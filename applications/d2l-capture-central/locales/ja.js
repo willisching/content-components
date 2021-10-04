@@ -45,6 +45,7 @@ export const val = {
 	exportAsCsv: 'カンマ区切り値のリストとしてエクスポートします。',
 	filterCount: '{count, plural, =0 {フィルタ} =1 {フィルタ（{count} 個）} other {フィルタ（{count} 個）}}',
 	finish: '完了',
+	finishing: '終了中...',
 	folder: 'フォルダ',
 	folders: 'フォルダ',
 	format: '形式',

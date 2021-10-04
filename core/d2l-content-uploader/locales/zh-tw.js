@@ -29,4 +29,7 @@ export const val = {
 	workerErrorUploadFailed: '上傳失敗',
 	workerErrorCancelUploadFailed: '無法取消上傳',
 	workerErrorZipFileCorrupted: '套件壓縮檔已毀損',
+	selectALanguage: '選取語言...',
+	audioLanguageLabel: 'Audio Language:',
+	autoGenerateCaptionsFromAudio: 'Automatically generate captions from audio',
 };

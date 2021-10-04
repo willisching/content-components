@@ -45,6 +45,7 @@ export const val = {
 	exportAsCsv: 'Exporter en tant que liste de valeurs séparées par des virgules.',
 	filterCount: '{count, plural, =0 {Filtre} =1 {Filtre ({count})} other {Filtres ({count})}}',
 	finish: 'Terminer',
+	finishing: 'Se termine...',
 	folder: 'Dossier',
 	folders: 'Dossiers',
 	format: 'Format',

@@ -29,4 +29,7 @@ export const val = {
 	workerErrorUploadFailed: 'Échec du téléversement',
 	workerErrorCancelUploadFailed: 'Le téléchargement n\'a pas pu être annulé',
 	workerErrorZipFileCorrupted: 'Le paquet compressé est corrompu',
+	selectALanguage: 'Sélectionnez une langue',
+	audioLanguageLabel: 'Audio Language:',
+	autoGenerateCaptionsFromAudio: 'Automatically generate captions from audio',
 };

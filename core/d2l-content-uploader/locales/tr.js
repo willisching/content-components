@@ -29,4 +29,7 @@ export const val = {
 	workerErrorUploadFailed: 'Yükleme başarısız oldu',
 	workerErrorCancelUploadFailed: 'Yükleme iptal edilemedi',
 	workerErrorZipFileCorrupted: 'Paket ZIP dosyası bozuk',
+	selectALanguage: 'Bir Dil Seçin...',
+	audioLanguageLabel: 'Audio Language:',
+	autoGenerateCaptionsFromAudio: 'Automatically generate captions from audio',
 };

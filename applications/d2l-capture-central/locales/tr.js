@@ -45,6 +45,7 @@ export const val = {
 	exportAsCsv: 'Virgülle ayrılmış değerlerden oluşan bir liste şeklinde dışa aktar.',
 	filterCount: '{count, plural, =0 {Filter} =1 {Filter ({count})} other {Filters ({count})}}',
 	finish: 'Bitir',
+	finishing: 'Bitiriliyor...',
 	folder: 'Klasör',
 	folders: 'Klasörler',
 	format: 'Biçim',

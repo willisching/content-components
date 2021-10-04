@@ -45,6 +45,7 @@ export const val = {
 	exportAsCsv: 'Als Liste mit durch Komma getrennten Werten exportieren.',
 	filterCount: '{count, plural, =0 {Filter} =1 {Filter ({count})} andere {Filters ({count})}}',
 	finish: 'Fertigstellen',
+	finishing: 'Fertigstellen…',
 	folder: 'Ordner',
 	folders: 'Ordner',
 	format: 'Format',

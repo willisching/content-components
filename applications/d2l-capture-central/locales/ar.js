@@ -45,6 +45,7 @@ export const val = {
 	exportAsCsv: 'قم بالتصدير كقائمة بقيم مفصولة بفاصلة.',
 	filterCount: '{count, plural, =0 {عامل تصفية} =1 {Filter ({count})} other {عوامل التصفية ({count})}}',
 	finish: 'إنهاء',
+	finishing: 'يتم الإنهاء الآن…',
 	folder: 'المجلد',
 	folders: 'المجلدات',
 	format: 'التنسيق',

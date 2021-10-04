@@ -29,4 +29,7 @@ export const val = {
 	workerErrorUploadFailed: 'Falha no carregamento',
 	workerErrorCancelUploadFailed: 'Não foi possível cancelar o carregamento',
 	workerErrorZipFileCorrupted: 'O arquivo de pacote compactado está corrompido',
+	selectALanguage: 'Selecione um idioma...',
+	audioLanguageLabel: 'Audio Language:',
+	autoGenerateCaptionsFromAudio: 'Automatically generate captions from audio',
 };

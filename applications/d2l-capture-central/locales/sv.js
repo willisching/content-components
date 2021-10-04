@@ -45,6 +45,7 @@ export const val = {
 	exportAsCsv: 'Exportera som en lista med kommaavgränsade värden.',
 	filterCount: '{count, plural, =0 {filter} =1 {filter ({count})} other {filter ({count})}}',
 	finish: 'Slutför',
+	finishing: 'Slutför ...',
 	folder: 'Mapp',
 	folders: 'Mappar',
 	format: 'Format',

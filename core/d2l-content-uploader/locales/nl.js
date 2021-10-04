@@ -29,4 +29,7 @@ export const val = {
 	workerErrorUploadFailed: 'Uploaden is mislukt',
 	workerErrorCancelUploadFailed: 'Het uploaden kan niet worden geannuleerd',
 	workerErrorZipFileCorrupted: 'Het zipbestand met het pakket is beschadigd',
+	selectALanguage: 'Een taal selecteren...',
+	audioLanguageLabel: 'Audio Language:',
+	autoGenerateCaptionsFromAudio: 'Automatically generate captions from audio',
 };

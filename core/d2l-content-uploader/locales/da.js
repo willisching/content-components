@@ -29,4 +29,7 @@ export const val = {
 	workerErrorUploadFailed: 'Upload mislykkedes',
 	workerErrorCancelUploadFailed: 'Overførslen kunne ikke annulleres',
 	workerErrorZipFileCorrupted: 'Zip-filen er beskadiget',
+	selectALanguage: 'Vælg et sprog ...',
+	audioLanguageLabel: 'Audio Language:',
+	autoGenerateCaptionsFromAudio: 'Automatically generate captions from audio',
 };
