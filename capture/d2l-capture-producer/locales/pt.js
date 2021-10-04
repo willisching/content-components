@@ -29,6 +29,7 @@ export const val = {
 	no: 'Não',
 	noChapters: 'Nenhum capítulo adicionado.',
 	openExpandedCaptionsCueControls: 'Abrir controles expandidos para esta indicação de legendas',
+	publish: 'Publicar',
 	revisionNumber: 'Revisão {number}',
 	revisions: 'Revisões',
 	save: 'Salvar',

@@ -29,6 +29,7 @@ export const val = {
 	no: 'Hayır',
 	noChapters: 'Eklenen bölüm yok.',
 	openExpandedCaptionsCueControls: 'Bu alt yazı işareti için genişletilmiş kontrolleri göster',
+	publish: 'Yayınla',
 	revisionNumber: 'Düzenleme {number}',
 	revisions: 'Düzenlemeler',
 	save: 'Kaydet',

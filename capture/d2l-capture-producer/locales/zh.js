@@ -29,6 +29,7 @@ export const val = {
 	no: '否',
 	noChapters: '未添加章节。',
 	openExpandedCaptionsCueControls: '打开此字幕提示的扩展控件',
+	publish: '发布',
 	revisionNumber: '版本 {number}',
 	revisions: '版本',
 	save: '保存',

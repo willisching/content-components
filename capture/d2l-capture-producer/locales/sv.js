@@ -29,6 +29,7 @@ export const val = {
 	no: 'Nej',
 	noChapters: 'Inga kapitel har lagts till.',
 	openExpandedCaptionsCueControls: 'Öppna utökade kontroller för den här undertexten',
+	publish: 'Publicera',
 	revisionNumber: 'Revidering {number}',
 	revisions: 'Revideringar',
 	save: 'Spara',

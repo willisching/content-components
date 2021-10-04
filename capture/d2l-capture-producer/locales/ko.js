@@ -29,6 +29,7 @@ export const val = {
 	no: '아니요',
 	noChapters: '추가된 장이 없습니다.',
 	openExpandedCaptionsCueControls: '이 캡션 큐에 대한 확장된 컨트롤 열기',
+	publish: '게시',
 	revisionNumber: '수정본 {number}',
 	revisions: '수정본',
 	save: '저장',

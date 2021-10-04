@@ -10,6 +10,12 @@ import { pageNames } from '../../util/constants.js';
 import { PageViewElement } from '../../components/page-view-element';
 
 class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
+	static get properties() {
+		return {
+			_currentPageTitle: { type: String, attribute: false }
+		};
+	}
+
 	static get styles() {
 		return [navigationSharedStyle, css`
 			.d2l-capture-central-producer {
@@ -27,6 +33,12 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 				margin-top: 200px;
 			}
 		`];
+	}
+
+	constructor() {
+		super();
+
+		this._currentPageTitle = '';
 	}
 
 	async connectedCallback() {
@@ -48,6 +60,7 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 						.endpoint="${this.apiClient.endpoint}"
 						.tenantId="${this.apiClient.tenantId}"
 						.contentId="${this.rootStore.routingStore.params.id}"
+						@content-loaded="${this._handleContentLoaded}"
 					></d2l-capture-producer>
 				` : html`<d2l-loading-spinner size=150></d2l-loading-spinner>`}
 
@@ -55,8 +68,8 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 		`;
 	}
 
-	get producer() {
-		return this.shadowRoot.querySelector('d2l-capture-producer');
+	_handleContentLoaded(event) {
+		this._currentPageTitle = event.detail.content.title;
 	}
 
 	_renderBreadcrumbs() {
@@ -67,9 +80,11 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 					href=""
 					text="${this.localize('myVideos')}"
 				></d2l-breadcrumb>
-				<d2l-breadcrumb-current-page
-					text="${this.producer?.content ? this.producer.content.title : ''}"
-				></d2l-breadcrumb-current-page>
+				${this._currentPageTitle ? html`
+					<d2l-breadcrumb-current-page
+						text="${this._currentPageTitle}"
+					></d2l-breadcrumb-current-page>
+				` : ''}
 			</d2l-breadcrumbs>
 		`;
 	}

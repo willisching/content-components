@@ -29,6 +29,7 @@ export const val = {
 	no: 'No',
 	noChapters: 'Aucun chapitre n’a été ajouté.',
 	openExpandedCaptionsCueControls: 'Ouvrir les commandes développées pour cette réplique de sous-titres',
+	publish: 'Publier',
 	revisionNumber: 'Révision {number}',
 	revisions: 'Révisions',
 	save: 'Enregistrer',

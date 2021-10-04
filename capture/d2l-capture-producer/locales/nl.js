@@ -29,6 +29,7 @@ export const val = {
 	no: 'Nee',
 	noChapters: 'Er zijn geen hoofdstukken toegevoegd.',
 	openExpandedCaptionsCueControls: 'Uitgevouwen besturingselementen voor deze ondertitelingstijdcode openen',
+	publish: 'Publiceren',
 	revisionNumber: 'Revisie {number}',
 	revisions: 'Revisies',
 	save: 'Opslaan',

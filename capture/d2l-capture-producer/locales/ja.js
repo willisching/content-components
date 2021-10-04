@@ -29,6 +29,7 @@ export const val = {
 	no: 'いいえ',
 	noChapters: '章が追加されていません。',
 	openExpandedCaptionsCueControls: 'このキャプションキューの拡張コントロールを開きます',
+	publish: '公開',
 	revisionNumber: 'リビジョン {number}',
 	revisions: 'リビジョン',
 	save: '保存',

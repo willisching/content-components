@@ -29,6 +29,7 @@ export const val = {
 	no: 'لا',
 	noChapters: 'لم تتم إضافة أي فصول.',
 	openExpandedCaptionsCueControls: 'فتح عناصر التحكم الموسعة لرمز التسميات التوضيحية هذا',
+	publish: 'نشر',
 	revisionNumber: 'المراجعة {number}',
 	revisions: 'مراجعات',
 	save: 'حفظ',

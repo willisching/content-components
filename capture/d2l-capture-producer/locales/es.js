@@ -29,6 +29,7 @@ export const val = {
 	no: 'No',
 	noChapters: 'No hay capítulos agregados.',
 	openExpandedCaptionsCueControls: 'Abrir los controles ampliados para esta indicación de subtítulos',
+	publish: 'Publicar',
 	revisionNumber: 'Revisión {number}',
 	revisions: 'Revisiones',
 	save: 'Guardar',

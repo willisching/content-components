@@ -29,6 +29,7 @@ export const val = {
 	no: '否',
 	noChapters: '沒有新增任何章節。',
 	openExpandedCaptionsCueControls: '開啟此字幕提示的展開控制項',
+	publish: '發佈',
 	revisionNumber: '修訂版 {number}',
 	revisions: '修訂版',
 	save: '儲存',
