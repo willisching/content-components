@@ -1,0 +1,15 @@
+export const val = {
+	addNewChapter: 'إضافة فصل جديد',
+	chapterTitle: 'عنوان الفصل',
+	cut: 'قص',
+	delete: 'حذف',
+	editingOverrides: 'تحرير اللغة: {language}',
+	languages: 'اللغات',
+	mark: 'وضع علامة',
+	noChapters: 'لم تتم إضافة أي فصول.',
+	publish: 'نشر',
+	save: 'حفظ',
+	seek: 'نقل',
+	tableOfContents: 'جدول المحتويات',
+	timeToSeekPosition: 'تعيين وقت الموضع الذي تم نقله',
+};

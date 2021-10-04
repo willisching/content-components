@@ -1,0 +1,15 @@
+export const val = {
+	addNewChapter: 'Ychwanegu pennod newydd',
+	chapterTitle: 'Teitl y bennod',
+	cut: 'Torri',
+	delete: 'Dileu',
+	editingOverrides: 'Iaith golygu: {language}',
+	languages: 'Ieithoedd',
+	mark: 'Marcio',
+	noChapters: 'Nid oes unrhyw benodau wedi\'u hychwanegu.',
+	publish: 'Cyhoeddi',
+	save: 'Cadw',
+	seek: 'Cyrchu',
+	tableOfContents: 'Cynnwys',
+	timeToSeekPosition: 'Gosod amser i gyrchu safle',
+};

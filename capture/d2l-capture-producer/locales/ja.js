@@ -1,0 +1,15 @@
+export const val = {
+	addNewChapter: '章の新規追加',
+	chapterTitle: '章のタイトル',
+	cut: '切り取り',
+	delete: '削除',
+	editingOverrides: '言語の編集: {language}',
+	languages: '言語',
+	mark: 'マーク',
+	noChapters: '章が追加されていません。',
+	publish: '公開',
+	save: '保存',
+	seek: 'シーク',
+	tableOfContents: '目次',
+	timeToSeekPosition: 'シーク位置に時間を設定',
+};

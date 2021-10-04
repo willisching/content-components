@@ -1,0 +1,15 @@
+export const val = {
+	addNewChapter: 'Agregar un capítulo nuevo',
+	chapterTitle: 'Título del capítulo',
+	cut: 'Cortar',
+	delete: 'Eliminar',
+	editingOverrides: 'Editando idioma: {language}',
+	languages: 'Idiomas',
+	mark: 'Marcar',
+	noChapters: 'No hay capítulos agregados.',
+	publish: 'Publicar',
+	save: 'Guardar',
+	seek: 'Buscar',
+	tableOfContents: 'Tabla de contenido',
+	timeToSeekPosition: 'Establezca el tiempo para buscar la posición',
+};
