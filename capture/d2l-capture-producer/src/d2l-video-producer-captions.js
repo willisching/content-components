@@ -268,8 +268,16 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 
 	updated(changedProperties) {
 		changedProperties.forEach((oldValue, propName) => {
-			if (propName === 'captions') {
-				this._updateLazyLoadForCaptionsCuesList(oldValue);
+			if (propName === 'loading' && !this.loading) {
+				// We use IntersectionObserver for lazy loading.
+				// IntersectionObserver uses a direct reference to its root element. In this case, the root
+				// is an empty div we use to mark the bottom of the captions cues list.
+				// Whenever this empty div is recreated (e.g. after the component goes from loading to non-loading state),
+				// IntersectionObserver's root becomes stale and the intersection logic stops working.
+				// To get around that, we initialize a new IntersectionObserver that points to the new
+				// list bottom div, whenever this component finishes loading.
+				this._updateLazyLoadForCaptionsCuesList();
+			} if (propName === 'captions') {
 				this._updateNumberOfVisibleCuesInList();
 			}
 		});
@@ -381,8 +389,11 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 		this.visibleCuesInList = this.captions.slice(0, constants.NUM_OF_VISIBLE_CAPTIONS_CUES);
 	}
 
-	_updateLazyLoadForCaptionsCuesList(oldCaptionsValue) {
-		if (!this.loading && oldCaptionsValue && oldCaptionsValue.length === 0 && this.captions.length > 0) {
+	_updateLazyLoadForCaptionsCuesList() {
+		if (this.listBottomObserver) {
+			this.listBottomObserver.disconnect();
+		}
+		if (this.captions && this.captions.length > 0) {
 			const options = {
 				root: this.shadowRoot.querySelector('.d2l-video-producer-captions-cues-list'),
 				rootMargin: '0px',
@@ -391,16 +402,17 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 			const listBottom = this.shadowRoot.querySelector('.d2l-video-producer-captions-cues-list-bottom');
 			this.listBottomObserver = new IntersectionObserver(this._loadMoreVisibleCues, options);
 			this.listBottomObserver.observe(listBottom);
-		} else if (this.listBottomObserver && oldCaptionsValue && oldCaptionsValue.length > 0 && this.captions.length === 0) {
-			this.listBottomObserver.disconnect();
 		}
 	}
 
 	_updateNumberOfVisibleCuesInList() {
-		if ((this.captions.length > 0) && (this._numberOfVisibleCuesInList === 0)) {
-			this._numberOfVisibleCuesInList = constants.NUM_OF_VISIBLE_CAPTIONS_CUES;
-		} else if (this.captions.length < this._numberOfVisibleCuesInList) {
+		if (
+			(Math.abs(this.captions.length - this._numberOfVisibleCuesInList) === 1) || // Adding or removing a single captions cue through the UI
+			(this.captions.length <= constants.NUM_OF_VISIBLE_CAPTIONS_CUES)
+		) {
 			this._numberOfVisibleCuesInList = this.captions.length;
+		} else if (this.captions.length > constants.NUM_OF_VISIBLE_CAPTIONS_CUES) {
+			this._numberOfVisibleCuesInList = constants.NUM_OF_VISIBLE_CAPTIONS_CUES;
 		}
 	}
 }
