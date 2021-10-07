@@ -21,6 +21,7 @@ export class Main extends MobxReactionUpdate(ProviderMixin(LitElement)) {
 		return {
 			apiEndpoint: { type: String, attribute: 'api-endpoint' },
 			tenantId: { type: String, attribute: 'tenant-id' },
+			orgUnitId: { type: String, attribute: 'org-unit-id' },
 			value: { type: String, reflect: true },
 			filename: { type: String, reflect: true },
 
@@ -54,7 +55,8 @@ export class Main extends MobxReactionUpdate(ProviderMixin(LitElement)) {
 
 		const apiClient = new ContentServiceClient({
 			endpoint: this.apiEndpoint,
-			tenantId: this.tenantId
+			tenantId: this.tenantId,
+			orgUnitId: this.orgUnitId
 		});
 		this.provideInstance('content-service-client', apiClient);
 

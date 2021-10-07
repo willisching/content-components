@@ -8,10 +8,12 @@ d2lfetch.use({ name: 'auth', fn: auth });
 export default class ContentServiceClient {
 	constructor({
 		endpoint,
-		tenantId
+		tenantId,
+		orgUnitId
 	}) {
 		this.endpoint = endpoint;
 		this.tenantId = tenantId;
+		this.orgUnitId = orgUnitId;
 	}
 
 	createContent(body) {
@@ -21,6 +23,7 @@ export default class ContentServiceClient {
 			body: {
 				...body,
 				clientApp: 'LmsContent',
+				...this.orgUnitId && {sharedWith: [`ou:${this.orgUnitId}`]}
 			},
 		});
 	}
