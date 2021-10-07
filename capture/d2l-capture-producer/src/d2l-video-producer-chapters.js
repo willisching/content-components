@@ -114,6 +114,8 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 						@keyup="${this._handleNewChapterInputTextEnter}"
 						@input="${this._handleNewChapterInputTextInput}"
 						class="d2l-video-producer-new-chapter-title-input"
+						label="${this.localize('chapterTitle')}"
+						label-hidden
 						placeholder="${this.localize('chapterTitle')}"
 					></d2l-input-text>
 				</div>
@@ -250,6 +252,8 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 						class="form-control"
 						value=${chapterTitle}
 						placeholder=${fallbackTitle}
+						label="${fallbackTitle}"
+						label-hidden
 					></d2l-input-text>
 					<p class="${this._activeChapterIndex === originalIndex ? 'active-chapter' : ''} d2l-video-producer-chapter-time">
 						${this._getTime(time)}
