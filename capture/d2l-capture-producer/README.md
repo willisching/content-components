@@ -122,7 +122,7 @@ After cloning the repo, run `npm install` to install dependencies.
 To start an [es-dev-server](https://open-wc.org/developing/es-dev-server.html) that hosts the demo page and tests:
 
 ```shell
-npm start
+npm run start:d2l-capture-producer
 ```
 
 ### Linting
