@@ -15,20 +15,19 @@ export default class ContentServiceClient {
 		this.onUploadProgress = onUploadProgress;
 	}
 
-	createRevision({ contentId, body, sourceRevisionId }) {
+	createRevision({ contentId, body, draftFromSource }) {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions`,
 			method: 'POST',
 			body,
-			query: { sourceRevisionId }
+			query: { draftFromSource }
 		});
 	}
 
-	deleteMetadata({ contentId, revisionId, draft = false }) {
+	deleteMetadata({ contentId, revisionId }) {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/metadata`,
 			method: 'DELETE',
-			query: { draft }
 		});
 	}
 
@@ -43,30 +42,33 @@ export default class ContentServiceClient {
 		return `Content Service Client: ${this.endpoint}`;
 	}
 
-	async getCaptionsUrl({ contentId, revisionId, locale, draft = false }) {
+	async getCaptionsUrl({ contentId, revisionId, locale }) {
 		const headers = new Headers();
 		headers.append('pragma', 'no-cache');
 		headers.append('cache-control', 'no-cache');
 		return await this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/captions/${locale}`,
-			query: { draft, urlOnly: true },
+			query: { urlOnly: true },
 			headers
 		});
 	}
 
 	getContent(id) {
+		const headers = new Headers();
+		headers.append('pragma', 'no-cache');
+		headers.append('cache-control', 'no-cache');
 		return this._fetch({
-			path: `/api/${this.tenantId}/content/${id}`
+			path: `/api/${this.tenantId}/content/${id}`,
+			headers,
 		});
 	}
 
-	getMetadata({ contentId, revisionId, draft = false }) {
+	getMetadata({ contentId, revisionId }) {
 		const headers = new Headers();
 		headers.append('pragma', 'no-cache');
 		headers.append('cache-control', 'no-cache');
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/metadata`,
-			query: { draft },
 			headers
 		});
 	}
@@ -101,11 +103,10 @@ export default class ContentServiceClient {
 		});
 	}
 
-	updateCaptions({ contentId, revisionId, draft = false, locale, captionsVttText }) {
+	updateCaptions({ contentId, revisionId, locale, captionsVttText }) {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/captions/${locale}`,
 			method: 'PUT',
-			query: { draft },
 			body: captionsVttText,
 			contentType: 'text/vtt',
 			extractJsonBody: false // The PUT captions route returns no content (status 204)
@@ -120,11 +121,10 @@ export default class ContentServiceClient {
 		});
 	}
 
-	updateMetadata({ contentId, revisionId, draft = false, metadata }) {
+	updateMetadata({ contentId, revisionId, metadata }) {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/metadata`,
 			method: 'PUT',
-			query: { draft },
 			body: metadata,
 			extractJsonBody: false // The PUT metadata route returns no content (status 204)
 		});
