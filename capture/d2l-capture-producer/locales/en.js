@@ -39,6 +39,7 @@ export const val = {
 	saved: 'Saved',
 	saveDraft: 'Save Draft',
 	saveError: 'An error occurred while saving.',
+	saving: 'Saving…',
 	saveSuccess: 'Saved changes successfully.',
 	seek: 'Seek',
 	srtParseError: 'Could not parse SRT file. Please ensure your file follows the SRT file format.',

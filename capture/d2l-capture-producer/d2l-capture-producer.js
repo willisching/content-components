@@ -90,12 +90,21 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				margin-left: 10px;
 			}
 
-			.d2l-video-producer-controls-publish-button .d2l-video-producer-controls-publishing {
+			.d2l-video-producer-controls-publish-button .d2l-video-producer-controls-finishing {
 				display: flex;
 				align-items: center;
 			}
 
 			.d2l-video-producer-controls-publish-button d2l-loading-spinner {
+				margin-right: 5px;
+			}
+
+			.d2l-video-producer-controls-save-button .d2l-video-producer-controls-saving {
+				display: flex;
+				align-items: center;
+			}
+
+			.d2l-video-producer-controls-save-button d2l-loading-spinner {
 				margin-right: 5px;
 			}
 		`];
@@ -176,14 +185,20 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 						?disabled="${this._saveIsDisabled}"
 						text="${this.localize('saveDraft')}"
 					>
-						${this.localize('saveDraft')}
+						<div class="d2l-video-producer-controls-saving" style="${!this._saving ? 'display: none' : ''}">
+							<d2l-loading-spinner size="20"></d2l-loading-spinner>
+							${this.localize('saving')}
+						</div>
+						<div ?hidden="${this._saving}">
+							${this.localize('saveDraft')}
+						</div>
 					</d2l-button>
 					<d2l-button
 						?disabled="${this._finishIsDisabled}"
 						@click="${this._handleFinish}"
 						class="d2l-video-producer-controls-publish-button"
 						primary
-					><div class="d2l-video-producer-controls-publishing" style="${!this._finishing ? 'display: none' : ''}">
+					><div class="d2l-video-producer-controls-finishing" style="${!this._finishing ? 'display: none' : ''}">
 							<d2l-loading-spinner size="20"></d2l-loading-spinner>
 							${this.localize('finishing')}
 						</div>
