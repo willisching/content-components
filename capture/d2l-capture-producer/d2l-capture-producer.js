@@ -40,6 +40,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			_revisionsLatestToOldest: { type: Object, attribute: false },
 			_saving: { type: Boolean, attribute: false },
 			_selectedLanguage: { type: Object, attribute: false },
+			_selectedRevisionIndex: { type: Number, attribute: false },
 			_src: { type: String, attribute: false },
 			_unsavedChanges: { type: String, attribute: false },
 			_mediaLoaded: { type: Boolean, attribute: false },
@@ -89,12 +90,21 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				margin-left: 10px;
 			}
 
-			.d2l-video-producer-controls-publish-button .d2l-video-producer-controls-publishing {
+			.d2l-video-producer-controls-publish-button .d2l-video-producer-controls-finishing {
 				display: flex;
 				align-items: center;
 			}
 
 			.d2l-video-producer-controls-publish-button d2l-loading-spinner {
+				margin-right: 5px;
+			}
+
+			.d2l-video-producer-controls-save-button .d2l-video-producer-controls-saving {
+				display: flex;
+				align-items: center;
+			}
+
+			.d2l-video-producer-controls-save-button d2l-loading-spinner {
 				margin-right: 5px;
 			}
 		`];
@@ -107,6 +117,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	constructor() {
 		super();
 
+		this._selectedRevisionIndex = 0;
 		this._revisionIndexToLoad = 0;
 		this._unsavedChanges = false;
 
@@ -135,15 +146,11 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this.userBrightspaceClient = new UserBrightspaceClient();
 
 		autorun(async() => {
-			this._content = await this.apiClient.getContent(this.contentId);
-			this._fireContentLoadedEvent(this._content);
-			if (this._content?.revisions) {
-				this._revisionsLatestToOldest = this._content.revisions.slice().reverse();
-			}
+			await this._loadContent();
 			this._src = (await this.apiClient.getSignedUrl(this.contentId)).value;
 			await this._setupLanguages();
-			this._loadMetadata('latest');
-			this._loadCaptions('latest', this._selectedLanguage.code);
+			this._loadMetadata(this._revisionsLatestToOldest[0].id);
+			this._loadCaptions(this._revisionsLatestToOldest[0].id, this._selectedLanguage.code);
 		});
 	}
 
@@ -162,7 +169,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 					<d2l-dropdown-button-subtle
 						class="d2l-video-producer-controls-revision-dropdown"
 						?disabled="${this._saving || this._finishing}"
-						text="${this.localize('copyFromPastRevision')}"
+						text="${this._revisionsLatestToOldest?.length > 0 ? this._getLabelForRevision(this._selectedRevisionIndex) : this.localize('loadingRevisions') }"
 					>
 						<d2l-dropdown-menu
 							@d2l-menu-item-select="${this._handleSelectedRevisionChanged}"
@@ -175,17 +182,23 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 					<d2l-button
 						class="d2l-video-producer-controls-save-button"
 						@click="${this._handleSave}"
-						?disabled="${this._saving || this._finishing || this._metadataLoading || this._captionsLoading}"
+						?disabled="${this._saveIsDisabled}"
 						text="${this.localize('saveDraft')}"
 					>
-						${this.localize('saveDraft')}
+						<div class="d2l-video-producer-controls-saving" style="${!this._saving ? 'display: none' : ''}">
+							<d2l-loading-spinner size="20"></d2l-loading-spinner>
+							${this.localize('saving')}
+						</div>
+						<div ?hidden="${this._saving}">
+							${this.localize('saveDraft')}
+						</div>
 					</d2l-button>
 					<d2l-button
-						?disabled="${this._saving || this._finishing || this._metadataLoading || this._captionsLoading}"
+						?disabled="${this._finishIsDisabled}"
 						@click="${this._handleFinish}"
 						class="d2l-video-producer-controls-publish-button"
 						primary
-					><div class="d2l-video-producer-controls-publishing" style="${!this._finishing ? 'display: none' : ''}">
+					><div class="d2l-video-producer-controls-finishing" style="${!this._finishing ? 'display: none' : ''}">
 							<d2l-loading-spinner size="20"></d2l-loading-spinner>
 							${this.localize('finishing')}
 						</div>
@@ -214,7 +227,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				</d2l-alert-toast>
 				<d2l-dialog-confirm
 					class="d2l-video-producer-dialog-confirm-copy-from-revision"
-					text="${this.localize('confirmOverwriteFromPastRevision')}"
+					text="${this.localize('confirmLoadRevisionWithUnsavedChanges')}"
 				>
 					<d2l-button
 						@click="${this._loadNewlySelectedRevision}"
@@ -235,6 +248,31 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		`;
 	}
 
+	async _createNewDraftRevision() {
+		return await this.apiClient.createRevision({
+			contentId: this._content.id,
+			body: {
+				title: this._content.name,
+				extension: this._selectedRevision.extension,
+				sourceFormat: 'hd',
+				formats: ['ld'],
+			},
+			draftFromSource: this._selectedRevision.id,
+		});
+	}
+
+	get _finishIsDisabled() {
+		return (
+			// Disable if content is not yet loaded.
+			!this._content ||
+			// Disable if the latest revision is currently selected, it is not a draft, and there are no unsaved changes.
+			// (Because publishing would create a duplicate revision with no changes from the previous one.)
+			(this._selectedRevisionIndex === 0 && !this._selectedRevision.draft && !this._unsavedChanges) ||
+			// Disable if we are currently loading or saving data.
+			this._saving || this._finishing || this._metadataLoading || this._captionsLoading
+		);
+	}
+
 	_fireContentLoadedEvent(content) {
 		this.dispatchEvent(new CustomEvent(
 			'content-loaded',
@@ -253,6 +291,16 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			return `${this._selectedLanguage.code.slice(0, 2)}-${this._selectedLanguage.code.slice(3).toUpperCase()}`;
 		}
 		return this._selectedLanguage.code;
+	}
+
+	_getLabelForRevision(revisionIndex) {
+		if (!this._revisionsLatestToOldest) {
+			return '';
+		} else if (this._revisionsLatestToOldest[revisionIndex].draft) {
+			return `${this.localize('revisionNumber', { number: this._revisionsLatestToOldest.length - revisionIndex })} (${this.localize('draft')})`;
+		} else {
+			return `${this.localize('revisionNumber', { number: this._revisionsLatestToOldest.length - revisionIndex })}`;
+		}
 	}
 
 	_handleCaptionsChanged(event) {
@@ -283,43 +331,44 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	async _handleFinish() {
 		this._finishing = true;
 
-		await this.apiClient.updateMetadata({
-			contentId: this._content.id,
-			metadata: this._metadata,
-			revisionId: 'latest',
-		});
-		await this.apiClient.updateCaptions({
-			contentId: this._content.id,
-			captionsVttText: convertTextTrackCueListToVttText(this._captions),
-			revisionId: 'latest',
-			locale: this._selectedLanguage.code
-		});
-		const { id, ...revision } = this._revisionsLatestToOldest[0];
-		let newRevision;
-		try {
-			newRevision = await this.apiClient.createRevision({
+		let draftToPublish;
+		if (!this._latestDraftRevision || this._selectedRevisionIndex !== 0) {
+			try {
+				draftToPublish = await this._createNewDraftRevision();
+			} catch (error) {
+				this._errorOccurred = true;
+				this._alertMessage = this.localize('finishError');
+				this.shadowRoot.querySelector('d2l-alert-toast').open = true;
+				this._finishing = false;
+				return;
+			}
+		} else {
+			draftToPublish = this._latestDraftRevision;
+		}
+
+		if (this._unsavedChanges) {
+			await this.apiClient.updateMetadata({
 				contentId: this._content.id,
-				body: {
-					title: this._content.name,
-					extension: revision.extension,
-					sourceFormat: 'hd',
-					formats: ['ld'],
-				},
-				sourceRevisionId: id
+				metadata: this._metadata,
+				revisionId: draftToPublish.id,
 			});
+			await this.apiClient.updateCaptions({
+				contentId: this._content.id,
+				captionsVttText: convertTextTrackCueListToVttText(this._captions),
+				revisionId: draftToPublish.id,
+				locale: this._selectedLanguage.code
+			});
+		}
+
+		try {
 			await this.apiClient.processRevision({
 				contentId: this._content.id,
-				revisionId: newRevision.id,
-				body: { sourceRevisionId: id }
+				revisionId: draftToPublish.id,
 			});
-			this._revisionsLatestToOldest.unshift(newRevision);
+			await this._loadContent();
+			this._selectedRevisionIndex = 0;
 			this._unsavedChanges = false;
 		} catch (error) {
-			if (newRevision) {
-				await this.apiClient.deleteRevision({
-					contentId: this._content.id, revisionId: newRevision.id
-				});
-			}
 			this._errorOccurred = true;
 		}
 		this._alertMessage = this._errorOccurred
@@ -343,18 +392,30 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 	async _handleSave() {
 		this._saving = true;
+
+		if (!this._latestDraftRevision || this._selectedRevisionIndex !== 0) {
+			try {
+				await this._createNewDraftRevision();
+				await this._loadContent();
+				this._selectedRevisionIndex = 0;
+			} catch (error) {
+				this._errorOccurred = true;
+				this._alertMessage = this.localize('saveError');
+				this._saving = false;
+				return;
+			}
+		}
+
 		try {
 			await this.apiClient.updateMetadata({
 				contentId: this._content.id,
-				draft: true,
 				metadata: this._metadata,
-				revisionId: 'latest',
+				revisionId: this._latestDraftRevision.id,
 			});
 			await this.apiClient.updateCaptions({
 				contentId: this._content.id,
-				draft: true,
 				captionsVttText: convertTextTrackCueListToVttText(this._captions),
-				revisionId: 'latest',
+				revisionId: this._latestDraftRevision.id,
 				locale: this._selectedLanguage.code
 			});
 			this._unsavedChanges = false;
@@ -387,6 +448,10 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._captionsLoading = false;
 	}
 
+	get _latestDraftRevision() {
+		return this._revisionsLatestToOldest?.find(x => x.draft);
+	}
+
 	async _loadCaptions(revision, locale) {
 		this._captionsLoading = true;
 		this._captionsUrl = '';
@@ -410,6 +475,14 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		}
 	}
 
+	async _loadContent() {
+		this._content = await this.apiClient.getContent(this.contentId);
+		this._fireContentLoadedEvent(this._content);
+		if (this._content.revisions) {
+			this._revisionsLatestToOldest = this._content.revisions.slice().reverse();
+		}
+	}
+
 	get _loading() {
 		return !(
 			this._mediaLoaded
@@ -420,30 +493,37 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 	async _loadMetadata(revisionId) {
 		this._metadataLoading = true;
-		this._metadata = await this.apiClient.getMetadata({
-			contentId: this._content.id,
-			revisionId,
-			draft: true
-		});
-		this._metadataLoading = false;
+		try {
+			this._metadata = await this.apiClient.getMetadata({
+				contentId: this._content.id,
+				revisionId,
+				draft: true
+			});
+			this._metadataLoading = false;
+		} catch (error) {
+			if (error.message === 'Not Found') {
+				this._metadata = { chapters: [], cuts: [] };
+				this._metadataLoading = false;
+			} else {
+				this._errorOccurred = true;
+				this._alertMessage = this.localize('loadMetadataError');
+				this.shadowRoot.querySelector('d2l-alert-toast').open = true;
+			}
+		}
 	}
 
 	async _loadNewlySelectedRevision() {
 		const revisionId = this._revisionsLatestToOldest[this._revisionIndexToLoad].id;
 		this._loadMetadata(revisionId);
 		this._loadCaptions(revisionId, this._selectedLanguage.code);
-		this._unsavedChanges = true;
+		this._selectedRevisionIndex = this._revisionIndexToLoad;
+		this._unsavedChanges = false;
 	}
 
 	_renderRevisionsDropdownItems() {
 		if (this._revisionsLatestToOldest) {
 			return this._revisionsLatestToOldest.map((revision, index) => {
-				let label;
-				if (index === 0) {
-					label = this.localize('currentDraft');
-				} else {
-					label = `${this.localize('revisionNumber', { number: this._revisionsLatestToOldest.length - index })}`;
-				}
+				const label = this._getLabelForRevision(index);
 				return html`<d2l-menu-item data-revision-index="${index}" text="${label}"></d2l-menu-item>`;
 			});
 		} else {
@@ -467,6 +547,23 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			</p>
 			<d2l-icon class="d2l-video-producer-saved-unsaved-indicator-icon" icon="${icon}" style="color: ${feedbackColor};"></d2l-icon>
 		  </div>`;
+	}
+
+	get _saveIsDisabled() {
+		return (
+			// Disable if content is not yet loaded.
+			!this._content ||
+			// Disable if the latest draft is loaded and there are no unsaved changes.
+			// (If a non-draft revision is loaded, we always allow the user to Save Draft,
+			// because they may want to copy the revision's data into a new draft but make changes at a later time.)
+			((this._selectedRevisionIndex === 0) && this._selectedRevision.draft && !this._unsavedChanges) ||
+			// Disable if we are currently loading/saving data.
+			this._saving || this._finishing || this._metadataLoading || this._captionsLoading
+		);
+	}
+
+	get _selectedRevision() {
+		return this._revisionsLatestToOldest ? this._revisionsLatestToOldest[this._selectedRevisionIndex] : undefined;
 	}
 
 	async _setupLanguages() {
