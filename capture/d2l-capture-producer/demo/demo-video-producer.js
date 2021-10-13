@@ -38,7 +38,7 @@ class DemoVideoProducer extends LitElement {
 				margin-bottom: 15px;
 			}
 
-			demo-video-producer-language-selector {
+			d2l-video-producer-language-selector {
 				margin-right: auto;
 			}
 
@@ -89,8 +89,8 @@ class DemoVideoProducer extends LitElement {
 				<div class="demo-video-producer-controls">
 					<d2l-video-producer-language-selector
 						?disabled="${this._saving || this._finishing}"
-						.languages="${this._languages}"
-						.selectedLanguage="${this._selectedLanguage}"
+						.languages="${this.languages}"
+						.selectedLanguage="${this.selectedLanguage}"
 						@selected-language-changed="${this._handleSelectedLanguageChanged}"
 					></d2l-video-producer-language-selector>
 					${this._renderSavedUnsavedIndicator()}
