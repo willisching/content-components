@@ -223,6 +223,7 @@ Nullam luctus purus id erat lobortis rhoncus.`;
 		console.log('Publishing captions:', this.captions);
 		await new Promise(resolve => setTimeout(resolve, 1000));
 		this._finishing = false;
+		this._unsavedChanges = false;
 		this._alertMessage = 'Publish successful.';
 		this.shadowRoot.querySelector('d2l-alert-toast').open = true;
 	}
@@ -242,6 +243,7 @@ Nullam luctus purus id erat lobortis rhoncus.`;
 		console.log('Saving draft captions:', this.captions);
 		await new Promise(resolve => setTimeout(resolve, 1000));
 		this._saving = false;
+		this._unsavedChanges = false;
 
 		this._alertMessage = 'Saved changes.';
 		this.shadowRoot.querySelector('d2l-alert-toast').open = true;
