@@ -174,7 +174,7 @@ class DemoVideoProducer extends LitElement {
 						'fr-fr': 'Fr Ch 2'
 					}
 				}],
-				cuts: [{ in: 10, out: 60 }, { in: 400, out: 515 }],
+				cuts: [{ in: 10, out: 60 }, { in: 200, out: 320 }, { in: 400, out: 515 }],
 			};
 			this._metadataLoading = false;
 		}, 500);
