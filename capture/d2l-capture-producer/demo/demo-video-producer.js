@@ -38,7 +38,7 @@ class DemoVideoProducer extends LitElement {
 				margin-bottom: 15px;
 			}
 
-			demo-video-producer-language-selector {
+			d2l-video-producer-language-selector {
 				margin-right: auto;
 			}
 
@@ -89,8 +89,8 @@ class DemoVideoProducer extends LitElement {
 				<div class="demo-video-producer-controls">
 					<d2l-video-producer-language-selector
 						?disabled="${this._saving || this._finishing}"
-						.languages="${this._languages}"
-						.selectedLanguage="${this._selectedLanguage}"
+						.languages="${this.languages}"
+						.selectedLanguage="${this.selectedLanguage}"
 						@selected-language-changed="${this._handleSelectedLanguageChanged}"
 					></d2l-video-producer-language-selector>
 					${this._renderSavedUnsavedIndicator()}
@@ -174,7 +174,7 @@ class DemoVideoProducer extends LitElement {
 						'fr-fr': 'Fr Ch 2'
 					}
 				}],
-				cuts: [{ in: 10, out: 60 }, { in: 400, out: 515 }],
+				cuts: [{ in: 10, out: 60 }, { in: 200, out: 320 }, { in: 400, out: 515 }],
 			};
 			this._metadataLoading = false;
 		}, 500);
@@ -223,6 +223,7 @@ Nullam luctus purus id erat lobortis rhoncus.`;
 		console.log('Publishing captions:', this.captions);
 		await new Promise(resolve => setTimeout(resolve, 1000));
 		this._finishing = false;
+		this._unsavedChanges = false;
 		this._alertMessage = 'Publish successful.';
 		this.shadowRoot.querySelector('d2l-alert-toast').open = true;
 	}
@@ -242,6 +243,7 @@ Nullam luctus purus id erat lobortis rhoncus.`;
 		console.log('Saving draft captions:', this.captions);
 		await new Promise(resolve => setTimeout(resolve, 1000));
 		this._saving = false;
+		this._unsavedChanges = false;
 
 		this._alertMessage = 'Saved changes.';
 		this.shadowRoot.querySelector('d2l-alert-toast').open = true;
