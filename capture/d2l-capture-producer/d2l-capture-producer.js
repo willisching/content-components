@@ -11,6 +11,7 @@ import './d2l-capture-producer-editor.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { autorun } from 'mobx';
 import ContentServiceClient from './src/content-service-client.js';
+import { formatDateTimeFromTimestamp } from '@brightspace-ui/intl/lib/dateTime.js';
 import { InternalLocalizeMixin } from './src/internal-localize-mixin.js';
 import { labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
@@ -296,10 +297,16 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	_getLabelForRevision(revisionIndex) {
 		if (!this._revisionsLatestToOldest) {
 			return '';
-		} else if (this._revisionsLatestToOldest[revisionIndex].draft) {
-			return `${this.localize('revisionNumber', { number: this._revisionsLatestToOldest.length - revisionIndex })} (${this.localize('draft')})`;
+		}
+		const revision = this._revisionsLatestToOldest[revisionIndex];
+
+		// 'createdAt' was added to revisions' schema in Oct 2021, so older revisions may not have it.
+		if (revision.createdAt) {
+			const timestamp = formatDateTimeFromTimestamp(Date.parse(revision.createdAt), { format: 'medium' });
+			return this.localize(revision.draft ? 'revisionTimestampDraft' : 'revisionTimestamp', { timestamp });
 		} else {
-			return `${this.localize('revisionNumber', { number: this._revisionsLatestToOldest.length - revisionIndex })}`;
+			const revisionNumber = this._revisionsLatestToOldest.length - revisionIndex;
+			return this.localize(revision.draft ? 'revisionNumberDraft' : 'revisionNumber', { number: revisionNumber });
 		}
 	}
 
