@@ -182,7 +182,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 						src="${this.src}"
 						@trackloaded="${this._handleTrackLoaded}"
 					>
-						${this.captionsUrl ? html`<track default src="${this.captionsUrl}" srclang="${this._formatCaptionsSrcLang()}" label="${this.selectedLanguage.name}" kind="subtitles">` : ''}
+						${this.captionsUrl ? html`<track default-ignore-preferences src="${this.captionsUrl}" srclang="${this._formatCaptionsSrcLang()}" label="${this.selectedLanguage.name}" kind="subtitles">` : ''}
 					</d2l-labs-media-player>
 					<d2l-tabs>
 						<d2l-tab-panel

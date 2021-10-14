@@ -28,6 +28,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 			_alertMessage: { type: String, attribute: false },
 			_captions: { type: Array, attribute: false },
+			_captionsChanged: { type: Array, attribute: false },
 			_captionsUrl: { type: String, attribute: false },
 			_captionsLoading: { type: Boolean, attribute: false },
 			_content: { type: String, attribute: false },
@@ -35,6 +36,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			_errorOccurred: { type: Boolean, attribute: false },
 			_finishing: { type: Boolean, attribute: false },
 			_loading: { type: Boolean, attribute: false },
+			_languageToLoad: { type: Object, attribute: false },
 			_metadata: { type: Object, attribute: false },
 			_metadataLoading: { type: Boolean, attribute: false },
 			_revisionIndexToLoad: { type: Number, attribute: false },
@@ -126,6 +128,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._errorOccurred = false;
 
 		this._captions = [];
+		this._captionsChanged = false;
 		this._captionsUrl = '';
 		this._captionsLoading = true;
 
@@ -134,6 +137,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._src = '';
 		this._defaultLanguage = {};
 		this._selectedLanguage = {};
+		this._languageToLoad = {};
 		this._mediaLoaded = false;
 	}
 
@@ -245,6 +249,25 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 						${this.localize('no')}
 					</d2l-button>
 				</d2l-dialog-confirm>
+				<d2l-dialog-confirm
+					class="d2l-video-producer-dialog-confirm-change-language"
+					text="${this.localize('confirmChangeLanguageWithUnsavedCaptionsChanges')}"
+				>
+					<d2l-button
+						@click="${this._loadNewlySelectedLanguage}"
+						data-dialog-action="yes"
+						slot="footer"
+					>
+						${this.localize('yes')}
+					</d2l-button>
+					<d2l-button
+						data-dialog-action="no"
+						primary
+						slot="footer"
+					>
+						${this.localize('no')}
+					</d2l-button>
+				</d2l-dialog-confirm>
 			</div>
 		`;
 	}
@@ -314,6 +337,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._captions = event.detail.captions;
 		if (!this._captionsLoading) {
 			this._unsavedChanges = true;
+			this._captionsChanged = true;
 		}
 		this._captionsLoading = false;
 	}
@@ -375,6 +399,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			await this._loadContent();
 			this._selectedRevisionIndex = 0;
 			this._unsavedChanges = false;
+			this._captionsChanged = false;
 		} catch (error) {
 			this._errorOccurred = true;
 		}
@@ -426,6 +451,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				locale: this._selectedLanguage.code
 			});
 			this._unsavedChanges = false;
+			this._captionsChanged = false;
 		} catch (error) {
 			this._errorOccurred = true;
 		}
@@ -437,7 +463,12 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	_handleSelectedLanguageChanged(e) {
-		this._selectedLanguage = e.detail.selectedLanguage;
+		this._languageToLoad = e.detail.selectedLanguage;
+		if (this._captionsChanged) {
+			this.shadowRoot.querySelector('.d2l-video-producer-dialog-confirm-change-language').open();
+		} else {
+			this._loadNewlySelectedLanguage();
+		}
 	}
 
 	async _handleSelectedRevisionChanged(e) {
@@ -517,6 +548,12 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				this.shadowRoot.querySelector('d2l-alert-toast').open = true;
 			}
 		}
+	}
+
+	async _loadNewlySelectedLanguage() {
+		this._loadCaptions(this._selectedRevision.id, this._languageToLoad.code);
+		this._selectedLanguage = Object.assign({}, this._languageToLoad);
+		this._languageToLoad = {};
 	}
 
 	async _loadNewlySelectedRevision() {

@@ -48,7 +48,7 @@ export default class ContentServiceClient {
 		headers.append('cache-control', 'no-cache');
 		return await this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/captions/${locale}`,
-			query: { urlOnly: true },
+			query: { urlOnly: true, exact: true },
 			headers
 		});
 	}
