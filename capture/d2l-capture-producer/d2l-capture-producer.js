@@ -38,6 +38,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			_loading: { type: Boolean, attribute: false },
 			_languageToLoad: { type: Object, attribute: false },
 			_metadata: { type: Object, attribute: false },
+			_metadataChanged: { type: Boolean, attribute: false },
 			_metadataLoading: { type: Boolean, attribute: false },
 			_revisionIndexToLoad: { type: Number, attribute: false },
 			_revisionsLatestToOldest: { type: Object, attribute: false },
@@ -122,7 +123,6 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 		this._selectedRevisionIndex = 0;
 		this._revisionIndexToLoad = 0;
-		this._unsavedChanges = false;
 
 		this._alertMessage = '';
 		this._errorOccurred = false;
@@ -133,6 +133,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._captionsLoading = true;
 
 		this._metadata = { cuts: [], chapters: [] };
+		this._metadataChanged = false;
 		this._metadataLoading = true;
 		this._src = '';
 		this._defaultLanguage = {};
@@ -336,7 +337,6 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	_handleCaptionsChanged(event) {
 		this._captions = event.detail.captions;
 		if (!this._captionsLoading) {
-			this._unsavedChanges = true;
 			this._captionsChanged = true;
 		}
 		this._captionsLoading = false;
@@ -350,13 +350,13 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._captionsUrl = '';
 		setTimeout(() => {
 			this._captionsUrl = event.detail.captionsUrl;
-			this._unsavedChanges = true;
+			this._captionsChanged = true;
 		}, 0);
 	}
 
 	_handleChaptersChanged(e) {
 		this._metadata = { ...this._metadata, chapters: e.detail.chapters };
-		this._unsavedChanges = true;
+		this._metadataChanged = true;
 	}
 
 	async _handleFinish() {
@@ -398,8 +398,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			});
 			await this._loadContent();
 			this._selectedRevisionIndex = 0;
-			this._unsavedChanges = false;
 			this._captionsChanged = false;
+			this._metadataChanged = false;
 		} catch (error) {
 			this._errorOccurred = true;
 		}
@@ -417,7 +417,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	_handleMetadataChanged(event) {
 		this._metadata = event.detail;
 		if (!this._metadataLoading) {
-			this._unsavedChanges = true;
+			this._metadataChanged = true;
 		}
 		this._metadataLoading = false;
 	}
@@ -450,8 +450,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				revisionId: this._latestDraftRevision.id,
 				locale: this._selectedLanguage.code
 			});
-			this._unsavedChanges = false;
 			this._captionsChanged = false;
+			this._metadataChanged = false;
 		} catch (error) {
 			this._errorOccurred = true;
 		}
@@ -551,7 +551,10 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	async _loadNewlySelectedLanguage() {
-		this._loadCaptions(this._selectedRevision.id, this._languageToLoad.code);
+		this._loadCaptions(this._selectedRevision.id, this._languageToLoad.code)
+			.then(() => {
+				this._captionsChanged = false;
+			});
 		this._selectedLanguage = Object.assign({}, this._languageToLoad);
 		this._languageToLoad = {};
 	}
@@ -561,7 +564,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._loadMetadata(revisionId);
 		this._loadCaptions(revisionId, this._selectedLanguage.code);
 		this._selectedRevisionIndex = this._revisionIndexToLoad;
-		this._unsavedChanges = false;
+		this._captionsChanged = false;
+		this._metadataChanged = false;
 	}
 
 	_renderRevisionsDropdownItems() {
@@ -618,6 +622,10 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		});
 		this._selectedLanguage = this._languages.find(language => language.isDefault);
 		this._defaultLanguage = this._selectedLanguage;
+	}
+
+	get _unsavedChanges() {
+		return this._captionsChanged || this._metadataChanged;
 	}
 }
 customElements.define('d2l-capture-producer', CaptureProducer);
