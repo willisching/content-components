@@ -28,6 +28,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 			_alertMessage: { type: String, attribute: false },
 			_captions: { type: Array, attribute: false },
+			_captionsChanged: { type: Array, attribute: false },
 			_captionsUrl: { type: String, attribute: false },
 			_captionsLoading: { type: Boolean, attribute: false },
 			_content: { type: String, attribute: false },
@@ -35,7 +36,9 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			_errorOccurred: { type: Boolean, attribute: false },
 			_finishing: { type: Boolean, attribute: false },
 			_loading: { type: Boolean, attribute: false },
+			_languageToLoad: { type: Object, attribute: false },
 			_metadata: { type: Object, attribute: false },
+			_metadataChanged: { type: Boolean, attribute: false },
 			_metadataLoading: { type: Boolean, attribute: false },
 			_revisionIndexToLoad: { type: Number, attribute: false },
 			_revisionsLatestToOldest: { type: Object, attribute: false },
@@ -120,20 +123,22 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 		this._selectedRevisionIndex = 0;
 		this._revisionIndexToLoad = 0;
-		this._unsavedChanges = false;
 
 		this._alertMessage = '';
 		this._errorOccurred = false;
 
 		this._captions = [];
+		this._captionsChanged = false;
 		this._captionsUrl = '';
 		this._captionsLoading = true;
 
 		this._metadata = { cuts: [], chapters: [] };
+		this._metadataChanged = false;
 		this._metadataLoading = true;
 		this._src = '';
 		this._defaultLanguage = {};
 		this._selectedLanguage = {};
+		this._languageToLoad = {};
 		this._mediaLoaded = false;
 	}
 
@@ -245,6 +250,25 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 						${this.localize('no')}
 					</d2l-button>
 				</d2l-dialog-confirm>
+				<d2l-dialog-confirm
+					class="d2l-video-producer-dialog-confirm-change-language"
+					text="${this.localize('confirmChangeLanguageWithUnsavedCaptionsChanges')}"
+				>
+					<d2l-button
+						@click="${this._loadNewlySelectedLanguage}"
+						data-dialog-action="yes"
+						slot="footer"
+					>
+						${this.localize('yes')}
+					</d2l-button>
+					<d2l-button
+						data-dialog-action="no"
+						primary
+						slot="footer"
+					>
+						${this.localize('no')}
+					</d2l-button>
+				</d2l-dialog-confirm>
 			</div>
 		`;
 	}
@@ -313,7 +337,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	_handleCaptionsChanged(event) {
 		this._captions = event.detail.captions;
 		if (!this._captionsLoading) {
-			this._unsavedChanges = true;
+			this._captionsChanged = true;
 		}
 		this._captionsLoading = false;
 	}
@@ -326,13 +350,13 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._captionsUrl = '';
 		setTimeout(() => {
 			this._captionsUrl = event.detail.captionsUrl;
-			this._unsavedChanges = true;
+			this._captionsChanged = true;
 		}, 0);
 	}
 
 	_handleChaptersChanged(e) {
 		this._metadata = { ...this._metadata, chapters: e.detail.chapters };
-		this._unsavedChanges = true;
+		this._metadataChanged = true;
 	}
 
 	async _handleFinish() {
@@ -374,7 +398,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			});
 			await this._loadContent();
 			this._selectedRevisionIndex = 0;
-			this._unsavedChanges = false;
+			this._captionsChanged = false;
+			this._metadataChanged = false;
 		} catch (error) {
 			this._errorOccurred = true;
 		}
@@ -392,7 +417,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	_handleMetadataChanged(event) {
 		this._metadata = event.detail;
 		if (!this._metadataLoading) {
-			this._unsavedChanges = true;
+			this._metadataChanged = true;
 		}
 		this._metadataLoading = false;
 	}
@@ -425,7 +450,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				revisionId: this._latestDraftRevision.id,
 				locale: this._selectedLanguage.code
 			});
-			this._unsavedChanges = false;
+			this._captionsChanged = false;
+			this._metadataChanged = false;
 		} catch (error) {
 			this._errorOccurred = true;
 		}
@@ -437,7 +463,12 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	_handleSelectedLanguageChanged(e) {
-		this._selectedLanguage = e.detail.selectedLanguage;
+		this._languageToLoad = e.detail.selectedLanguage;
+		if (this._captionsChanged) {
+			this.shadowRoot.querySelector('.d2l-video-producer-dialog-confirm-change-language').open();
+		} else {
+			this._loadNewlySelectedLanguage();
+		}
 	}
 
 	async _handleSelectedRevisionChanged(e) {
@@ -519,12 +550,22 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		}
 	}
 
+	async _loadNewlySelectedLanguage() {
+		this._loadCaptions(this._selectedRevision.id, this._languageToLoad.code)
+			.then(() => {
+				this._captionsChanged = false;
+			});
+		this._selectedLanguage = Object.assign({}, this._languageToLoad);
+		this._languageToLoad = {};
+	}
+
 	async _loadNewlySelectedRevision() {
 		const revisionId = this._revisionsLatestToOldest[this._revisionIndexToLoad].id;
 		this._loadMetadata(revisionId);
 		this._loadCaptions(revisionId, this._selectedLanguage.code);
 		this._selectedRevisionIndex = this._revisionIndexToLoad;
-		this._unsavedChanges = false;
+		this._captionsChanged = false;
+		this._metadataChanged = false;
 	}
 
 	_renderRevisionsDropdownItems() {
@@ -581,6 +622,10 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		});
 		this._selectedLanguage = this._languages.find(language => language.isDefault);
 		this._defaultLanguage = this._selectedLanguage;
+	}
+
+	get _unsavedChanges() {
+		return this._captionsChanged || this._metadataChanged;
 	}
 }
 customElements.define('d2l-capture-producer', CaptureProducer);

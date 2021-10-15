@@ -11,6 +11,7 @@ export const val = {
 	captionsReadError: 'Could not read captions file. It might be corrupted.',
 	chapterTitle: 'Chapter title',
 	closedCaptions: 'Closed Captions',
+	confirmChangeLanguageWithUnsavedCaptionsChanges: 'The current language has unsaved changes in Closed Captions. If you switch editing to another language, these changes will be discarded. Do you wish to proceed?',
 	confirmLoadRevisionWithUnsavedChanges: 'The current revision has unsaved changes. If you load another revision, these changes will be discarded. Do you wish to proceed?',
 	confirmOverwriteFromPastRevision: 'Copying from a past revision will overwrite your unsaved changes. Do you wish to proceed?',
 	copyFromPastRevision: 'Copy From Past Revision',
