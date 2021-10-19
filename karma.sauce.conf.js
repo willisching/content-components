@@ -48,6 +48,9 @@ module.exports = config => {
 			browsers: Object.keys(customLaunchers),
 			reporters: ['dots', 'saucelabs'],
 			singleRun: true,
+			browserDisconnectTimeout: 10000, // default 2000
+			browserDisconnectTolerance: 1, // default 0
+			browserNoActivityTimeout: 4 * 60 * 1000, //default 10000
 		}),
 	);
 	return config;
