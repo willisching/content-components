@@ -2,9 +2,13 @@ import '@brightspace-ui/core/components/alert/alert-toast.js';
 import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
 import '@brightspace-ui/core/components/button/button-icon.js';
 import '@brightspace-ui/core/components/button/button.js';
+import { radioStyles } from '@brightspace-ui/core/components/inputs/input-radio-styles.js';
 import { labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import '../d2l-capture-producer-editor.js';
 import '../src/d2l-video-producer-language-selector.js';
+
+const VIDEO_SOURCE = 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+const AUDIO_SOURCE = 'https://archive.org/download/MlkButIfNot/mlkbutifnot.mp3';
 
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 class DemoVideoProducer extends LitElement {
@@ -22,13 +26,32 @@ class DemoVideoProducer extends LitElement {
 			_saving: { type: Boolean },
 			_unsavedChanges: { type: Boolean },
 			_finishing: { type: Boolean },
+			_videoSelected: { type: Boolean },
 		};
 	}
 
 	static get styles() {
-		return [labelStyles, css`
+		return [labelStyles, radioStyles, css`
 			.demo-video-producer {
 				width: 1170px;
+			}
+
+			.demo-video-producer-loading-container {
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				width: 100%;
+			}
+
+			.demo-video-producer-content-type-selection {
+				align-items: baseline;
+				display: flex;
+				flex-direction: row;
+				margin-bottom: 10px;
+			}
+
+			.demo-video-producer-content-type-selection label {
+				margin-right: 10px;
 			}
 
 			.demo-video-producer-controls {
@@ -73,6 +96,7 @@ class DemoVideoProducer extends LitElement {
 		this.languages = [];
 		this.captions = [];
 		this._captionsLoading = true;
+		this._loading = true;
 		this.metadata = { cuts: [], chapters: [] };
 		this.fetchAndSetData();
 		this._saving = false;
@@ -81,11 +105,36 @@ class DemoVideoProducer extends LitElement {
 		this._alertMessage = '';
 		this._metadataLoading = true;
 		this._unsavedChanges = false;
+		this._videoSelected = true;
 	}
 
 	render() {
+		if (this._loading) {
+			return html`<div class="demo-video-producer-loading-container"><d2l-loading-spinner size=150></d2l-loading-spinner></div>`;
+		}
 		return html`
 			<div class="demo-video-producer">
+				<p class="d2l-label-text">Content Type</p>
+				<div class="demo-video-producer-content-type-selection">
+					<label class="d2l-input-radio-label">
+						<input
+							?checked="${this._videoSelected}"
+							@click="${this._handleVideoClicked}"
+							type="radio"
+						>
+							Video
+						</input>
+					</label>
+					<label class="d2l-input-radio-label">
+						<input
+							?checked="${!this._videoSelected}"
+							@click="${this._handleAudioClicked}"
+							type="radio"
+						>
+							Audio
+						</input>
+					</label>
+				</div>
 				<div class="demo-video-producer-controls">
 					<d2l-video-producer-language-selector
 						?disabled="${this._saving || this._finishing}"
@@ -124,11 +173,12 @@ class DemoVideoProducer extends LitElement {
 					.captionsUrl="${this._captionsUrl}"
 					@captions-url-changed="${this._handleCaptionsUrlChanged}"
 					.defaultLanguage="${this.defaultLanguage}"
+					?enableCutsAndChapters="${this._videoSelected}"
 					.metadata="${this.metadata}"
 					?metadata-loading="${this._metadataLoading}"
 					@metadata-changed="${this._handleMetadataChanged}"
 					.selectedLanguage="${this.selectedLanguage}"
-					src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+					.src="${this._videoSelected ? VIDEO_SOURCE : AUDIO_SOURCE}"
 				></d2l-capture-producer-editor>
 
 				<d2l-alert-toast type="default">
@@ -140,6 +190,7 @@ class DemoVideoProducer extends LitElement {
 
 	async fetchAndSetData() {
 		await new Promise(resolve => setTimeout(resolve, 500));
+
 		this.languages = [{
 			name: 'English (United States)',
 			code: 'en-us',
@@ -194,6 +245,26 @@ Aenean sed hendrerit nibh. Sed nec elementum dui. Vestibulum ac nulla nec.
 00:08.000 --> 00:10.000
 Nullam luctus purus id erat lobortis rhoncus.`;
 		this._captionsUrl = window.URL.createObjectURL(new Blob([vttCaptionsText], { type: 'text/vtt' }));
+
+		this._loading = false;
+	}
+
+	_changeContentType(videoSelected) {
+		this._loading = true;
+		this._captionsLoading = true;
+		this._metadataLoading = true;
+		setTimeout(() => {
+			this._videoSelected = videoSelected;
+			this._loading = false;
+			setTimeout(() => {
+				this._captionsLoading = false;
+				this._metadataLoading = false;
+			}, 500);
+		}, 500);
+	}
+
+	_handleAudioClicked() {
+		this._changeContentType(false);
 	}
 
 	_handleCaptionsChanged(e) {
@@ -253,8 +324,12 @@ Nullam luctus purus id erat lobortis rhoncus.`;
 		this.selectedLanguage = e.detail.selectedLanguage;
 	}
 
-	get _loading() {
-		return !(this.metadata && this.captions && this.languages.length > 0);
+	_handleVideoClicked() {
+		this._changeContentType(true);
+	}
+
+	get _producer() {
+		return this.shadowRoot.querySelector('d2l-capture-producer-editor');
 	}
 
 	_renderSavedUnsavedIndicator() {
