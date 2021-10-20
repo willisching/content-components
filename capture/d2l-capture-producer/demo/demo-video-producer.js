@@ -9,6 +9,36 @@ import '../src/d2l-video-producer-language-selector.js';
 
 const VIDEO_SOURCE = 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
 const AUDIO_SOURCE = 'https://archive.org/download/MlkButIfNot/mlkbutifnot.mp3';
+const LANGUAGE_TO_CAPTIONS_VTT = {
+	'en-us': `WEBVTT
+
+00:01.000 --> 00:03.000
+Take me out to the ball game,
+Take me out with the crowd.
+
+00:06.000 --> 00:08.000
+Buy me some peanuts and cracker jack, I don't care if I never get back.
+
+00:03.000 --> 00:06.000
+Let me root, root, root for the home team. If they don't win it's a shame.
+
+00:08.000 --> 00:10.000
+For it's one, two, three strikes, you're out.`,
+	'fr-fr': `WEBVTT
+
+00:01.000 --> 00:03.000
+Emmène-moi au jeu de balle,
+Sortez-moi avec la foule.
+
+00:06.000 --> 00:08.000
+Achetez-moi des cacahuètes et des crackers, je m'en fiche si je ne reviens jamais.
+
+00:03.000 --> 00:06.000
+Permettez-moi de root, root, root pour l'équipe à domicile, s'ils ne gagnent pas, c'est dommage.
+
+00:08.000 --> 00:10.000
+Car c'est un, deux, trois coups, tu es dehors`,
+};
 
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 class DemoVideoProducer extends LitElement {
@@ -232,21 +262,7 @@ class DemoVideoProducer extends LitElement {
 			this._metadataLoading = false;
 		}, 500);
 
-		const vttCaptionsText = `WEBVTT
-
-00:01.000 --> 00:03.000
-Lorem ipsum dolor sit amet,
-consectetur adipiscing elit.
-
-00:06.000 --> 00:08.000
-Nulla ultrices, velit ut egestas semper, dolor sem fringilla.
-
-00:03.000 --> 00:06.000
-Aenean sed hendrerit nibh. Sed nec elementum dui. Vestibulum ac nulla nec.
-
-00:08.000 --> 00:10.000
-Nullam luctus purus id erat lobortis rhoncus.`;
-		this._captionsUrl = window.URL.createObjectURL(new Blob([vttCaptionsText], { type: 'text/vtt' }));
+		this._captionsUrl = window.URL.createObjectURL(new Blob([LANGUAGE_TO_CAPTIONS_VTT['en-us']], { type: 'text/vtt' }));
 
 		this._loading = false;
 	}
@@ -329,6 +345,11 @@ Nullam luctus purus id erat lobortis rhoncus.`;
 
 	_handleSelectedLanguageChanged(e) {
 		this.selectedLanguage = e.detail.selectedLanguage;
+		this._captionsUrl = '';
+		this._captionsLoading = true;
+		setTimeout(() => {
+			this._captionsUrl = window.URL.createObjectURL(new Blob([LANGUAGE_TO_CAPTIONS_VTT[e.detail.selectedLanguage.code]], { type: 'text/vtt' }));
+		}, 500);
 	}
 
 	_handleVideoClicked() {
