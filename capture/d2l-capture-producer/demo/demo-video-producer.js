@@ -168,12 +168,14 @@ class DemoVideoProducer extends LitElement {
 
 				<d2l-capture-producer-editor
 					.captions="${this.captions}"
+					@captions-auto-generation-started="${this._handleCaptionsAutoGenerationStarted}"
 					@captions-changed="${this._handleCaptionsChanged}"
 					?captions-loading="${this._captionsLoading}"
 					.captionsUrl="${this._captionsUrl}"
 					@captions-url-changed="${this._handleCaptionsUrlChanged}"
 					.defaultLanguage="${this.defaultLanguage}"
 					?enableCutsAndChapters="${this._videoSelected}"
+					.languages="${this.languages}"
 					.metadata="${this.metadata}"
 					?metadata-loading="${this._metadataLoading}"
 					@metadata-changed="${this._handleMetadataChanged}"
@@ -265,6 +267,11 @@ Nullam luctus purus id erat lobortis rhoncus.`;
 
 	_handleAudioClicked() {
 		this._changeContentType(false);
+	}
+
+	_handleCaptionsAutoGenerationStarted(event) {
+		console.log('Captions auto-generation was triggered for this language:');
+		console.log(event.detail.language);
 	}
 
 	_handleCaptionsChanged(e) {
