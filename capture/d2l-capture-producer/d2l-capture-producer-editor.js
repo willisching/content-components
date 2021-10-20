@@ -153,10 +153,10 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	firstUpdated() {
 		super.firstUpdated();
 
-		this._video = this.shadowRoot.querySelector('d2l-labs-media-player');
+		this._mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
 
 		// Wait for video to be loaded
-		this._video.addEventListener('loadeddata', () => {
+		this._mediaPlayer.addEventListener('loadeddata', () => {
 			if (this.enableCutsAndChapters && this.metadata) {
 				this._resetTimelineWithNewCuts(this.metadata.cuts);
 				this._changeToSeekMode();
@@ -354,13 +354,13 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 	//#region Chapter management
 	_addNewChapter() {
-		this._chaptersComponent.addNewChapter(this._video.currentTime);
+		this._chaptersComponent.addNewChapter(this._mediaPlayer.currentTime);
 	}
 
 	//#region Control mode management
 	_changeToCutMode() {
 		this._controlMode = constants.CONTROL_MODES.CUT;
-		this._video.pause();
+		this._mediaPlayer.pause();
 		this._updateMouseEnabledForCuts();
 		this._updateMouseEnabledForMarks();
 		this._contentMarker.mouseEnabled = false;
@@ -369,7 +369,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 	_changeToMarkMode() {
 		this._controlMode = constants.CONTROL_MODES.MARK;
-		this._video.pause();
+		this._mediaPlayer.pause();
 		this._updateMouseEnabledForCuts();
 		this._updateMouseEnabledForMarks();
 		this._contentMarker.mouseEnabled = false;
@@ -697,17 +697,17 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	_getRoundedTime(time) {
-		return Math.min(Math.round(time), Math.floor(this._video.duration));
+		return Math.min(Math.round(time), Math.floor(this._mediaPlayer.duration));
 	}
 
 	_getSeekModeHandlers() {
 		const seek = event => {
-			if (this._video.duration > 0) {
+			if (this._mediaPlayer.duration > 0) {
 				const { lowerTimeBound, upperTimeBound } = this._timeline.getTimeBoundsOfTimeline();
 				const progress = event.localX / constants.TIMELINE_WIDTH;
 
 				this._mouseTime = (upperTimeBound - lowerTimeBound) * progress + lowerTimeBound;
-				this._video.currentTime = this._mouseTime;
+				this._mediaPlayer.currentTime = this._mouseTime;
 				this._updateVideoTime();
 			}
 		};
@@ -719,8 +719,8 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 				this._stage.mouseMoveOutside = false;
 
 				if (this._shouldResumePlaying) {
-					if (this._video.currentTime < this._video.duration) {
-						this._video.play();
+					if (this._mediaPlayer.currentTime < this._mediaPlayer.duration) {
+						this._mediaPlayer.play();
 					}
 
 					this._shouldResumePlaying = false;
@@ -738,8 +738,8 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		seekMode.timelineMouseDown = event => {
 			this._stage.mouseMoveOutside = true;
 
-			this._shouldResumePlaying = !this._video.paused && !this._video.ended;
-			this._video.pause();
+			this._shouldResumePlaying = !this._mediaPlayer.paused && !this._mediaPlayer.ended;
+			this._mediaPlayer.pause();
 
 			seekMode.timelinePressMove(event);
 		};
@@ -822,7 +822,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	_handleTrackLoaded() {
-		this._fireCaptionsChangedEvent(this._video.textTracks[0].cues);
+		this._fireCaptionsChangedEvent(this._mediaPlayer.textTracks[0].cues);
 	}
 
 	_hideCursor() {
@@ -939,7 +939,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		}
 
 		this._timeline = new Timeline({
-			durationSeconds: Math.ceil(this._video.duration),
+			durationSeconds: Math.ceil(this._mediaPlayer.duration),
 			widthPixels: constants.TIMELINE_WIDTH,
 			cuts,
 			zoomMultiplier: this._zoomMultiplier,
@@ -957,7 +957,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 	//#endregion
 	_setChapterToCurrentTime() {
-		this._chaptersComponent.setChapterToTime(this._video.currentTime);
+		this._chaptersComponent.setChapterToTime(this._mediaPlayer.currentTime);
 	}
 
 	_setCursorOrCurrentMark(stageXPosition) {
@@ -1013,8 +1013,8 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	_startUpdatingVideoTime() {
 		// Restart video if paused at end cut.
 		Object.values(this._timeline.getCuts()).reverse().forEach(cut => {
-			if (cut.out >= this._video.duration && this._video.currentTime === cut.in) {
-				this._video.currentTime = 0;
+			if (cut.out >= this._mediaPlayer.duration && this._mediaPlayer.currentTime === cut.in) {
+				this._mediaPlayer.currentTime = 0;
 			}
 
 			// Only interested in the last cut, break the loop.
@@ -1023,13 +1023,13 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 		this._updateTimelineInterval = setInterval(() => {
 			// Skip cuts
-			const cut = this._timeline.getCutOverTime(this._video.currentTime);
+			const cut = this._timeline.getCutOverTime(this._mediaPlayer.currentTime);
 			if (cut) {
-				if (cut.out >= this._video.duration) {
-					this._video.currentTime = cut.in;
-					this._video.pause();
+				if (cut.out >= this._mediaPlayer.duration) {
+					this._mediaPlayer.currentTime = cut.in;
+					this._mediaPlayer.pause();
 				} else {
-					this._video.currentTime = cut.out;
+					this._mediaPlayer.currentTime = cut.out;
 				}
 			}
 
@@ -1068,13 +1068,13 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 	_updateVideoTime() {
 		// Clear the seeked time once the video has caught up
-		if (this._mouseTime && Math.abs(this._mouseTime - this._video.currentTime) < 1) {
+		if (this._mouseTime && Math.abs(this._mouseTime - this._mediaPlayer.currentTime) < 1) {
 			this._mouseTime = null;
 		}
 
 		const { lowerTimeBound, upperTimeBound } = this._timeline.getTimeBoundsOfTimeline();
 
-		const time = this._mouseTime || this._video.currentTime;
+		const time = this._mouseTime || this._mediaPlayer.currentTime;
 
 		let width;
 
@@ -1091,12 +1091,12 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	_updateZoomMultiplierFromZoomHandle() {
-		if (!this._video) return 1;
+		if (!this._mediaPlayer) return 1;
 
 		const zoomHandleValue = this._getZoomHandleValue();
 
 		// See US130745 for details on this calculation
-		this._zoomMultiplier = Math.max(Math.pow(Math.pow((2 * this._video.duration * constants.MARK_WIDTH / constants.TIMELINE_WIDTH), 1 / constants.ZOOM_HANDLE_MAX_DEPTH), zoomHandleValue), 1);
+		this._zoomMultiplier = Math.max(Math.pow(Math.pow((2 * this._mediaPlayer.duration * constants.MARK_WIDTH / constants.TIMELINE_WIDTH), 1 / constants.ZOOM_HANDLE_MAX_DEPTH), zoomHandleValue), 1);
 
 		this._timeline.zoomMultiplier = this._zoomMultiplier;
 	}

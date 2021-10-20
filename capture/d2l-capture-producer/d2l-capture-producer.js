@@ -533,11 +533,6 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		}
 	}
 
-	_handleTrackLoaded() {
-		this._captions = this._video.textTracks[0].cues;
-		this._captionsLoading = false;
-	}
-
 	get _latestDraftRevision() {
 		return this._revisionsLatestToOldest?.find(x => x.draft);
 	}
