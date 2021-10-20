@@ -226,6 +226,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 					?captions-loading="${this._captionsLoading}"
 					.captionsUrl="${this._captionsUrl}"
 					@captions-url-changed="${this._handleCaptionsUrlChanged}"
+					?enableCutsAndChapters="${this._enableCutsAndChapters}"
 					.defaultLanguage="${this._defaultLanguage}"
 					.isProcessing="${this._isProcessing}"
 					.languages="${this._languages}"
@@ -315,6 +316,11 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		});
 	}
 
+	get _enableCutsAndChapters() {
+		// Add more content types to this array when they support cuts and chapters.
+		return ['Video'].includes(this._selectedRevision?.type);
+	}
+
 	get _finishIsDisabled() {
 		return (
 			// Disable if content is not yet loaded.
@@ -346,12 +352,14 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		}
 
 		if (this._unsavedChanges) {
-			await this.apiClient.updateMetadata({
-				contentId: this._content.id,
-				metadata: this._metadata,
-				revisionId: draftToPublish.id,
-			});
-			this._metadataChanged = false;
+			if (this._enableCutsAndChapters) {
+				await this.apiClient.updateMetadata({
+					contentId: this._content.id,
+					metadata: this._metadata,
+					revisionId: draftToPublish.id,
+				});
+				this._metadataChanged = false;
+			}
 			await this.apiClient.updateCaptions({
 				contentId: this._content.id,
 				captionsVttText: convertTextTrackCueListToVttText(this._captions),
@@ -481,11 +489,14 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		}
 
 		try {
-			await this.apiClient.updateMetadata({
-				contentId: this._content.id,
-				metadata: this._metadata,
-				revisionId: this._latestDraftRevision.id,
-			});
+			if (this._enableCutsAndChapters) {
+				await this.apiClient.updateMetadata({
+					contentId: this._content.id,
+					metadata: this._metadata,
+					revisionId: this._latestDraftRevision.id,
+				});
+				this._metadataChanged = false;
+			}
 			await this.apiClient.updateCaptions({
 				contentId: this._content.id,
 				captionsVttText: convertTextTrackCueListToVttText(this._captions),
@@ -493,7 +504,6 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				locale: this._selectedLanguage.code
 			});
 			this._captionsChanged = false;
-			this._metadataChanged = false;
 		} catch (error) {
 			this._errorOccurred = true;
 		}
@@ -566,7 +576,11 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 		this._src = (await this.apiClient.getSignedUrl(this.contentId)).value;
 		await this._setupLanguages();
-		this._loadMetadata(this._revisionsLatestToOldest[0].id);
+		if (this._enableCutsAndChapters) {
+			this._loadMetadata(this._revisionsLatestToOldest[0].id);
+		} else {
+			this._metadataLoading = false;
+		}
 		this._loadCaptions(this._revisionsLatestToOldest[0].id, this._selectedLanguage.code);
 	}
 
@@ -633,7 +647,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 	async _loadNewlySelectedRevision() {
 		const revisionId = this._revisionsLatestToOldest[this._revisionIndexToLoad].id;
-		this._loadMetadata(revisionId);
+		if (this._enableCutsAndChapters) this._loadMetadata(revisionId);
 		this._loadCaptions(revisionId, this._selectedLanguage.code);
 		this._selectedRevisionIndex = this._revisionIndexToLoad;
 		this._captionsChanged = false;

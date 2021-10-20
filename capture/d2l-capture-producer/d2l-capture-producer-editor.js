@@ -16,7 +16,7 @@ import { Container, Shape, Stage, Text } from '@createjs/easeljs';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import constants from './src/constants.js';
 import { InternalLocalizeMixin } from './src/internal-localize-mixin.js';
-import { labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
+import { bodyCompactStyles, labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';
 import { styleMap } from 'lit-html/directives/style-map';
@@ -29,6 +29,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			captionsLoading: { type: Boolean, attribute: 'captions-loading' },
 			captionsUrl: { type: String },
 			defaultLanguage: { type: Object },
+			enableCutsAndChapters: { type: Boolean },
 			languages: { type: Array },
 			metadata: { type: Object },
 			metadataLoading: { type: Boolean, attribute: 'metadata-loading' },
@@ -41,7 +42,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	static get styles() {
-		return [labelStyles, selectStyles, css`
+		return [bodyCompactStyles, labelStyles, selectStyles, css`
 			.d2l-video-producer-editor {
 				display: flex;
 				flex-direction: column;
@@ -57,6 +58,10 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 				display: flex;
 				margin-right: 20px;
 				width: 100%;
+			}
+
+			.d2l-video-producer-captions-header {
+				margin: 10px 0px 10px 25px;
 			}
 
 			.d2l-video-producer-timeline {
@@ -131,6 +136,8 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this._draggingMark = false;
 		this._currentMark = null;
 
+		this.enableCutsAndChapters = false;
+
 		this.captions = [];
 		this.captionsUrl = '';
 		this.captionsLoading = true;
@@ -147,24 +154,16 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		super.firstUpdated();
 
 		this._video = this.shadowRoot.querySelector('d2l-labs-media-player');
-		this._chapters = this.shadowRoot.querySelector('d2l-video-producer-chapters');
-		this._configureStage();
-		this._configureModes();
-
-		this._chapters.addEventListener('active-chapter-updated',
-			this._handleActiveChapterUpdated.bind(this));
 
 		// Wait for video to be loaded
 		this._video.addEventListener('loadeddata', () => {
-			if (this.metadata) {
+			if (this.enableCutsAndChapters && this.metadata) {
 				this._resetTimelineWithNewCuts(this.metadata.cuts);
+				this._changeToSeekMode();
 			}
 			this._videoLoaded = true;
 			this.dispatchEvent(new CustomEvent('media-loaded', { composed: false }));
-			this._changeToSeekMode();
 		});
-
-		this._chaptersComponent = this.shadowRoot.querySelector('d2l-video-producer-chapters');
 	}
 
 	render() {
@@ -187,25 +186,33 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 						${this.captionsUrl ? html`<track default-ignore-preferences src="${this.captionsUrl}" srclang="${this._formatCaptionsSrcLang()}" label="${this.selectedLanguage.name}" kind="subtitles">` : ''}
 					</d2l-labs-media-player>
 					<d2l-tabs>
-						<d2l-tab-panel
-							selected
-							no-padding
-							text=${this.localize('tableOfContents')}
-						>
-							<d2l-video-producer-chapters
-								.chapters="${this.metadata && this.metadata.chapters}"
-								.defaultLanguage="${this.defaultLanguage}"
-								.selectedLanguage="${this.selectedLanguage}"
-								?loading="${this.metadataLoading}"
-								@add-new-chapter="${this._addNewChapter}"
-								@chapters-changed="${this._handleChaptersChanged}"
-								@set-chapter-to-current-time="${this._setChapterToCurrentTime}"
-							></d2l-video-producer-chapters>
-						</d2l-tab-panel>
+						${ (this.enableCutsAndChapters ? html`
+							<d2l-tab-panel
+								selected
+								no-padding
+								text=${this.localize('tableOfContents')}
+							>
+								<d2l-video-producer-chapters
+									.chapters="${this.metadata && this.metadata.chapters}"
+									.defaultLanguage="${this.defaultLanguage}"
+									.selectedLanguage="${this.selectedLanguage}"
+									?loading="${this.metadataLoading}"
+									@add-new-chapter="${this._addNewChapter}"
+									@chapters-changed="${this._handleChaptersChanged}"
+									@set-chapter-to-current-time="${this._setChapterToCurrentTime}"
+								></d2l-video-producer-chapters>
+							</d2l-tab-panel>
+						` : '')}
 						<d2l-tab-panel
 							no-padding
 							text=${this.localize('closedCaptions')}
 						>
+							<!-- d2l-tabs hides the tab header if there is only 1 tab panel -->
+							${(this.enableCutsAndChapters ? '' : html`
+								<div class="d2l-video-producer-captions-header d2l-body-compact">
+									${this.localize('closedCaptions')}
+								</div>
+							`)}
 							<d2l-video-producer-captions
 								.captions="${this.captions}"
 								@captions-uploaded=${this._handleCaptionsUploaded}
@@ -217,26 +224,35 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 						</d2l-tab-panel>
 					</d2l-tabs>
 				</div>
-				<div class="d2l-video-producer-timeline" style="visibility: ${(this.metadataLoading) ? 'hidden' : 'visible'};">
-					<div id="canvas-container">
-						<canvas height="${constants.CANVAS_HEIGHT}px" width="${constants.CANVAS_WIDTH}px" id="timeline-canvas"></canvas>
-						<div id="zoom-multiplier" style=${styleMap(zoomMultiplierStyleMap)}>
-							${this._getZoomMultiplierDisplay()}
+				${(this.enableCutsAndChapters ? html`
+					<div class="d2l-video-producer-timeline" style="visibility: ${this.metadataLoading ? 'hidden' : 'visible'};">
+						<div id="canvas-container">
+							<canvas height="${constants.CANVAS_HEIGHT}px" width="${constants.CANVAS_WIDTH}px" id="timeline-canvas"></canvas>
+							<div id="zoom-multiplier" style=${styleMap(zoomMultiplierStyleMap)}>
+								${this._getZoomMultiplierDisplay()}
+							</div>
+						</div>
+						<div class="d2l-video-producer-timeline-controls">
+							<d2l-button-icon @click="${this._changeToSeekMode}" text="${this.localize(constants.CONTROL_MODES.SEEK)}" icon="tier1:divider-solid"></d2l-button-icon>
+							<d2l-button-icon @click="${this._changeToMarkMode}" text="${this.localize(constants.CONTROL_MODES.MARK)}" icon="tier1:edit"></d2l-button-icon>
+							<d2l-button-icon @click="${this._changeToCutMode}" text="${this.localize(constants.CONTROL_MODES.CUT)}" icon="html-editor:cut"></d2l-button-icon>
 						</div>
 					</div>
-					<div class="d2l-video-producer-timeline-controls">
-						<d2l-button-icon @click="${this._changeToSeekMode}" text="${this.localize(constants.CONTROL_MODES.SEEK)}" icon="tier1:divider-solid"></d2l-button-icon>
-						<d2l-button-icon @click="${this._changeToMarkMode}" text="${this.localize(constants.CONTROL_MODES.MARK)}" icon="tier1:edit"></d2l-button-icon>
-						<d2l-button-icon @click="${this._changeToCutMode}" text="${this.localize(constants.CONTROL_MODES.CUT)}" icon="html-editor:cut"></d2l-button-icon>
-					</div>
-				</div>
+				` : '')}
 			</div>
 		`;
 	}
 
 	updated(changedProperties) {
 		super.updated(changedProperties);
-		if (changedProperties.has('metadata') && this.metadata && this._videoLoaded && this._cutsDifferInMetadataAndTimeline()) {
+		if (changedProperties.has('enableCutsAndChapters') && this.enableCutsAndChapters) {
+			this._chaptersComponent = this.shadowRoot.querySelector('d2l-video-producer-chapters');
+			this._chaptersComponent.addEventListener('active-chapter-updated',
+				this._handleActiveChapterUpdated.bind(this));
+			this._configureStage();
+			this._configureModes();
+		}
+		if (this.enableCutsAndChapters && changedProperties.has('metadata') && this.metadata && this._videoLoaded && this._cutsDifferInMetadataAndTimeline()) {
 			this._resetTimelineWithNewCuts(this.metadata.cuts);
 		}
 	}
@@ -338,7 +354,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 	//#region Chapter management
 	_addNewChapter() {
-		this._chapters.addNewChapter(this._video.currentTime);
+		this._chaptersComponent.addNewChapter(this._video.currentTime);
 	}
 
 	//#region Control mode management
@@ -832,7 +848,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 	_moveContentMarker(event) {
 		if (this._controlMode === constants.CONTROL_MODES.SEEK) {
-			this._chapters.setChapterToTime(this._getTimeFromStageX(event.stageX));
+			this._chaptersComponent.setChapterToTime(this._getTimeFromStageX(event.stageX));
 			this._showAndMoveTimeContainer(this._activeChapterTime);
 		}
 	}
@@ -941,7 +957,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 	//#endregion
 	_setChapterToCurrentTime() {
-		this._chapters.setChapterToTime(this._video.currentTime);
+		this._chaptersComponent.setChapterToTime(this._video.currentTime);
 	}
 
 	_setCursorOrCurrentMark(stageXPosition) {
