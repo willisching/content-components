@@ -79,6 +79,16 @@ export default class ContentServiceClient {
 		});
 	}
 
+	getRevisionProgress({ contentId, revisionId }) {
+		const headers = new Headers();
+		headers.append('pragma', 'no-cache');
+		headers.append('cache-control', 'no-cache');
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/progress`,
+			headers
+		});
+	}
+
 	getSignedUrl(contentId) {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/signedUrl`
@@ -94,8 +104,9 @@ export default class ContentServiceClient {
 	processRevision({
 		contentId,
 		revisionId,
-		body,
+		captionLanguages,
 	}) {
+		const body = captionLanguages ? { captionLanguages } : undefined;
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/process`,
 			method: 'POST',

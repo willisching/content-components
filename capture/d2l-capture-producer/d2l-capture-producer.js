@@ -13,7 +13,7 @@ import { autorun } from 'mobx';
 import ContentServiceClient from './src/content-service-client.js';
 import { formatDateTimeFromTimestamp } from '@brightspace-ui/intl/lib/dateTime.js';
 import { InternalLocalizeMixin } from './src/internal-localize-mixin.js';
-import { labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
+import { bodyStandardStyles, labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';
 import UserBrightspaceClient from './src/user-brightspace-client.js';
@@ -35,6 +35,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			_defaultLanguage: { type: Object, attribute: false },
 			_errorOccurred: { type: Boolean, attribute: false },
 			_finishing: { type: Boolean, attribute: false },
+			_isProcessing: { type: Boolean, attribute: false },
+			_languages: { type: Array, attribute: false },
 			_loading: { type: Boolean, attribute: false },
 			_languageToLoad: { type: Object, attribute: false },
 			_metadata: { type: Object, attribute: false },
@@ -52,16 +54,21 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	static get styles() {
-		return [labelStyles, selectStyles, css`
-			.d2l-video-producer-loading-container {
+		return [bodyStandardStyles, labelStyles, selectStyles, css`
+			.d2l-video-producer-overlay {
 				align-items: center;
 				display: flex;
+				flex-direction: column;
 				height: 70%;
 				justify-content: center;
 				overflow-y: hidden;
 				position: absolute;
 				width: 100%;
 				z-index: 99;
+			}
+
+			.d2l-video-producer-processing-message {
+				text-align: center;
 			}
 
 			.d2l-video-producer-top-bar-controls {
@@ -121,6 +128,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	constructor() {
 		super();
 
+		this._isProcessing = false;
 		this._selectedRevisionIndex = 0;
 		this._revisionIndexToLoad = 0;
 
@@ -137,6 +145,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._metadataLoading = true;
 		this._src = '';
 		this._defaultLanguage = {};
+		this._languages = [];
 		this._selectedLanguage = {};
 		this._languageToLoad = {};
 		this._mediaLoaded = false;
@@ -152,19 +161,16 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this.userBrightspaceClient = new UserBrightspaceClient();
 
 		autorun(async() => {
-			await this._loadContent();
-			this._src = (await this.apiClient.getSignedUrl(this.contentId)).value;
-			await this._setupLanguages();
-			this._loadMetadata(this._revisionsLatestToOldest[0].id);
-			this._loadCaptions(this._revisionsLatestToOldest[0].id, this._selectedLanguage.code);
+			await this._loadAllDataForContent();
 		});
 	}
 
 	render() {
 		return html`
 			<div class="d2l-video-producer">
-				${this._loading ? html`<div class="d2l-video-producer-loading-container"><d2l-loading-spinner size=150></d2l-loading-spinner></div>` : ''}
-				<div class="d2l-video-producer-top-bar-controls" style="visibility: ${this._loading ? 'hidden' : 'visible'};">
+				${(this._loading && !this._isProcessing) ? html`<div class="d2l-video-producer-overlay"><d2l-loading-spinner size=150></d2l-loading-spinner></div>` : ''}
+				${this._isProcessing ? this._renderProcessingMessage() : ''}
+				<div class="d2l-video-producer-top-bar-controls" style="visibility: ${(this._loading || this._isProcessing) ? 'hidden' : 'visible'};">
 					<d2l-video-producer-language-selector
 						?disabled="${this._saving || this._finishing}"
 						.languages="${this._languages}"
@@ -215,18 +221,21 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				</div>
 				<d2l-capture-producer-editor
 					.captions="${this._captions}"
+					@captions-auto-generation-started="${this._handleCaptionsAutoGenerationStarted}"
 					@captions-changed="${this._handleCaptionsChanged}"
 					?captions-loading="${this._captionsLoading}"
 					.captionsUrl="${this._captionsUrl}"
 					@captions-url-changed="${this._handleCaptionsUrlChanged}"
 					.defaultLanguage="${this._defaultLanguage}"
+					.isProcessing="${this._isProcessing}"
+					.languages="${this._languages}"
 					@media-loaded="${this._handleMediaLoaded}"
 					.metadata="${this._metadata}"
 					@metadata-changed="${this._handleMetadataChanged}"
 					?metadata-loading="${this._metadataLoading}"
 					.selectedLanguage="${this._selectedLanguage}"
 					.src="${this._src}"
-					style="visibility: ${this._loading ? 'hidden' : 'visible'};"
+					style="visibility: ${(this._loading || this._isProcessing) ? 'hidden' : 'visible'};"
 				></d2l-capture-producer-editor>
 				<d2l-alert-toast type="${this._errorOccurred ? 'error' : 'default'}">
 					${this._alertMessage}
@@ -269,6 +278,26 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 						${this.localize('no')}
 					</d2l-button>
 				</d2l-dialog-confirm>
+				<d2l-dialog-confirm
+					class="d2l-video-producer-dialog-confirm-finish"
+					title-text="${this.localize('confirmFinish')}"
+					text="${this.localize('publishWarning')}"
+				>
+					<d2l-button
+						@click="${this._handleConfirmFinish}"
+						data-dialog-action="yes"
+						primary
+						slot="footer"
+					>
+						${this.localize('finish')}
+					</d2l-button>
+					<d2l-button
+						data-dialog-action="no"
+						slot="footer"
+					>
+						${this.localize('cancel')}
+					</d2l-button>
+				</d2l-dialog-confirm>
 			</div>
 		`;
 	}
@@ -296,6 +325,58 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			// Disable if we are currently loading or saving data.
 			this._saving || this._finishing || this._metadataLoading || this._captionsLoading
 		);
+	}
+
+	async _finishRevision(autoGenerateCaptionsLanguage) {
+		this._finishing = true;
+
+		let draftToPublish;
+		if (!this._latestDraftRevision || this._selectedRevisionIndex !== 0) {
+			try {
+				draftToPublish = await this._createNewDraftRevision();
+			} catch (error) {
+				this._errorOccurred = true;
+				this._alertMessage = this.localize('finishError');
+				this.shadowRoot.querySelector('d2l-alert-toast').open = true;
+				this._finishing = false;
+				return;
+			}
+		} else {
+			draftToPublish = this._latestDraftRevision;
+		}
+
+		if (this._unsavedChanges) {
+			await this.apiClient.updateMetadata({
+				contentId: this._content.id,
+				metadata: this._metadata,
+				revisionId: draftToPublish.id,
+			});
+			this._metadataChanged = false;
+			await this.apiClient.updateCaptions({
+				contentId: this._content.id,
+				captionsVttText: convertTextTrackCueListToVttText(this._captions),
+				revisionId: draftToPublish.id,
+				locale: this._selectedLanguage.code
+			});
+			this._captionsChanged = false;
+		}
+
+		try {
+			await this.apiClient.processRevision({
+				contentId: this._content.id,
+				revisionId: draftToPublish.id,
+				captionLanguages: autoGenerateCaptionsLanguage ? [autoGenerateCaptionsLanguage.code] : undefined,
+			});
+			this._isProcessing = true;
+			this._loadAllDataForContent();
+		} catch (error) {
+			this._errorOccurred = true;
+		}
+		this._alertMessage = this._errorOccurred
+			? this.localize('finishError')
+			: this.localize('finishSuccess');
+		this.shadowRoot.querySelector('d2l-alert-toast').open = true;
+		this._finishing = false;
 	}
 
 	_fireContentLoadedEvent(content) {
@@ -334,6 +415,10 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		}
 	}
 
+	_handleCaptionsAutoGenerationStarted(event) {
+		this._finishRevision(event.detail.language);
+	}
+
 	_handleCaptionsChanged(event) {
 		this._captions = event.detail.captions;
 		if (!this._captionsLoading) {
@@ -359,55 +444,12 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._metadataChanged = true;
 	}
 
-	async _handleFinish() {
-		this._finishing = true;
+	_handleConfirmFinish() {
+		this._finishRevision();
+	}
 
-		let draftToPublish;
-		if (!this._latestDraftRevision || this._selectedRevisionIndex !== 0) {
-			try {
-				draftToPublish = await this._createNewDraftRevision();
-			} catch (error) {
-				this._errorOccurred = true;
-				this._alertMessage = this.localize('finishError');
-				this.shadowRoot.querySelector('d2l-alert-toast').open = true;
-				this._finishing = false;
-				return;
-			}
-		} else {
-			draftToPublish = this._latestDraftRevision;
-		}
-
-		if (this._unsavedChanges) {
-			await this.apiClient.updateMetadata({
-				contentId: this._content.id,
-				metadata: this._metadata,
-				revisionId: draftToPublish.id,
-			});
-			await this.apiClient.updateCaptions({
-				contentId: this._content.id,
-				captionsVttText: convertTextTrackCueListToVttText(this._captions),
-				revisionId: draftToPublish.id,
-				locale: this._selectedLanguage.code
-			});
-		}
-
-		try {
-			await this.apiClient.processRevision({
-				contentId: this._content.id,
-				revisionId: draftToPublish.id,
-			});
-			await this._loadContent();
-			this._selectedRevisionIndex = 0;
-			this._captionsChanged = false;
-			this._metadataChanged = false;
-		} catch (error) {
-			this._errorOccurred = true;
-		}
-		this._alertMessage = this._errorOccurred
-			? this.localize('finishError')
-			: this.localize('finishSuccess');
-		this.shadowRoot.querySelector('d2l-alert-toast').open = true;
-		this._finishing = false;
+	_handleFinish() {
+		this.shadowRoot.querySelector('.d2l-video-producer-dialog-confirm-finish').open();
 	}
 
 	_handleMediaLoaded() {
@@ -428,7 +470,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		if (!this._latestDraftRevision || this._selectedRevisionIndex !== 0) {
 			try {
 				await this._createNewDraftRevision();
-				await this._loadContent();
+				await this._loadRevisionsList();
 				this._selectedRevisionIndex = 0;
 			} catch (error) {
 				this._errorOccurred = true;
@@ -490,6 +532,44 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		return this._revisionsLatestToOldest?.find(x => x.draft);
 	}
 
+	async _loadAllDataForContent() {
+		this._captionsLoading = true;
+		this._metadataLoading = true;
+		this._src = '';
+
+		this._content = await this.apiClient.getContent(this.contentId);
+		this._fireContentLoadedEvent(this._content);
+
+		if (this._content.revisions) {
+			this._revisionsLatestToOldest = this._content.revisions.slice().reverse();
+
+			const latestRevision = this._content.revisions[this._content.revisions.length - 1];
+			if (!latestRevision.draft) {
+				try {
+					const latestRevisionProgress = await this.apiClient.getRevisionProgress({
+						contentId: this.contentId,
+						revisionId: latestRevision.id,
+					});
+					if (!latestRevisionProgress.ready) {
+						this._isProcessing = true;
+						await this._pollUntilProcessingComplete(latestRevision.id);
+						this._isProcessing = false;
+					}
+				} catch (error) {
+					this._loading = true;
+					this._alertMessage = this.localize('getProcessingProgressError');
+					this.shadowRoot.querySelector('d2l-alert-toast').open = true;
+					return;
+				}
+			}
+		}
+
+		this._src = (await this.apiClient.getSignedUrl(this.contentId)).value;
+		await this._setupLanguages();
+		this._loadMetadata(this._revisionsLatestToOldest[0].id);
+		this._loadCaptions(this._revisionsLatestToOldest[0].id, this._selectedLanguage.code);
+	}
+
 	async _loadCaptions(revision, locale) {
 		this._captionsLoading = true;
 		this._captionsUrl = '';
@@ -510,14 +590,6 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				this._alertMessage = this.localize('loadCaptionsError', { language: language.name });
 				this.shadowRoot.querySelector('d2l-alert-toast').open = true;
 			}
-		}
-	}
-
-	async _loadContent() {
-		this._content = await this.apiClient.getContent(this.contentId);
-		this._fireContentLoadedEvent(this._content);
-		if (this._content.revisions) {
-			this._revisionsLatestToOldest = this._content.revisions.slice().reverse();
 		}
 	}
 
@@ -566,6 +638,41 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._selectedRevisionIndex = this._revisionIndexToLoad;
 		this._captionsChanged = false;
 		this._metadataChanged = false;
+	}
+
+	async _loadRevisionsList() {
+		this._content = await this.apiClient.getContent(this.contentId);
+		this._fireContentLoadedEvent(this._content);
+		if (this._content.revisions) {
+			this._revisionsLatestToOldest = this._content.revisions.slice().reverse();
+		}
+	}
+
+	async _pollUntilProcessingComplete(revisionId) {
+		const _pollProgress = resolve => {
+			setTimeout(() => {
+				this.apiClient.getRevisionProgress({ contentId: this.contentId, revisionId })
+					.then(revisionProgress => {
+						if (revisionProgress.ready) {
+							resolve();
+						} else {
+							_pollProgress(resolve);
+						}
+					});
+			}, 3000);
+		};
+		return new Promise(resolve => {
+			_pollProgress(resolve);
+		});
+	}
+
+	_renderProcessingMessage() {
+		return html`
+			<div class="d2l-video-producer-overlay">
+				<d2l-loading-spinner size=100></d2l-loading-spinner>
+				<p class="d2l-body-standard d2l-video-producer-processing-message">${this.localize('mediaFileProcessing')}</p>
+			</div>
+		`;
 	}
 
 	_renderRevisionsDropdownItems() {

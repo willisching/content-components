@@ -29,6 +29,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			captionsLoading: { type: Boolean, attribute: 'captions-loading' },
 			captionsUrl: { type: String },
 			defaultLanguage: { type: Object },
+			languages: { type: Array },
 			metadata: { type: Object },
 			metadataLoading: { type: Boolean, attribute: 'metadata-loading' },
 			selectedLanguage: { type: Object },
@@ -137,6 +138,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this.metadata = { cuts: [], chapters: [] };
 		this.metadataLoading = true;
 		this.src = '';
+		this.languages = [];
 		this.defaultLanguage = {};
 		this.selectedLanguage = {};
 	}
@@ -208,13 +210,14 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 								.captions="${this.captions}"
 								@captions-uploaded=${this._handleCaptionsUploaded}
 								.defaultLanguage="${this.defaultLanguage}"
+								.languages="${this.languages}"
 								?loading="${this.captionsLoading}"
 								.selectedLanguage="${this.selectedLanguage}"
 							></d2l-video-producer-captions>
 						</d2l-tab-panel>
 					</d2l-tabs>
 				</div>
-				<div class="d2l-video-producer-timeline" style="visibility: ${this.metadataLoading ? 'hidden' : 'visible'};">
+				<div class="d2l-video-producer-timeline" style="visibility: ${(this.metadataLoading) ? 'hidden' : 'visible'};">
 					<div id="canvas-container">
 						<canvas height="${constants.CANVAS_HEIGHT}px" width="${constants.CANVAS_WIDTH}px" id="timeline-canvas"></canvas>
 						<div id="zoom-multiplier" style=${styleMap(zoomMultiplierStyleMap)}>
