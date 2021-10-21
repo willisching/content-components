@@ -61,7 +61,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			}
 
 			.d2l-video-producer-captions-header {
-				margin: 10px 0px 10px 25px;
+				margin: 10px 0px 10px 0px;
 			}
 
 			.d2l-video-producer-timeline {
