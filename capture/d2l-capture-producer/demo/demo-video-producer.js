@@ -2,9 +2,43 @@ import '@brightspace-ui/core/components/alert/alert-toast.js';
 import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
 import '@brightspace-ui/core/components/button/button-icon.js';
 import '@brightspace-ui/core/components/button/button.js';
+import { radioStyles } from '@brightspace-ui/core/components/inputs/input-radio-styles.js';
 import { labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import '../d2l-capture-producer-editor.js';
 import '../src/d2l-video-producer-language-selector.js';
+
+const VIDEO_SOURCE = 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+const AUDIO_SOURCE = 'https://archive.org/download/MlkButIfNot/mlkbutifnot.mp3';
+const LANGUAGE_TO_CAPTIONS_VTT = {
+	'en-us': `WEBVTT
+
+00:01.000 --> 00:03.000
+Take me out to the ball game,
+Take me out with the crowd.
+
+00:06.000 --> 00:08.000
+Buy me some peanuts and cracker jack, I don't care if I never get back.
+
+00:03.000 --> 00:06.000
+Let me root, root, root for the home team. If they don't win it's a shame.
+
+00:08.000 --> 00:10.000
+For it's one, two, three strikes, you're out.`,
+	'fr-fr': `WEBVTT
+
+00:01.000 --> 00:03.000
+Emmène-moi au jeu de balle,
+Sortez-moi avec la foule.
+
+00:06.000 --> 00:08.000
+Achetez-moi des cacahuètes et des crackers, je m'en fiche si je ne reviens jamais.
+
+00:03.000 --> 00:06.000
+Permettez-moi de root, root, root pour l'équipe à domicile, s'ils ne gagnent pas, c'est dommage.
+
+00:08.000 --> 00:10.000
+Car c'est un, deux, trois coups, tu es dehors`,
+};
 
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 class DemoVideoProducer extends LitElement {
@@ -22,13 +56,32 @@ class DemoVideoProducer extends LitElement {
 			_saving: { type: Boolean },
 			_unsavedChanges: { type: Boolean },
 			_finishing: { type: Boolean },
+			_videoSelected: { type: Boolean },
 		};
 	}
 
 	static get styles() {
-		return [labelStyles, css`
+		return [labelStyles, radioStyles, css`
 			.demo-video-producer {
 				width: 1170px;
+			}
+
+			.demo-video-producer-loading-container {
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				width: 100%;
+			}
+
+			.demo-video-producer-content-type-selection {
+				align-items: baseline;
+				display: flex;
+				flex-direction: row;
+				margin-bottom: 10px;
+			}
+
+			.demo-video-producer-content-type-selection label {
+				margin-right: 10px;
 			}
 
 			.demo-video-producer-controls {
@@ -73,6 +126,7 @@ class DemoVideoProducer extends LitElement {
 		this.languages = [];
 		this.captions = [];
 		this._captionsLoading = true;
+		this._loading = true;
 		this.metadata = { cuts: [], chapters: [] };
 		this.fetchAndSetData();
 		this._saving = false;
@@ -81,11 +135,36 @@ class DemoVideoProducer extends LitElement {
 		this._alertMessage = '';
 		this._metadataLoading = true;
 		this._unsavedChanges = false;
+		this._videoSelected = true;
 	}
 
 	render() {
+		if (this._loading) {
+			return html`<div class="demo-video-producer-loading-container"><d2l-loading-spinner size=150></d2l-loading-spinner></div>`;
+		}
 		return html`
 			<div class="demo-video-producer">
+				<p class="d2l-label-text">Content Type</p>
+				<div class="demo-video-producer-content-type-selection">
+					<label class="d2l-input-radio-label">
+						<input
+							?checked="${this._videoSelected}"
+							@click="${this._handleVideoClicked}"
+							type="radio"
+						>
+							Video
+						</input>
+					</label>
+					<label class="d2l-input-radio-label">
+						<input
+							?checked="${!this._videoSelected}"
+							@click="${this._handleAudioClicked}"
+							type="radio"
+						>
+							Audio
+						</input>
+					</label>
+				</div>
 				<div class="demo-video-producer-controls">
 					<d2l-video-producer-language-selector
 						?disabled="${this._saving || this._finishing}"
@@ -119,16 +198,19 @@ class DemoVideoProducer extends LitElement {
 
 				<d2l-capture-producer-editor
 					.captions="${this.captions}"
+					@captions-auto-generation-started="${this._handleCaptionsAutoGenerationStarted}"
 					@captions-changed="${this._handleCaptionsChanged}"
 					?captions-loading="${this._captionsLoading}"
 					.captionsUrl="${this._captionsUrl}"
 					@captions-url-changed="${this._handleCaptionsUrlChanged}"
 					.defaultLanguage="${this.defaultLanguage}"
+					?enableCutsAndChapters="${this._videoSelected}"
+					.languages="${this.languages}"
 					.metadata="${this.metadata}"
 					?metadata-loading="${this._metadataLoading}"
 					@metadata-changed="${this._handleMetadataChanged}"
 					.selectedLanguage="${this.selectedLanguage}"
-					src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+					.src="${this._videoSelected ? VIDEO_SOURCE : AUDIO_SOURCE}"
 				></d2l-capture-producer-editor>
 
 				<d2l-alert-toast type="default">
@@ -140,6 +222,7 @@ class DemoVideoProducer extends LitElement {
 
 	async fetchAndSetData() {
 		await new Promise(resolve => setTimeout(resolve, 500));
+
 		this.languages = [{
 			name: 'English (United States)',
 			code: 'en-us',
@@ -179,21 +262,32 @@ class DemoVideoProducer extends LitElement {
 			this._metadataLoading = false;
 		}, 500);
 
-		const vttCaptionsText = `WEBVTT
+		this._captionsUrl = window.URL.createObjectURL(new Blob([LANGUAGE_TO_CAPTIONS_VTT['en-us']], { type: 'text/vtt' }));
 
-00:01.000 --> 00:03.000
-Lorem ipsum dolor sit amet,
-consectetur adipiscing elit.
+		this._loading = false;
+	}
 
-00:06.000 --> 00:08.000
-Nulla ultrices, velit ut egestas semper, dolor sem fringilla.
+	_changeContentType(videoSelected) {
+		this._loading = true;
+		this._captionsLoading = true;
+		this._metadataLoading = true;
+		setTimeout(() => {
+			this._videoSelected = videoSelected;
+			this._loading = false;
+			setTimeout(() => {
+				this._captionsLoading = false;
+				this._metadataLoading = false;
+			}, 500);
+		}, 500);
+	}
 
-00:03.000 --> 00:06.000
-Aenean sed hendrerit nibh. Sed nec elementum dui. Vestibulum ac nulla nec.
+	_handleAudioClicked() {
+		this._changeContentType(false);
+	}
 
-00:08.000 --> 00:10.000
-Nullam luctus purus id erat lobortis rhoncus.`;
-		this._captionsUrl = window.URL.createObjectURL(new Blob([vttCaptionsText], { type: 'text/vtt' }));
+	_handleCaptionsAutoGenerationStarted(event) {
+		console.log('Captions auto-generation was triggered for this language:');
+		console.log(event.detail.language);
 	}
 
 	_handleCaptionsChanged(e) {
@@ -251,10 +345,19 @@ Nullam luctus purus id erat lobortis rhoncus.`;
 
 	_handleSelectedLanguageChanged(e) {
 		this.selectedLanguage = e.detail.selectedLanguage;
+		this._captionsUrl = '';
+		this._captionsLoading = true;
+		setTimeout(() => {
+			this._captionsUrl = window.URL.createObjectURL(new Blob([LANGUAGE_TO_CAPTIONS_VTT[e.detail.selectedLanguage.code]], { type: 'text/vtt' }));
+		}, 500);
 	}
 
-	get _loading() {
-		return !(this.metadata && this.captions && this.languages.length > 0);
+	_handleVideoClicked() {
+		this._changeContentType(true);
+	}
+
+	get _producer() {
+		return this.shadowRoot.querySelector('d2l-capture-producer-editor');
 	}
 
 	_renderSavedUnsavedIndicator() {

@@ -61,7 +61,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			}
 
 			.d2l-video-producer-captions-header {
-				margin: 10px 0px 10px 25px;
+				margin: 10px 0px 10px 0px;
 			}
 
 			.d2l-video-producer-timeline {
@@ -1011,6 +1011,8 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	_startUpdatingVideoTime() {
+		if (!this._timeline) return;
+
 		// Restart video if paused at end cut.
 		Object.values(this._timeline.getCuts()).reverse().forEach(cut => {
 			if (cut.out >= this._mediaPlayer.duration && this._mediaPlayer.currentTime === cut.in) {
