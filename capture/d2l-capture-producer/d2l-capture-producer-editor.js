@@ -215,7 +215,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 							`)}
 							<d2l-video-producer-captions
 								.captions="${this.captions}"
-								@captions-uploaded=${this._handleCaptionsUploaded}
+								@captions-vtt-replaced=${this._handleCaptionsVttReplaced}
 								.defaultLanguage="${this.defaultLanguage}"
 								.languages="${this.languages}"
 								?loading="${this.captionsLoading}"
@@ -804,7 +804,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	//#endregion
-	_handleCaptionsUploaded(e) {
+	_handleCaptionsVttReplaced(e) {
 		const localVttUrl = window.URL.createObjectURL(new Blob([e.detail.vttString], { type: 'text/vtt' }));
 		this.dispatchEvent(new CustomEvent('captions-url-changed', {
 			detail: { captionsUrl: localVttUrl },
