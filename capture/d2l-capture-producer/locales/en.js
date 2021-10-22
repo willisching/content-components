@@ -14,6 +14,7 @@ export const val = {
 	captionsFileTooLarge: 'File size cannot be larger than {localizedMaxFileSize}.',
 	captionsReadError: 'Could not read captions file. It might be corrupted.',
 	chapterTitle: 'Chapter title',
+	clearAll: 'Clear All',
 	closedCaptions: 'Closed Captions',
 	confirmChangeLanguageWithUnsavedCaptionsChanges: 'The current language has unsaved changes in Closed Captions. If you switch editing to another language, these changes will be discarded. Do you wish to proceed?',
 	confirmFinish: 'Confirm Finish',

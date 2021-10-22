@@ -236,6 +236,7 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 			.d2l-video-producer-no-captions-message {
 				margin-left: 20px;
 				margin-right: 20px;
+				margin-top: 65%;
 				text-align: center;
 			}
 
@@ -255,6 +256,16 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 				display: flex;
 				justify-content: center;
 				padding: 20px;
+				width: 100%;
+			}
+
+			.d2l-video-producer-captions-bottom-bar {
+				background-color: white;
+				border-top: 1px solid var(--d2l-color-mica);
+				display: flex;
+				flex-direction: row;
+				justify-content: space-between;
+				margin-top: auto;
 				width: 100%;
 			}
 		`];
@@ -300,11 +311,15 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 		});
 	}
 
-	_dispatchCaptionsUploaded(vttString) {
-		this.dispatchEvent(new CustomEvent('captions-uploaded', {
+	_dispatchCaptionsVttReplaced(vttString) {
+		this.dispatchEvent(new CustomEvent('captions-vtt-replaced', {
 			detail: { vttString },
 			composed: false
 		}));
+	}
+
+	_handleClearAllClicked() {
+		this._dispatchCaptionsVttReplaced('WEBVTT'); // WebVTT file with no cues.
 	}
 
 	_loadMoreVisibleCues(intersectionEntries) {
@@ -345,10 +360,10 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 			fileReader.addEventListener('load', event => {
 				try {
 					if (extension === 'vtt') {
-						this._dispatchCaptionsUploaded(event.target.result);
+						this._dispatchCaptionsVttReplaced(event.target.result);
 					} else {
 						const vttText = convertSrtTextToVttText(event.target.result);
-						this._dispatchCaptionsUploaded(vttText);
+						this._dispatchCaptionsVttReplaced(vttText);
 					}
 				} catch (error) {
 					this._openAlertToast({type: 'critical', text: this.localize(error.message) });
@@ -373,6 +388,19 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 		alertToast.innerText = text;
 	}
 
+	_renderBottomBar() {
+		return html`
+			<div class="d2l-video-producer-captions-bottom-bar">
+				<d2l-button-icon
+					class="d2l-video-producer-captions-clear-all-button"
+					@click="${this._handleClearAllClicked}"
+					icon="tier1:blocked"
+					text="${this.localize('clearAll')}"
+				></d2l-button-icon>
+			</div>
+		`;
+	}
+
 	_renderContent() {
 		if (this.loading) {
 			return this._renderLoadingIndicator();
@@ -380,6 +408,7 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 			return html`
 				${this._renderTopButtons()}
 				${this.captions?.length > 0 ?  this._renderCuesList() : this._renderEmptyCaptionsMessage()}
+				${this._renderBottomBar()}
 				<input
 					accept=".srt,.vtt"
 					@change="${this._onFilesAdded}"
