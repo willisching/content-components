@@ -15,10 +15,8 @@ import './d2l-video-producer-auto-generate-captions-dialog';
 class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
-			endTime: { type: String, attribute: 'end-time' },
+			cue: { type: Object },
 			expanded: { type: Boolean },
-			startTime: { type: String, attribute: 'start-time' },
-			text: { type: String, attribute: 'text' }
 		};
 	}
 
@@ -99,20 +97,49 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 
 	constructor() {
 		super();
-		this.captionsCue = null;
+		this.cue = { start: 0, end: 0, text: '' };
 	}
 
 	render() {
 		return html`
-			<div class="d2l-video-producer-captions-cues-list-item">
+			<div
+				class="d2l-video-producer-captions-cues-list-item"
+				@click="${this._handleFocus}"
+			>
 				${this._renderMainControls()}
 				${this.expanded ? this._renderExpandedControls() : ''}
 			</div>
 		`;
 	}
 
+	_handleFocus() {
+		this._jumpToCueStartTime();
+	}
+
+	_handleTextInput(event) {
+		this.cue.text = event.target.value;
+		this._jumpToCueStartTime();
+		this.dispatchEvent(new CustomEvent('captions-edited', {
+			bubbles: true,
+			composed: true,
+		}));
+	}
+
 	_hideExpandedControls() {
 		this.expanded = false;
+		this._handleFocus();
+	}
+
+	_jumpToCueStartTime() {
+		this.dispatchEvent(new CustomEvent('media-player-time-jumped', {
+			// In Chrome, if a cue's start time overlaps with a cue's end time exactly,
+			// (e.g. cueA.endTime = 3.000, cueB.startTime = 3.000)
+			// the displayed captions text will flicker back-and-forth between them.
+			// To prevent that flickering, we jump a tiny bit ahead of the cue's start time.
+			detail: { time: this.cue.startTime + 0.001 },
+			bubbles: true,
+			composed: true,
+		}));
 	}
 
 	_renderExpandedControls() {
@@ -129,9 +156,10 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 						</div>
 						<d2l-input-text
 							class="d2l-video-producer-captions-cue-start-timestamp"
+							@focus="${this._handleFocus}"
 							label=${this.localize('captionsCueStartTimestamp')}
 							description=${this.localize('captionsCueStartTimestampDescription')}
-							value=${formatTimestampText(this.startTime)}
+							value=${formatTimestampText(this.cue.startTime)}
 						></d2l-input-text>
 					</div>
 					<div class="d2l-video-producer-captions-cue-timestamp-container">
@@ -144,9 +172,10 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 						</div>
 						<d2l-input-text
 							class="d2l-video-producer-captions-cue-end-timestamp"
+							@focus="${this._handleFocus}"
 							label=${this.localize('captionsCueEndTimestamp')}
 							description=${this.localize('captionsCueEndTimestampDescription')}
-							value=${formatTimestampText(this.endTime)}
+							value=${formatTimestampText(this.cue.endTime)}
 						></d2l-input-text>
 					</div>
 				</div>
@@ -159,9 +188,11 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 			<div class="d2l-video-producer-captions-cue-main-controls">
 				<textarea
 					class="d2l-input d2l-video-producer-captions-cue-text-input"
+					@focus="${this._handleFocus}"
+					@input="${this._handleTextInput}"
 					aria-label=${this.localize('captionsCueText')}
 					rows="2"
-				>${this.text}</textarea>
+				>${this.cue.text}</textarea>
 				<div class="d2l-video-producer-captions-cue-main-controls-buttons">
 					<d2l-button-icon
 						text=${this.localize('deleteCaptionsCue')}
@@ -187,6 +218,7 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 
 	_showExpandedControls() {
 		this.expanded = true;
+		this._handleFocus();
 	}
 }
 
@@ -431,9 +463,7 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 			<div class="d2l-video-producer-captions-cues-list">
 				${[...Array(Math.min(this._numberOfVisibleCuesInList, this.captions.length)).keys()].map(index => html`
 					<d2l-video-producer-captions-cues-list-item
-						start-time="${this.captions[index].startTime}"
-						end-time="${this.captions[index].endTime}"
-						text="${this.captions[index].text}"
+						.cue="${this.captions[index]}"
 					></d2l-video-producer-captions-cues-list-item>
 				`)}
 				<div class="d2l-video-producer-captions-cues-list-bottom"></div>

@@ -223,6 +223,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 					.captions="${this._captions}"
 					@captions-auto-generation-started="${this._handleCaptionsAutoGenerationStarted}"
 					@captions-changed="${this._handleCaptionsChanged}"
+					@captions-edited="${this._handleCaptionsEdited}"
 					?captions-loading="${this._captionsLoading}"
 					.captionsUrl="${this._captionsUrl}"
 					@captions-url-changed="${this._handleCaptionsUrlChanged}"
@@ -433,6 +434,12 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			this._captionsChanged = true;
 		}
 		this._captionsLoading = false;
+	}
+
+	_handleCaptionsEdited() {
+		if (!this._captionsLoading) {
+			this._captionsChanged = true;
+		}
 	}
 
 	_handleCaptionsUrlChanged(event) {

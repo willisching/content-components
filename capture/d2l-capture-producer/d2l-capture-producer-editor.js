@@ -219,6 +219,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 								.defaultLanguage="${this.defaultLanguage}"
 								.languages="${this.languages}"
 								?loading="${this.captionsLoading}"
+								@media-player-time-jumped="${this._handleMediaPlayerTimeJumped}"
 								.selectedLanguage="${this.selectedLanguage}"
 							></d2l-video-producer-captions>
 						</d2l-tab-panel>
@@ -815,6 +816,10 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	_handleChaptersChanged(e) {
 		this.metadata = { ...this.metadata, chapters: e.detail.chapters };
 		this._fireMetadataChangedEvent();
+	}
+
+	_handleMediaPlayerTimeJumped(event) {
+		this._mediaPlayer.currentTime = event.detail.time;
 	}
 
 	_handleSelectedLanguageChanged(e) {
