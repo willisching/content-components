@@ -40,16 +40,16 @@ function convertSrtTextToVttText(srtText) {
 }
 
 /**
- * Converts a TextTrackCueList into raw WebVTT text
- * @param {TextTrackCueList} textTrackCueList An instance of TextTrackCueList
- * @returns A WebVTT string containing the data from the TextTrackCueList
+ * Converts an array of VTTCues into raw WebVTT text
+ * @param {Array} cueArray An array of VTTCue objects
+ * @returns A WebVTT string containing the data from the cue array
  */
-function convertTextTrackCueListToVttText(textTrackCueList) {
-	const jsonCues = [...Array(textTrackCueList.length).keys()].map(index => {
+function convertVttCueArrayToVttText(cueArray) {
+	const jsonCues = cueArray.map(cue => {
 		return {
-			start: textTrackCueList[index].startTime,
-			end: textTrackCueList[index].endTime,
-			text: textTrackCueList[index].text,
+			start: cue.startTime,
+			end: cue.endTime,
+			text: cue.text,
 			identifier: '',
 			styles: ''
 		};
@@ -80,8 +80,22 @@ function formatTimestampText(timestampInSeconds) {
 	return `${hoursMinutesSecondsString}.${millisecondsString}`;
 }
 
+/**
+ * Converts a TextTrackCueList into an array of VTTCues.
+ * @param {TextTrackCueList} textTrackCueList The TextTrackCueList to convert
+ * @returns An array containing the VTTCue objects from textTrackCueList.cues
+ */
+function textTrackCueListToArray(textTrackCueList) {
+	const cueArray = [];
+	for (let i = 0; i < textTrackCueList.length; i++) {
+		cueArray.push(textTrackCueList[i]);
+	}
+	return cueArray;
+}
+
 export {
 	formatTimestampText,
 	convertSrtTextToVttText,
-	convertTextTrackCueListToVttText
+	convertVttCueArrayToVttText,
+	textTrackCueListToArray,
 };

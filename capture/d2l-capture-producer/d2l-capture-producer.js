@@ -17,7 +17,7 @@ import { bodyStandardStyles, labelStyles } from '@brightspace-ui/core/components
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';
 import UserBrightspaceClient from './src/user-brightspace-client.js';
-import { convertTextTrackCueListToVttText } from './src/captions-utils.js';
+import { convertVttCueArrayToVttText } from './src/captions-utils.js';
 
 class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
@@ -363,7 +363,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			}
 			await this.apiClient.updateCaptions({
 				contentId: this._content.id,
-				captionsVttText: convertTextTrackCueListToVttText(this._captions),
+				captionsVttText: convertVttCueArrayToVttText(this._captions),
 				revisionId: draftToPublish.id,
 				locale: this._selectedLanguage.code
 			});
@@ -506,7 +506,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			}
 			await this.apiClient.updateCaptions({
 				contentId: this._content.id,
-				captionsVttText: convertTextTrackCueListToVttText(this._captions),
+				captionsVttText: convertVttCueArrayToVttText(this._captions),
 				revisionId: this._latestDraftRevision.id,
 				locale: this._selectedLanguage.code
 			});
