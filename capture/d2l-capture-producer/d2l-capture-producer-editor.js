@@ -820,6 +820,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 	_handleMediaPlayerTimeJumped(event) {
 		this._mediaPlayer.currentTime = event.detail.time;
+		this._updateVideoTime();
 	}
 
 	_handleSelectedLanguageChanged(e) {
