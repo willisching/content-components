@@ -29,7 +29,7 @@ export const val = {
 	workerErrorUploadFailed: 'Upload fehlgeschlagen',
 	workerErrorCancelUploadFailed: 'Der Upload konnte nicht abgebrochen werden',
 	workerErrorZipFileCorrupted: 'Die Paket-ZIP-Datei ist korrupt.',
-	selectALanguage: 'Sprache auswählen...',
-	audioLanguageLabel: 'Audio Language:',
-	autoGenerateCaptionsFromAudio: 'Automatically generate captions from audio',
+	selectALanguage: 'Sprache auswählen ...',
+	audioLanguageLabel: 'Audiosprache:',
+	autoGenerateCaptionsFromAudio: 'Untertitel automatisch zu Audio erstellen',
 };

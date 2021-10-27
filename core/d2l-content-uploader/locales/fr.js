@@ -30,6 +30,6 @@ export const val = {
 	workerErrorCancelUploadFailed: 'Le téléchargement n’a pas pu être annulé',
 	workerErrorZipFileCorrupted: 'Le fichier zip du package est corrompu',
 	selectALanguage: 'Sélectionnez une langue...',
-	audioLanguageLabel: 'Audio Language:',
-	autoGenerateCaptionsFromAudio: 'Automatically generate captions from audio',
+	audioLanguageLabel: 'Langue audio :',
+	autoGenerateCaptionsFromAudio: 'Générer automatiquement des sous-titres à partir de l’audio',
 };

@@ -30,6 +30,6 @@ export const val = {
 	workerErrorCancelUploadFailed: '업로드를 취소할 수 없습니다',
 	workerErrorZipFileCorrupted: '패키지 zip 파일이 손상되었습니다.',
 	selectALanguage: '언어 선택...',
-	audioLanguageLabel: 'Audio Language:',
-	autoGenerateCaptionsFromAudio: 'Automatically generate captions from audio',
+	audioLanguageLabel: '오디오 언어:',
+	autoGenerateCaptionsFromAudio: '오디오에서 캡션을 자동으로 생성합니다.',
 };

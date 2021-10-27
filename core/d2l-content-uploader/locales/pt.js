@@ -30,6 +30,6 @@ export const val = {
 	workerErrorCancelUploadFailed: 'Não foi possível cancelar o carregamento',
 	workerErrorZipFileCorrupted: 'O arquivo de pacote compactado está corrompido',
 	selectALanguage: 'Selecione um idioma...',
-	audioLanguageLabel: 'Audio Language:',
-	autoGenerateCaptionsFromAudio: 'Automatically generate captions from audio',
+	audioLanguageLabel: 'Idioma do áudio:',
+	autoGenerateCaptionsFromAudio: 'Gerar legendas automaticamente com base no áudio',
 };
