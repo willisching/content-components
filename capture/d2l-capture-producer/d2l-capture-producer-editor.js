@@ -21,6 +21,7 @@ import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';
 import { styleMap } from 'lit-html/directives/style-map';
 import { Timeline } from './src/timeline';
+import { textTrackCueListToArray } from './src/captions-utils.js';
 
 class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
@@ -36,6 +37,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			selectedLanguage: { type: Object },
 			src: { type: String },
 
+			_activeCue: { type: Object, attribute: false },
 			_zoomMultiplier: { type: Number, attribute: false },
 			_zoomMultiplierDisplayOpacity: { type: Number, attribute: false },
 		};
@@ -138,6 +140,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 		this.enableCutsAndChapters = false;
 
+		this._activeCue = null;
 		this.captions = [];
 		this.captionsUrl = '';
 		this.captionsLoading = true;
@@ -177,6 +180,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 					<d2l-labs-media-player
 						controls
 						crossorigin="anonymous"
+						@cuechange="${this._handleCueChange}"
 						@pause="${this._pauseUpdatingVideoTime}"
 						@play="${this._startUpdatingVideoTime}"
 						@seeking="${this._updateVideoTime}"
@@ -214,7 +218,10 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 								</div>
 							`)}
 							<d2l-video-producer-captions
+								.activeCue="${this._activeCue}"
 								.captions="${this.captions}"
+								@captions-cue-end-timestamp-synced="${this._handleCaptionsCueEndTimestampSynced}"
+								@captions-cue-start-timestamp-synced="${this._handleCaptionsCueStartTimestampSynced}"
 								@captions-vtt-replaced=${this._handleCaptionsVttReplaced}
 								.defaultLanguage="${this.defaultLanguage}"
 								.languages="${this.languages}"
@@ -805,6 +812,42 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	//#endregion
+	_handleCaptionsCueEndTimestampSynced(event) {
+		const originalCue = event.detail.cue;
+		const cueDuration = originalCue.endTime - originalCue.startTime;
+		const editedCue = new VTTCue(originalCue.startTime, originalCue.endTime, originalCue.text);
+		editedCue.endTime = Math.floor(this._mediaPlayer.currentTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
+		if (editedCue.endTime <= editedCue.startTime) {
+			editedCue.startTime = Math.max(editedCue.endTime - cueDuration, 0);
+		}
+
+		this._mediaPlayer.textTracks[0].addCue(editedCue); // TextTrack.addCue() automatically inserts the cue at the appropriate index based on startTime.
+		this._mediaPlayer.textTracks[0].removeCue(originalCue);
+		this._fireCaptionsChangedEvent(textTrackCueListToArray(this._mediaPlayer.textTracks[0].cues));
+
+		setTimeout(() => {
+			this._mediaPlayer.currentTime = editedCue.startTime + 0.001;
+		}, 100); // Give the new cue element time to be drawn.
+	}
+
+	_handleCaptionsCueStartTimestampSynced(event) {
+		const originalCue = event.detail.cue;
+		const cueDuration = originalCue.endTime - originalCue.startTime;
+		const editedCue = new VTTCue(originalCue.startTime, originalCue.endTime, originalCue.text);
+		editedCue.startTime = Math.floor(this._mediaPlayer.currentTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
+		if (editedCue.startTime >= editedCue.endTime) {
+			editedCue.endTime = editedCue.startTime + cueDuration;
+		}
+
+		this._mediaPlayer.textTracks[0].addCue(editedCue); // TextTrack.addCue() automatically inserts the cue at the appropriate index based on startTime.
+		this._mediaPlayer.textTracks[0].removeCue(originalCue);
+		this._fireCaptionsChangedEvent(textTrackCueListToArray(this._mediaPlayer.textTracks[0].cues));
+
+		setTimeout(() => {
+			this._mediaPlayer.currentTime = editedCue.startTime + 0.001;
+		}, 100); // Give the new cue element time to be drawn.
+	}
+
 	_handleCaptionsVttReplaced(e) {
 		const localVttUrl = window.URL.createObjectURL(new Blob([e.detail.vttString], { type: 'text/vtt' }));
 		this.dispatchEvent(new CustomEvent('captions-url-changed', {
@@ -818,6 +861,10 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this._fireMetadataChangedEvent();
 	}
 
+	_handleCueChange() {
+		this._activeCue = this._mediaPlayer.activeCue;
+	}
+
 	_handleMediaPlayerTimeJumped(event) {
 		this._mediaPlayer.currentTime = event.detail.time;
 		this._updateVideoTime();
@@ -828,7 +875,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	_handleTrackLoaded() {
-		this._fireCaptionsChangedEvent(this._mediaPlayer.textTracks[0].cues);
+		this._fireCaptionsChangedEvent(textTrackCueListToArray(this._mediaPlayer.textTracks[0].cues));
 	}
 
 	_hideCursor() {

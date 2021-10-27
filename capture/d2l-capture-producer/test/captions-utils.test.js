@@ -1,4 +1,4 @@
-import { convertSrtTextToVttText, convertTextTrackCueListToVttText, formatTimestampText } from '../src/captions-utils.js';
+import { convertSrtTextToVttText, convertVttCueArrayToVttText, formatTimestampText, textTrackCueListToArray } from '../src/captions-utils.js';
 import { assert } from '@open-wc/testing';
 
 describe('captions-utils.js', () => {
@@ -85,16 +85,15 @@ elit.`;
 		});
 	});
 
-	describe('convertTextTrackCueListToVttText', () => {
-		it('converts a TextTrackCueList into valid WebVTT text', () => {
+	describe('convertVttCueArrayToVttText', () => {
+		it('converts an array of VTTCues into valid WebVTT text', () => {
 			// TextTrack and TextTrackCueList can't be instantiated outside of a DOM context,
 			// so we use a shim for TextTrackCueList instead.
-			const vttTrackCueList = {
-				length: 3,
-				'0': new VTTCue(0, 1, 'Message 1'),
-				'1': new VTTCue(1, 3.6, 'Message 2'),
-				'2': new VTTCue(5.123, 3902, 'Message 3\nExtra Line'),
-			};
+			const vttTrackCueList = [
+				new VTTCue(0, 1, 'Message 1'),
+				new VTTCue(1, 3.6, 'Message 2'),
+				new VTTCue(5.123, 3902, 'Message 3\nExtra Line'),
+			];
 			const expected = `WEBVTT
 
 00:00:00.000 --> 00:00:01.000
@@ -107,8 +106,35 @@ Message 2
 Message 3
 Extra Line
 `;
-			const actual = convertTextTrackCueListToVttText(vttTrackCueList);
+			const actual = convertVttCueArrayToVttText(vttTrackCueList);
 			assert.equal(actual, expected);
+		});
+	});
+
+	describe('textTrackCueListToArray', () => {
+		it('returns an empty array for a TextTrackCueList with no cues', () => {
+			const mockTextTrackCueList = {
+				length: 0,
+			};
+			const expected = [];
+			const actual = textTrackCueListToArray(mockTextTrackCueList);
+			assert.deepEqual(actual, expected);
+		});
+
+		it('returns an array of VTTCue objects for a TextTrackCueList with cues', () => {
+			const mockTextTrackCueList = {
+				length: 3,
+				0: new VTTCue(0, 1, 'Message 1'),
+				1: new VTTCue(1, 3.6, 'Message 2'),
+				2: new VTTCue(5.123, 3902, 'Message 3\nExtra Line'),
+			};
+			const expected = [
+				new VTTCue(0, 1, 'Message 1'),
+				new VTTCue(1, 3.6, 'Message 2'),
+				new VTTCue(5.123, 3902, 'Message 3\nExtra Line'),
+			];
+			const actual = textTrackCueListToArray(mockTextTrackCueList);
+			assert.deepEqual(actual, expected);
 		});
 	});
 });
