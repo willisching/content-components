@@ -177,7 +177,7 @@ export class Main extends MobxReactionUpdate(ProviderMixin(LitElement)) {
 
 	startUpload({ captionLanguages }) {
 		this._currentView = VIEW.PROGRESS;
-		this._uploader.uploadFile(this._file, this._fileName, captionLanguages);
+		this._uploader.uploadFile(this._file, this._fileName, captionLanguages, this._fileType);
 	}
 
 	updateValue(value) {
