@@ -200,6 +200,7 @@ class DemoVideoProducer extends LitElement {
 					.captions="${this.captions}"
 					@captions-auto-generation-started="${this._handleCaptionsAutoGenerationStarted}"
 					@captions-changed="${this._handleCaptionsChanged}"
+					@captions-edited="${this._handleCaptionsEdited}"
 					?captions-loading="${this._captionsLoading}"
 					.captionsUrl="${this._captionsUrl}"
 					@captions-url-changed="${this._handleCaptionsUrlChanged}"
@@ -297,6 +298,10 @@ class DemoVideoProducer extends LitElement {
 			this._unsavedChanges = true;
 		}
 		this._captionsLoading = false;
+	}
+
+	_handleCaptionsEdited() {
+		this._unsavedChanges = true;
 	}
 
 	_handleCaptionsUrlChanged(event) {

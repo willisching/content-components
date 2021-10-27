@@ -79,11 +79,12 @@ export class Uploader {
 			const sourceLanguage = captionLanguages?.length && captionLanguages[0];
 			const extension = file.name.split('.').pop();
 			const isAudio = fileType.startsWith('audio');
-			this.content = await this.apiClient.createContent();
+			this.content = await this.apiClient.createContent({
+       title, 
+      });
 			this.revision = await this.apiClient.createRevision(
 				this.content.id,
 				{
-					title,
 					extension,
 					formats: isAudio ? ['mp3'] : ['hd', 'sd'],
 					...(sourceLanguage && { sourceLanguage })

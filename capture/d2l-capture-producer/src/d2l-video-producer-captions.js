@@ -15,22 +15,32 @@ import './d2l-video-producer-auto-generate-captions-dialog';
 class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
-			endTime: { type: String, attribute: 'end-time' },
+			active: { type: Boolean },
+			cue: { type: Object },
 			expanded: { type: Boolean },
-			startTime: { type: String, attribute: 'start-time' },
-			text: { type: String, attribute: 'text' }
 		};
 	}
 
 	static get styles() {
 		return [ bodyStandardStyles, inputStyles, labelStyles, css`
 			.d2l-video-producer-captions-cues-list-item {
+				border: 2px solid var(--d2l-color-gypsum);
 				background-color: var(--d2l-color-gypsum);
 				border-radius: var(--d2l-input-border-radius, 0.3rem);
 				display: flex;
 				flex-direction: column;
 				margin-bottom: 15px;
-				padding: 12px;
+				padding: 10px;
+			}
+
+			.d2l-video-producer-captions-cues-list-item-active {
+				background-color: var(--d2l-color-gypsum);
+				border: 2px solid var(--d2l-color-primary-accent-action);
+				border-radius: var(--d2l-input-border-radius, 0.3rem);
+				display: flex;
+				flex-direction: column;
+				margin-bottom: 15px;
+				padding: 10px;
 			}
 
 			.d2l-video-producer-captions-cue-main-controls {
@@ -99,20 +109,81 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 
 	constructor() {
 		super();
-		this.captionsCue = null;
+		this.active = false;
+		this.cue = { startTime: 0, endTime: 0, text: '' };
+		this.expanded = false;
 	}
 
 	render() {
 		return html`
-			<div class="d2l-video-producer-captions-cues-list-item">
+			<div
+				class="d2l-video-producer-captions-cues-list-item${this.active ? '-active' : ''}"
+			>
 				${this._renderMainControls()}
 				${this.expanded ? this._renderExpandedControls() : ''}
 			</div>
 		`;
 	}
 
+	get endTime() {
+		return this.cue?.endTime;
+	}
+
+	get startTime() {
+		return this.cue?.startTime;
+	}
+
+	_handleDeleteClicked() {
+		this.dispatchEvent(new CustomEvent('captions-cue-deleted', {
+			detail: { cue: this.cue },
+			bubbles: true,
+			composed: true,
+		}));
+	}
+
+	_handleFocus() {
+		this._jumpToCueStartTime();
+	}
+
+	_handleSyncEndTimestampClicked() {
+		this.dispatchEvent(new CustomEvent('captions-cue-end-timestamp-synced', {
+			detail: { cue: this.cue },
+			bubbles: true,
+			composed: true,
+		}));
+	}
+
+	_handleSyncStartTimestampClicked() {
+		this.dispatchEvent(new CustomEvent('captions-cue-start-timestamp-synced', {
+			detail: { cue: this.cue },
+			bubbles: true,
+			composed: true,
+		}));
+	}
+
+	_handleTextInput(event) {
+		this.cue.text = event.target.value;
+		this._jumpToCueStartTime();
+		this.dispatchEvent(new CustomEvent('captions-edited', {
+			bubbles: true,
+			composed: true,
+		}));
+	}
+
 	_hideExpandedControls() {
 		this.expanded = false;
+	}
+
+	_jumpToCueStartTime() {
+		this.dispatchEvent(new CustomEvent('media-player-time-jumped', {
+			// In Chrome, if a cue's start time overlaps with a cue's end time exactly,
+			// (e.g. cueA.endTime = 3.000, cueB.startTime = 3.000)
+			// the displayed captions text will flicker back-and-forth between them.
+			// To prevent that flickering, we jump a tiny bit ahead of the cue's start time.
+			detail: { time: this.cue.startTime + 0.001 },
+			bubbles: true,
+			composed: true,
+		}));
 	}
 
 	_renderExpandedControls() {
@@ -123,30 +194,34 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 						<div class="d2l-video-producer-sync-cue-button-anchor">
 							<d2l-button-icon
 								class="d2l-video-producer-sync-cue-button"
+								@click="${this._handleSyncStartTimestampClicked}"
 								text=${this.localize('syncStartTimeToTimeline')}
 								icon="tier1:time"
 							></d2l-button-icon>
 						</div>
 						<d2l-input-text
 							class="d2l-video-producer-captions-cue-start-timestamp"
+							@focus="${this._handleFocus}"
 							label=${this.localize('captionsCueStartTimestamp')}
 							description=${this.localize('captionsCueStartTimestampDescription')}
-							value=${formatTimestampText(this.startTime)}
+							value=${formatTimestampText(this.cue.startTime)}
 						></d2l-input-text>
 					</div>
 					<div class="d2l-video-producer-captions-cue-timestamp-container">
 						<div class="d2l-video-producer-sync-cue-button-anchor">
 							<d2l-button-icon
 								class="d2l-video-producer-sync-cue-button"
+								@click="${this._handleSyncEndTimestampClicked}"
 								text=${this.localize('syncEndTimeToTimeline')}
 								icon="tier1:time"
 							></d2l-button-icon>
 						</div>
 						<d2l-input-text
 							class="d2l-video-producer-captions-cue-end-timestamp"
+							@focus="${this._handleFocus}"
 							label=${this.localize('captionsCueEndTimestamp')}
 							description=${this.localize('captionsCueEndTimestampDescription')}
-							value=${formatTimestampText(this.endTime)}
+							value=${formatTimestampText(this.cue.endTime)}
 						></d2l-input-text>
 					</div>
 				</div>
@@ -159,11 +234,14 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 			<div class="d2l-video-producer-captions-cue-main-controls">
 				<textarea
 					class="d2l-input d2l-video-producer-captions-cue-text-input"
+					@focus="${this._handleFocus}"
+					@input="${this._handleTextInput}"
 					aria-label=${this.localize('captionsCueText')}
 					rows="2"
-				>${this.text}</textarea>
+				>${this.cue.text}</textarea>
 				<div class="d2l-video-producer-captions-cue-main-controls-buttons">
 					<d2l-button-icon
+						@click="${this._handleDeleteClicked}"
 						text=${this.localize('deleteCaptionsCue')}
 						icon="tier1:delete"
 					></d2l-button-icon>
@@ -195,13 +273,15 @@ customElements.define('d2l-video-producer-captions-cues-list-item', CaptionsCueL
 class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
-			captions: { type: Object },
+			activeCue: { type: Object },
+			captions: { type: Array },
 			defaultLanguage: { type: Object },
 			languages: { type: Array },
 			loading: { type: Boolean },
 			selectedLanguage: { type: Object },
 
 			_autoGenerateDialogOpened: { type: Boolean, attribute: false },
+			_newCueText: { type: String, attribute: false },
 			_numberOfVisibleCuesInList: { type: Number, attribute: false }
 		};
 	}
@@ -236,6 +316,7 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 			.d2l-video-producer-no-captions-message {
 				margin-left: 20px;
 				margin-right: 20px;
+				margin-top: 65%;
 				text-align: center;
 			}
 
@@ -257,14 +338,28 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 				padding: 20px;
 				width: 100%;
 			}
+
+			.d2l-video-producer-captions-bottom-bar {
+				background-color: white;
+				border-top: 1px solid var(--d2l-color-mica);
+				display: flex;
+				flex-direction: row;
+				justify-content: space-between;
+				margin-top: auto;
+				padding-bottom: 8px;
+				padding-top: 8px;
+				width: 100%;
+			}
 		`];
 	}
 
 	constructor() {
 		super();
+		this.activeCue = null;
 		this.captions = [];
 		this.languages = [];
 		this._autoGenerateDialogOpened = false;
+		this._newCueText = '';
 		this._numberOfVisibleCuesInList = 0;
 		this.listBottomObserver = null;
 
@@ -294,17 +389,44 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 				// To get around that, we initialize a new IntersectionObserver that points to the new
 				// list bottom div, whenever this component finishes loading.
 				this._updateLazyLoadForCaptionsCuesList();
-			} if (propName === 'captions') {
+			}
+			if (propName === 'captions') {
 				this._updateNumberOfVisibleCuesInList();
+			}
+			if (propName === 'activeCue') {
+				this._scrollToActiveCue();
 			}
 		});
 	}
 
-	_dispatchCaptionsUploaded(vttString) {
-		this.dispatchEvent(new CustomEvent('captions-uploaded', {
+	_dispatchCaptionsVttReplaced(vttString) {
+		this.dispatchEvent(new CustomEvent('captions-vtt-replaced', {
 			detail: { vttString },
 			composed: false
 		}));
+	}
+
+	_handleClearAllClicked() {
+		this._dispatchCaptionsVttReplaced('WEBVTT'); // WebVTT file with no cues.
+	}
+
+	_handleInsertNewCue() {
+		this.dispatchEvent(new CustomEvent('captions-cue-added', {
+			detail: { text: this._newCueText },
+			bubbles: true,
+			composed: true,
+		}));
+		this._newCueText = '';
+	}
+
+	_handleNewCueTextInput(event) {
+		this._newCueText = event.target.value;
+	}
+
+	_handleNewCueTextKeyPress(event) {
+		if (event.keyCode === constants.ADD_NEW_CUE_KEY_CODE) {
+			this._handleInsertNewCue();
+		}
 	}
 
 	_loadMoreVisibleCues(intersectionEntries) {
@@ -345,10 +467,10 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 			fileReader.addEventListener('load', event => {
 				try {
 					if (extension === 'vtt') {
-						this._dispatchCaptionsUploaded(event.target.result);
+						this._dispatchCaptionsVttReplaced(event.target.result);
 					} else {
 						const vttText = convertSrtTextToVttText(event.target.result);
-						this._dispatchCaptionsUploaded(vttText);
+						this._dispatchCaptionsVttReplaced(vttText);
 					}
 				} catch (error) {
 					this._openAlertToast({type: 'critical', text: this.localize(error.message) });
@@ -373,6 +495,34 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 		alertToast.innerText = text;
 	}
 
+	_renderBottomBar() {
+		return html`
+			<div class="d2l-video-producer-captions-bottom-bar">
+				<d2l-button-icon
+					class="d2l-video-producer-captions-add-cue-button"
+					@click="${this._handleInsertNewCue}"
+					?disabled="${!this._newCueText}"
+					icon="tier1:plus-default"
+					text="${this.localize('insertNewCaptionsAtCurrentTime')}"
+				></d2l-button-icon>
+				<d2l-input-text
+					@input="${this._handleNewCueTextInput}"
+					@keypress="${this._handleNewCueTextKeyPress}"
+					label="${this.localize('newCaptionsText')}"
+					label-hidden
+					placeholder="${this.localize('newCaptionsTextPlaceholder')}"
+					value="${this._newCueText}"
+				></d2l-input-text>
+				<d2l-button-icon
+					class="d2l-video-producer-captions-clear-all-button"
+					@click="${this._handleClearAllClicked}"
+					icon="tier1:blocked"
+					text="${this.localize('clearAll')}"
+				></d2l-button-icon>
+			</div>
+		`;
+	}
+
 	_renderContent() {
 		if (this.loading) {
 			return this._renderLoadingIndicator();
@@ -380,6 +530,7 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 			return html`
 				${this._renderTopButtons()}
 				${this.captions?.length > 0 ?  this._renderCuesList() : this._renderEmptyCaptionsMessage()}
+				${this._renderBottomBar()}
 				<input
 					accept=".srt,.vtt"
 					@change="${this._onFilesAdded}"
@@ -400,11 +551,10 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 	_renderCuesList() {
 		return html`
 			<div class="d2l-video-producer-captions-cues-list">
-				${[...Array(Math.min(this._numberOfVisibleCuesInList, this.captions.length)).keys()].map(index => html`
+				${this.captions.slice(0, this._numberOfVisibleCuesInList).map(cue => html`
 					<d2l-video-producer-captions-cues-list-item
-						start-time="${this.captions[index].startTime}"
-						end-time="${this.captions[index].endTime}"
-						text="${this.captions[index].text}"
+						?active="${this.activeCue && (cue.startTime === this.activeCue.startTime) && (cue.endTime === this.activeCue.endTime)}"
+						.cue="${cue}"
 					></d2l-video-producer-captions-cues-list-item>
 				`)}
 				<div class="d2l-video-producer-captions-cues-list-bottom"></div>
@@ -441,6 +591,76 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 
 	_resetVisibleCuesInList() {
 		this.visibleCuesInList = this.captions.slice(0, constants.NUM_OF_VISIBLE_CAPTIONS_CUES);
+	}
+
+	async _scrollToActiveCue() {
+		// The active cue might have changed before the captions tab finished loading.
+		const waitUntilLoadingFinished = resolve => {
+			if (this.loading) {
+				setTimeout(() => waitUntilLoadingFinished(resolve), 100);
+			} else {
+				resolve();
+			}
+		};
+		await new Promise(resolve => waitUntilLoadingFinished(resolve));
+
+		if (!this.activeCue) return;
+
+		// Make sure the cue list element is finished drawing along with its cue list item elements.
+		let captionsCuesList = this.shadowRoot.querySelector('.d2l-video-producer-captions-cues-list');
+		if (!(captionsCuesList?.childNodes?.length >= this._numberOfVisibleCuesInList)) {
+			const waitUntilListIsReady = resolve => {
+				captionsCuesList = this.shadowRoot.querySelector('.d2l-video-producer-captions-cues-list');
+				if (captionsCuesList?.childNodes?.length >= this._numberOfVisibleCuesInList) {
+					resolve();
+				} else {
+					setTimeout(() => waitUntilListIsReady(resolve), 100);
+				}
+			};
+			await new Promise(resolve => waitUntilListIsReady(resolve));
+		}
+
+		let activeCueListItem;
+		let i = 0;
+		while ((!activeCueListItem) && (i < captionsCuesList.childNodes.length)) {
+			const cueListItem = captionsCuesList.childNodes[i];
+			if ((cueListItem.startTime === this.activeCue.startTime) && (cueListItem.endTime === this.activeCue.endTime)) {
+				activeCueListItem = cueListItem;
+			}
+			i++;
+		}
+		// Since we do lazy loading in the captions cues list, the active cue might not have been loaded into the list yet.
+		// If that's the case, we load more items into the list gradually (to prevent DOM overload) until the active cue is in the list.
+		if (!activeCueListItem) {
+			const loadCuesUntilActiveCueIsDisplayed = resolve => {
+				this._numberOfVisibleCuesInList += constants.NUM_OF_VISIBLE_CAPTIONS_CUES;
+				setTimeout(() => {
+					captionsCuesList = this.shadowRoot.querySelector('.d2l-video-producer-captions-cues-list');
+					while ((!activeCueListItem) && (i < captionsCuesList.childNodes.length)) {
+						const cueListItem = captionsCuesList.childNodes[i];
+						if ((cueListItem.startTime === this.activeCue.startTime) && (cueListItem.endTime === this.activeCue.endTime)) {
+							activeCueListItem = cueListItem;
+							resolve();
+							return;
+						}
+						i++;
+					}
+					// In theory, the active cue should always be found by the time we get to the end of the captions array.
+					// But in the rare case where that doesn't happen, we prevent this function from recursing forever.
+					if (i >= this.captions.length) {
+						resolve();
+					} else {
+						loadCuesUntilActiveCueIsDisplayed(resolve);
+					}
+				}, 100);
+			};
+			await new Promise(resolve => loadCuesUntilActiveCueIsDisplayed(resolve));
+		}
+
+		if (activeCueListItem) {
+			// The scroll might not work if the cues list element hasn't finished rendering yet.
+			setTimeout(() => activeCueListItem.scrollIntoView(), 300);
+		}
 	}
 
 	_updateLazyLoadForCaptionsCuesList() {

@@ -17,7 +17,7 @@ import { bodyStandardStyles, labelStyles } from '@brightspace-ui/core/components
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';
 import UserBrightspaceClient from './src/user-brightspace-client.js';
-import { convertTextTrackCueListToVttText } from './src/captions-utils.js';
+import { convertVttCueArrayToVttText } from './src/captions-utils.js';
 
 class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
@@ -223,6 +223,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 					.captions="${this._captions}"
 					@captions-auto-generation-started="${this._handleCaptionsAutoGenerationStarted}"
 					@captions-changed="${this._handleCaptionsChanged}"
+					@captions-edited="${this._handleCaptionsEdited}"
 					?captions-loading="${this._captionsLoading}"
 					.captionsUrl="${this._captionsUrl}"
 					@captions-url-changed="${this._handleCaptionsUrlChanged}"
@@ -362,7 +363,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			}
 			await this.apiClient.updateCaptions({
 				contentId: this._content.id,
-				captionsVttText: convertTextTrackCueListToVttText(this._captions),
+				captionsVttText: convertVttCueArrayToVttText(this._captions),
 				revisionId: draftToPublish.id,
 				locale: this._selectedLanguage.code
 			});
@@ -435,6 +436,12 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._captionsLoading = false;
 	}
 
+	_handleCaptionsEdited() {
+		if (!this._captionsLoading) {
+			this._captionsChanged = true;
+		}
+	}
+
 	_handleCaptionsUrlChanged(event) {
 		this._captionsLoading = true;
 		// Media Player's onSlotChange might not execute if the <track> slot's attributes change.
@@ -499,7 +506,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			}
 			await this.apiClient.updateCaptions({
 				contentId: this._content.id,
-				captionsVttText: convertTextTrackCueListToVttText(this._captions),
+				captionsVttText: convertVttCueArrayToVttText(this._captions),
 				revisionId: this._latestDraftRevision.id,
 				locale: this._selectedLanguage.code
 			});
