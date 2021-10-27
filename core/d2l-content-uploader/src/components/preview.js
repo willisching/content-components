@@ -7,7 +7,6 @@ import { RequesterMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
 import { formatFileSize } from '@brightspace-ui/intl/lib/fileSize.js';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin';
-import { parse } from '../util/d2lrn';
 
 export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
@@ -59,6 +58,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 			await Promise.all(formats.map(format => this._getSource(this.resource, format))) :
 			null;
 	}
+
 	render() {
 		const fileSize = this._fileSize ? ` (${formatFileSize(this.fileSize)})` : '';
 		const icon = this._isAudio() ? 'tier1:file-audio' : 'tier1:file-video';
@@ -83,12 +83,14 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 			</div>
 		`;
 	}
+
 	onChangeFileClick() {
 		this.dispatchEvent(new CustomEvent('cancel', {
 			bubbles: true,
 			composed: true
 		}));
 	}
+
 	async _getSource(resourceUrn, format) {
 		const client = this.requestInstance('content-service-client');
 		return {
@@ -104,7 +106,6 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 	_renderSource(source) {
 		return html`<source src=${source.src} label=${this.localize(`format${source.format.toUpperCase()}`)} ?default=${source.format === 'hd'}>`;
 	}
-
 }
 
 customElements.define('d2l-content-uploader-preview', Preview);
