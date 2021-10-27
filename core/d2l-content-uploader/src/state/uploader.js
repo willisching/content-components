@@ -78,16 +78,14 @@ export class Uploader {
 		try {
 			const sourceLanguage = captionLanguages?.length && captionLanguages[0];
 			const extension = file.name.split('.').pop();
-			this.content = await this.apiClient.createContent();
-			this.revision = await this.apiClient.createRevision(
-				this.content.id,
-				{
-					title,
-					extension,
-					formats: ['hd', 'mp3'],
-					...(sourceLanguage && { sourceLanguage })
-				}
-			);
+			this.content = await this.apiClient.createContent({
+				title,
+			});
+			this.revision = await this.apiClient.createRevision(this.content.id, {
+				extension,
+				formats: ['hd', 'mp3'],
+				...(sourceLanguage && { sourceLanguage })
+			});
 
 			this.s3Uploader = new S3Uploader({
 				file,
