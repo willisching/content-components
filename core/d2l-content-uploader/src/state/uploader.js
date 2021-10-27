@@ -80,8 +80,8 @@ export class Uploader {
 			const extension = file.name.split('.').pop();
 			const isAudio = fileType.startsWith('audio');
 			this.content = await this.apiClient.createContent({
-       title, 
-      });
+				title,
+			});
 			this.revision = await this.apiClient.createRevision(
 				this.content.id,
 				{
