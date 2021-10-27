@@ -20,7 +20,9 @@ const constants = {
 	CANVAS_WIDTH: 985,
 
 	// Captions
+	ADD_NEW_CUE_KEY_CODE: 13, // 13 is the "Enter" key in Javascript
 	MAX_CAPTIONS_UPLOAD_SIZE_IN_BYTES: 1024 * 1024 * 1024,
+	NEW_CUE_DEFAULT_DURATION_IN_SECONDS: 3,
 	NUM_OF_VISIBLE_CAPTIONS_CUES: 50,
 
 	// Timeline

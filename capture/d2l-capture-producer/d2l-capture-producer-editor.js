@@ -21,7 +21,7 @@ import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';
 import { styleMap } from 'lit-html/directives/style-map';
 import { Timeline } from './src/timeline';
-import { textTrackCueListToArray } from './src/captions-utils.js';
+import { convertVttCueArrayToVttText, textTrackCueListToArray } from './src/captions-utils.js';
 
 class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
@@ -220,6 +220,8 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 							<d2l-video-producer-captions
 								.activeCue="${this._activeCue}"
 								.captions="${this.captions}"
+								@captions-cue-added="${this._handleCaptionsCueAdded}"
+								@captions-cue-deleted="${this._handleCaptionsCueDeleted}"
 								@captions-cue-end-timestamp-synced="${this._handleCaptionsCueEndTimestampSynced}"
 								@captions-cue-start-timestamp-synced="${this._handleCaptionsCueStartTimestampSynced}"
 								@captions-vtt-replaced=${this._handleCaptionsVttReplaced}
@@ -812,6 +814,38 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	//#endregion
+	_handleCaptionsCueAdded(event) {
+		const newCue = new VTTCue(
+			this._mediaPlayer.currentTime,
+			this._mediaPlayer.currentTime + constants.NEW_CUE_DEFAULT_DURATION_IN_SECONDS,
+			event.detail.text
+		);
+		if (this._mediaPlayer.textTracks?.length > 0) {
+			this._mediaPlayer.textTracks[0].addCue(newCue);
+			this._syncCaptionsWithMediaPlayer();
+		} else {
+			// If there were no captions before, the Media Player won't have any text tracks yet.
+			// In this case, we need to make the Media Player load a new text track with the new cue in it.
+			const vttString = convertVttCueArrayToVttText([newCue]);
+			const localVttUrl = window.URL.createObjectURL(new Blob([vttString], { type: 'text/vtt' }));
+			this.dispatchEvent(new CustomEvent('captions-url-changed', {
+				detail: { captionsUrl: localVttUrl },
+				composed: false
+			}));
+		}
+
+		setTimeout(() => {
+			this._mediaPlayer.currentTime = newCue.startTime + 0.001;
+		}, 100); // Give the new cue element time to be drawn.
+	}
+
+	_handleCaptionsCueDeleted(event) {
+		const cueToDelete = event.detail.cue;
+		this._mediaPlayer.textTracks[0].removeCue(cueToDelete);
+		this._syncCaptionsWithMediaPlayer();
+		this._mediaPlayer.currentTime = this._mediaPlayer.currentTime + 0.001; // Make the Media Player update to stop showing the deleted cue.
+	}
+
 	_handleCaptionsCueEndTimestampSynced(event) {
 		const originalCue = event.detail.cue;
 		const cueDuration = originalCue.endTime - originalCue.startTime;
@@ -823,7 +857,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 		this._mediaPlayer.textTracks[0].addCue(editedCue); // TextTrack.addCue() automatically inserts the cue at the appropriate index based on startTime.
 		this._mediaPlayer.textTracks[0].removeCue(originalCue);
-		this._fireCaptionsChangedEvent(textTrackCueListToArray(this._mediaPlayer.textTracks[0].cues));
+		this._syncCaptionsWithMediaPlayer();
 
 		setTimeout(() => {
 			this._mediaPlayer.currentTime = editedCue.startTime + 0.001;
@@ -841,7 +875,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 		this._mediaPlayer.textTracks[0].addCue(editedCue); // TextTrack.addCue() automatically inserts the cue at the appropriate index based on startTime.
 		this._mediaPlayer.textTracks[0].removeCue(originalCue);
-		this._fireCaptionsChangedEvent(textTrackCueListToArray(this._mediaPlayer.textTracks[0].cues));
+		this._syncCaptionsWithMediaPlayer();
 
 		setTimeout(() => {
 			this._mediaPlayer.currentTime = editedCue.startTime + 0.001;
@@ -1090,6 +1124,10 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 			this._updateVideoTime();
 		}, 50);
+	}
+
+	_syncCaptionsWithMediaPlayer() {
+		this._fireCaptionsChangedEvent(textTrackCueListToArray(this._mediaPlayer.textTracks[0].cues));
 	}
 
 	_updateCutOnStage(cut) {
