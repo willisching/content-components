@@ -52,32 +52,13 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 		this._mediaSources = null;
 	}
 
-	async _getSource(resourceUrn, format) {
-		const client = this.requestInstance('content-service-client');
-		return {
-			src: (await client.getSecureUrlByName(resourceUrn, format)).value,
-			format
-		};
-	}
-
-	_isAudio() {
-		return this.fileType.startsWith('audio');
-	}
-
 	async connectedCallback() {
 		super.connectedCallback();
-		const {resourceType} = parse(this.resource);
-
 		const formats = this._isAudio() ? ['mp3'] : ['hd', 'sd'];
 		this._mediaSources = this.resource ?
 			await Promise.all(formats.map(format => this._getSource(this.resource, format))) :
 			null;
 	}
-
-	_renderSource(source) {
-		return html`<source src=${source.src} label=${this.localize(`format${source.format.toUpperCase()}`)} ?default=${source.format === 'hd'}>`;
-	}
-
 	render() {
 		const fileSize = this._fileSize ? ` (${formatFileSize(this.fileSize)})` : '';
 		const icon = this._isAudio() ? 'tier1:file-audio' : 'tier1:file-video';
@@ -102,13 +83,28 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 			</div>
 		`;
 	}
-
 	onChangeFileClick() {
 		this.dispatchEvent(new CustomEvent('cancel', {
 			bubbles: true,
 			composed: true
 		}));
 	}
+	async _getSource(resourceUrn, format) {
+		const client = this.requestInstance('content-service-client');
+		return {
+			src: (await client.getSecureUrlByName(resourceUrn, format)).value,
+			format
+		};
+	}
+
+	_isAudio() {
+		return this.fileType.startsWith('audio');
+	}
+
+	_renderSource(source) {
+		return html`<source src=${source.src} label=${this.localize(`format${source.format.toUpperCase()}`)} ?default=${source.format === 'hd'}>`;
+	}
+
 }
 
 customElements.define('d2l-content-uploader-preview', Preview);

@@ -68,14 +68,6 @@ class ContentViewer extends LitElement {
 		}));
 	}
 
-	_renderCaptionsTrack(captionsUrl) {
-		return html`<track src="${captionsUrl.Value}" kind="captions" label=${captionsUrl.Locale} srclang=${captionsUrl.Locale.slice(0, 2)}>`;
-	}
-
-	_renderMediaSource(source) {
-		return html`<source src=${source.src} label=${source.format} ?default=${source.format === VideoFormat.HD}>`;
-	}
-
 	render() {
 		return this._mediaSources && this._mediaSources.length > 0 && html`
 			<d2l-labs-media-player
@@ -89,24 +81,6 @@ class ContentViewer extends LitElement {
 			</d2l-labs-media-player>
 		`;
 	}
-
-	async _getMediaSource(format) {
-		return {
-			src: (await this.client.getDownloadUrl({format})).Value,
-			format,
-		};
-	}
-
-	async loadRevisionData() {
-		const revision = await this.client.getRevision();
-
-		if (!VALID_CONTENT_TYPES.includes(revision.Type)) {
-			throw new Error(`type ${revision.Type.key} unsupported`);
-		}
-
-		this._mediaSources = await Promise.all(revision.Formats.map(format => this._getMediaSource(format)));
-	};
-
 	async loadCaptions() {
 		clearInterval(this._trackErrorFetchTimeoutId);
 		this._trackErrorFetchTimeoutId = null;
@@ -127,8 +101,15 @@ class ContentViewer extends LitElement {
 			this.requestUpdate();
 		}
 	}
+	async loadRevisionData() {
+		const revision = await this.client.getRevision();
 
-	async trackLoadFailedHandler() {
+		if (!VALID_CONTENT_TYPES.includes(revision.Type)) {
+			throw new Error(`type ${revision.Type.key} unsupported`);
+		}
+
+		this._mediaSources = await Promise.all(revision.Formats.map(format => this._getMediaSource(format)));
+	} async trackLoadFailedHandler() {
 		const elapsedTimeSinceLastTrackLoadFailed = (new Date()).getTime() - (this._lastTrackLoadFailedTime || 0);
 		const trackErrorFetchIntervalElapsed = elapsedTimeSinceLastTrackLoadFailed > TRACK_ERROR_FETCH_INTERVAL_MILLISECONDS;
 
@@ -140,12 +121,25 @@ class ContentViewer extends LitElement {
 			this._trackErrorFetchTimeoutId = setTimeout(this.loadCaptions.bind(this), TRACK_ERROR_FETCH_INTERVAL_MILLISECONDS);
 		}
 	}
-
 	async tracksChangedHandler() {
 		const elapsedTimeSinceLoadCaptions = (new Date()).getTime() - this._captionsSignedUrlStartTime;
 		if (elapsedTimeSinceLoadCaptions > this._captionsSignedUrlExpireTime) {
 			await this.loadCaptions();
 		}
 	}
+	async _getMediaSource(format) {
+		return {
+			src: (await this.client.getDownloadUrl({format})).Value,
+			format,
+		};
+	}
+	_renderCaptionsTrack(captionsUrl) {
+		return html`<track src="${captionsUrl.Value}" kind="captions" label=${captionsUrl.Locale} srclang=${captionsUrl.Locale.slice(0, 2)}>`;
+	}
+
+	_renderMediaSource(source) {
+		return html`<source src=${source.src} label=${source.format} ?default=${source.format === VideoFormat.HD}>`;
+	}
+
 }
 customElements.define('d2l-content-viewer', ContentViewer);
