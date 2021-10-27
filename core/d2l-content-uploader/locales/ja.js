@@ -29,7 +29,7 @@ export const val = {
 	workerErrorUploadFailed: 'アップロードが失敗しました',
 	workerErrorCancelUploadFailed: 'アップロードをキャンセルできませんでした',
 	workerErrorZipFileCorrupted: 'パッケージの zip ファイルが破損しています',
-	selectALanguage: 'Select a Language...',
-	audioLanguageLabel: 'Audio Language:',
-	autoGenerateCaptionsFromAudio: 'Automatically generate captions from audio',
+	selectALanguage: '言語の選択...',
+	audioLanguageLabel: '音声の言語:',
+	autoGenerateCaptionsFromAudio: '音声からキャプションを自動的に生成',
 };

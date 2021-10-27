@@ -30,6 +30,6 @@ export const val = {
 	workerErrorCancelUploadFailed: 'Het uploaden kan niet worden geannuleerd',
 	workerErrorZipFileCorrupted: 'Het zipbestand met het pakket is beschadigd',
 	selectALanguage: 'Een taal selecteren...',
-	audioLanguageLabel: 'Audio Language:',
-	autoGenerateCaptionsFromAudio: 'Automatically generate captions from audio',
+	audioLanguageLabel: 'Audiotaal:',
+	autoGenerateCaptionsFromAudio: 'Automatisch bijschriften van audio genereren',
 };

@@ -30,6 +30,6 @@ export const val = {
 	workerErrorCancelUploadFailed: 'Överföringen kunde inte avbrytas',
 	workerErrorZipFileCorrupted: 'Zip-filen är skadad',
 	selectALanguage: 'Välj ett språk ...',
-	audioLanguageLabel: 'Audio Language:',
-	autoGenerateCaptionsFromAudio: 'Automatically generate captions from audio',
+	audioLanguageLabel: 'Ljudspråk:',
+	autoGenerateCaptionsFromAudio: 'Generera beskrivningar från ljud automatiskt',
 };

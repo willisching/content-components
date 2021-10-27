@@ -30,6 +30,6 @@ export const val = {
 	workerErrorCancelUploadFailed: '無法取消上傳',
 	workerErrorZipFileCorrupted: '套件壓縮檔已毀損',
 	selectALanguage: '選取語言...',
-	audioLanguageLabel: 'Audio Language:',
-	autoGenerateCaptionsFromAudio: 'Automatically generate captions from audio',
+	audioLanguageLabel: '音訊語言：',
+	autoGenerateCaptionsFromAudio: '自動從音訊產生字幕',
 };

@@ -30,6 +30,6 @@ export const val = {
 	workerErrorCancelUploadFailed: 'تعذر إلغاء التحميل',
 	workerErrorZipFileCorrupted: 'إن ملف الحزمة المضغوط تالف',
 	selectALanguage: 'تحديد لغة...',
-	audioLanguageLabel: 'Audio Language:',
-	autoGenerateCaptionsFromAudio: 'Automatically generate captions from audio',
+	audioLanguageLabel: 'لغة الملف الصوتي:',
+	autoGenerateCaptionsFromAudio: 'إنشاء تسميات توضيحية تلقائيًا من الملف الصوتي',
 };

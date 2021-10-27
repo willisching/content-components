@@ -30,6 +30,6 @@ export const val = {
 	workerErrorCancelUploadFailed: 'Overførslen kunne ikke annulleres',
 	workerErrorZipFileCorrupted: 'Zip-filen er beskadiget',
 	selectALanguage: 'Vælg et sprog ...',
-	audioLanguageLabel: 'Audio Language:',
-	autoGenerateCaptionsFromAudio: 'Automatically generate captions from audio',
+	audioLanguageLabel: 'Lydsprog:',
+	autoGenerateCaptionsFromAudio: 'Generér automatisk billedtekster fra lyd',
 };

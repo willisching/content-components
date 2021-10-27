@@ -7,7 +7,7 @@ export const val = {
 	fileLimit1Gb: 'Maksimum 1 GB boyutunda dosya yükleyebilirsiniz.',
 	mayOnlyUpload1File: 'Yalnızca 1 dosya yükleyebilirsiniz.',
 	invalidFileType: 'Geçersiz dosya türü.',
-	fileTooLarge: 'Dosya boyutu 1 GB\'den büyük.',
+	fileTooLarge: 'Dosya boyutu 1 GB'den büyük.',
 	title: 'Başlık',
 	titleForUpload: 'Yüklenecek dosyanızın başlığı',
 	changeFile: 'Dosya Değiştir',
@@ -30,6 +30,6 @@ export const val = {
 	workerErrorCancelUploadFailed: 'Yükleme iptal edilemedi',
 	workerErrorZipFileCorrupted: 'Paket ZIP dosyası bozuk',
 	selectALanguage: 'Bir Dil Seçin...',
-	audioLanguageLabel: 'Audio Language:',
-	autoGenerateCaptionsFromAudio: 'Automatically generate captions from audio',
+	audioLanguageLabel: 'Ses Dili:',
+	autoGenerateCaptionsFromAudio: 'Sesten otomatik olarak alt yazı oluşturun',
 };
