@@ -5,8 +5,9 @@ import { css, html, LitElement } from 'lit-element';
 import { bodyCompactStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { RequesterMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
 import { formatFileSize } from '@brightspace-ui/intl/lib/fileSize.js';
-import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
+import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin';
+import { parse } from '../util/d2lrn';
 
 export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
@@ -15,8 +16,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 			fileSize: { type: String, attribute: 'file-size', reflect: true },
 			fileType: { type: String, attribute: 'file-type', reflect: true },
 			resource: { type: String, attribute: true },
-
-			_mediaSrc: { type: String, attribute: false },
+			_mediaSources: { type: Array, attribute: false },
 		};
 	}
 
@@ -49,26 +49,40 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 		this.fileName = '';
 		this.fileSize = 0;
 		this.fileType = '';
-		this._mediaSrc = '';
+		this._mediaSources = null;
+	}
+
+	async _getSource(resourceUrn, format) {
+		const client = this.requestInstance('content-service-client');
+		return {
+			src: (await client.getSecureUrlByName(resourceUrn, format)).value,
+			format
+		};
+	}
+
+	_isAudio() {
+		return this.fileType.startsWith('audio');
 	}
 
 	async connectedCallback() {
 		super.connectedCallback();
+		const {resourceType} = parse(this.resource);
 
-		if (this.resource) {
-			const client = this.requestInstance('content-service-client');
-			const { value } = await client.getSecureUrlByName(this.resource);
-			this._mediaSrc = value;
-		} else {
-			this._mediaSrc = '';
-		}
+		const formats = this._isAudio() ? ['mp3'] : ['hd', 'sd'];
+		this._mediaSources = this.resource ?
+			await Promise.all(formats.map(format => this._getSource(this.resource, format))) :
+			null;
+	}
+
+	_renderSource(source) {
+		return html`<source src=${source.src} label=${this.localize(`format${source.format.toUpperCase()}`)} ?default=${source.format === 'hd'}>`;
 	}
 
 	render() {
 		const fileSize = this._fileSize ? ` (${formatFileSize(this.fileSize)})` : '';
-		const icon = this.fileType.startsWith('audio') ? 'tier1:file-audio' : 'tier1:file-video';
-		const player = this._mediaSrc && html`<d2l-labs-media-player src=${this._mediaSrc} style="width:100%"></d2l-labs-media-player>`;
-
+		const icon = this._isAudio() ? 'tier1:file-audio' : 'tier1:file-video';
+		const player = this._mediaSources && html`
+		<d2l-labs-media-player style="width:100%">${this._mediaSources.map(mediaSource => this._renderSource(mediaSource))}</d2l-labs-media-player>`;
 		return html`
 			<div id="container">
 				<div id="staged-file">

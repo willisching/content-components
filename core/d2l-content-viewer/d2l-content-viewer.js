@@ -1,21 +1,24 @@
 import '@brightspace-ui-labs/media-player/media-player.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 
-import ContentServiceClient from './clients/content-service-client.js';
-import HypermediaClient from './clients/hypermedia-client.js';
+import ContentServiceClient from './src/clients/rest-client.js';
+import HypermediaClient from './src/clients/hypermedia-client.js';
+import { VideoFormat, ContentType } from './src/clients/enums.js';
 
 const TRACK_ERROR_FETCH_INTERVAL_MILLISECONDS = 5000;
+const VALID_CONTENT_TYPES = [ContentType.Video, ContentType.Audio];
 
 class ContentViewer extends LitElement {
 	static get properties() {
 		return {
-			_captionSignedUrls: { type: Array, attribtue: false },
+			_mediaSources: { type: Array, attribute: false },
+			_captionSignedUrls: { type: Array, attribute: false },
 			activity: { type: String, attribute: 'activity' },
 			allowDownload: { type: Boolean, attribute: 'allow-download'},
 			allowDownloadOnError: { type: Boolean, attribute: 'allow-download-on-error' },
-			captionsHref: { type: String, attribute: 'captions-href' },
 			framed: { type: Boolean, value: false, attribute: 'framed' },
-			href: { type: String, attribute: 'href' }
+			orgUnitId: { type: Number, attribute: 'org-unit-id' },
+			topicId: { type: Number, attribute: 'topic-id' },
 		};
 	}
 
@@ -42,6 +45,7 @@ class ContentViewer extends LitElement {
 
 	async firstUpdated() {
 		super.firstUpdated();
+
 		if (this.activity) {
 			this.hmClient = new HypermediaClient({
 				entity: this.activity,
@@ -50,11 +54,12 @@ class ContentViewer extends LitElement {
 			this._resourceEntity = await this.hmClient.getResourceEntity();
 		} else {
 			this.client = new ContentServiceClient({
-				href: this.href,
-				captionsHref: this.captionsHref,
+				topicId: this.topicId,
+				orgUnitId: this.orgUnitId
 			});
 		}
-		await this.loadContent();
+
+		await this.loadRevisionData();
 		await this.loadCaptions();
 
 		this.dispatchEvent(new CustomEvent('cs-content-loaded', {
@@ -63,21 +68,44 @@ class ContentViewer extends LitElement {
 		}));
 	}
 
+	_renderCaptionsTrack(captionsUrl) {
+		return html`<track src="${captionsUrl.Value}" kind="captions" label=${captionsUrl.Locale} srclang=${captionsUrl.Locale.slice(0, 2)}>`;
+	}
+
+	_renderMediaSource(source) {
+		return html`<source src=${source.src} label=${source.format} ?default=${source.format === VideoFormat.HD}>`;
+	}
+
 	render() {
-		return this._signedUrl && html`
+		return this._mediaSources && this._mediaSources.length > 0 && html`
 			<d2l-labs-media-player
-				src="${this._signedUrl}"
 				crossorigin="anonymous"
 				@trackloadfailed=${this.trackLoadFailedHandler}
 				@tracksmenuitemchanged=${this.tracksChangedHandler}
 				?allow-download=${this.allowDownload}
 				?allow-download-on-error=${this.allowDownloadOnError}>
-				${this._captionSignedUrls.map(captionSignedUrl => html`
-					<track src="${captionSignedUrl.Value}" kind="captions" label=${captionSignedUrl.Locale} srclang=${captionSignedUrl.Locale.slice(0, 2)}>
-				`)}
+				${this._mediaSources.map(mediaSource => this._renderMediaSource(mediaSource))}
+				${this._captionSignedUrls.map(captionSignedUrl => this._renderCaptionsTrack(captionSignedUrl))}
 			</d2l-labs-media-player>
 		`;
 	}
+
+	async _getMediaSource(format) {
+		return {
+			src: (await this.client.getDownloadUrl({format})).Value,
+			format,
+		};
+	}
+
+	async loadRevisionData() {
+		const revision = await this.client.getRevision();
+
+		if (!VALID_CONTENT_TYPES.includes(revision.Type)) {
+			throw new Error(`type ${revision.Type.key} unsupported`);
+		}
+
+		this._mediaSources = await Promise.all(revision.Formats.map(format => this._getMediaSource(format)));
+	};
 
 	async loadCaptions() {
 		clearInterval(this._trackErrorFetchTimeoutId);
@@ -98,19 +126,6 @@ class ContentViewer extends LitElement {
 			this._captionsSignedUrlExpireTime = ((this._captionSignedUrls.length && this._captionSignedUrls[0].ExpireTime) || 0) * 1000;
 			this.requestUpdate();
 		}
-	}
-
-	async loadContent() {
-		if (this.activity) {
-			const { src, expires } = await this.hmClient.getMedia(this._resourceEntity);
-			this._signedUrl = src;
-			this._expires = expires;
-		} else {
-			const { Value, ExpireTime } = await this.client.getDownloadUrl();
-			this._expires = ExpireTime;
-			this._signedUrl = Value;
-		}
-		this.requestUpdate();
 	}
 
 	async trackLoadFailedHandler() {

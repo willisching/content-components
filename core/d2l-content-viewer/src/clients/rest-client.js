@@ -1,29 +1,45 @@
 import * as querystring from '@chaitin/querystring';
 import fetchAuthUnframed from 'd2l-fetch-auth/src/unframed/index.js';
 import { d2lfetch } from 'd2l-fetch/src/index.js';
+import { ContentType, VideoFormat } from './enums.js';
 
 export default class ContentServiceClient {
 	constructor({
-		href,
-		captionsHref,
+		topicId,
+		orgUnitId,
 	}) {
-		this.href = href;
-		this.captionsHref = captionsHref;
+		this.topicId = topicId;
+		this.orgUnitId = orgUnitId;
 		this.d2lfetch = d2lfetch.addTemp({
 			name: 'auth',
 			fn: fetchAuthUnframed
 		});
 	}
 
+	_formatRevision(revision) {
+		revision.Type = ContentType.get(revision.Type);
+		revision.Formats = revision.Formats.map(format => VideoFormat.get(format));
+		return revision;
+	}
+
+	async getRevision() {
+		return this._formatRevision(await this._fetch({
+			path: `/d2l/le/content/contentservice/resources/${this.orgUnitId}/topics/${this.topicId}/revision`
+		}));
+	}
+
 	getCaptions() {
 		return this._fetch({
-			path: this.captionsHref
+			path: `/d2l/le/content/contentservice/resources/${this.orgUnitId}/topics/${this.topicId}/getCaptions`
 		});
 	}
 
-	getDownloadUrl() {
+	getDownloadUrl({format}) {
 		return this._fetch({
-			path: this.href,
+			path: `/d2l/le/content/contentservice/resources/${this.orgUnitId}/topics/${this.topicId}/download`,
+			query: {
+				format: format.value
+			},
 			doNotUseCache: false
 		});
 	}

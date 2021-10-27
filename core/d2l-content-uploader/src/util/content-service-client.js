@@ -51,10 +51,10 @@ export default class ContentServiceClient {
 		});
 	}
 
-	getSecureUrlByName(d2lrn) {
+	getSecureUrlByName(d2lrn, format) {
 		const { tenantId, contentId, revisionId } = parse(d2lrn);
 		return this._fetch({
-			path: `/api/${tenantId}/content/${contentId}/revisions/${revisionId}/signed-url`,
+			path: `/api/${tenantId}/content/${contentId}/revisions/${revisionId}/signed-url?format=${format}`,
 		});
 	}
 
