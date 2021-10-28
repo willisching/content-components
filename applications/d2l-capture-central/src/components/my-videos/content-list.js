@@ -198,12 +198,12 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 
 			case 'lastRevTitle.keyword:desc':
 				return e => {
-					return e.lastRevTitle.toLowerCase() <= item.lastRevTitle.toLowerCase();
+					return e.title.toLowerCase() <= item.title.toLowerCase();
 				};
 
 			case 'lastRevTitle.keyword:asc':
 				return e => {
-					return e.lastRevTitle.toLowerCase() >= item.lastRevTitle.toLowerCase();
+					return e.title.toLowerCase() >= item.title.toLowerCase();
 				};
 
 			default:
