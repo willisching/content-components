@@ -112,12 +112,13 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 			return;
 		}
 
-		const { id: lastRevId, title: lastRevTitle, type: lastRevType } = item.revision;
+		const { title: contentTitle } = item.content;
+		const { id: lastRevId, type: lastRevType } = item.revision;
 		const { id } = item.content;
 		const updatedAt = (new Date()).toISOString();
 
 		await this.insertIntoContentItemsBasedOnSort({
-			id, lastRevType, lastRevTitle, lastRevId, updatedAt
+			id, lastRevType, contentTitle, lastRevId, updatedAt
 		});
 	}
 

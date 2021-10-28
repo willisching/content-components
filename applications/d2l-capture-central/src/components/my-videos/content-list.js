@@ -116,7 +116,8 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 			return;
 		}
 
-		const { id: revisionId, title, type } = item.revision;
+		const { title } = item.content;
+		const { id: revisionId, type } = item.revision;
 		const { id } = item.content;
 		const updatedAt = (new Date()).toISOString();
 
