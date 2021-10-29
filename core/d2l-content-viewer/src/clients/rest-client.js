@@ -21,6 +21,7 @@ export default class ContentServiceClient {
 			path: `/d2l/le/content/contentservice/resources/${this.orgUnitId}/topics/${this.topicId}/getCaptions`
 		});
 	}
+
 	getDownloadUrl({format}) {
 		return this._fetch({
 			path: `/d2l/le/content/contentservice/resources/${this.orgUnitId}/topics/${this.topicId}/download`,
@@ -30,11 +31,13 @@ export default class ContentServiceClient {
 			doNotUseCache: false
 		});
 	}
+
 	async getRevision() {
 		return this._formatRevision(await this._fetch({
 			path: `/d2l/le/content/contentservice/resources/${this.orgUnitId}/topics/${this.topicId}/revision`
 		}));
 	}
+
 	async _fetch({
 		path,
 		method = 'GET',
@@ -73,6 +76,7 @@ export default class ContentServiceClient {
 
 		return response;
 	}
+
 	_formatRevision(revision) {
 		revision.Type = ContentType.get(revision.Type);
 		revision.Formats = revision.Formats.map(format => VideoFormat.get(format));
