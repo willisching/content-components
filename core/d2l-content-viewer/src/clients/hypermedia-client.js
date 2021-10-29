@@ -3,6 +3,7 @@ import * as querystring from '@chaitin/querystring';
 import fetchAuthUnframed from 'd2l-fetch-auth/src/unframed/index.js';
 import fetchAuthFramed from 'd2l-fetch-auth/es6/d2lfetch-auth-framed.js';
 import { d2lfetch } from 'd2l-fetch/src/index.js';
+import { ContentType, VideoFormat } from './enums.js';
 
 export default class HypermediaClient {
 	constructor({ entity, framed }) {
@@ -20,7 +21,7 @@ export default class HypermediaClient {
 		}
 		const getTracksAction = resourceEntity.getActionByName('get-tracks');
 		const getTracksResponse = await this._fetch({ url: getTracksAction.href });
-		const tracksEntity =  SirenParse(getTracksResponse);
+		const tracksEntity = SirenParse(getTracksResponse);
 		const { tracks } = tracksEntity.properties;
 		return tracks;
 	}
@@ -31,12 +32,14 @@ export default class HypermediaClient {
 		}
 		const getMediaAction = resourceEntity.getActionByName('get-media');
 		const formatField = getMediaAction.getFieldByName('format');
-		const format = formatField.value[0].value;
-		const url = `${getMediaAction.href}?format=${format}&attachment=false`;
-		const getMediaResponse = await this._fetch({ url });
-		const mediaEntity =  SirenParse(getMediaResponse);
-		const { src, expires } = mediaEntity.properties;
-		return { src, expires };
+		const supportedFormats = formatField.value;
+		return Promise.all(supportedFormats.map(async format => {
+			const result = await this._fetch({ url: `${getMediaAction.href}?format=${format.value}&attachment=false` });
+			return {
+				format: VideoFormat.get(format.value.toUpperCase()),
+				...result.properties
+			}
+		}));
 	}
 
 	async getResourceEntity() {
@@ -48,6 +51,23 @@ export default class HypermediaClient {
 		const resourceResponse = await this._fetch({ url: href });
 		const resourceEntity = SirenParse(resourceResponse);
 		return resourceEntity;
+	}
+
+	async getRevision(resourceEntity) {
+		if (!resourceEntity.hasActionByName('get-revision')) {
+			return null;
+		}
+
+		const getRevisionAction = resourceEntity.getActionByName('get-revision');
+		const getMediaResponse = await this._fetch({ url: getRevisionAction.href });
+		const mediaEntity = SirenParse(getMediaResponse);
+		return this._formatRevision(mediaEntity.properties);
+	}
+
+	_formatRevision(revision) {
+		revision.type = ContentType.get(revision.type);
+		revision.formats = revision.formats.map(format => VideoFormat.get(format));
+		return revision;
 	}
 
 	async _fetch({
