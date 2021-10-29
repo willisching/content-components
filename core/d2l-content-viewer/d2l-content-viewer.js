@@ -135,12 +135,6 @@ class ContentViewer extends LitElement {
 		}
 	}
 
-	async _verifyContentType(type) {
-		if (!VALID_CONTENT_TYPES.includes(type)) {
-			throw new Error(`type ${type.key} unsupported`);
-		}
-	}
-
 	async _getMediaSource(format) {
 		return {
 			src: (await this.client.getDownloadUrl({format})).Value,
@@ -154,6 +148,12 @@ class ContentViewer extends LitElement {
 
 	_renderMediaSource(source) {
 		return html`<source src=${source.src} label=${source.format} ?default=${source.format === VideoFormat.HD}>`;
+	}
+
+	async _verifyContentType(type) {
+		if (!VALID_CONTENT_TYPES.includes(type)) {
+			throw new Error(`type ${type.key} unsupported`);
+		}
 	}
 }
 customElements.define('d2l-content-viewer', ContentViewer);

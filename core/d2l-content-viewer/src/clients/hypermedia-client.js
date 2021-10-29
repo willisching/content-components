@@ -38,7 +38,7 @@ export default class HypermediaClient {
 			return {
 				format: VideoFormat.get(format.value.toUpperCase()),
 				...result.properties
-			}
+			};
 		}));
 	}
 
@@ -62,12 +62,6 @@ export default class HypermediaClient {
 		const getMediaResponse = await this._fetch({ url: getRevisionAction.href });
 		const mediaEntity = SirenParse(getMediaResponse);
 		return this._formatRevision(mediaEntity.properties);
-	}
-
-	_formatRevision(revision) {
-		revision.type = ContentType.get(revision.type);
-		revision.formats = revision.formats.map(format => VideoFormat.get(format));
-		return revision;
 	}
 
 	async _fetch({
@@ -107,6 +101,12 @@ export default class HypermediaClient {
 		}
 
 		return response;
+	}
+
+	_formatRevision(revision) {
+		revision.type = ContentType.get(revision.type);
+		revision.formats = revision.formats.map(format => VideoFormat.get(format));
+		return revision;
 	}
 
 	_url(url, query) {
