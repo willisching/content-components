@@ -19,6 +19,9 @@ class ContentViewer extends LitElement {
 			framed: { type: Boolean, value: false, attribute: 'framed' },
 			orgUnitId: { type: Number, attribute: 'org-unit-id' },
 			topicId: { type: Number, attribute: 'topic-id' },
+			// href and captions-href deprecated, use orgUnitId and topicId instead
+			href: { type: String, attribute: 'href' },
+			captionsHref: { type: String, attribute: 'captions-href' }
 		};
 	}
 
@@ -88,7 +91,7 @@ class ContentViewer extends LitElement {
 
 		const captionSignedUrls = this.activity
 			? await this.hmClient.getCaptions(this._resourceEntity)
-			: await this.client.getCaptions();
+			: await this.client.getCaptions(this.captionsHref);
 
 		if (captionSignedUrls) {
 			// This forces a slot change event for the media player so it can render the new captions
@@ -108,6 +111,8 @@ class ContentViewer extends LitElement {
 			const revision = await this.hmClient.getRevision(this._resourceEntity);
 			this._verifyContentType(revision.type);
 			this._mediaSources = await this.hmClient.getMedia(this._resourceEntity);
+		} else if (this.href) {
+			this._mediaSources = [await this._getMediaSource()];
 		} else {
 			const revision = await this.client.getRevision();
 			this._verifyContentType(revision.Type);
@@ -137,7 +142,7 @@ class ContentViewer extends LitElement {
 
 	async _getMediaSource(format) {
 		return {
-			src: (await this.client.getDownloadUrl({format})).Value,
+			src: (await this.client.getDownloadUrl({format, href: this.href})).Value,
 			format,
 		};
 	}

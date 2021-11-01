@@ -908,8 +908,30 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this.selectedLanguage = e.detail.selectedLanguage;
 	}
 
-	_handleTrackLoaded() {
-		this._fireCaptionsChangedEvent(textTrackCueListToArray(this._mediaPlayer.textTracks[0].cues));
+	async _handleTrackLoaded() {
+		// After loading the track, there might be a slight delay before the Media Player's <track> element loads all of its cues.
+		// This happens occasionally for large files.
+		let retryCounter = 0;
+		if (!this._mediaPlayer?.textTracks?.[0].cues) {
+			const waitForMediaPlayerCuesLoaded = resolve => {
+				if ((retryCounter === 100) || (this._mediaPlayer?.textTracks?.[0].cues)) {
+					resolve();
+				} else {
+					retryCounter++;
+					setTimeout(() => waitForMediaPlayerCuesLoaded(resolve), 100);
+				}
+			};
+			await new Promise(resolve => waitForMediaPlayerCuesLoaded(resolve));
+		}
+
+		if (retryCounter < 100) {
+			this._fireCaptionsChangedEvent(textTrackCueListToArray(this._mediaPlayer.textTracks[0].cues));
+		} else {
+			this.dispatchEvent(new CustomEvent('captions-load-error', {
+				bubbles: true,
+				composed: true,
+			}));
+		}
 	}
 
 	_hideCursor() {
