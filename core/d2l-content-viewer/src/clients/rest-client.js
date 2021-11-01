@@ -16,16 +16,16 @@ export default class ContentServiceClient {
 		});
 	}
 
-	getCaptions() {
+	getCaptions(captionsHref) {
 		return this._fetch({
-			path: `/d2l/le/content/contentservice/resources/${this.orgUnitId}/topics/${this.topicId}/getCaptions`
+			path: captionsHref || `/d2l/le/content/contentservice/resources/${this.orgUnitId}/topics/${this.topicId}/getCaptions`
 		});
 	}
-	getDownloadUrl({format}) {
+	getDownloadUrl({format, href}) {
 		return this._fetch({
-			path: `/d2l/le/content/contentservice/resources/${this.orgUnitId}/topics/${this.topicId}/download`,
+			path: href || `/d2l/le/content/contentservice/resources/${this.orgUnitId}/topics/${this.topicId}/download`,
 			query: {
-				format: format.value
+				format: format?.value
 			},
 			doNotUseCache: false
 		});
