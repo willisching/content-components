@@ -61,6 +61,7 @@ class ContentViewer extends LitElement {
 
 		await this.loadRevisionData();
 		await this.loadCaptions();
+		await this.loadMetadata();
 
 		this.dispatchEvent(new CustomEvent('cs-content-loaded', {
 			bubbles: true,
@@ -100,6 +101,17 @@ class ContentViewer extends LitElement {
 			this._captionsSignedUrlStartTime = (new Date()).getTime();
 			this._captionsSignedUrlExpireTime = ((this._captionSignedUrls.length && this._captionSignedUrls[0].ExpireTime) || 0) * 1000;
 			this.requestUpdate();
+		}
+	}
+
+	async loadMetadata() {
+		if (this.activity) {
+			//const metadata = await this.hmClient.getMetadata(this._resourceEntity);
+		} else {
+			const metadata = await this.client.getMetadata();
+			if (!metadata) return;
+			const mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
+			mediaPlayer.metadata = metadata;
 		}
 	}
 
