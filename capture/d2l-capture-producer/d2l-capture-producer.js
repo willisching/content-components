@@ -225,6 +225,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 					@captions-changed="${this._handleCaptionsChanged}"
 					@captions-edited="${this._handleCaptionsEdited}"
 					?captions-loading="${this._captionsLoading}"
+					@captions-load-error="${this._handleCaptionsLoadError}"
 					.captionsUrl="${this._captionsUrl}"
 					@captions-url-changed="${this._handleCaptionsUrlChanged}"
 					?enableCutsAndChapters="${this._enableCutsAndChapters}"
@@ -439,6 +440,11 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		if (!this._captionsLoading) {
 			this._captionsChanged = true;
 		}
+	}
+
+	_handleCaptionsLoadError() {
+		this._alertMessage = this.localize('loadCaptionsError', { language: this._selectedLanguage.name });
+		this.shadowRoot.querySelector('d2l-alert-toast').open = true;
 	}
 
 	_handleCaptionsUrlChanged(event) {

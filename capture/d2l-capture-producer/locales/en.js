@@ -46,6 +46,7 @@ export const val = {
 	noCaptions: 'There are currently no captions for {language}.',
 	noChapters: 'There are no chapters added.',
 	openExpandedCaptionsCueControls: 'Open expanded controls for this captions cue',
+	preparingCaptions: 'Preparing captions…',
 	publishWarning: 'If you proceed, all references to this media file throughout the LMS will receive your changes.',
 	revisionNumber: 'Revision {number}',
 	revisionNumberDraft: 'Revision {number} (Draft)',
@@ -68,6 +69,8 @@ export const val = {
 	unsaved: 'Unsaved',
 	upload: 'Upload',
 	uploadSrtWebVttFile: 'Upload an SRT or WebVTT file',
+	viewNextCues: 'View next {cueBatchSize} cues',
+	viewPreviousCues: 'View previous {cueBatchSize} cues',
 	vttLibraryError: 'The WebVTT parser could not be loaded. Please try again later.',
 	vttParseError: 'Could not parse WebVTT file. Please ensure your file follows the WebVTT file format.',
 	yes: 'Yes'
