@@ -1182,6 +1182,11 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	_updateVideoTime() {
+		// If the timeline is disabled for the current file format, do nothing.
+		if (!this.enableCutsAndChapters) {
+			return;
+		}
+
 		// Clear the seeked time once the video has caught up
 		if (this._mouseTime && Math.abs(this._mouseTime - this._mediaPlayer.currentTime) < 1) {
 			this._mouseTime = null;
