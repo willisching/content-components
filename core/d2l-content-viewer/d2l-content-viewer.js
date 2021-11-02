@@ -19,6 +19,9 @@ class ContentViewer extends LitElement {
 			framed: { type: Boolean, value: false, attribute: 'framed' },
 			orgUnitId: { type: Number, attribute: 'org-unit-id' },
 			topicId: { type: Number, attribute: 'topic-id' },
+			// href and captions-href deprecated, use orgUnitId and topicId instead
+			href: { type: String, attribute: 'href' },
+			captionsHref: { type: String, attribute: 'captions-href' }
 		};
 	}
 
@@ -89,7 +92,7 @@ class ContentViewer extends LitElement {
 
 		const captionSignedUrls = this.activity
 			? await this.hmClient.getCaptions(this._resourceEntity)
-			: await this.client.getCaptions();
+			: await this.client.getCaptions(this.captionsHref);
 
 		if (captionSignedUrls) {
 			// This forces a slot change event for the media player so it can render the new captions
@@ -117,15 +120,14 @@ class ContentViewer extends LitElement {
 
 	async loadRevisionData() {
 		if (this.activity) {
-			const { src } = await this.hmClient.getMedia(this._resourceEntity);
-			this._mediaSources = [{src, format: 'HD'}];
+			const revision = await this.hmClient.getRevision(this._resourceEntity);
+			this._verifyContentType(revision.type);
+			this._mediaSources = await this.hmClient.getMedia(this._resourceEntity);
+		} else if (this.href) {
+			this._mediaSources = [await this._getMediaSource()];
 		} else {
 			const revision = await this.client.getRevision();
-
-			if (!VALID_CONTENT_TYPES.includes(revision.Type)) {
-				throw new Error(`type ${revision.Type.key} unsupported`);
-			}
-
+			this._verifyContentType(revision.Type);
 			this._mediaSources = await Promise.all(revision.Formats.map(format => this._getMediaSource(format)));
 		}
 	}
@@ -152,7 +154,7 @@ class ContentViewer extends LitElement {
 
 	async _getMediaSource(format) {
 		return {
-			src: (await this.client.getDownloadUrl({format})).Value,
+			src: (await this.client.getDownloadUrl({format, href: this.href})).Value,
 			format,
 		};
 	}
@@ -163,6 +165,12 @@ class ContentViewer extends LitElement {
 
 	_renderMediaSource(source) {
 		return html`<source src=${source.src} label=${source.format} ?default=${source.format === VideoFormat.HD}>`;
+	}
+
+	async _verifyContentType(type) {
+		if (!VALID_CONTENT_TYPES.includes(type)) {
+			throw new Error(`type ${type.key} unsupported`);
+		}
 	}
 }
 customElements.define('d2l-content-viewer', ContentViewer);
