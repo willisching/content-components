@@ -32,6 +32,12 @@ export default class ContentServiceClient {
 		});
 	}
 
+	getMetadata() {
+		return this._fetch({
+			path: `/d2l/le/content/contentservice/resources/${this.orgUnitId}/topics/${this.topicId}/metadata`
+		});
+	}
+
 	async getRevision() {
 		return this._formatRevision(await this._fetch({
 			path: `/d2l/le/content/contentservice/resources/${this.orgUnitId}/topics/${this.topicId}/revision`
