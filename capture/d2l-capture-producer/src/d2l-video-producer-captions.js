@@ -75,34 +75,36 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 				flex-direction: row;
 			}
 
-			.d2l-video-producer-captions-cue-start-end-container {
+			.d2l-video-producer-captions-cue-start-end-grid {
 				align-items: center;
-				display: flex;
-				flex-direction: row;
+				display: grid;
 				justify-content: space-between;
 				width: 100%;
 			}
 
-			.d2l-video-producer-captions-cue-timestamp-container {
-				align-items: center;
-				display: flex;
-				flex-direction: column;
+			.d2l-video-producer-captions-cue-start-end-grid > p {
+				margin-top: 0px;
+				margin-bottom: 0px;
 			}
 
-			.d2l-video-producer-sync-cue-button-anchor {
-				height: 0;
-				position: relative;
-				width: 0;
+			.start-timestamp-row {
+				grid-row: 1;
 			}
 
-			.d2l-video-producer-sync-cue-button {
-				left: 35px;
-				position: absolute;
-				top: -10px;
+			.end-timestamp-row {
+				grid-row: 2;
 			}
 
-			.d2l-video-producer-captions-cue-timestamp-container > d2l-input-text {
-				width: 135px;
+			.d2l-video-producer-captions-cue-timestamp-label {
+				grid-column: 1;
+			}
+
+			.d2l-video-producer-captions-cue-timestamp-text {
+				grid-column: 2;
+			}
+
+			.d2l-video-producer-captions-sync-cue-button {
+				grid-column: 3;
 			}
 		` ];
 	}
@@ -193,41 +195,23 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 	_renderExpandedControls() {
 		return html`
 			<div class="d2l-video-producer-captions-cue-expanded-controls">
-				<div class="d2l-video-producer-captions-cue-start-end-container">
-					<div class="d2l-video-producer-captions-cue-timestamp-container">
-						<div class="d2l-video-producer-sync-cue-button-anchor">
-							<d2l-button-icon
-								class="d2l-video-producer-sync-cue-button"
-								@click="${this._handleSyncStartTimestampClicked}"
-								text=${this.localize('syncStartTimeToTimeline')}
-								icon="tier1:time"
-							></d2l-button-icon>
-						</div>
-						<d2l-input-text
-							class="d2l-video-producer-captions-cue-start-timestamp"
-							@focus="${this._handleFocus}"
-							label=${this.localize('captionsCueStartTimestamp')}
-							description=${this.localize('captionsCueStartTimestampDescription')}
-							value=${formatTimestampText(this.cue.startTime)}
-						></d2l-input-text>
-					</div>
-					<div class="d2l-video-producer-captions-cue-timestamp-container">
-						<div class="d2l-video-producer-sync-cue-button-anchor">
-							<d2l-button-icon
-								class="d2l-video-producer-sync-cue-button"
-								@click="${this._handleSyncEndTimestampClicked}"
-								text=${this.localize('syncEndTimeToTimeline')}
-								icon="tier1:time"
-							></d2l-button-icon>
-						</div>
-						<d2l-input-text
-							class="d2l-video-producer-captions-cue-end-timestamp"
-							@focus="${this._handleFocus}"
-							label=${this.localize('captionsCueEndTimestamp')}
-							description=${this.localize('captionsCueEndTimestampDescription')}
-							value=${formatTimestampText(this.cue.endTime)}
-						></d2l-input-text>
-					</div>
+				<div class="d2l-video-producer-captions-cue-start-end-grid">
+					<p class="start-timestamp-row d2l-label-text d2l-video-producer-captions-cue-timestamp-label">${this.localize('captionsCueStartTimestamp')}</p>
+					<p class="start-timestamp-row d2l-body-standard d2l-video-producer-captions-cue-timestamp-text">${formatTimestampText(this.cue.startTime)}</p>
+					<d2l-button-icon
+						class="start-timestamp-row d2l-video-producer-sync-cue-button"
+						@click="${this._handleSyncStartTimestampClicked}"
+						text=${this.localize('syncStartTimeToTimeline')}
+						icon="tier1:time"
+					></d2l-button-icon>
+					<p class="end-timestamp-row d2l-label-text d2l-video-producer-captions-cue-timestamp-label">${this.localize('captionsCueEndTimestamp')}</p>
+					<p class="end-timestamp-row d2l-body-standard d2l-video-producer-captions-cue-timestamp-text">${formatTimestampText(this.cue.endTime)}</p>
+					<d2l-button-icon
+						class="end-timestamp-row d2l-video-producer-sync-cue-button"
+						@click="${this._handleSyncEndTimestampClicked}"
+						text=${this.localize('syncEndTimeToTimeline')}
+						icon="tier1:time"
+					></d2l-button-icon>
 				</div>
 			</div>
 		`;
