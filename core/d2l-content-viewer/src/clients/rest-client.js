@@ -26,7 +26,7 @@ export default class ContentServiceClient {
 		return this._fetch({
 			path: href || `/d2l/le/content/contentservice/resources/${this.orgUnitId}/topics/${this.topicId}/download`,
 			query: {
-				format: format?.value
+				format: format ? format.value : undefined
 			},
 			doNotUseCache: false
 		});
