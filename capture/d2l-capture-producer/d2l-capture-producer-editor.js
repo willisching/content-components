@@ -36,6 +36,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			metadataLoading: { type: Boolean, attribute: 'metadata-loading' },
 			selectedLanguage: { type: Object },
 			src: { type: String },
+			timelineVisible: { type: Boolean, attribute: 'timeline-visible' },
 
 			_activeCue: { type: Object, attribute: false },
 			_zoomMultiplier: { type: Number, attribute: false },
@@ -147,6 +148,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 		this.metadata = { cuts: [], chapters: [] };
 		this.metadataLoading = true;
+		this.timelineVisible = false;
 		this.src = '';
 		this.languages = [];
 		this.defaultLanguage = {};
@@ -235,7 +237,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 					</d2l-tabs>
 				</div>
 				${(this.enableCutsAndChapters ? html`
-					<div class="d2l-video-producer-timeline" style="visibility: ${this.metadataLoading ? 'hidden' : 'visible'};">
+					<div class="d2l-video-producer-timeline" style="visibility: ${this.timelineVisible ? 'visible' : 'hidden'};">
 						<div id="canvas-container">
 							<canvas height="${constants.CANVAS_HEIGHT}px" width="${constants.CANVAS_WIDTH}px" id="timeline-canvas"></canvas>
 							<div id="zoom-multiplier" style=${styleMap(zoomMultiplierStyleMap)}>

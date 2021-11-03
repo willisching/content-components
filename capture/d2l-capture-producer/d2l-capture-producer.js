@@ -48,6 +48,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			_selectedLanguage: { type: Object, attribute: false },
 			_selectedRevisionIndex: { type: Number, attribute: false },
 			_src: { type: String, attribute: false },
+			_timelineVisible: { type: Boolean, attribute: false },
 			_unsavedChanges: { type: String, attribute: false },
 			_mediaLoaded: { type: Boolean, attribute: false },
 		};
@@ -59,12 +60,10 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				align-items: center;
 				display: flex;
 				flex-direction: column;
-				height: 70%;
 				justify-content: center;
+				margin-top: 100px;
 				overflow-y: hidden;
-				position: absolute;
 				width: 100%;
-				z-index: 99;
 			}
 
 			.d2l-video-producer-processing-message {
@@ -239,6 +238,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 					.selectedLanguage="${this._selectedLanguage}"
 					.src="${this._src}"
 					style="visibility: ${(this._loading || this._isProcessing) ? 'hidden' : 'visible'};"
+					?timeline-visible="${this._timelineVisible}"
 				></d2l-capture-producer-editor>
 				<d2l-alert-toast type="${this._errorOccurred ? 'error' : 'default'}">
 					${this._alertMessage}
@@ -750,6 +750,10 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		});
 		this._selectedLanguage = this._languages.find(language => language.isDefault);
 		this._defaultLanguage = this._selectedLanguage;
+	}
+
+	get _timelineVisible() {
+		return this._enableCutsAndChapters && !this.loading && !this._metadataLoading;
 	}
 
 	get _unsavedChanges() {
