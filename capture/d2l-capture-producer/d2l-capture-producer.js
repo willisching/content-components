@@ -352,8 +352,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			draftToPublish = this._latestDraftRevision;
 		}
 
-		if (this._unsavedChanges) {
-			if (this._enableCutsAndChapters) {
+		try {
+			if (this._metadataChanged) {
 				await this.apiClient.updateMetadata({
 					contentId: this._content.id,
 					metadata: this._metadata,
@@ -361,16 +361,15 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				});
 				this._metadataChanged = false;
 			}
-			await this.apiClient.updateCaptions({
-				contentId: this._content.id,
-				captionsVttText: convertVttCueArrayToVttText(this._captions),
-				revisionId: draftToPublish.id,
-				locale: this._selectedLanguage.code
-			});
-			this._captionsChanged = false;
-		}
-
-		try {
+			if (this._captionsChanged) {
+				await this.apiClient.updateCaptions({
+					contentId: this._content.id,
+					captionsVttText: convertVttCueArrayToVttText(this._captions),
+					revisionId: draftToPublish.id,
+					locale: this._selectedLanguage.code
+				});
+				this._captionsChanged = false;
+			}
 			await this.apiClient.processRevision({
 				contentId: this._content.id,
 				revisionId: draftToPublish.id,
@@ -501,7 +500,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		}
 
 		try {
-			if (this._enableCutsAndChapters) {
+			if (this._metadataChanged) {
 				await this.apiClient.updateMetadata({
 					contentId: this._content.id,
 					metadata: this._metadata,
@@ -509,13 +508,15 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				});
 				this._metadataChanged = false;
 			}
-			await this.apiClient.updateCaptions({
-				contentId: this._content.id,
-				captionsVttText: convertVttCueArrayToVttText(this._captions),
-				revisionId: this._latestDraftRevision.id,
-				locale: this._selectedLanguage.code
-			});
-			this._captionsChanged = false;
+			if (this._captionsChanged) {
+				await this.apiClient.updateCaptions({
+					contentId: this._content.id,
+					captionsVttText: convertVttCueArrayToVttText(this._captions),
+					revisionId: this._latestDraftRevision.id,
+					locale: this._selectedLanguage.code
+				});
+				this._captionsChanged = false;
+			}
 		} catch (error) {
 			this._errorOccurred = true;
 		}
