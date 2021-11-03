@@ -58,12 +58,15 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		return [bodyStandardStyles, labelStyles, selectStyles, css`
 			.d2l-video-producer-overlay {
 				align-items: center;
+				bottom: 0px;
 				display: flex;
 				flex-direction: column;
 				justify-content: center;
-				margin-top: 100px;
+				left: 0px;
 				overflow-y: hidden;
-				width: 100%;
+				position: absolute;
+				right: 0px;
+				top: 0px;
 			}
 
 			.d2l-video-producer-processing-message {
