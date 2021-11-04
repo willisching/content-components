@@ -129,9 +129,6 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 						${this.errorMessage ? html`<p id="error-message" class="d2l-body-compact">${this.errorMessage}&nbsp;</p>` : ''}
 					</div>
 				</file-drop>
-				<div class="upload-options-container">
-					${this._renderAutoCaptionsOption()}
-				</div>
 			</div>
 		`;
 	}
@@ -207,59 +204,6 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 
 		this.requestUpdate();
 		await this.updateComplete;
-	}
-
-	_renderAutoCaptionsOption() {
-		if (!this._captionsLanguageCodes) {
-			return html``;
-		}
-
-		return html`
-			<table>
-				<tr>
-					<td>
-						<label
-							id="auto-captions-language-selector-label"
-							for="auto-captions-language-selector"
-							class="d2l-input-label">
-							${this.localize('audioLanguageLabel')}
-						</label>
-					</td>
-					<td>
-						<select
-							id="auto-captions-language-selector"
-							class="d2l-input-select"
-							value=${this._selectedLanguage}
-							@change=${this._onSelectedLanguageChange}
-							aria-label=${this.localize('selectLanguageForNewCaptions')}
-							aria-haspopup="true">
-								<option value=${this.selectALanguageOptionValue}>${this.localize('selectALanguage')}</option>
-								${Object.entries(this._captionsLanguageCodes).map(([langCode, langLabel]) => this._renderLanguageOptions(langCode, langLabel))}
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<td></td>
-					<td>
-						<d2l-input-checkbox
-							id="upload-auto-captions"
-							?disabled=${this._selectedLanguage && this._selectedLanguage === this.selectALanguageOptionValue}>
-							${this.localize('autoGenerateCaptionsFromAudio')}
-						</d2l-input-checkbox>
-					</td>
-				</tr>
-			</table>
-		`;
-	}
-
-	_renderLanguageOptions(langCode, langLabel) {
-		return html`
-			<option
-				key=${langCode}
-				value=${langCode}>
-				${langLabel}
-			</option>
-		`;
 	}
 }
 
