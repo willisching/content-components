@@ -605,7 +605,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				locale,
 				draft: true,
 			});
-			this._captionsUrl = res.captionsUrl;
+			this._captionsUrl = res.value;
 		} catch (error) {
 			if (error.message === 'Not Found') {
 				this._captions = [];
