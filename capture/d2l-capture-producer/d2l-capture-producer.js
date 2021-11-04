@@ -313,8 +313,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			contentId: this._content.id,
 			body: {
 				extension: this._selectedRevision.extension,
-				sourceFormat: 'hd',
-				formats: ['ld'],
+				sourceFormat: this._selectedRevision.sourceFormat,
+				formats: this._selectedRevision.formats,
 			},
 			draftFromSource: this._selectedRevision.id,
 		});
