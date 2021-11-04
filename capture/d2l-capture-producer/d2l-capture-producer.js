@@ -508,6 +508,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			if (this._captionsChanged) {
 				await this._saveCaptions(this._latestDraftRevision);
 			}
+			await this._loadRevisionsList(); // Revisions list needs to be refreshed, because the captions arrays in the revision objects may have changed
 		} catch (error) {
 			this._errorOccurred = true;
 		}
@@ -580,16 +581,23 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		} else {
 			this._metadataLoading = false;
 		}
-		this._loadCaptions(this._revisionsLatestToOldest[0].id, this._selectedLanguage.code);
+		this._loadCaptions(this._revisionsLatestToOldest[0], this._selectedLanguage.code);
 	}
 
 	async _loadCaptions(revision, locale) {
+		if (!revision?.captions?.find(captionsEntry => captionsEntry.locale.toLowerCase() === locale.toLowerCase())) {
+			this._captions = [];
+			this._captionsUrl = '';
+			this._captionsLoading = false;
+			return;
+		}
+
 		this._captionsLoading = true;
 		this._captionsUrl = '';
 		try {
 			const res = await this.apiClient.getCaptionsUrl({
 				contentId: this._content.id,
-				revisionId: revision,
+				revisionId: revision.id,
 				locale,
 				draft: true,
 			});
@@ -636,7 +644,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	async _loadNewlySelectedLanguage() {
-		this._loadCaptions(this._selectedRevision.id, this._languageToLoad.code)
+		this._loadCaptions(this._selectedRevision, this._languageToLoad.code)
 			.then(() => {
 				this._captionsChanged = false;
 			});
@@ -645,9 +653,10 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	async _loadNewlySelectedRevision() {
-		const revisionId = this._revisionsLatestToOldest[this._revisionIndexToLoad].id;
+		const revision = this._revisionsLatestToOldest[this._revisionIndexToLoad];
+		const revisionId = revision.id;
 		if (this._enableCutsAndChapters) this._loadMetadata(revisionId);
-		this._loadCaptions(revisionId, this._selectedLanguage.code);
+		this._loadCaptions(revision, this._selectedLanguage.code);
 		this._selectedRevisionIndex = this._revisionIndexToLoad;
 		this._captionsChanged = false;
 		this._metadataChanged = false;
