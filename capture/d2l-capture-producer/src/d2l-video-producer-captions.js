@@ -79,6 +79,7 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 				align-items: center;
 				display: grid;
 				justify-content: space-between;
+				padding-left: 2px;
 				width: 100%;
 			}
 

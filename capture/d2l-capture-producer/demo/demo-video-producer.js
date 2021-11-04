@@ -212,6 +212,7 @@ class DemoVideoProducer extends LitElement {
 					@metadata-changed="${this._handleMetadataChanged}"
 					.selectedLanguage="${this.selectedLanguage}"
 					.src="${this._videoSelected ? VIDEO_SOURCE : AUDIO_SOURCE}"
+					?timeline-visible="${this._videoSelected && !this._metadataLoading}"
 				></d2l-capture-producer-editor>
 
 				<d2l-alert-toast type="default">
