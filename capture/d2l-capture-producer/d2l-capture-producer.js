@@ -365,13 +365,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				this._metadataChanged = false;
 			}
 			if (this._captionsChanged) {
-				await this.apiClient.updateCaptions({
-					contentId: this._content.id,
-					captionsVttText: convertVttCueArrayToVttText(this._captions),
-					revisionId: draftToPublish.id,
-					locale: this._selectedLanguage.code
-				});
-				this._captionsChanged = false;
+				await this._saveCaptions(draftToPublish);
 			}
 			await this.apiClient.processRevision({
 				contentId: this._content.id,
@@ -512,13 +506,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				this._metadataChanged = false;
 			}
 			if (this._captionsChanged) {
-				await this.apiClient.updateCaptions({
-					contentId: this._content.id,
-					captionsVttText: convertVttCueArrayToVttText(this._captions),
-					revisionId: this._latestDraftRevision.id,
-					locale: this._selectedLanguage.code
-				});
-				this._captionsChanged = false;
+				await this._saveCaptions(this._latestDraftRevision);
 			}
 		} catch (error) {
 			this._errorOccurred = true;
@@ -727,6 +715,24 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			</p>
 			<d2l-icon class="d2l-video-producer-saved-unsaved-indicator-icon" icon="${icon}" style="color: ${feedbackColor};"></d2l-icon>
 		  </div>`;
+	}
+
+	async _saveCaptions(revision) {
+		if (this._captions?.length > 0) {
+			await this.apiClient.updateCaptions({
+				contentId: this._content.id,
+				captionsVttText: convertVttCueArrayToVttText(this._captions),
+				revisionId: revision.id,
+				locale: this._selectedLanguage.code,
+			});
+		} else {
+			await this.apiClient.deleteCaptions({
+				contentId: this._content.id,
+				revisionId: revision.id,
+				locale: this._selectedLanguage.code,
+			});
+		}
+		this._captionsChanged = false;
 	}
 
 	get _saveIsDisabled() {

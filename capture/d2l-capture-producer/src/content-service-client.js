@@ -24,6 +24,14 @@ export default class ContentServiceClient {
 		});
 	}
 
+	deleteCaptions({ contentId, revisionId, locale, adjusted = false }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/resources/captions`,
+			method: 'DELETE',
+			query: { locale, adjusted },
+		});
+	}
+
 	deleteMetadata({ contentId, revisionId }) {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/resources/metadata`,
