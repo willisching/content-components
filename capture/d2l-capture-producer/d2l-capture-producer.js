@@ -550,31 +550,35 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._content = await this.apiClient.getContent(this.contentId);
 		this._fireContentLoadedEvent(this._content);
 
-		if (this._content.revisions) {
-			this._revisionsLatestToOldest = this._content.revisions.slice().reverse();
+		if (!this._content.revisions) {
+			this._alertMessage = this.localize('contentObjectIsCorrupted');
+			this.shadowRoot.querySelector('d2l-alert-toast').open = true;
+			return;
+		}
 
-			const latestRevision = this._content.revisions[this._content.revisions.length - 1];
-			if (!latestRevision.draft) {
-				try {
-					const latestRevisionProgress = await this.apiClient.getRevisionProgress({
-						contentId: this.contentId,
-						revisionId: latestRevision.id,
-					});
-					if (!latestRevisionProgress.ready) {
-						this._isProcessing = true;
-						await this._pollUntilProcessingComplete(latestRevision.id);
-						this._isProcessing = false;
-					}
-				} catch (error) {
-					this._loading = true;
-					this._alertMessage = this.localize('getProcessingProgressError');
-					this.shadowRoot.querySelector('d2l-alert-toast').open = true;
-					return;
+		this._revisionsLatestToOldest = this._content.revisions.slice().reverse();
+
+		const latestRevision = this._content.revisions[this._content.revisions.length - 1];
+		if (!latestRevision.draft) {
+			try {
+				const latestRevisionProgress = await this.apiClient.getRevisionProgress({
+					contentId: this.contentId,
+					revisionId: latestRevision.id,
+				});
+				if (!latestRevisionProgress.ready) {
+					this._isProcessing = true;
+					await this._pollUntilProcessingComplete(latestRevision.id);
+					this._isProcessing = false;
 				}
+			} catch (error) {
+				this._loading = true;
+				this._alertMessage = this.localize('getProcessingProgressError');
+				this.shadowRoot.querySelector('d2l-alert-toast').open = true;
+				return;
 			}
 		}
 
-		this._src = (await this.apiClient.getSignedUrl(this.contentId)).value;
+		this._src = (await this.apiClient.getSignedUrlForRevision({ contentId: this.contentId, revisionId: latestRevision.id})).value;
 		await this._setupLanguages();
 		if (this._enableCutsAndChapters) {
 			this._loadMetadata(this._revisionsLatestToOldest[0].id);

@@ -105,7 +105,7 @@ export default class ContentServiceClient {
 
 	getSignedUrlForRevision({ contentId, revisionId }) {
 		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/signedUrl`
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/resources/original/signed-url`
 		});
 	}
 
