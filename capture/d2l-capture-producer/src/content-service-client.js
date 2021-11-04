@@ -24,9 +24,17 @@ export default class ContentServiceClient {
 		});
 	}
 
+	deleteCaptions({ contentId, revisionId, locale, adjusted = false }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/resources/captions`,
+			method: 'DELETE',
+			query: { locale, adjusted },
+		});
+	}
+
 	deleteMetadata({ contentId, revisionId }) {
 		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/metadata`,
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/resources/metadata`,
 			method: 'DELETE',
 		});
 	}
@@ -42,13 +50,13 @@ export default class ContentServiceClient {
 		return `Content Service Client: ${this.endpoint}`;
 	}
 
-	async getCaptionsUrl({ contentId, revisionId, locale }) {
+	async getCaptionsUrl({ contentId, revisionId, locale, adjusted = false }) {
 		const headers = new Headers();
 		headers.append('pragma', 'no-cache');
 		headers.append('cache-control', 'no-cache');
 		return await this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/captions/${locale}`,
-			query: { urlOnly: true, exact: true },
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/resources/captions/signed-url`,
+			query: { locale, exact: true, adjusted },
 			headers
 		});
 	}
@@ -68,7 +76,7 @@ export default class ContentServiceClient {
 		headers.append('pragma', 'no-cache');
 		headers.append('cache-control', 'no-cache');
 		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/metadata`,
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/resources/metadata/file-content`,
 			headers
 		});
 	}
@@ -114,10 +122,11 @@ export default class ContentServiceClient {
 		});
 	}
 
-	updateCaptions({ contentId, revisionId, locale, captionsVttText }) {
+	updateCaptions({ contentId, revisionId, locale, captionsVttText, adjusted = false }) {
 		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/captions/${locale}`,
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/resources/captions`,
 			method: 'PUT',
+			query: { locale, adjusted },
 			body: captionsVttText,
 			contentType: 'text/vtt',
 			extractJsonBody: false // The PUT captions route returns no content (status 204)
@@ -134,7 +143,7 @@ export default class ContentServiceClient {
 
 	updateMetadata({ contentId, revisionId, metadata }) {
 		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/metadata`,
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/resources/metadata`,
 			method: 'PUT',
 			body: metadata,
 			extractJsonBody: false // The PUT metadata route returns no content (status 204)

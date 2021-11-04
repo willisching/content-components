@@ -355,8 +355,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			draftToPublish = this._latestDraftRevision;
 		}
 
-		if (this._unsavedChanges) {
-			if (this._enableCutsAndChapters) {
+		try {
+			if (this._metadataChanged) {
 				await this.apiClient.updateMetadata({
 					contentId: this._content.id,
 					metadata: this._metadata,
@@ -364,16 +364,9 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				});
 				this._metadataChanged = false;
 			}
-			await this.apiClient.updateCaptions({
-				contentId: this._content.id,
-				captionsVttText: convertVttCueArrayToVttText(this._captions),
-				revisionId: draftToPublish.id,
-				locale: this._selectedLanguage.code
-			});
-			this._captionsChanged = false;
-		}
-
-		try {
+			if (this._captionsChanged) {
+				await this._saveCaptions(draftToPublish);
+			}
 			await this.apiClient.processRevision({
 				contentId: this._content.id,
 				revisionId: draftToPublish.id,
@@ -504,7 +497,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		}
 
 		try {
-			if (this._enableCutsAndChapters) {
+			if (this._metadataChanged) {
 				await this.apiClient.updateMetadata({
 					contentId: this._content.id,
 					metadata: this._metadata,
@@ -512,13 +505,10 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				});
 				this._metadataChanged = false;
 			}
-			await this.apiClient.updateCaptions({
-				contentId: this._content.id,
-				captionsVttText: convertVttCueArrayToVttText(this._captions),
-				revisionId: this._latestDraftRevision.id,
-				locale: this._selectedLanguage.code
-			});
-			this._captionsChanged = false;
+			if (this._captionsChanged) {
+				await this._saveCaptions(this._latestDraftRevision);
+			}
+			await this._loadRevisionsList(); // Revisions list needs to be refreshed, because the captions arrays in the revision objects may have changed
 		} catch (error) {
 			this._errorOccurred = true;
 		}
@@ -591,20 +581,27 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		} else {
 			this._metadataLoading = false;
 		}
-		this._loadCaptions(this._revisionsLatestToOldest[0].id, this._selectedLanguage.code);
+		this._loadCaptions(this._revisionsLatestToOldest[0], this._selectedLanguage.code);
 	}
 
 	async _loadCaptions(revision, locale) {
+		if (!revision?.captions?.find(captionsEntry => captionsEntry.locale.toLowerCase() === locale.toLowerCase())) {
+			this._captions = [];
+			this._captionsUrl = '';
+			this._captionsLoading = false;
+			return;
+		}
+
 		this._captionsLoading = true;
 		this._captionsUrl = '';
 		try {
 			const res = await this.apiClient.getCaptionsUrl({
 				contentId: this._content.id,
-				revisionId: revision,
+				revisionId: revision.id,
 				locale,
 				draft: true,
 			});
-			this._captionsUrl = res.captionsUrl;
+			this._captionsUrl = res.value;
 		} catch (error) {
 			if (error.message === 'Not Found') {
 				this._captions = [];
@@ -647,7 +644,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	async _loadNewlySelectedLanguage() {
-		this._loadCaptions(this._selectedRevision.id, this._languageToLoad.code)
+		this._loadCaptions(this._selectedRevision, this._languageToLoad.code)
 			.then(() => {
 				this._captionsChanged = false;
 			});
@@ -656,9 +653,10 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	async _loadNewlySelectedRevision() {
-		const revisionId = this._revisionsLatestToOldest[this._revisionIndexToLoad].id;
+		const revision = this._revisionsLatestToOldest[this._revisionIndexToLoad];
+		const revisionId = revision.id;
 		if (this._enableCutsAndChapters) this._loadMetadata(revisionId);
-		this._loadCaptions(revisionId, this._selectedLanguage.code);
+		this._loadCaptions(revision, this._selectedLanguage.code);
 		this._selectedRevisionIndex = this._revisionIndexToLoad;
 		this._captionsChanged = false;
 		this._metadataChanged = false;
@@ -726,6 +724,24 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			</p>
 			<d2l-icon class="d2l-video-producer-saved-unsaved-indicator-icon" icon="${icon}" style="color: ${feedbackColor};"></d2l-icon>
 		  </div>`;
+	}
+
+	async _saveCaptions(revision) {
+		if (this._captions?.length > 0) {
+			await this.apiClient.updateCaptions({
+				contentId: this._content.id,
+				captionsVttText: convertVttCueArrayToVttText(this._captions),
+				revisionId: revision.id,
+				locale: this._selectedLanguage.code,
+			});
+		} else {
+			await this.apiClient.deleteCaptions({
+				contentId: this._content.id,
+				revisionId: revision.id,
+				locale: this._selectedLanguage.code,
+			});
+		}
+		this._captionsChanged = false;
 	}
 
 	get _saveIsDisabled() {
