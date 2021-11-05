@@ -103,12 +103,6 @@ export default class ContentServiceClient {
 		});
 	}
 
-	getSignedUrl(contentId) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/signedUrl`
-		});
-	}
-
 	processRevision({
 		contentId,
 		revisionId,
