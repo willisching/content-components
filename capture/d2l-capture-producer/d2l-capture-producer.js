@@ -311,10 +311,6 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	async _createNewDraftRevision() {
 		return await this.apiClient.createRevision({
 			contentId: this._content.id,
-			body: {
-				extension: this._selectedRevision.type === 'Video' ? this._selectedRevision.extension : undefined,
-				type: this._selectedRevision.type,
-			},
 			draftFromSource: this._selectedRevision.id,
 		});
 	}
