@@ -148,7 +148,7 @@ export class Main extends MobxReactionUpdate(ProviderMixin(LitElement)) {
 		this._fileSize = event.detail.file.size;
 		this._fileType = event.detail.file.type;
 		this._errorMessage = '';
-		this.startUpload({ captionLanguages: event.detail?.captionLanguages });
+		this.startUpload();
 	}
 
 	onUploadError(event) {
@@ -175,9 +175,9 @@ export class Main extends MobxReactionUpdate(ProviderMixin(LitElement)) {
 		this._currentView = VIEW.PREVIEW;
 	}
 
-	startUpload({ captionLanguages }) {
+	startUpload() {
 		this._currentView = VIEW.PROGRESS;
-		this._uploader.uploadFile(this._file, this._fileName, captionLanguages, this._fileType);
+		this._uploader.uploadFile(this._file, this._fileName, this._fileType);
 	}
 
 	updateValue(value) {

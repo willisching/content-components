@@ -14,8 +14,6 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 	static get properties() {
 		return {
 			_supportedMimeTypes: { type: Array, attribute: false },
-			_selectedLanguage: { type: String },
-			_captionsLanguageCodes: { type: Object },
 			errorMessage: { type: String, attribute: 'error-message', reflect: true },
 		};
 	}
@@ -72,17 +70,8 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 				height: 0px;
 				padding-top: 0.5rem;
 			}
-			#auto-captions-language-selector-label {
-				margin-right: 0.5rem;
-			}
-			:host([dir="rtl"]) #auto-captions-language-selector-label {
-				margin-left: 0.5rem;
-			}
 			table {
 				border-collapse: collapse;
-			}
-			#upload-auto-captions {
-				margin: 6px 0 0;
 			}
 		`];
 	}
@@ -91,8 +80,6 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 		super();
 		this._supportedMimeTypes = [];
 		this.enableFileDrop = false;
-		this.selectALanguageOptionValue = 'selectALanguage';
-		this._selectedLanguage = this.selectALanguageOptionValue;
 	}
 
 	async connectedCallback() {
@@ -103,7 +90,6 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 			.filter(x => x.startsWith('video/') || x.startsWith('audio/'));
 
 		this.userBrightspaceClient = this.requestInstance('user-brightspace-client');
-		this._captionsLanguageCodes = await this.userBrightspaceClient.getCaptionsLanguageCodes();
 	}
 
 	render() {
@@ -179,31 +165,11 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 			return;
 		}
 
-		const uploadAutoCaptionsElement = this.shadowRoot.querySelector('#upload-auto-captions');
-		const uploadAutoCaptions = uploadAutoCaptionsElement?.checked;
-		const captionLanguages = (uploadAutoCaptions && this._selectedLanguage) ? [this._selectedLanguage] : null;
-
 		this.dispatchEvent(new CustomEvent('file-change', {
-			detail: { file, captionLanguages },
+			detail: { file },
 			bubbles: true,
 			composed: true
 		}));
-	}
-
-	async _onSelectedLanguageChange(event) {
-		if (event && event.target && event.target.value) {
-			this._selectedLanguage = event.target.value;
-		}
-
-		if (this._selectedLanguage === this.selectALanguageOptionValue) {
-			const uploadAutoCaptionsElement = this.shadowRoot.querySelector('#upload-auto-captions');
-			if (uploadAutoCaptionsElement) {
-				uploadAutoCaptionsElement.checked = false;
-			}
-		}
-
-		this.requestUpdate();
-		await this.updateComplete;
 	}
 }
 
