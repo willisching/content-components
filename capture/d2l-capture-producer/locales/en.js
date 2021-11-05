@@ -20,6 +20,7 @@ export const val = {
 	confirmFinish: 'Confirm Finish',
 	confirmLoadRevisionWithUnsavedChanges: 'The current revision has unsaved changes. If you load another revision, these changes will be discarded. Do you wish to proceed?',
 	confirmOverwriteFromPastRevision: 'Copying from a past revision will overwrite your unsaved changes. Do you wish to proceed?',
+	contentObjectIsCorrupted: 'This content object is corrupted and could not be loaded',
 	copyFromPastRevision: 'Copy From Past Revision',
 	currentDraft: 'Current Draft',
 	cut: 'Cut',
