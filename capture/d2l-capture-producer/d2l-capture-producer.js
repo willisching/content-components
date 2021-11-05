@@ -577,7 +577,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			}
 		}
 
-		this._src = (await this.apiClient.getSignedUrlForRevision({ contentId: this.contentId, revisionId: latestRevision.id})).value;
+		this._src = (await this.apiClient.getOriginalSignedUrlForRevision({ contentId: this.contentId, revisionId: latestRevision.id})).value;
 		await this._setupLanguages();
 		if (this._enableCutsAndChapters) {
 			this._loadMetadata(this._revisionsLatestToOldest[0].id);

@@ -81,6 +81,12 @@ export default class ContentServiceClient {
 		});
 	}
 
+	getOriginalSignedUrlForRevision({ contentId, revisionId }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/resources/original/signed-url`
+		});
+	}
+
 	getRevision({ contentId, revisionId }) {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}`
@@ -100,12 +106,6 @@ export default class ContentServiceClient {
 	getSignedUrl(contentId) {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/signedUrl`
-		});
-	}
-
-	getSignedUrlForRevision({ contentId, revisionId }) {
-		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/resources/original/signed-url`
 		});
 	}
 
