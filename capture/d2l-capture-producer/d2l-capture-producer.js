@@ -305,6 +305,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		return (
 			// Disable if content is not yet loaded.
 			!this._content ||
+			// Disable if a past revision is loaded and there are no changes. (To publish a past revision, users must save a draft first, or make changes.)
+			((this._selectedRevisionIndex !== 0) && (!this._unsavedChanges)) ||
 			// Disable if the current revision is processing.
 			this._selectedRevisionIsProcessing ||
 			// Disable if the latest revision is currently selected, it is not a draft, and there are no unsaved changes.
