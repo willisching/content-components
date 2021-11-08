@@ -144,10 +144,10 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this._activeCue = null;
 		this.captions = [];
 		this.captionsUrl = '';
-		this.captionsLoading = true;
+		this.captionsLoading = false;
 
 		this.metadata = { cuts: [], chapters: [] };
-		this.metadataLoading = true;
+		this.metadataLoading = false;
 		this.timelineVisible = false;
 		this.src = '';
 		this.languages = [];

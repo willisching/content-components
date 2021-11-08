@@ -5,6 +5,7 @@ import '@brightspace-ui/core/components/colors/colors.js';
 import '@brightspace-ui/core/components/dialog/dialog-confirm.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-button-subtle.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-menu.js';
+import '@brightspace-ui/core/components/icons/icon.js';
 import './src/d2l-video-producer-language-selector.js';
 import './d2l-capture-producer-editor.js';
 
@@ -35,9 +36,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			_defaultLanguage: { type: Object, attribute: false },
 			_errorOccurred: { type: Boolean, attribute: false },
 			_finishing: { type: Boolean, attribute: false },
-			_isProcessing: { type: Boolean, attribute: false },
 			_languages: { type: Array, attribute: false },
-			_loading: { type: Boolean, attribute: false },
 			_languageToLoad: { type: Object, attribute: false },
 			_metadata: { type: Object, attribute: false },
 			_metadataChanged: { type: Boolean, attribute: false },
@@ -56,20 +55,22 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 	static get styles() {
 		return [bodyStandardStyles, labelStyles, selectStyles, css`
-			.d2l-video-producer-overlay {
+			.d2l-video-producer-no-editor-container {
 				align-items: center;
-				bottom: 0px;
 				display: flex;
 				flex-direction: column;
 				justify-content: center;
-				left: 0px;
-				overflow-y: hidden;
-				position: absolute;
-				right: 0px;
-				top: 0px;
+				margin-top: 100px;
+				width: 100%;
 			}
 
 			.d2l-video-producer-processing-message {
+				text-align: center;
+			}
+
+
+			.d2l-video-producer-processing-failed-message {
+				color: var(--d2l-color-feedback-error);
 				text-align: center;
 			}
 
@@ -130,7 +131,6 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	constructor() {
 		super();
 
-		this._isProcessing = false;
 		this._selectedRevisionIndex = 0;
 		this._revisionIndexToLoad = 0;
 
@@ -140,15 +140,15 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._captions = [];
 		this._captionsChanged = false;
 		this._captionsUrl = '';
-		this._captionsLoading = true;
+		this._captionsLoading = false;
 
 		this._metadata = { cuts: [], chapters: [] };
 		this._metadataChanged = false;
 		this._metadataLoading = true;
 		this._src = '';
 		this._defaultLanguage = {};
-		this._languages = [];
-		this._selectedLanguage = {};
+		this._languages = null;
+		this._selectedLanguage = null;
 		this._languageToLoad = {};
 		this._mediaLoaded = false;
 	}
@@ -163,64 +163,47 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this.userBrightspaceClient = new UserBrightspaceClient();
 
 		autorun(async() => {
-			await this._loadAllDataForContent();
+			await this._setupLanguages();
+			await this._loadContentAndAllRelatedData();
 		});
 	}
 
 	render() {
+		if (!this._selectedRevision) {
+			return html`
+				<div class="d2l-video-producer">
+					${this._renderLoadingIndicator()}
+				</div>
+			`;
+		}
+
+		if (this._selectedRevision.processingFailed) {
+			return html`
+				<div class="d2l-video-producer">
+					${this._renderTopBar()}
+					${this._renderProcessingFailedMessage()}
+					<d2l-alert-toast type="${this._errorOccurred ? 'error' : 'default'}">
+						${this._alertMessage}
+					</d2l-alert-toast>
+					</div>
+			`;
+		}
+
+		if (!this._selectedRevision.draft && !this._selectedRevision.ready) {
+			return html`
+				<div class="d2l-video-producer">
+					${this._renderTopBar()}
+					${this._renderProcessingMessage()}
+					<d2l-alert-toast type="${this._errorOccurred ? 'error' : 'default'}">
+						${this._alertMessage}
+					</d2l-alert-toast>
+					</div>
+			`;
+		}
+
 		return html`
 			<div class="d2l-video-producer">
-				${(this._loading && !this._isProcessing) ? html`<div class="d2l-video-producer-overlay"><d2l-loading-spinner size=150></d2l-loading-spinner></div>` : ''}
-				${this._isProcessing ? this._renderProcessingMessage() : ''}
-				<div class="d2l-video-producer-top-bar-controls" style="visibility: ${(this._loading || this._isProcessing) ? 'hidden' : 'visible'};">
-					<d2l-video-producer-language-selector
-						?disabled="${this._saving || this._finishing}"
-						.languages="${this._languages}"
-						.selectedLanguage="${this._selectedLanguage}"
-						@selected-language-changed="${this._handleSelectedLanguageChanged}"
-					></d2l-video-producer-language-selector>
-					${this._renderSavedUnsavedIndicator()}
-					<d2l-dropdown-button-subtle
-						class="d2l-video-producer-controls-revision-dropdown"
-						?disabled="${this._saving || this._finishing}"
-						text="${this._revisionsLatestToOldest?.length > 0 ? this._getLabelForRevision(this._selectedRevisionIndex) : this.localize('loadingRevisions') }"
-					>
-						<d2l-dropdown-menu
-							@d2l-menu-item-select="${this._handleSelectedRevisionChanged}"
-						>
-							<d2l-menu label="${this.localize('revisions')}">
-								${this._renderRevisionsDropdownItems()}
-							</d2l-menu>
-						</d2l-dropdown-menu>
-					</d2l-dropdown-button-subtle>
-					<d2l-button
-						class="d2l-video-producer-controls-save-button"
-						@click="${this._handleSave}"
-						?disabled="${this._saveIsDisabled}"
-						text="${this.localize('saveDraft')}"
-					>
-						<div class="d2l-video-producer-controls-saving" style="${!this._saving ? 'display: none' : ''}">
-							<d2l-loading-spinner size="20"></d2l-loading-spinner>
-							${this.localize('saving')}
-						</div>
-						<div ?hidden="${this._saving}">
-							${this.localize('saveDraft')}
-						</div>
-					</d2l-button>
-					<d2l-button
-						?disabled="${this._finishIsDisabled}"
-						@click="${this._handleFinish}"
-						class="d2l-video-producer-controls-publish-button"
-						primary
-					><div class="d2l-video-producer-controls-finishing" style="${!this._finishing ? 'display: none' : ''}">
-							<d2l-loading-spinner size="20"></d2l-loading-spinner>
-							${this.localize('finishing')}
-						</div>
-						<div ?hidden="${this._finishing}">
-							${this.localize('finish')}
-						</div>
-					</d2l-button>
-				</div>
+				${this._renderTopBar()}
 				<d2l-capture-producer-editor
 					.captions="${this._captions}"
 					@captions-auto-generation-started="${this._handleCaptionsAutoGenerationStarted}"
@@ -232,7 +215,6 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 					@captions-url-changed="${this._handleCaptionsUrlChanged}"
 					?enableCutsAndChapters="${this._enableCutsAndChapters}"
 					.defaultLanguage="${this._defaultLanguage}"
-					.isProcessing="${this._isProcessing}"
 					.languages="${this._languages}"
 					@media-loaded="${this._handleMediaLoaded}"
 					.metadata="${this._metadata}"
@@ -240,7 +222,6 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 					?metadata-loading="${this._metadataLoading}"
 					.selectedLanguage="${this._selectedLanguage}"
 					.src="${this._src}"
-					style="visibility: ${(this._loading || this._isProcessing) ? 'hidden' : 'visible'};"
 					?timeline-visible="${this._timelineVisible}"
 				></d2l-capture-producer-editor>
 				<d2l-alert-toast type="${this._errorOccurred ? 'error' : 'default'}">
@@ -324,6 +305,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		return (
 			// Disable if content is not yet loaded.
 			!this._content ||
+			// Disable if the current revision is processing.
+			this._selectedRevisionIsProcessing ||
 			// Disable if the latest revision is currently selected, it is not a draft, and there are no unsaved changes.
 			// (Because publishing would create a duplicate revision with no changes from the previous one.)
 			(this._selectedRevisionIndex === 0 && !this._selectedRevision.draft && !this._unsavedChanges) ||
@@ -367,8 +350,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				revisionId: draftToPublish.id,
 				captionLanguages: autoGenerateCaptionsLanguage ? [autoGenerateCaptionsLanguage.code] : undefined,
 			});
-			this._isProcessing = true;
-			this._loadAllDataForContent();
+
+			await this._loadContentAndAllRelatedData();
 		} catch (error) {
 			this._errorOccurred = true;
 		}
@@ -405,13 +388,20 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		}
 		const revision = this._revisionsLatestToOldest[revisionIndex];
 
+		let langTermVariant = '';
+		if (revision.draft) {
+			langTermVariant = 'Draft';
+		} else if (!revision.ready) {
+			langTermVariant = 'Processing';
+		}
+
 		// 'createdAt' was added to revisions' schema in Oct 2021, so older revisions may not have it.
 		if (revision.createdAt) {
 			const timestamp = formatDateTimeFromTimestamp(Date.parse(revision.createdAt), { format: 'medium' });
-			return this.localize(revision.draft ? 'revisionTimestampDraft' : 'revisionTimestamp', { timestamp });
+			return this.localize(`revisionTimestamp${langTermVariant}`, { timestamp });
 		} else {
 			const revisionNumber = this._revisionsLatestToOldest.length - revisionIndex;
-			return this.localize(revision.draft ? 'revisionNumberDraft' : 'revisionNumber', { number: revisionNumber });
+			return this.localize(`revisionNumber${langTermVariant}`, { number: revisionNumber });
 		}
 	}
 
@@ -478,11 +468,13 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	async _handleSave() {
 		this._saving = true;
 
+		let revisionToUpdate = this._latestDraftRevision;
+		let newRevisionCreated = false;
+
 		if (!this._latestDraftRevision || this._selectedRevisionIndex !== 0) {
 			try {
-				await this._createNewDraftRevision();
-				await this._loadRevisionsList();
-				this._selectedRevisionIndex = 0;
+				revisionToUpdate = await this._createNewDraftRevision();
+				newRevisionCreated = true;
 			} catch (error) {
 				this._errorOccurred = true;
 				this._alertMessage = this.localize('saveError');
@@ -496,14 +488,18 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				await this.apiClient.updateMetadata({
 					contentId: this._content.id,
 					metadata: this._metadata,
-					revisionId: this._latestDraftRevision.id,
+					revisionId: revisionToUpdate.id,
 				});
 				this._metadataChanged = false;
 			}
 			if (this._captionsChanged) {
-				await this._saveCaptions(this._latestDraftRevision);
+				await this._saveCaptions(revisionToUpdate);
 			}
-			await this._loadRevisionsList(); // Revisions list needs to be refreshed, because the captions arrays in the revision objects may have changed
+			await this._loadContentAndRevisions(); // Revisions list needs to be refreshed, because the captions arrays in the revision objects may have changed
+			if (newRevisionCreated) {
+				this._selectedRevisionIndex = 0;
+				this._loadSelectedRevision();
+			}
 		} catch (error) {
 			this._errorOccurred = true;
 		}
@@ -537,52 +533,6 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		return this._revisionsLatestToOldest?.find(x => x.draft);
 	}
 
-	async _loadAllDataForContent() {
-		this._captionsLoading = true;
-		this._metadataLoading = true;
-		this._src = '';
-
-		this._content = await this.apiClient.getContent(this.contentId);
-		this._fireContentLoadedEvent(this._content);
-
-		if (!this._content.revisions) {
-			this._alertMessage = this.localize('contentObjectIsCorrupted');
-			this.shadowRoot.querySelector('d2l-alert-toast').open = true;
-			return;
-		}
-
-		this._revisionsLatestToOldest = this._content.revisions.slice().reverse();
-
-		const latestRevision = this._content.revisions[this._content.revisions.length - 1];
-		if (!latestRevision.draft) {
-			try {
-				const latestRevisionProgress = await this.apiClient.getRevisionProgress({
-					contentId: this.contentId,
-					revisionId: latestRevision.id,
-				});
-				if (!latestRevisionProgress.ready) {
-					this._isProcessing = true;
-					await this._pollUntilProcessingComplete(latestRevision.id);
-					this._isProcessing = false;
-				}
-			} catch (error) {
-				this._loading = true;
-				this._alertMessage = this.localize('getProcessingProgressError');
-				this.shadowRoot.querySelector('d2l-alert-toast').open = true;
-				return;
-			}
-		}
-
-		this._src = (await this.apiClient.getOriginalSignedUrlForRevision({ contentId: this.contentId, revisionId: latestRevision.id})).value;
-		await this._setupLanguages();
-		if (this._enableCutsAndChapters) {
-			this._loadMetadata(this._revisionsLatestToOldest[0].id);
-		} else {
-			this._metadataLoading = false;
-		}
-		this._loadCaptions(this._revisionsLatestToOldest[0], this._selectedLanguage.code);
-	}
-
 	async _loadCaptions(revision, locale) {
 		if (!revision?.captions?.find(captionsEntry => captionsEntry.locale.toLowerCase() === locale.toLowerCase())) {
 			this._captions = [];
@@ -613,12 +563,27 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		}
 	}
 
-	get _loading() {
-		return !(
-			this._mediaLoaded
-			&& this._selectedLanguage
-			&& this._selectedLanguage.code
-		);
+	async _loadContentAndAllRelatedData() {
+		try {
+			await this._loadContentAndRevisions();
+		} catch (error) {
+			this._alertMessage = this.localize('contentObjectIsCorrupted');
+			this.shadowRoot.querySelector('d2l-alert-toast').open = true;
+			return;
+		}
+		this._loadSelectedRevision();
+	}
+
+	async _loadContentAndRevisions() {
+		this._content = await this.apiClient.getContent(this.contentId);
+		this._fireContentLoadedEvent(this._content);
+
+		this._revisionsLatestToOldest = this._content?.revisions?.slice()
+			.filter(revision => !revision.processingFailed)
+			.reverse();
+		if (this._revisionsLatestToOldest?.length === 0) {
+			throw new Error('Content object has no valid revisions');
+		}
 	}
 
 	async _loadMetadata(revisionId) {
@@ -652,46 +617,93 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	async _loadNewlySelectedRevision() {
-		const revision = this._revisionsLatestToOldest[this._revisionIndexToLoad];
-		const revisionId = revision.id;
-		if (this._enableCutsAndChapters) this._loadMetadata(revisionId);
-		this._loadCaptions(revision, this._selectedLanguage.code);
 		this._selectedRevisionIndex = this._revisionIndexToLoad;
+		this._loadSelectedRevision();
+	}
+
+	_loadSelectedRevision() {
+		if (!this._selectedRevision) {
+			return;
+		}
+
+		if (this._pollRevisionProgressTimer) {
+			clearTimeout(this._pollRevisionProgressTimer);
+		}
+		if (!this._selectedRevision.draft && !this._selectedRevision.ready) {
+			this._pollUntilRevisionIsProcessed(this._selectedRevision.id);
+			return;
+		}
+
+		this._src = '';
+		this.apiClient.getOriginalSignedUrlForRevision({ contentId: this.contentId, revisionId: this._selectedRevision.id})
+			.then(response => {
+				this._src = response.value;
+			});
+
+		if (this._enableCutsAndChapters) this._loadMetadata(this._selectedRevision.id);
+		this._loadCaptions(this._selectedRevision, this._selectedLanguage.code);
+
 		this._captionsChanged = false;
 		this._metadataChanged = false;
 	}
 
-	async _loadRevisionsList() {
-		this._content = await this.apiClient.getContent(this.contentId);
-		this._fireContentLoadedEvent(this._content);
-		if (this._content.revisions) {
-			this._revisionsLatestToOldest = this._content.revisions.slice().reverse();
-		}
-	}
+	async _pollUntilRevisionIsProcessed(revisionId) {
+		this._pollRevisionProgressTimer = setTimeout(() => {
+			try {
+				// The user might have switched to another revision in the middle of the timeout. In that case, stop polling.
+				if (this._selectedRevision.id !== revisionId) {
+					return;
+				}
 
-	async _pollUntilProcessingComplete(revisionId) {
-		const _pollProgress = resolve => {
-			setTimeout(() => {
 				this.apiClient.getRevisionProgress({ contentId: this.contentId, revisionId })
 					.then(revisionProgress => {
-						if (revisionProgress.ready) {
-							resolve();
+						if (revisionProgress.didFail) {
+							const revisionIndex = this._revisionsLatestToOldest.findIndex(rev => rev.id === revisionId);
+							const updatedRevisions = this._revisionsLatestToOldest.slice();
+							updatedRevisions[revisionIndex].processingFailed = true;
+							this._revisionsLatestToOldest = updatedRevisions;
+						} else if (revisionProgress.ready) {
+							const updatedRevisions = this._revisionsLatestToOldest.slice();
+							updatedRevisions[this._selectedRevisionIndex].ready = true;
+							this._revisionsLatestToOldest = updatedRevisions;
+							this._loadSelectedRevision();
 						} else {
-							_pollProgress(resolve);
+							this._pollUntilRevisionIsProcessed(revisionId);
 						}
 					});
-			}, 3000);
-		};
-		return new Promise(resolve => {
-			_pollProgress(resolve);
-		});
+			} catch (error) {
+				this._alertMessage = this.localize('getProcessingProgressError');
+				this.shadowRoot.querySelector('d2l-alert-toast').open = true;
+				return;
+			}
+		}, 3000);
+	}
+
+	_renderLoadingIndicator() {
+		return html`
+			<div class="d2l-video-producer-no-editor-container">
+				<d2l-loading-spinner size="150"></d2l-loading-spinner>
+			</div>
+		`;
+	}
+
+	_renderProcessingFailedMessage() {
+		return html`
+			<div class="d2l-video-producer-no-editor-container">
+				<d2l-icon
+					icon="tier3:alert"
+					style="color: var(--d2l-color-feedback-error)"
+				></d2l-icon>
+				<p class="d2l-body-standard d2l-video-producer-processing-failed-message">${this.localize('revisionProcessingFailed')}</p>
+			</div>
+		`;
 	}
 
 	_renderProcessingMessage() {
 		return html`
-			<div class="d2l-video-producer-overlay">
+			<div class="d2l-video-producer-no-editor-container">
 				<d2l-loading-spinner size=100></d2l-loading-spinner>
-				<p class="d2l-body-standard d2l-video-producer-processing-message">${this.localize('mediaFileProcessing')}</p>
+				<p class="d2l-body-standard d2l-video-producer-processing-message">${this.localize('revisionProcessing')}</p>
 			</div>
 		`;
 	}
@@ -725,6 +737,62 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		  </div>`;
 	}
 
+	_renderTopBar() {
+		return html`
+			<div class="d2l-video-producer-top-bar-controls">
+				${(this._languages && this._selectedLanguage) ? html`
+					<d2l-video-producer-language-selector
+						?disabled="${this._saving || this._finishing || this._selectedRevisionIsProcessing}"
+						.languages="${this._languages}"
+						.selectedLanguage="${this._selectedLanguage}"
+						@selected-language-changed="${this._handleSelectedLanguageChanged}"
+					></d2l-video-producer-language-selector>
+				` : ''}
+				${this._renderSavedUnsavedIndicator()}
+				<d2l-dropdown-button-subtle
+					class="d2l-video-producer-controls-revision-dropdown"
+					?disabled="${this._saving || this._finishing}"
+					text="${this._revisionsLatestToOldest?.length > 0 ? this._getLabelForRevision(this._selectedRevisionIndex) : this.localize('loadingRevisions') }"
+				>
+					<d2l-dropdown-menu
+						@d2l-menu-item-select="${this._handleSelectedRevisionChanged}"
+					>
+						<d2l-menu label="${this.localize('revisions')}">
+							${this._renderRevisionsDropdownItems()}
+						</d2l-menu>
+					</d2l-dropdown-menu>
+				</d2l-dropdown-button-subtle>
+				<d2l-button
+					class="d2l-video-producer-controls-save-button"
+					@click="${this._handleSave}"
+					?disabled="${this._saveIsDisabled}"
+					text="${this.localize('saveDraft')}"
+				>
+					<div class="d2l-video-producer-controls-saving" style="${!this._saving ? 'display: none' : ''}">
+						<d2l-loading-spinner size="20"></d2l-loading-spinner>
+						${this.localize('saving')}
+					</div>
+					<div ?hidden="${this._saving}">
+						${this.localize('saveDraft')}
+					</div>
+				</d2l-button>
+				<d2l-button
+					?disabled="${this._finishIsDisabled}"
+					@click="${this._handleFinish}"
+					class="d2l-video-producer-controls-publish-button"
+					primary
+				><div class="d2l-video-producer-controls-finishing" style="${!this._finishing ? 'display: none' : ''}">
+						<d2l-loading-spinner size="20"></d2l-loading-spinner>
+						${this.localize('finishing')}
+					</div>
+					<div ?hidden="${this._finishing}">
+						${this.localize('finish')}
+					</div>
+				</d2l-button>
+			</div>
+		`;
+	}
+
 	async _saveCaptions(revision) {
 		if (this._captions?.length > 0) {
 			await this.apiClient.updateCaptions({
@@ -747,6 +815,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		return (
 			// Disable if content is not yet loaded.
 			!this._content ||
+			// Disable if the current revision is processing.
+			this._selectedRevisionIsProcessing ||
 			// Disable if the latest draft is loaded and there are no unsaved changes.
 			// (If a non-draft revision is loaded, we always allow the user to Save Draft,
 			// because they may want to copy the revision's data into a new draft but make changes at a later time.)
@@ -760,6 +830,10 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		return this._revisionsLatestToOldest ? this._revisionsLatestToOldest[this._selectedRevisionIndex] : undefined;
 	}
 
+	get _selectedRevisionIsProcessing() {
+		return (this._selectedRevision && !this._selectedRevision.draft && !this._selectedRevision.ready);
+	}
+
 	async _setupLanguages() {
 		const { Items } = await this.userBrightspaceClient.getLocales();
 		this._languages = Items.map(({ LocaleName, CultureCode, IsDefault }) => {
@@ -771,7 +845,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	get _timelineVisible() {
-		return this._enableCutsAndChapters && !this.loading && !this._metadataLoading;
+		return this._enableCutsAndChapters && !this._selectedRevisionIsProcessing && !this._metadataLoading;
 	}
 
 	get _unsavedChanges() {
