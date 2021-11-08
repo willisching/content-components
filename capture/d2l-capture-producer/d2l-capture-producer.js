@@ -670,10 +670,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 							updatedRevisions[revisionIndex].processingFailed = true;
 							this._revisionsLatestToOldest = updatedRevisions;
 						} else if (revisionProgress.ready) {
-							const updatedRevisions = this._revisionsLatestToOldest.slice();
-							updatedRevisions[this._selectedRevisionIndex].ready = true;
-							this._revisionsLatestToOldest = updatedRevisions;
-							this._loadSelectedRevision();
+							this._loadContentAndAllRelatedData();
 						} else {
 							this._pollUntilRevisionIsProcessed(revisionId);
 						}
