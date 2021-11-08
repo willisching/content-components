@@ -602,7 +602,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			});
 			this._captionsUrl = res.value;
 		} catch (error) {
-			if (error.message === 'Not Found') {
+			if (error.cause === 404) {
 				this._captions = [];
 				this._captionsLoading = false;
 			} else {
@@ -631,7 +631,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			});
 			this._metadataLoading = false;
 		} catch (error) {
-			if (error.message === 'Not Found') {
+			if (error.cause === 404) {
 				this._metadata = { chapters: [], cuts: [] };
 				this._metadataLoading = false;
 			} else {
