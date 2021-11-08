@@ -353,7 +353,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				captionLanguages: autoGenerateCaptionsLanguage ? [autoGenerateCaptionsLanguage.code] : undefined,
 			});
 
-			await this._loadContentAndAllRelatedData();
+			await this._loadContentAndAllRelatedData(draftToPublish.id);
 		} catch (error) {
 			this._errorOccurred = true;
 		}
@@ -565,7 +565,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		}
 	}
 
-	async _loadContentAndAllRelatedData() {
+	async _loadContentAndAllRelatedData(newSelectedRevisionId) {
 		try {
 			await this._loadContentAndRevisions();
 		} catch (error) {
@@ -573,6 +573,11 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			this.shadowRoot.querySelector('d2l-alert-toast').open = true;
 			return;
 		}
+
+		if (newSelectedRevisionId) {
+			this._selectedRevisionIndex = this._revisionsLatestToOldest.findIndex(revision => revision.id === newSelectedRevisionId);
+		}
+
 		this._loadSelectedRevision();
 	}
 
