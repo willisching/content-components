@@ -23,8 +23,7 @@ export default class ContentServiceClient {
 			body: {
 				...body,
 				clientApp: 'LmsContent',
-			},
-			appendOrgUnitIdQuery: true,
+			}
 		});
 	}
 
@@ -32,8 +31,7 @@ export default class ContentServiceClient {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions`,
 			method: 'POST',
-			body,
-			appendOrgUnitIdQuery: true,
+			body
 		});
 	}
 
@@ -56,8 +54,7 @@ export default class ContentServiceClient {
 		const { tenantId, contentId, revisionId } = parse(d2lrn);
 		return this._fetch({
 			path: `/api/${tenantId}/content/${contentId}/revisions/${revisionId}/signed-url`,
-			query: { format },
-			appendOrgUnitIdQuery: true,
+			query: { format }
 		});
 	}
 
@@ -84,8 +81,7 @@ export default class ContentServiceClient {
 
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/progress`,
-			headers,
-			appendOrgUnitIdQuery: true,
+			headers
 		});
 	}
 
@@ -97,8 +93,7 @@ export default class ContentServiceClient {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/process`,
 			method: 'POST',
-			...(captionLanguages && { body: { captionLanguages } }),
-			appendOrgUnitIdQuery: true,
+			...(captionLanguages && { body: { captionLanguages } })
 		});
 	}
 
@@ -112,9 +107,8 @@ export default class ContentServiceClient {
 			query: {
 				fileName,
 				contentType,
-				contentDisposition,
-			},
-			appendOrgUnitIdQuery: true,
+				contentDisposition
+			}
 		});
 	}
 
@@ -125,7 +119,7 @@ export default class ContentServiceClient {
 		body,
 		extractJsonBody = true,
 		headers = new Headers(),
-		appendOrgUnitIdQuery = false,
+		appendOrgUnitIdQuery = true,
 	}) {
 		if (body) {
 			headers.append('Content-Type', 'application/json');
