@@ -1,5 +1,3 @@
-import '@brightspace-ui/core/components/button/button-icon.js';
-import '@brightspace-ui/core/components/dialog/dialog-fullscreen.js';
 import '@brightspace-ui/core/components/button/button-subtle';
 import '@brightspace-ui/core/components/inputs/input-text.js';
 import '@brightspace-ui-labs/media-player/media-player.js';
