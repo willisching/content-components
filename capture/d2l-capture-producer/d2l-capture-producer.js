@@ -296,6 +296,10 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		});
 	}
 
+	get _editor() {
+		return this.shadowRoot.querySelector('d2l-capture-producer-editor');
+	}
+
 	get _enableCutsAndChapters() {
 		// Add more content types to this array when they support cuts and chapters.
 		return ['Video'].includes(this._selectedRevision?.type);
@@ -628,7 +632,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._loadSelectedRevision();
 	}
 
-	_loadSelectedRevision() {
+	async _loadSelectedRevision() {
 		if (!this._selectedRevision) {
 			return;
 		}
@@ -641,14 +645,23 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			return;
 		}
 
+		this._captionsLoading = true;
+		this._metadataLoading = true;
+
 		this._src = '';
-		this.apiClient.getOriginalSignedUrlForRevision({ contentId: this.contentId, revisionId: this._selectedRevision.id})
-			.then(response => {
-				this._src = response.value;
-			});
+		const signedUrlResponse = await this.apiClient.getOriginalSignedUrlForRevision({
+			contentId: this.contentId,
+			revisionId: this._selectedRevision.id,
+		});
+		this._src = signedUrlResponse.value;
+
+		// The Media Player uses its <video> element to parse the captions data.
+		// Because of that, we need to ensure the Media Player is finished loading before we load captions.
+		this._editor.mediaPlayer.addEventListener('loadeddata', () => {
+			this._loadCaptions(this._selectedRevision, this._selectedLanguage.code);
+		}, { once: true });
 
 		if (this._enableCutsAndChapters) this._loadMetadata(this._selectedRevision.id);
-		this._loadCaptions(this._selectedRevision, this._selectedLanguage.code);
 
 		this._captionsChanged = false;
 		this._metadataChanged = false;

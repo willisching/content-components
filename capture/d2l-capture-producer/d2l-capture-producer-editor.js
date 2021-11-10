@@ -270,6 +270,10 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		}
 	}
 
+	get mediaPlayer() {
+		return this._mediaPlayer || null;
+	}
+
 	_addCutToStage(cut) {
 		const { inPixels, outPixels } = cut.getPixelsAlongTimeline();
 
