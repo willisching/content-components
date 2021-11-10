@@ -23,8 +23,7 @@ export default class ContentServiceClient {
 			body: {
 				...body,
 				clientApp: 'LmsContent',
-				...this.orgUnitId && {sharedWith: [`ou:${this.orgUnitId}`]}
-			},
+			}
 		});
 	}
 
@@ -54,7 +53,8 @@ export default class ContentServiceClient {
 	getSecureUrlByName(d2lrn, format) {
 		const { tenantId, contentId, revisionId } = parse(d2lrn);
 		return this._fetch({
-			path: `/api/${tenantId}/content/${contentId}/revisions/${revisionId}/signed-url?format=${format}`,
+			path: `/api/${tenantId}/content/${contentId}/revisions/${revisionId}/signed-url`,
+			query: { format }
 		});
 	}
 
@@ -118,10 +118,16 @@ export default class ContentServiceClient {
 		query,
 		body,
 		extractJsonBody = true,
-		headers = new Headers()
+		headers = new Headers(),
+		appendOrgUnitIdQuery = true,
 	}) {
 		if (body) {
 			headers.append('Content-Type', 'application/json');
+		}
+
+		let queryToUse = query;
+		if (appendOrgUnitIdQuery) {
+			queryToUse = {...query, ...this.orgUnitId && {checkAccessToOrgUnitId: this.orgUnitId}};
 		}
 
 		const requestInit = {
@@ -131,7 +137,7 @@ export default class ContentServiceClient {
 			},
 			headers
 		};
-		const request = new Request(this._url(path, query), requestInit);
+		const request = new Request(this._url(path, queryToUse), requestInit);
 
 		const response = await d2lfetch.fetch(request);
 		if (!response.ok) {
