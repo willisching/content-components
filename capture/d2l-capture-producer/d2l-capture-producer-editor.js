@@ -183,7 +183,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 						controls
 						crossorigin="anonymous"
 						@cuechange="${this._handleCueChange}"
-						hide-seek-bar
+						?hide-seek-bar="${this.enableCutsAndChapters}"
 						@pause="${this._pauseUpdatingVideoTime}"
 						@play="${this._startUpdatingVideoTime}"
 						@seeking="${this._updateVideoTime}"
