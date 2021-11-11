@@ -1131,7 +1131,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 		// Restart video if paused at end cut.
 		Object.values(this._timeline.getCuts()).reverse().forEach(cut => {
-			if (cut.out >= this._mediaPlayer.duration && this._mediaPlayer.currentTime === cut.in) {
+			if ((!cut.out || (cut.out >= this._mediaPlayer.duration)) && this._mediaPlayer.currentTime === cut.in) {
 				this._mediaPlayer.currentTime = 0;
 			}
 
@@ -1143,7 +1143,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			// Skip cuts
 			const cut = this._timeline.getCutOverTime(this._mediaPlayer.currentTime);
 			if (cut) {
-				if (cut.out >= this._mediaPlayer.duration) {
+				if (!cut.out || (cut.out >= this._mediaPlayer.duration)) {
 					this._mediaPlayer.currentTime = cut.in;
 					this._mediaPlayer.pause();
 				} else {

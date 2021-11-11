@@ -1,3 +1,10 @@
+/**
+ * Represents a cut on the timeline, from an "in" start timestamp to an "out" end timestamp.
+ *
+ * If "out" is undefined, then the cut will be interpreted as covering the "in" position all the way to the end of the media file's duration.
+ * This is necesary because the timeline can only work with integral seconds, but our media processing workflows need more precision in order to prevent issues during trimming.
+ * (Example of a trimming issue: trying to trim a cut finishing at 10 seconds, but the media file is only 9.95 seconds long.)
+ */
 class Cut {
 	constructor(inSeconds, outSeconds, timeline) {
 		this.in = inSeconds;
@@ -10,7 +17,7 @@ class Cut {
 	 * Determines the pixels along the timeline that this cut begins and ends at.
 	 * @returns {{ inPixels: number, outPixels: number }} If the cut is on the timeline, returns an object. Otherwise, returns null.
 	 * 								inPixels: Pixels along the timeline of the start of the cut. If the cut actually starts before the timeline, it will be the start of the timeline.
-	 * 								outPixels: Pixels along the timeline of the end of the cut. If the cut actually ends after the timeline, it will be the end of the timeline.
+	 * 								outPixels: Pixels along the timeline of the end of the cut. If the cut actually ends after the timeline, or if outPixels is undefined, it will be the end of the timeline.
 	 */
 	getPixelsAlongTimeline() {
 		if (!this.isOnTimeline()) return null;
@@ -18,7 +25,7 @@ class Cut {
 		const actualInPixels = this.timeline.getPixelsAlongTimelineFromTime(this.in);
 		const inPixels = actualInPixels !== null ? actualInPixels : 0;
 
-		const actualOutPixels = this.timeline.getPixelsAlongTimelineFromTime(this.out);
+		const actualOutPixels = this.out ? this.timeline.getPixelsAlongTimelineFromTime(this.out) : null;
 		const outPixels = actualOutPixels !== null ? actualOutPixels : this.timeline.widthPixels;
 
 		return { inPixels, outPixels };
@@ -31,7 +38,7 @@ class Cut {
 	isOnTimeline() {
 		const { lowerTimeBound, upperTimeBound } = this.timeline.getTimeBoundsOfTimeline();
 
-		return this.in <= upperTimeBound && this.out > lowerTimeBound;
+		return this.in <= upperTimeBound && (!this.out || (this.out > lowerTimeBound));
 	}
 
 	/**
@@ -40,7 +47,7 @@ class Cut {
 	 * @returns {boolean} True if the cut is over the time. Otherwise, false.
 	 */
 	isOverTime(seconds) {
-		return this.in <= seconds && this.out > seconds;
+		return this.in <= seconds && (!this.out || (this.out > seconds));
 	}
 
 	/**
@@ -115,7 +122,7 @@ class Mark {
 		const cutEndingAtMark = this.timeline._getCutEndingAtTime(this.seconds);
 
 		if (cutEndingAtMark) {
-			cutEndingAtMark.out = timeToMoveTo;
+			cutEndingAtMark.out = timeToMoveTo < this.timeline.durationSeconds ? timeToMoveTo : undefined;
 		}
 
 		delete this.timeline._marks[this.seconds];
@@ -145,7 +152,7 @@ class Mark {
 		if (cutEndingAtMark) {
 			const nextMark = this.timeline._getNextMarkFromTime(this.seconds);
 
-			const outSeconds = nextMark ? nextMark.seconds : this.timeline.durationSeconds;
+			const outSeconds = nextMark ? nextMark.seconds : undefined;
 
 			cutEndingAtMark.out = outSeconds;
 		}
@@ -185,7 +192,7 @@ class Timeline {
 		const inSeconds = leftBoundingMark ? leftBoundingMark.seconds : 0;
 
 		const rightBoundingMark = this._getEarliestMarkAfterPoint(pixelsAlongTimeline);
-		const outSeconds = rightBoundingMark ? rightBoundingMark.seconds : this.durationSeconds;
+		const outSeconds = rightBoundingMark ? rightBoundingMark.seconds : undefined;
 
 		if (this._getCutStartingAtTime(inSeconds)) return null;
 
@@ -370,7 +377,7 @@ class Timeline {
 	 */
 	_getCutEndingAtTime(seconds) {
 		for (const cut of Object.values(this._cuts)) {
-			if (cut.out === seconds) return cut;
+			if ((!cut.out && (seconds >= this.durationSeconds)) || (cut.out === seconds)) return cut;
 		}
 
 		return null;

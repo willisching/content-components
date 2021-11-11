@@ -29,7 +29,7 @@ describe('timeline.js', () => {
 						const cut = t.addCutAtPoint(pixelsAlongTimeline);
 
 						assert.equal(cut.in, 0);
-						assert.equal(cut.out, durationSeconds);
+						assert.doesNotHaveAllKeys(cut, ['out']);
 						assert.equal(cut.displayObject, null);
 						assert.equal(cut.timeline, t);
 					}
@@ -42,7 +42,7 @@ describe('timeline.js', () => {
 				const cut = timeline.addCutAtPoint(15);
 
 				assert.equal(cut.in, mark.seconds);
-				assert.equal(cut.out, timeline.durationSeconds);
+				assert.doesNotHaveAllKeys(cut, ['out']);
 			});
 
 			it('should create a cut from the left bounding mark on the timeline over the remaining duration, when there is only 1 mark and it is at the point', () => {
@@ -53,7 +53,7 @@ describe('timeline.js', () => {
 				const cut = timeline.addCutAtPoint(cutPoint);
 
 				assert.equal(cut.in, mark.seconds);
-				assert.equal(cut.out, timeline.durationSeconds);
+				assert.doesNotHaveAllKeys(cut, ['out']);
 			});
 
 			it('should create a cut from the left bounding mark off the timeline over the remaining duration, when there is only 1 mark and it is off the timeline and comes before the point', () => {
@@ -66,7 +66,7 @@ describe('timeline.js', () => {
 				const cut = timeline.addCutAtPoint(15);
 
 				assert.equal(cut.in, mark.seconds);
-				assert.equal(cut.out, timeline.durationSeconds);
+				assert.doesNotHaveAllKeys(cut, ['out']);
 			});
 
 			it('should create a cut from the left bounding mark on the timeline over the remaining duration, when there is 1 mark on the timeline to the left of the point and another mark to the left of the timeline', () => {
@@ -82,7 +82,7 @@ describe('timeline.js', () => {
 
 				assert.notEqual(markOffTimeline.seconds, markOnTimeline.seconds);
 				assert.equal(cut.in, markOnTimeline.seconds);
-				assert.equal(cut.out, timeline.durationSeconds);
+				assert.doesNotHaveAllKeys(cut, ['out']);
 			});
 
 			it('should create a cut from the closest left bounding mark on the timeline over the remaining duration, when there are multiple marks on the timeline to the left of the point', () => {
@@ -93,7 +93,7 @@ describe('timeline.js', () => {
 
 				assert.notEqual(fartherMark.seconds, closerMark.seconds);
 				assert.equal(cut.in, closerMark.seconds);
-				assert.equal(cut.out, timeline.durationSeconds);
+				assert.doesNotHaveAllKeys(cut, ['out']);
 			});
 
 			it('should create a cut from the start of the duration to the right bounding mark on the timeline, when there is only 1 mark and it is to the right of the point', () => {
@@ -724,6 +724,18 @@ describe('timeline.js', () => {
 				assert.equal(cutEndingAtMark.out, timeToMoveTo);
 				assert.equal(cutStartingAtMark.in, timeToMoveTo);
 			});
+
+			it('should modify the cut ending at the mark so that, when the mark moves to the end of the timeline, the cut\'s out time becomes undefined (meaning "end of file duration")', () => {
+				const unmovedMarkPosition = (timeline.addMarkAtPoint(6)).mark.seconds;
+				const { mark } = timeline.addMarkAtPoint(10);
+				timeline.addCutAtPoint(8);
+
+				const pixelsToMoveTo = timeline.durationSeconds;
+				const { cutEndingAtMark } = mark.move(pixelsToMoveTo);
+
+				assert.equal(cutEndingAtMark.in, unmovedMarkPosition);
+				assert.doesNotHaveAllKeys(cutEndingAtMark, ['out']);
+			});
 		});
 
 		describe('removeFromTimeline', () => {
@@ -756,6 +768,17 @@ describe('timeline.js', () => {
 				assert.equal(cutEndingAtMark.out, nextMark.seconds);
 				assert.equal(remainingMarks.length, 1);
 				assert.equal(remainingMarks[0], nextMark);
+			});
+
+			it('should modify the cut ending at the mark so that, when the mark is removed and there are no following marks, the cut\'s out time becomes undefined (meaning "end of file duration")', () => {
+				const uneditedMarkPosition = (timeline.addMarkAtPoint(6)).mark.seconds;
+				const { mark } = timeline.addMarkAtPoint(10);
+				timeline.addCutAtPoint(8);
+
+				const { cutEndingAtMark } = mark.removeFromTimeline();
+
+				assert.equal(cutEndingAtMark.in, uneditedMarkPosition);
+				assert.doesNotHaveAllKeys(cutEndingAtMark, ['out']);
 			});
 		});
 	});
