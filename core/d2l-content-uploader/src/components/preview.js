@@ -12,6 +12,7 @@ import '../../../../capture/d2l-capture-producer.js';
 export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
 		return {
+			fileType: { type: String, attribute: 'file-type', reflect: true },
 			resource: { type: String, attribute: true },
 			_mediaSources: { type: Array, attribute: false },
 		};
@@ -43,6 +44,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 	constructor() {
 		super();
 		this.contentTitle = '';
+		this.fileType = '';
 		this._mediaSources = null;
 		this._contentId = null;
 	}
