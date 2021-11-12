@@ -111,6 +111,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 			{
 				Onload: (handle) => {
 					handle.dialog.titleText = this.localize('advancedEditing');
+					handle.frame.setAttribute('scrolling', 'yes');
 				}
 			}
 		);
