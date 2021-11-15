@@ -42,6 +42,21 @@ export default class HypermediaClient {
 		}));
 	}
 
+	async getMetadata(resourceEntity) {
+		if (!resourceEntity.hasActionByName('get-metadata')) {
+			return null;
+		}
+
+		try {
+			const getMetadataAction = resourceEntity.getActionByName('get-metadata');
+			const metadataResponse = await this._fetch({ url: getMetadataAction.href });
+			const metadataEntity = SirenParse(metadataResponse);
+			return metadataEntity.properties;
+		} catch (e) {
+			return null;
+		}
+	}
+
 	async getResourceEntity() {
 		if (!this.entity.hasLinkByClass('content-service-resource')) {
 			return null;
