@@ -661,7 +661,11 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			this._loadCaptions(this._selectedRevision, this._selectedLanguage.code);
 		}, { once: true });
 
-		if (this._enableCutsAndChapters) this._loadMetadata(this._selectedRevision.id);
+		if (this._enableCutsAndChapters) {
+			this._loadMetadata(this._selectedRevision.id);
+		} else {
+			this._metadataLoading = false;
+		}
 
 		this._captionsChanged = false;
 		this._metadataChanged = false;
