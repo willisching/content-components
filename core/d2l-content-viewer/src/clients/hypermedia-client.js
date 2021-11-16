@@ -53,7 +53,7 @@ export default class HypermediaClient {
 			const metadataEntity = SirenParse(metadataResponse);
 			return metadataEntity.properties;
 		} catch (e) {
-			if (e.message !== 'Not Found') throw new Error(e.message);
+			if (e.message !== 'Not Found') throw e;
 			return null;
 		}
 	}
