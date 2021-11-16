@@ -118,7 +118,11 @@ class Mark {
 			delete this.timeline._cuts[cutStartingAtMark.in];
 
 			cutStartingAtMark.in = timeToMoveTo;
-			this.timeline._cuts[timeToMoveTo] = cutStartingAtMark;
+			if (timeToMoveTo < this.timeline.durationSeconds) {
+				this.timeline._cuts[timeToMoveTo] = cutStartingAtMark;
+			} else {
+				delete this.timeline._cuts[cutStartingAtMark.in];
+			}
 		}
 
 		const cutEndingAtMark = this.timeline._getCutEndingAtTime(this.seconds);
