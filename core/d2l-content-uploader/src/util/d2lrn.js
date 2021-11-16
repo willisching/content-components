@@ -28,3 +28,15 @@ export function parse(urn) {
 		resource,
 	};
 }
+
+export function toString({company, product, service, region, tenantId, resourceType, resource}) {
+	return [
+		company,
+		product,
+		service,
+		region,
+		tenantId,
+		resourceType,
+		resource
+	].join(':');
+}

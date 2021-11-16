@@ -4,6 +4,7 @@ import UserBrightspaceClient from '../util/user-brightspace-client.js';
 import { ProviderMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { Uploader } from '../state/uploader';
+import { parse as d2lrnParse, toString as d2lrnToString } from '../util/d2lrn';
 
 import './upload.js';
 import './preview.js';
@@ -179,7 +180,15 @@ export class Main extends MobxReactionUpdate(ProviderMixin(LitElement)) {
 	}
 
 	updateValue(value) {
-		this.value = value;
+		if (value) {
+			const d2lrn = d2lrnParse(value);
+			d2lrn.resource = `${d2lrn.contentId}/latest`;
+			delete d2lrn.contentId;
+			delete d2lrn.revisionId;
+			this.value = d2lrnToString(d2lrn);
+		} else {
+			this.value = value;
+		}
 		this.filename = this._fileName;
 		this.dispatchEvent(new Event('change', {
 			bubbles: true,
