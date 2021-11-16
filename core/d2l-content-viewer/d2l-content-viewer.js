@@ -108,14 +108,12 @@ class ContentViewer extends LitElement {
 	}
 
 	async loadMetadata() {
-		if (this.activity) {
-			//const metadata = await this.hmClient.getMetadata(this._resourceEntity);
-		} else {
-			const metadata = await this.client.getMetadata();
-			if (!metadata) return;
-			const mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
-			mediaPlayer.metadata = metadata;
-		}
+		const metadata = this.activity ? await this.hmClient.getMetadata(this._resourceEntity)
+			: await this.client.getMetadata();
+
+		if (!metadata) return;
+		const mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
+		mediaPlayer.metadata = metadata;
 	}
 
 	async loadRevisionData() {
