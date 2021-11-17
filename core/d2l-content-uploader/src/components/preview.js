@@ -8,12 +8,15 @@ import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin';
 import { parse } from '../util/d2lrn';
 import '../../../../capture/d2l-capture-producer.js';
+import '../../../d2l-content-viewer.js';
 
 export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
 		return {
 			fileType: { type: String, attribute: 'file-type', reflect: true },
 			resource: { type: String, attribute: true },
+			orgUnitId: { type: String, attribute: 'org-unit-id' },
+			topicId: { type: String, attribute: 'topic-id' },
 			_mediaSources: { type: Array, attribute: false },
 		};
 	}
@@ -51,20 +54,21 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 
 	async connectedCallback() {
 		super.connectedCallback();
-		const formats = this._isAudio() ? ['mp3'] : ['hd', 'sd'];
-		this._mediaSources = this.resource ?
-			await Promise.all(formats.map(format => this._getSource(this.resource, format))) :
-			null;
+		if (!this.topicId) {
+			const formats = this._isAudio() ? ['mp3'] : ['hd', 'sd'];
+			this._mediaSources = this.resource ?
+				await Promise.all(formats.map(format => this._getSource(this.resource, format))) :
+				null;
+		}
+
 	}
 
 	render() {
 		const {contentId} = parse(this.resource);
 		this._contentId = contentId;
-		const player = this._mediaSources && html`
-		<d2l-labs-media-player style="width:100%">${this._mediaSources.map(mediaSource => this._renderSource(mediaSource))}</d2l-labs-media-player>`;
 		return html`
 			<div id="container">
-				${player}
+				${this._renderPreviewPlayer()}
 				<div id="staged-file">
 					<d2l-button-subtle
 						id="change-file-button"
@@ -122,6 +126,33 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 			bubbles: true,
 			composed: true
 		}));
+	}
+
+	_renderContentViewer() {
+		return html`
+			<d2l-content-viewer
+				org-unit-id=${this.orgUnitId}
+				topic-id=${this.topicId}>
+			</d2l-content-viewer>`;
+	}
+
+	_renderMediaSources() {
+		if (!this._mediaSources) {
+			return html``;
+		}
+
+		return html`
+			<d2l-labs-media-player style="width:100%">
+				${this._mediaSources.map(mediaSource => this._renderSource(mediaSource))}
+			</d2l-labs-media-player>`;
+	}
+
+	_renderPreviewPlayer() {
+		if (this.topicId) {
+			return this._renderContentViewer();
+		} else {
+			return this._renderMediaSources();
+		}
 	}
 
 	_renderSource(source) {
