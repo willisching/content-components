@@ -44,6 +44,7 @@ class ContentViewer extends LitElement {
 		this._captionsSignedUrlStartTime = null;
 		this._lastTrackLoadFailedTime = null;
 		this._trackErrorFetchTimeoutId = null;
+		this._revision = null;
 	}
 
 	async firstUpdated() {
@@ -63,6 +64,7 @@ class ContentViewer extends LitElement {
 		}
 
 		await this.loadRevisionData();
+		await this.loadMedia();
 		await this.loadCaptions();
 		await this.loadMetadata();
 
@@ -76,12 +78,13 @@ class ContentViewer extends LitElement {
 		return this._mediaSources && this._mediaSources.length > 0 && html`
 			<d2l-labs-media-player
 				crossorigin="anonymous"
-				@trackloadfailed=${this.trackLoadFailedHandler}
-				@tracksmenuitemchanged=${this.tracksChangedHandler}
+				@error=${this.onError}
+				@trackloadfailed=${this.onTrackLoadFailed}
+				@tracksmenuitemchanged=${this.onTracksChanged}
 				?allow-download=${this.allowDownload}
 				?allow-download-on-error=${this.allowDownloadOnError}>
-				${this._mediaSources.map(mediaSource => this._renderMediaSource(mediaSource))}
-				${this._captionSignedUrls.map(captionSignedUrl => this._renderCaptionsTrack(captionSignedUrl))}
+				${this._mediaSources.map(mediaSource => this.renderMediaSource(mediaSource))}
+				${this._captionSignedUrls.map(captionSignedUrl => this.renderCaptionsTrack(captionSignedUrl))}
 			</d2l-labs-media-player>
 		`;
 	}
@@ -116,21 +119,41 @@ class ContentViewer extends LitElement {
 		mediaPlayer.metadata = metadata;
 	}
 
-	async loadRevisionData() {
+	async loadMedia() {
 		if (this.activity) {
-			const revision = await this.hmClient.getRevision(this._resourceEntity);
-			this._verifyContentType(revision.type);
 			this._mediaSources = await this.hmClient.getMedia(this._resourceEntity);
 		} else if (this.href) {
-			this._mediaSources = [await this._getMediaSource()];
+			this._mediaSources = [await this.getMediaSource()];
 		} else {
-			const revision = await this.client.getRevision();
-			this._verifyContentType(revision.Type);
-			this._mediaSources = await Promise.all(revision.Formats.map(format => this._getMediaSource(format)));
+			this._mediaSources = await Promise.all(this._revision.formats.map(format => this.getMediaSource(format)));
 		}
 	}
 
-	async trackLoadFailedHandler() {
+	async loadRevisionData() {
+		if (this.activity) {
+			const revision = await this.hmClient.getRevision(this._resourceEntity);
+			this._revision = {
+				type: revision.type,
+				formats: revision.formats,
+			};
+		} else {
+			const revision = await this.client.getRevision();
+			this._revision = {
+				type: revision.Type,
+				formats: revision.Formats
+			};
+		}
+
+		this.verifyContentType(this._revision.type);
+	}
+
+	onError() {
+		if (this._mediaSources && this._mediaSources.some(s => s.expiry && (s.expiry - Date.now() < 0))) {
+			this.loadMedia();
+		}
+	}
+
+	async onTrackLoadFailed() {
 		const elapsedTimeSinceLastTrackLoadFailed = (new Date()).getTime() - (this._lastTrackLoadFailedTime || 0);
 		const trackErrorFetchIntervalElapsed = elapsedTimeSinceLastTrackLoadFailed > TRACK_ERROR_FETCH_INTERVAL_MILLISECONDS;
 
@@ -143,29 +166,26 @@ class ContentViewer extends LitElement {
 		}
 	}
 
-	async tracksChangedHandler() {
+	async onTracksChanged() {
 		const elapsedTimeSinceLoadCaptions = (new Date()).getTime() - this._captionsSignedUrlStartTime;
 		if (elapsedTimeSinceLoadCaptions > this._captionsSignedUrlExpireTime) {
 			await this.loadCaptions();
 		}
 	}
 
-	async _getMediaSource(format) {
-		return {
-			src: (await this.client.getDownloadUrl({format, href: this.href})).Value,
-			format,
-		};
+	async getMediaSource(format) {
+		return this.client.getDownloadUrl({format, href: this.href});
 	}
 
-	_renderCaptionsTrack(captionsUrl) {
+	renderCaptionsTrack(captionsUrl) {
 		return html`<track src="${captionsUrl.Value}" kind="captions" label=${captionsUrl.Locale} srclang=${captionsUrl.Locale.slice(0, 2)}>`;
 	}
 
-	_renderMediaSource(source) {
+	renderMediaSource(source) {
 		return html`<source src=${source.src} label=${source.format} ?default=${source.format === VideoFormat.HD}>`;
 	}
 
-	async _verifyContentType(type) {
+	async verifyContentType(type) {
 		if (!VALID_CONTENT_TYPES.includes(type)) {
 			throw new Error(`type ${type.key} unsupported`);
 		}

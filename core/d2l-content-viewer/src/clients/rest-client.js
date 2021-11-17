@@ -14,6 +14,7 @@ export default class ContentServiceClient {
 			name: 'auth',
 			fn: fetchAuthUnframed
 		});
+		this.count = 0;
 	}
 
 	getCaptions(captionsHref) {
@@ -22,14 +23,19 @@ export default class ContentServiceClient {
 		});
 	}
 
-	getDownloadUrl({format, href}) {
-		return this._fetch({
+	async getDownloadUrl({format, href}) {
+		const result = await this._fetch({
 			path: href || `/d2l/le/content/contentservice/resources/${this.orgUnitId}/topics/${this.topicId}/download`,
 			query: {
 				format: format ? format.value : undefined
 			},
 			doNotUseCache: false
 		});
+		return {
+			expiry: result.ExpireTime * 1000,
+			src: result.Value,
+			format,
+		};
 	}
 
 	getMetadata() {
