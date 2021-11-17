@@ -8,7 +8,9 @@
 class Cut {
 	constructor(inSeconds, outSeconds, timeline) {
 		this.in = inSeconds;
-		this.out = outSeconds;
+		if (outSeconds) {
+			this.out = outSeconds;
+		}
 		this.timeline = timeline;
 		this.displayObject = null;
 	}
@@ -116,13 +118,21 @@ class Mark {
 			delete this.timeline._cuts[cutStartingAtMark.in];
 
 			cutStartingAtMark.in = timeToMoveTo;
-			this.timeline._cuts[timeToMoveTo] = cutStartingAtMark;
+			if (timeToMoveTo < this.timeline.durationSeconds) {
+				this.timeline._cuts[timeToMoveTo] = cutStartingAtMark;
+			} else {
+				delete this.timeline._cuts[cutStartingAtMark.in];
+			}
 		}
 
 		const cutEndingAtMark = this.timeline._getCutEndingAtTime(this.seconds);
 
 		if (cutEndingAtMark) {
-			cutEndingAtMark.out = timeToMoveTo < this.timeline.durationSeconds ? timeToMoveTo : undefined;
+			if (timeToMoveTo < this.timeline.durationSeconds) {
+				cutEndingAtMark.out = timeToMoveTo;
+			} else {
+				delete cutEndingAtMark.out;
+			}
 		}
 
 		delete this.timeline._marks[this.seconds];
@@ -152,9 +162,11 @@ class Mark {
 		if (cutEndingAtMark) {
 			const nextMark = this.timeline._getNextMarkFromTime(this.seconds);
 
-			const outSeconds = nextMark ? nextMark.seconds : undefined;
-
-			cutEndingAtMark.out = outSeconds;
+			if (nextMark) {
+				cutEndingAtMark.out = nextMark.seconds;
+			} else {
+				delete cutEndingAtMark.out;
+			}
 		}
 
 		delete this.timeline._marks[this.seconds];
@@ -192,11 +204,15 @@ class Timeline {
 		const inSeconds = leftBoundingMark ? leftBoundingMark.seconds : 0;
 
 		const rightBoundingMark = this._getEarliestMarkAfterPoint(pixelsAlongTimeline);
-		const outSeconds = rightBoundingMark ? rightBoundingMark.seconds : undefined;
 
 		if (this._getCutStartingAtTime(inSeconds)) return null;
 
-		const cut = new Cut(inSeconds, outSeconds, this);
+		let cut;
+		if (rightBoundingMark) {
+			cut = new Cut(inSeconds, rightBoundingMark.seconds, this);
+		} else {
+			cut = new Cut(inSeconds, undefined, this);
+		}
 
 		this._cuts[inSeconds] = cut;
 
