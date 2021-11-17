@@ -1,4 +1,5 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
+import { ifDefined } from 'lit-html/directives/if-defined.js';
 import ContentServiceClient from '../util/content-service-client';
 import UserBrightspaceClient from '../util/user-brightspace-client.js';
 import { ProviderMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
@@ -23,6 +24,7 @@ export class Main extends MobxReactionUpdate(ProviderMixin(LitElement)) {
 			apiEndpoint: { type: String, attribute: 'api-endpoint' },
 			tenantId: { type: String, attribute: 'tenant-id' },
 			orgUnitId: { type: String, attribute: 'org-unit-id' },
+			topicId: { type: String, attribute: 'topic-id' },
 			value: { type: String, reflect: true },
 			filename: { type: String, reflect: true },
 
@@ -71,10 +73,12 @@ export class Main extends MobxReactionUpdate(ProviderMixin(LitElement)) {
 		});
 
 		if (this.value) {
-			const resource = await apiClient.getRevisionByName(this.value);
+			if (!this.topicId) {
+				const revision = await apiClient.getRevisionByName(this.value);
+				this._fileType = revision.type.toLowerCase();
+				this._fileName = revision.title;
+			}
 			this._currentView = VIEW.PREVIEW;
-			this._fileType = resource.type.toLowerCase();
-			this._fileName = resource.title;
 		} else {
 			this._currentView = VIEW.UPLOAD;
 		}
@@ -103,6 +107,8 @@ export class Main extends MobxReactionUpdate(ProviderMixin(LitElement)) {
 						file-type=${this._fileType}
 						resource=${this.value}
 						@cancel=${this.onDiscardStagedFile}
+						org-unit-id=${this.orgUnitId}
+						topic-id=${ifDefined(this.topicId)}
 					>
 					</d2l-content-uploader-preview>
 					`;
@@ -139,6 +145,7 @@ export class Main extends MobxReactionUpdate(ProviderMixin(LitElement)) {
 		this._fileType = '';
 		this._currentView = VIEW.UPLOAD;
 		this.updateValue('');
+		this.topicId = '';
 	}
 
 	onFileChange(event) {
