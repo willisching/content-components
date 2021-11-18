@@ -540,8 +540,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	async _loadCaptions(revision, locale) {
-		const revisionCaptionLocale = revision?.captions?.find(captionsEntry => captionsEntry.locale.toLowerCase() === locale.toLowerCase());
-		if (!revisionCaptionLocale) {
+		if (!revision?.captions?.find(captionsEntry => captionsEntry.locale.toLowerCase() === locale.toLowerCase())) {
 			this._captions = [];
 			this._captionsUrl = '';
 			this._captionsLoading = false;
@@ -556,7 +555,6 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				revisionId: revision.id,
 				locale,
 				draft: true,
-				adjusted: !revisionCaptionLocale.unadjustedHash,
 			});
 			this._captionsUrl = res.value;
 		} catch (error) {
