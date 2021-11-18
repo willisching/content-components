@@ -148,7 +148,7 @@ class ContentViewer extends LitElement {
 	}
 
 	onError() {
-		if (this._mediaSources && this._mediaSources.some(s => s.expiry && (s.expiry - Date.now() < 0))) {
+		if (this._mediaSources && this._mediaSources.some(s => s.expires && (s.expires - Date.now() < 0))) {
 			this.loadMedia();
 		}
 	}

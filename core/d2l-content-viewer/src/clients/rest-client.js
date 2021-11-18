@@ -32,7 +32,7 @@ export default class ContentServiceClient {
 			doNotUseCache: false
 		});
 		return {
-			expiry: result.ExpireTime * 1000,
+			expires: result.ExpireTime * 1000,
 			src: result.Value,
 			format,
 		};
