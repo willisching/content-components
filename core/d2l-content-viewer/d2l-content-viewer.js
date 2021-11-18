@@ -1,4 +1,5 @@
 import '@brightspace-ui-labs/media-player/media-player.js';
+import { getDocumentLocaleSettings } from '@brightspace-ui/intl/lib/common.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 
 import ContentServiceClient from './src/clients/rest-client.js';
@@ -64,6 +65,7 @@ class ContentViewer extends LitElement {
 
 		await this.loadRevisionData();
 		await this.loadCaptions();
+		this.loadLocale();
 		await this.loadMetadata();
 
 		this.dispatchEvent(new CustomEvent('cs-content-loaded', {
@@ -105,6 +107,14 @@ class ContentViewer extends LitElement {
 			this._captionsSignedUrlExpireTime = ((this._captionSignedUrls.length && this._captionSignedUrls[0].ExpireTime) || 0) * 1000;
 			this.requestUpdate();
 		}
+	}
+
+	loadLocale() {
+		const defaultLocale = getDocumentLocaleSettings()._language || getDocumentLocaleSettings()._fallbackLanguage;
+
+		if (!defaultLocale) return;
+		const mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
+		mediaPlayer.locale = defaultLocale.toLowerCase();
 	}
 
 	async loadMetadata() {
