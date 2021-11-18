@@ -14,7 +14,6 @@ export default class ContentServiceClient {
 			name: 'auth',
 			fn: fetchAuthUnframed
 		});
-		this.count = 0;
 	}
 
 	getCaptions(captionsHref) {
