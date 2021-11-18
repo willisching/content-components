@@ -92,6 +92,10 @@ class ContentViewer extends LitElement {
 		`;
 	}
 
+	async _getMediaSource(format) {
+		return this.client.getDownloadUrl({format, href: this.href});
+	}
+
 	async _loadCaptions() {
 		clearInterval(this._trackErrorFetchTimeoutId);
 		this._trackErrorFetchTimeoutId = null;
@@ -121,15 +125,6 @@ class ContentViewer extends LitElement {
 		mediaPlayer.locale = defaultLocale.toLowerCase();
 	}
 
-	async _loadMetadata() {
-		const metadata = this.activity ? await this.hmClient.getMetadata(this._resourceEntity)
-			: await this.client.getMetadata();
-
-		if (!metadata) return;
-		const mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
-		mediaPlayer.metadata = metadata;
-	}
-
 	async _loadMedia() {
 		if (this.activity) {
 			this._mediaSources = await this.hmClient.getMedia(this._resourceEntity);
@@ -138,6 +133,15 @@ class ContentViewer extends LitElement {
 		} else {
 			this._mediaSources = await Promise.all(this._revision.formats.map(format => this._getMediaSource(format)));
 		}
+	}
+
+	async _loadMetadata() {
+		const metadata = this.activity ? await this.hmClient.getMetadata(this._resourceEntity)
+			: await this.client.getMetadata();
+
+		if (!metadata) return;
+		const mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
+		mediaPlayer.metadata = metadata;
 	}
 
 	async _loadRevisionData() {
@@ -189,10 +193,6 @@ class ContentViewer extends LitElement {
 		if (elapsedTimeSinceLoadCaptions > this._captionsSignedUrlExpireTime) {
 			await this._loadCaptions();
 		}
-	}
-
-	async _getMediaSource(format) {
-		return this.client.getDownloadUrl({format, href: this.href});
 	}
 
 	_renderCaptionsTrack(captionsUrl) {
