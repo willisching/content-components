@@ -32,6 +32,17 @@ export default class ContentServiceClient {
 		});
 	}
 
+	getLocales() {
+		const headers = new Headers();
+		headers.append('pragma', 'no-cache');
+		headers.append('cache-control', 'no-cache');
+
+		return this._fetch({
+			path: '/d2l/api/lp/unstable/locales/',
+			headers
+		});
+	}
+
 	getMetadata() {
 		return this._fetch({
 			path: `/d2l/le/content/contentservice/resources/${this.orgUnitId}/topics/${this.topicId}/metadata`

@@ -64,6 +64,7 @@ class ContentViewer extends LitElement {
 
 		await this.loadRevisionData();
 		await this.loadCaptions();
+		await this.loadLocale();
 		await this.loadMetadata();
 
 		this.dispatchEvent(new CustomEvent('cs-content-loaded', {
@@ -105,6 +106,15 @@ class ContentViewer extends LitElement {
 			this._captionsSignedUrlExpireTime = ((this._captionSignedUrls.length && this._captionSignedUrls[0].ExpireTime) || 0) * 1000;
 			this.requestUpdate();
 		}
+	}
+
+	async loadLocale() {
+		const { Items } = await this.client.getLocales();
+		const defaultLocale = Items?.find(locale => locale.IsDefault)?.CultureCode.toLowerCase();
+
+		if (!defaultLocale) return;
+		const mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
+		mediaPlayer.locale = defaultLocale;
 	}
 
 	async loadMetadata() {
