@@ -30,6 +30,7 @@ export default class HypermediaClient {
 		if (!resourceEntity.hasActionByName('get-media')) {
 			return null;
 		}
+
 		const getMediaAction = resourceEntity.getActionByName('get-media');
 		const formatField = getMediaAction.getFieldByName('format');
 		const supportedFormats = formatField.value;
@@ -37,7 +38,8 @@ export default class HypermediaClient {
 			const result = await this._fetch({ url: `${getMediaAction.href}?format=${format.value}&attachment=false` });
 			return {
 				format: VideoFormat.get(format.value.toUpperCase()),
-				...result.properties
+				src: result.properties.src,
+				expires: result.properties.expires * 1000
 			};
 		}));
 	}
