@@ -540,8 +540,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	async _loadCaptions(revision, locale) {
-		const revisionCaptionLocale = revision?.captions?.find(captionsEntry => captionsEntry.locale.toLowerCase() === locale.toLowerCase());
-		if (!revisionCaptionLocale) {
+		if (!revision?.captions?.find(captionsEntry => captionsEntry.locale.toLowerCase() === locale.toLowerCase())) {
 			this._captions = [];
 			this._captionsUrl = '';
 			this._captionsLoading = false;
@@ -556,7 +555,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				revisionId: revision.id,
 				locale,
 				draft: true,
-				adjusted: !revisionCaptionLocale.unadjustedHash,
+				adjusted: false,
 			});
 			this._captionsUrl = res.value;
 		} catch (error) {
@@ -823,6 +822,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				captionsVttText: convertVttCueArrayToVttText(this._captions),
 				revisionId: revision.id,
 				locale: this._selectedLanguage.code,
+				adjusted: false,
 			});
 		} else {
 			await this.apiClient.deleteCaptions({

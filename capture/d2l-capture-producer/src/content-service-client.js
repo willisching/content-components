@@ -24,11 +24,11 @@ export default class ContentServiceClient {
 		});
 	}
 
-	deleteCaptions({ contentId, revisionId, locale, adjusted = false }) {
+	deleteCaptions({ contentId, revisionId, locale }) {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/resources/captions`,
 			method: 'DELETE',
-			query: { locale, adjusted },
+			query: { locale },
 		});
 	}
 
@@ -50,7 +50,7 @@ export default class ContentServiceClient {
 		return `Content Service Client: ${this.endpoint}`;
 	}
 
-	async getCaptionsUrl({ contentId, revisionId, locale, adjusted = false }) {
+	async getCaptionsUrl({ contentId, revisionId, locale, adjusted = true }) {
 		const headers = new Headers();
 		headers.append('pragma', 'no-cache');
 		headers.append('cache-control', 'no-cache');
@@ -116,7 +116,7 @@ export default class ContentServiceClient {
 		});
 	}
 
-	updateCaptions({ contentId, revisionId, locale, captionsVttText, adjusted = false }) {
+	updateCaptions({ contentId, revisionId, locale, captionsVttText, adjusted = true }) {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/resources/captions`,
 			method: 'PUT',
