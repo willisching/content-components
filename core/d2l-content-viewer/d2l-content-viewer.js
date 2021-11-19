@@ -46,7 +46,7 @@ class ContentViewer extends LitElement {
 		this._lastTrackLoadFailedTime = null;
 		this._trackErrorFetchTimeoutId = null;
 		this._revision = null;
-		this._refreshExpiry = null;
+		this._lastRefreshAttempted = null;
 	}
 
 	async firstUpdated() {
@@ -165,9 +165,9 @@ class ContentViewer extends LitElement {
 	_onError() {
 		if (this._mediaSources && this._mediaSources.length > 0) {
 			const expires = this._mediaSources[0].expires;
-			if (this._refreshExpiry !== expires && expires - Date.now() < 0) {
+			if (this._lastRefreshAttempted !== expires && expires - Date.now() < 0) {
 				// Prevent multiple attempts to load with same URLs
-				this._refreshExpiry = expires;
+				this._lastRefreshAttempted = expires;
 
 				// Get new signed URLs and load them
 				this._loadMedia();
