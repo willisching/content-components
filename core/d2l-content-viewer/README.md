@@ -30,19 +30,22 @@ npm install @brightspace/content-components
 <script type="module">
 	import '@brightspace/content-components/core/d2l-content-viewer.js';
 </script>
-<d2l-content-viewer href="<media-url>" captions-href="<captions-url>">My element</d2l-content-viewer>
+<d2l-content-viewer org-unit-id="<org unit id>" topic-id="<topic id>">My element</d2l-content-viewer>
+<d2l-content-viewer activity="<hypermedia entity with content service resource>">My element</d2l-content-viewer>
 ```
 
 **Attributes:**
 
 | Attribute | Type | Default | Description |
 |--|--|--|--|
-| activity | String |  | The hypermedia entity used to fetch the media and captions resource. |
+| activity | String |  | The hypermedia entity used to fetch the media and captions resource. Required unless `orgUnitId` and `topicId` are configured. |
 | allowDownload | Boolean | false | An attribtue used by d2l-labs-media-player to allow download. |
 | allowDownloadOnError | Boolean | false | An attribtue used by d2l-labs-media-player to allow download on error. |
-| captionsHref | String |  | The url used to fetch the captions resource. |
+| captionsHref | String |  | [Deprecated] The url used to fetch the captions resource. |
 | framed | Boolean | false | Determines whether to use framed or unframed auth for d2l-fetch when using the hypermedia entity. |
-| href | String |  | The url used to fetch the media resource. |
+| orgUnitId | Number |  | The orgUnitId in which the content is being loaded. Required unless `activity` is configured. |
+| topicId | Number |  | The topicId in which the content is being loaded. Required unless `activity` is configured. |
+| href | String |  | [Deprecated] The url used to fetch the media resource. |
 
 **Properties:**
 
