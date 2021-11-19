@@ -38,6 +38,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			_finishing: { type: Boolean, attribute: false },
 			_languages: { type: Array, attribute: false },
 			_languageToLoad: { type: Object, attribute: false },
+			_mediaType: { type: String, attribute: false },
 			_metadata: { type: Object, attribute: false },
 			_metadataChanged: { type: Boolean, attribute: false },
 			_metadataLoading: { type: Boolean, attribute: false },
@@ -151,6 +152,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._selectedLanguage = null;
 		this._languageToLoad = {};
 		this._mediaLoaded = false;
+		this._mediaType = null;
+		this._attemptedReloadOnError  = false;
 	}
 
 	async connectedCallback() {
@@ -216,7 +219,9 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 					?enableCutsAndChapters="${this._enableCutsAndChapters}"
 					.defaultLanguage="${this._defaultLanguage}"
 					.languages="${this._languages}"
+					@media-error="${this._handleMediaError}"
 					@media-loaded="${this._handleMediaLoaded}"
+					.mediaType="${this._mediaType}"
 					.metadata="${this._metadata}"
 					@metadata-changed="${this._handleMetadataChanged}"
 					?metadata-loading="${this._metadataLoading}"
@@ -411,6 +416,10 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		}
 	}
 
+	_getMediaType() {
+		return ['Video'].includes(this._selectedRevision?.type) ? 'video' : 'audio';
+	}
+
 	_handleCaptionsAutoGenerationStarted(event) {
 		this._finishRevision(event.detail.language);
 	}
@@ -459,7 +468,15 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this.shadowRoot.querySelector('.d2l-video-producer-dialog-confirm-finish').open();
 	}
 
+	async _handleMediaError() {
+		if (!this._attemptedReloadOnError) {
+			this._attemptedReloadOnError = true;
+			await this._loadMedia();
+		}
+	}
+
 	_handleMediaLoaded() {
+		this._attemptedReloadOnError = false;
 		this._mediaLoaded = true;
 	}
 
@@ -598,6 +615,14 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		}
 	}
 
+	async _loadMedia() {
+		const signedUrlResponse = await this.apiClient.getOriginalSignedUrlForRevision({
+			contentId: this.contentId,
+			revisionId: this._selectedRevision.id,
+		});
+		this._src = signedUrlResponse.value;
+	}
+
 	async _loadMetadata(revisionId) {
 		this._metadataLoading = true;
 		try {
@@ -650,11 +675,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._metadataLoading = true;
 
 		this._src = '';
-		const signedUrlResponse = await this.apiClient.getOriginalSignedUrlForRevision({
-			contentId: this.contentId,
-			revisionId: this._selectedRevision.id,
-		});
-		this._src = signedUrlResponse.value;
+		this._mediaType = this._getMediaType();
+		await this._loadMedia();
 
 		// The Media Player uses its <video> element to parse the captions data.
 		// Because of that, we need to ensure the Media Player is finished loading before we load captions.

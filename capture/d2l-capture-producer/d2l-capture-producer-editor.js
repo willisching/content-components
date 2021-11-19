@@ -32,6 +32,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			defaultLanguage: { type: Object },
 			enableCutsAndChapters: { type: Boolean },
 			languages: { type: Array },
+			mediaType: { type: String },
 			metadata: { type: Object },
 			metadataLoading: { type: Boolean, attribute: 'metadata-loading' },
 			selectedLanguage: { type: Object },
@@ -183,7 +184,9 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 						controls
 						crossorigin="anonymous"
 						@cuechange="${this._handleCueChange}"
+						@error="${this._handleMediaError}"
 						?hide-seek-bar="${this.enableCutsAndChapters}"
+						media-type="${this.mediaType}"
 						@pause="${this._pauseUpdatingVideoTime}"
 						@play="${this._startUpdatingVideoTime}"
 						@seeking="${this._updateVideoTime}"
@@ -904,6 +907,10 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 	_handleCueChange() {
 		this._activeCue = this._mediaPlayer.activeCue;
+	}
+
+	_handleMediaError() {
+		this.dispatchEvent(new CustomEvent('media-error', { composed: false }));
 	}
 
 	_handleMediaPlayerTimeJumped(event) {
