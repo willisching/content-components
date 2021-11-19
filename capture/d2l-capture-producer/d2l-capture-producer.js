@@ -555,6 +555,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				revisionId: revision.id,
 				locale,
 				draft: true,
+				adjusted: false,
 			});
 			this._captionsUrl = res.value;
 		} catch (error) {
@@ -821,6 +822,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				captionsVttText: convertVttCueArrayToVttText(this._captions),
 				revisionId: revision.id,
 				locale: this._selectedLanguage.code,
+				adjusted: false,
 			});
 		} else {
 			await this.apiClient.deleteCaptions({
