@@ -142,7 +142,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 		}
 
 		return html`
-			<d2l-labs-media-player style="width:100%">
+			<d2l-labs-media-player style="width:100%" media-type="${this._isAudio() ? 'audio' : 'video'}">
 				${this._mediaSources.map(mediaSource => this._renderSource(mediaSource))}
 			</d2l-labs-media-player>`;
 	}
