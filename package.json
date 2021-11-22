@@ -42,7 +42,6 @@
     "@brightspace-ui-labs/file-uploader": "^2",
     "@brightspace-ui-labs/media-player": "^2",
     "@brightspace-ui-labs/pagination": "^1",
-    "@brightspace-ui-labs/video-producer": "^0",
     "@brightspace-ui/core": "^1",
     "@brightspace-ui/intl": "^3",
     "@chaitin/querystring": "^1.1.0",
