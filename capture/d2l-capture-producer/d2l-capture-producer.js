@@ -38,6 +38,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			_finishing: { type: Boolean, attribute: false },
 			_languages: { type: Array, attribute: false },
 			_languageToLoad: { type: Object, attribute: false },
+			_mediaType: { type: String, attribute: false },
 			_metadata: { type: Object, attribute: false },
 			_metadataChanged: { type: Boolean, attribute: false },
 			_metadataLoading: { type: Boolean, attribute: false },
@@ -151,6 +152,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._selectedLanguage = null;
 		this._languageToLoad = {};
 		this._mediaLoaded = false;
+		this._mediaType = '';
+		this._attemptedReloadOnError = false;
 	}
 
 	async connectedCallback() {
@@ -169,7 +172,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	render() {
-		if (!this._selectedRevision) {
+		if (!this._selectedRevision || !this._src) {
 			return html`
 				<div class="d2l-video-producer">
 					${this._renderLoadingIndicator()}
@@ -216,7 +219,9 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 					?enableCutsAndChapters="${this._enableCutsAndChapters}"
 					.defaultLanguage="${this._defaultLanguage}"
 					.languages="${this._languages}"
+					@media-error="${this._handleMediaError}"
 					@media-loaded="${this._handleMediaLoaded}"
+					.mediaType="${this._mediaType}"
 					.metadata="${this._metadata}"
 					@metadata-changed="${this._handleMetadataChanged}"
 					?metadata-loading="${this._metadataLoading}"
@@ -411,6 +416,10 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		}
 	}
 
+	_getMediaType() {
+		return ['Video'].includes(this._selectedRevision?.type) ? 'video' : 'audio';
+	}
+
 	_handleCaptionsAutoGenerationStarted(event) {
 		this._finishRevision(event.detail.language);
 	}
@@ -459,8 +468,22 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this.shadowRoot.querySelector('.d2l-video-producer-dialog-confirm-finish').open();
 	}
 
-	_handleMediaLoaded() {
-		this._mediaLoaded = true;
+	async _handleMediaError() {
+		if (!this._attemptedReloadOnError) {
+			this._attemptedReloadOnError = true;
+			await this._loadMedia();
+		}
+	}
+
+	async _handleMediaLoaded() {
+		this._attemptedReloadOnError = false;
+
+		// The Media Player uses its <video> element to parse the captions data.
+		// Because of that, when a revision is loaded, we load captions in this event handler,
+		// which is only invoked once the editor has rendered and its Media Player is finished loading.
+		await this._loadCaptions(this._selectedRevision, this._selectedLanguage.code);
+		this._captionsChanged = false;
+
 	}
 
 	_handleMetadataChanged(event) {
@@ -583,7 +606,11 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			this._selectedRevisionIndex = this._revisionsLatestToOldest.findIndex(revision => revision.id === newSelectedRevisionId);
 		}
 
-		this._loadSelectedRevision();
+		try {
+			await this._loadSelectedRevision();
+		} catch (error) {
+			console.log(error);
+		}
 	}
 
 	async _loadContentAndRevisions() {
@@ -596,6 +623,14 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		if (this._revisionsLatestToOldest?.length === 0) {
 			throw new Error('Content object has no valid revisions');
 		}
+	}
+
+	async _loadMedia() {
+		const signedUrlResponse = await this.apiClient.getOriginalSignedUrlForRevision({
+			contentId: this.contentId,
+			revisionId: this._selectedRevision.id,
+		});
+		this._src = signedUrlResponse.value;
 	}
 
 	async _loadMetadata(revisionId) {
@@ -649,24 +684,21 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._captionsLoading = true;
 		this._metadataLoading = true;
 
-		this._src = '';
-		const signedUrlResponse = await this.apiClient.getOriginalSignedUrlForRevision({
-			contentId: this.contentId,
-			revisionId: this._selectedRevision.id,
-		});
-		this._src = signedUrlResponse.value;
+		// Clear captions data, to ensure stale data isn't displayed before we start loading the new captions.
+		this._captions = [];
+		this._captionsUrl = '';
 
-		// The Media Player uses its <video> element to parse the captions data.
-		// Because of that, we need to ensure the Media Player is finished loading before we load captions.
-		this._editor.mediaPlayer.addEventListener('loadeddata', () => {
-			this._loadCaptions(this._selectedRevision, this._selectedLanguage.code);
-		}, { once: true });
+		this._src = '';
+		this._mediaType = this._getMediaType();
+		await this._loadMedia();
 
 		if (this._enableCutsAndChapters) {
 			this._loadMetadata(this._selectedRevision.id);
 		} else {
 			this._metadataLoading = false;
 		}
+
+		// Captions are loaded in _handleMediaLoaded().
 
 		this._captionsChanged = false;
 		this._metadataChanged = false;

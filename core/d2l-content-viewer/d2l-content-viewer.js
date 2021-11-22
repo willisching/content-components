@@ -81,6 +81,7 @@ class ContentViewer extends LitElement {
 		return this._mediaSources && this._mediaSources.length > 0 && html`
 			<d2l-labs-media-player
 				crossorigin="anonymous"
+				media-type="${this._revision.type === ContentType.Video ? 'video' : 'audio'}"
 				@error=${this._onError}
 				@trackloadfailed=${this._onTrackLoadFailed}
 				@tracksmenuitemchanged=${this._onTracksChanged}
