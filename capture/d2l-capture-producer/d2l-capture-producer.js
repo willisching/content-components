@@ -476,6 +476,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	async _handleMediaLoaded() {
+		this._attemptedReloadOnError = false;
+
 		// The Media Player uses its <video> element to parse the captions data.
 		// Because of that, when a revision is loaded, we load captions in this event handler,
 		// which is only invoked once the editor has rendered and its Media Player is finished loading.
