@@ -172,7 +172,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	render() {
-		if (!this._selectedRevision) {
+		if (!this._selectedRevision || !this._src) {
 			return html`
 				<div class="d2l-video-producer">
 					${this._renderLoadingIndicator()}
@@ -475,9 +475,13 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		}
 	}
 
-	_handleMediaLoaded() {
-		this._attemptedReloadOnError = false;
-		this._mediaLoaded = true;
+	async _handleMediaLoaded() {
+		// The Media Player uses its <video> element to parse the captions data.
+		// Because of that, when a revision is loaded, we load captions in this event handler,
+		// which is only invoked once the editor has rendered and its Media Player is finished loading.
+		await this._loadCaptions(this._selectedRevision, this._selectedLanguage.code);
+		this._captionsChanged = false;
+
 	}
 
 	_handleMetadataChanged(event) {
@@ -600,7 +604,11 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			this._selectedRevisionIndex = this._revisionsLatestToOldest.findIndex(revision => revision.id === newSelectedRevisionId);
 		}
 
-		this._loadSelectedRevision();
+		try {
+			await this._loadSelectedRevision();
+		} catch (error) {
+			console.log(error);
+		}
 	}
 
 	async _loadContentAndRevisions() {
@@ -674,21 +682,21 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._captionsLoading = true;
 		this._metadataLoading = true;
 
+		// Clear captions data, to ensure stale data isn't displayed before we start loading the new captions.
+		this._captions = [];
+		this._captionsUrl = '';
+
 		this._src = '';
 		this._mediaType = this._getMediaType();
 		await this._loadMedia();
-
-		// The Media Player uses its <video> element to parse the captions data.
-		// Because of that, we need to ensure the Media Player is finished loading before we load captions.
-		this._editor.mediaPlayer.addEventListener('loadeddata', () => {
-			this._loadCaptions(this._selectedRevision, this._selectedLanguage.code);
-		}, { once: true });
 
 		if (this._enableCutsAndChapters) {
 			this._loadMetadata(this._selectedRevision.id);
 		} else {
 			this._metadataLoading = false;
 		}
+
+		// Captions are loaded in _handleMediaLoaded().
 
 		this._captionsChanged = false;
 		this._metadataChanged = false;
