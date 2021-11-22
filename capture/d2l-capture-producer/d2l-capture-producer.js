@@ -152,8 +152,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._selectedLanguage = null;
 		this._languageToLoad = {};
 		this._mediaLoaded = false;
-		this._mediaType = null;
-		this._attemptedReloadOnError  = false;
+		this._mediaType = '';
+		this._attemptedReloadOnError = false;
 	}
 
 	async connectedCallback() {
