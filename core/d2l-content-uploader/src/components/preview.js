@@ -6,6 +6,7 @@ import { bodyCompactStyles } from '@brightspace-ui/core/components/typography/st
 import { RequesterMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin';
+import { getComposedActiveElement } from '@brightspace-ui/core/helpers/focus.js';
 import { parse } from '../util/d2lrn';
 import '../../../../capture/d2l-capture-producer.js';
 import '../../../d2l-content-viewer.js';
@@ -110,12 +111,18 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 
 	async _onAdvancedEditing() {
 		const location = `/d2l/le/contentservice/producer/${this._contentId}/view`;
-		await D2L.LP.Web.UI.Legacy.MasterPages.DialogFullscreen.Open(
+		await D2L.LP.Web.UI.Desktop.MasterPages.Dialog.Open(
+			getComposedActiveElement(),
 			new D2L.LP.Web.Http.UrlLocation(location),
 			{
 				Onload: (handle) => {
-					handle.dialog.titleText = this.localize('advancedEditing');
-					handle.frame.setAttribute('scrolling', 'yes');
+					setTimeout(() => {
+						// making the dialog fullscreen
+						handle.dialog.style.width = 'calc(100% - 100px)';
+						handle.dialog.style.left = '50px';
+						handle.dialog.style.top = '50px';
+						handle.dialog.style.height = 'calc(100% - 50px)';
+					}, 500);
 				}
 			}
 		);
