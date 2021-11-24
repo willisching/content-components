@@ -111,6 +111,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 
 	async _onAdvancedEditing() {
 		const location = `/d2l/le/contentservice/producer/${this._contentId}/view`;
+
 		await D2L.LP.Web.UI.Desktop.MasterPages.Dialog.Open(
 			getComposedActiveElement(),
 			new D2L.LP.Web.Http.UrlLocation(location),
