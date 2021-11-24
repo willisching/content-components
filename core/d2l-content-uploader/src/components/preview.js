@@ -117,7 +117,6 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 			{
 				Onload: (handle) => {
 					setTimeout(() => {
-						// making the dialog fullscreen
 						handle.dialog.style.width = 'calc(100% - 100px)';
 						handle.dialog.style.left = '50px';
 						handle.dialog.style.top = '50px';
