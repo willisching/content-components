@@ -60,6 +60,22 @@ export default class HypermediaClient {
 		}
 	}
 
+	async getThumbnails(resourceEntity) {
+		if (!resourceEntity.hasActionByName('get-thumbnails')) {
+			return null;
+		}
+
+		try {
+			const getThumbnailsAction = resourceEntity.getActionByName('get-thumbnails');
+			const thumbnailsResponse = await this._fetch({ url: getThumbnailsAction.href });
+			const thumbnailsEntity = SirenParse(thumbnailsResponse);
+			return thumbnailsEntity.properties;
+		} catch (e) {
+			if (e.message !== 'Not Found') throw e;
+			return null;
+		}
+	}
+
 	async getResourceEntity() {
 		if (!this.entity.hasLinkByClass('content-service-resource')) {
 			return null;

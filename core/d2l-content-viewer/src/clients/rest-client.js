@@ -43,6 +43,12 @@ export default class ContentServiceClient {
 		});
 	}
 
+	getThumbnails() {
+		return this._fetch({
+			path: `/d2l/le/content/contentservice/resources/${this.orgUnitId}/topics/${this.topicId}/thumbnails`
+		});
+	}
+
 	async getRevision() {
 		return this._formatRevision(await this._fetch({
 			path: `/d2l/le/content/contentservice/resources/${this.orgUnitId}/topics/${this.topicId}/revision`
