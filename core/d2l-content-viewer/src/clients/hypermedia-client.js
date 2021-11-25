@@ -60,6 +60,26 @@ export default class HypermediaClient {
 		}
 	}
 
+	async getResourceEntity() {
+		if (!this.entity.hasLinkByClass('content-service-resource')) {
+			return null;
+		}
+
+		const { href } = this.entity.getLinkByClass('content-service-resource');
+		const resourceResponse = await this._fetch({ url: href });
+		const resourceEntity = SirenParse(resourceResponse);
+		return resourceEntity;
+	}
+	async getRevision(resourceEntity) {
+		if (!resourceEntity.hasActionByName('get-revision')) {
+			return null;
+		}
+
+		const getRevisionAction = resourceEntity.getActionByName('get-revision');
+		const getMediaResponse = await this._fetch({ url: getRevisionAction.href });
+		const mediaEntity = SirenParse(getMediaResponse);
+		return this._formatRevision(mediaEntity.properties);
+	}
 	async getThumbnails(resourceEntity) {
 		if (!resourceEntity.hasActionByName('get-thumbnails')) {
 			return null;
@@ -74,28 +94,6 @@ export default class HypermediaClient {
 			if (e.message !== 'Not Found') throw e;
 			return null;
 		}
-	}
-
-	async getResourceEntity() {
-		if (!this.entity.hasLinkByClass('content-service-resource')) {
-			return null;
-		}
-
-		const { href } = this.entity.getLinkByClass('content-service-resource');
-		const resourceResponse = await this._fetch({ url: href });
-		const resourceEntity = SirenParse(resourceResponse);
-		return resourceEntity;
-	}
-
-	async getRevision(resourceEntity) {
-		if (!resourceEntity.hasActionByName('get-revision')) {
-			return null;
-		}
-
-		const getRevisionAction = resourceEntity.getActionByName('get-revision');
-		const getMediaResponse = await this._fetch({ url: getRevisionAction.href });
-		const mediaEntity = SirenParse(getMediaResponse);
-		return this._formatRevision(mediaEntity.properties);
 	}
 
 	async _fetch({

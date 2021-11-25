@@ -146,20 +146,6 @@ class ContentViewer extends LitElement {
 		mediaPlayer.metadata = metadata;
 	}
 
-	async _loadThumbnails() {
-		const thumbnails = this.activity ? await this.hmClient.getThumbnails(this._resourceEntity)
-			: await this.client.getThumbnails();
-		if (!thumbnails) { 
-			return;
-		}
-		const mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
-		mediaPlayer.thumbnails = thumbnails.value;
-		mediaPlayer._thumbnailsImage = new Image();
-		mediaPlayer._thumbnailsImage.src = thumbnails.value;
-		this.requestUpdate();
-		await this.updateComplete;
-	}
-
 	async _loadRevisionData() {
 		if (this.activity) {
 			const revision = await this.hmClient.getRevision(this._resourceEntity);
@@ -176,6 +162,19 @@ class ContentViewer extends LitElement {
 		}
 
 		this._verifyContentType(this._revision.type);
+	}
+	async _loadThumbnails() {
+		const thumbnails = this.activity ? await this.hmClient.getThumbnails(this._resourceEntity)
+			: await this.client.getThumbnails();
+		if (!thumbnails) {
+			return;
+		}
+		const mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
+		mediaPlayer.thumbnails = thumbnails.value;
+		mediaPlayer._thumbnailsImage = new Image();
+		mediaPlayer._thumbnailsImage.src = thumbnails.value;
+		this.requestUpdate();
+		await this.updateComplete;
 	}
 
 	_onError() {
