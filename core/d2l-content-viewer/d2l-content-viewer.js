@@ -171,10 +171,6 @@ class ContentViewer extends LitElement {
 		}
 		const mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
 		mediaPlayer.thumbnails = thumbnails.value;
-		mediaPlayer._thumbnailsImage = new Image();
-		mediaPlayer._thumbnailsImage.src = thumbnails.value;
-		this.requestUpdate();
-		await this.updateComplete;
 	}
 
 	_onError() {
