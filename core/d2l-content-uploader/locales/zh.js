@@ -1,5 +1,6 @@
 export const val = {
 	addSelectedContentToCourse: '将选定内容添加到课程',
+	advancedEditing: '高级编辑',
 	audioLanguageLabel: '音频语言：',
 	autoGenerateCaptionsFromAudio: '从音频自动生成标题',
 	browse: '浏览...',
