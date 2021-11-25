@@ -170,7 +170,7 @@ class ContentViewer extends LitElement {
 			return;
 		}
 		const mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
-		mediaPlayer.thumbnails = thumbnails.value;
+		mediaPlayer.thumbnails = thumbnails.Value;
 	}
 
 	_onError() {
