@@ -70,7 +70,6 @@ export default class HypermediaClient {
 		const resourceEntity = SirenParse(resourceResponse);
 		return resourceEntity;
 	}
-
 	async getRevision(resourceEntity) {
 		if (!resourceEntity.hasActionByName('get-revision')) {
 			return null;
@@ -80,6 +79,21 @@ export default class HypermediaClient {
 		const getMediaResponse = await this._fetch({ url: getRevisionAction.href });
 		const mediaEntity = SirenParse(getMediaResponse);
 		return this._formatRevision(mediaEntity.properties);
+	}
+	async getThumbnails(resourceEntity) {
+		if (!resourceEntity.hasActionByName('get-thumbnails')) {
+			return null;
+		}
+
+		try {
+			const getThumbnailsAction = resourceEntity.getActionByName('get-thumbnails');
+			const thumbnailsResponse = await this._fetch({ url: getThumbnailsAction.href });
+			const thumbnailsEntity = SirenParse(thumbnailsResponse);
+			return thumbnailsEntity.properties;
+		} catch (e) {
+			if (e.message !== 'Not Found') throw e;
+			return null;
+		}
 	}
 
 	async _fetch({

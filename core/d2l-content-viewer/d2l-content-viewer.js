@@ -70,6 +70,7 @@ class ContentViewer extends LitElement {
 		await this._loadCaptions();
 		this._loadLocale();
 		await this._loadMetadata();
+		await this._loadThumbnails();
 
 		this.dispatchEvent(new CustomEvent('cs-content-loaded', {
 			bubbles: true,
@@ -161,6 +162,15 @@ class ContentViewer extends LitElement {
 		}
 
 		this._verifyContentType(this._revision.type);
+	}
+	async _loadThumbnails() {
+		const thumbnails = this.activity ? await this.hmClient.getThumbnails(this._resourceEntity)
+			: await this.client.getThumbnails();
+		if (!thumbnails) {
+			return;
+		}
+		const mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
+		mediaPlayer.thumbnails = thumbnails.Value;
 	}
 
 	_onError() {
