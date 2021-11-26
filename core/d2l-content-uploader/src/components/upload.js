@@ -113,7 +113,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 								@change=${this.onFileInputChange}
 							/>
 						</d2l-button>
-						<p id="file-size-limit" class="d2l-body-small">${this.localize('fileLimit', {localizedMaxFileSize: this.maxFileSizeInBytes})}</p>
+						<p id="file-size-limit" class="d2l-body-small">${this.localize('fileLimit', {localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes)})}</p>
 						${this.errorMessage ? html`<p id="error-message" class="d2l-body-compact">${this.errorMessage}&nbsp;</p>` : ''}
 					</div>
 				</file-drop>
