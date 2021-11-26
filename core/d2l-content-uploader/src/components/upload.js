@@ -2,6 +2,7 @@ import 'file-drop-element';
 import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/colors/colors.js';
 import '@brightspace-ui/core/components/inputs/input-checkbox.js';
+import { formatFileSize } from '@brightspace-ui/intl/lib/fileSize.js';
 import { bodyCompactStyles, bodySmallStyles, bodyStandardStyles, heading2Styles } from '@brightspace-ui/core/components/typography/styles.js';
 import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';
 import { inputLabelStyles } from '@brightspace-ui/core/components/inputs/input-label-styles.js';
@@ -80,6 +81,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 		super();
 		this._supportedMimeTypes = [];
 		this.enableFileDrop = false;
+		this.maxFileSizeInBytes = 1024 * 1024 * 1024 * 5; // 5GB
 	}
 
 	async connectedCallback() {
@@ -111,7 +113,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 								@change=${this.onFileInputChange}
 							/>
 						</d2l-button>
-						<p id="file-size-limit" class="d2l-body-small">${this.localize('fileLimit1Gb')}</p>
+						<p id="file-size-limit" class="d2l-body-small">${this.localize('fileLimit', {localizedMaxFileSize: this.maxFileSizeInBytes})}</p>
 						${this.errorMessage ? html`<p id="error-message" class="d2l-body-compact">${this.errorMessage}&nbsp;</p>` : ''}
 					</div>
 				</file-drop>
@@ -154,10 +156,10 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 			}));
 			return;
 		}
-		if (file.size > Math.pow(2, 30)) {
+		if (file.size > this.maxFileSizeInBytes) {
 			this.dispatchEvent(new CustomEvent('file-error', {
 				detail: {
-					message: this.localize('fileTooLarge')
+					message: this.localize('fileTooLarge', {localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes)})
 				},
 				bubbles: true,
 				composed: true
