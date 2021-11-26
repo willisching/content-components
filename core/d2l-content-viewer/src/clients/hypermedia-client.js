@@ -44,6 +44,24 @@ export default class HypermediaClient {
 		}));
 	}
 
+	async getMediaWithBestFormat({ resourceEntity, attachment = false }) {
+		if (!resourceEntity.hasActionByName('get-media')) {
+			return null;
+		}
+
+		const getMediaAction = resourceEntity.getActionByName('get-media');
+		const formatField = getMediaAction.getFieldByName('format');
+		const supportedFormats = formatField.value ? formatField.value.map(formatObject => formatObject.value && formatObject.value.toLowerCase()) : [];
+		const formatsBestFirst = [VideoFormat.HD.key, VideoFormat.SD.key, VideoFormat.LD.key, VideoFormat.MP3.key];
+		const bestFormat = formatsBestFirst.find(f => supportedFormats.includes(f.toLowerCase()));
+		const result = await this._fetch({ url: `${getMediaAction.href}?format=${bestFormat}&attachment=${attachment}` });
+
+		return {
+			src: result.properties.src,
+			expires: result.properties.expires * 1000
+		};
+	}
+
 	async getMetadata(resourceEntity) {
 		if (!resourceEntity.hasActionByName('get-metadata')) {
 			return null;

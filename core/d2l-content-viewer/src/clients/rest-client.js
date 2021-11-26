@@ -22,11 +22,12 @@ export default class ContentServiceClient {
 		});
 	}
 
-	async getDownloadUrl({format, href}) {
+	async getDownloadUrl({format, href, attachment}) {
 		const result = await this._fetch({
 			path: href || `/d2l/le/content/contentservice/resources/${this.orgUnitId}/topics/${this.topicId}/download`,
 			query: {
-				format: format ? format.value : undefined
+				format: format ? format.value : undefined,
+				attachment
 			},
 			doNotUseCache: false
 		});

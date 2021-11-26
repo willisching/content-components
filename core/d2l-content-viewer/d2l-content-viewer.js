@@ -5,11 +5,12 @@ import { css, html, LitElement } from 'lit-element/lit-element.js';
 import ContentServiceClient from './src/clients/rest-client.js';
 import HypermediaClient from './src/clients/hypermedia-client.js';
 import { VideoFormat, ContentType } from './src/clients/enums.js';
+import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
 
 const TRACK_ERROR_FETCH_INTERVAL_MILLISECONDS = 5000;
 const VALID_CONTENT_TYPES = [ContentType.Video, ContentType.Audio];
 
-class ContentViewer extends LitElement {
+class ContentViewer extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
 			_mediaSources: { type: Array, attribute: false },
@@ -68,6 +69,7 @@ class ContentViewer extends LitElement {
 		await this._loadRevisionData();
 		await this._loadMedia();
 		await this._loadCaptions();
+		this._setupDownload();
 		this._loadLocale();
 		await this._loadMetadata();
 		await this._loadThumbnails();
@@ -86,12 +88,28 @@ class ContentViewer extends LitElement {
 				@error=${this._onError}
 				@trackloadfailed=${this._onTrackLoadFailed}
 				@tracksmenuitemchanged=${this._onTracksChanged}
-				?allow-download=${this.allowDownload}
 				?allow-download-on-error=${this.allowDownloadOnError}>
 				${this._mediaSources.map(mediaSource => this._renderMediaSource(mediaSource))}
 				${this._captionSignedUrls.map(captionSignedUrl => this._renderCaptionsTrack(captionSignedUrl))}
+				${this.allowDownload ? html`<d2l-menu-item slot='settings-menu-item' id='download-menu-item' text=${this.localize('download')}></d2l-menu-item>` : ''}
 			</d2l-labs-media-player>
 		`;
+	}
+
+	async _download() {
+		let downloadUrl = '';
+		if (this.activity) {
+			downloadUrl = await this.hmClient.getMediaWithBestFormat({resourceEntity: this._resourceEntity, attachment: true});
+		} else {
+			downloadUrl = await this.client.getDownloadUrl({attachment: true});
+		}
+
+		if (downloadUrl) {
+			const anchor = document.createElement('a');
+			anchor.href = downloadUrl.src;
+			anchor.download = '';
+			anchor.click();
+		}
 	}
 
 	async _getMediaSource(format) {
@@ -212,6 +230,15 @@ class ContentViewer extends LitElement {
 
 	_renderMediaSource(source) {
 		return html`<source src=${source.src} label=${source.format} ?default=${source.format === VideoFormat.HD}>`;
+	}
+
+	_setupDownload() {
+		if (this.allowDownload) {
+			const downloadMenuItem = this.shadowRoot.querySelector('#download-menu-item');
+			if (downloadMenuItem) {
+				downloadMenuItem.addEventListener('d2l-menu-item-select', this._download.bind(this));
+			}
+		}
 	}
 
 	async _verifyContentType(type) {
