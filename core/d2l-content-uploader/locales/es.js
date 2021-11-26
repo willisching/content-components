@@ -1,5 +1,6 @@
 export const val = {
 	addSelectedContentToCourse: 'Agregue el contenido seleccionado al curso',
+	advancedEditing: 'Edición avanzada',
 	audioLanguageLabel: 'Idioma del audio:',
 	autoGenerateCaptionsFromAudio: 'Generar subtítulos automáticamente desde el audio',
 	browse: 'Examinar…',

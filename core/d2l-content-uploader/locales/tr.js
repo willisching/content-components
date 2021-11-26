@@ -1,10 +1,11 @@
 export const val = {
 	addSelectedContentToCourse: 'Seçtiğiniz içeriği derse ekleyin',
+	advancedEditing: 'Gelişmiş Düzenleme',
 	audioLanguageLabel: 'Ses Dili:',
 	autoGenerateCaptionsFromAudio: 'Sesten otomatik olarak alt yazı oluşturun',
 	browse: 'Gözat...',
 	browseForFile: 'Yüklenecek dosyayı bilgisayarınızda arayın',
-	cancel: 'İptal',
+	cancel: 'İptal et',
 	changeFile: 'Dosya Değiştir',
 	closeDialog: 'Bu iletişim kutusunu kapat',
 	dropAudioVideoFile: 'Video veya ses dosyanızı yüklemek için buraya sürükleyin',

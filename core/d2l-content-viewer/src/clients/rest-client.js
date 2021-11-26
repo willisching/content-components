@@ -48,6 +48,11 @@ export default class ContentServiceClient {
 			path: `/d2l/le/content/contentservice/resources/${this.orgUnitId}/topics/${this.topicId}/revision`
 		}));
 	}
+	getThumbnails() {
+		return this._fetch({
+			path: `/d2l/le/content/contentservice/resources/${this.orgUnitId}/topics/${this.topicId}/thumbnails`
+		});
+	}
 
 	async _fetch({
 		path,

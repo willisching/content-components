@@ -1,5 +1,6 @@
 export const val = {
 	addSelectedContentToCourse: 'Føj dit valgte indhold til kurset',
+	advancedEditing: 'Avanceret redigering',
 	audioLanguageLabel: 'Lydsprog:',
 	autoGenerateCaptionsFromAudio: 'Generér automatisk billedtekster fra lyd',
 	browse: 'Gennemse ...',

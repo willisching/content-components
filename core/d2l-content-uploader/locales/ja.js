@@ -1,5 +1,6 @@
 export const val = {
 	addSelectedContentToCourse: '選択したコンテンツをコースに追加します',
+	advancedEditing: '高度な編集',
 	audioLanguageLabel: '音声の言語:',
 	autoGenerateCaptionsFromAudio: '音声からキャプションを自動的に生成',
 	browse: '参照...',
