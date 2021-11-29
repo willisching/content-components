@@ -17,7 +17,7 @@ const constants = {
 	get CANVAS_HEIGHT() {
 		return constants.TIMELINE_OFFSET_Y + constants.TIMELINE_HEIGHT_MIN + constants.ZOOM_HANDLE_HEIGHT + constants.TIME_TEXT_BORDER_HEIGHT + constants.ZOOM_HANDLE_MAX_DEPTH + constants.TIMELINE_OFFSET_Y;
 	},
-	CANVAS_WIDTH: 985,
+	CANVAS_WIDTH: 958,
 
 	// Captions
 	ADD_NEW_CUE_KEY_CODE: 13, // 13 is the "Enter" key in Javascript
