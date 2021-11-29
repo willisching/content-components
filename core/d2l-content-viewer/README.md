@@ -14,7 +14,7 @@
 > - [ ] Demo page
 > - [ ] README documentation
 
-Media player for content in the content service
+Media player for content in the Content Service
 
 ## Installation
 
