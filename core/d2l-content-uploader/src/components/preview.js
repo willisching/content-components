@@ -117,10 +117,10 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 			{
 				Onload: (handle) => {
 					setTimeout(() => {
-						handle.dialog.style.width = 'calc(100% - 100px)';
-						handle.dialog.style.left = '50px';
+						handle.dialog.style.width = 'calc(100% - 50px)';
+						handle.dialog.style.left = '25px';
 						handle.dialog.style.top = `calc(${handle.win.top.scrollY}px + 50px)`;
-						handle.dialog.style.height = 'calc(100% - 60px)';
+						handle.dialog.style.height = 'calc(100% - 50px)';
 					}, 500);
 				}
 			}
