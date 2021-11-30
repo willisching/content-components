@@ -8,12 +8,10 @@ d2lfetch.use({ name: 'auth', fn: auth });
 export default class ContentServiceClient {
 	constructor({
 		endpoint,
-		tenantId,
-		orgUnitId
+		tenantId
 	}) {
 		this.endpoint = endpoint;
 		this.tenantId = tenantId;
-		this.orgUnitId = orgUnitId;
 	}
 
 	createContent(body) {
@@ -118,16 +116,10 @@ export default class ContentServiceClient {
 		query,
 		body,
 		extractJsonBody = true,
-		headers = new Headers(),
-		appendOrgUnitIdQuery = true,
+		headers = new Headers()
 	}) {
 		if (body) {
 			headers.append('Content-Type', 'application/json');
-		}
-
-		let queryToUse = query;
-		if (appendOrgUnitIdQuery) {
-			queryToUse = {...query, ...this.orgUnitId && {checkAccessToOrgUnitId: this.orgUnitId}};
 		}
 
 		const requestInit = {
@@ -137,7 +129,7 @@ export default class ContentServiceClient {
 			},
 			headers
 		};
-		const request = new Request(this._url(path, queryToUse), requestInit);
+		const request = new Request(this._url(path, query), requestInit);
 
 		const response = await d2lfetch.fetch(request);
 		if (!response.ok) {
