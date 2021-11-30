@@ -44,6 +44,10 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 				word-break: break-word;
 				overflow-wrap: break-word;
 			}
+			#change-file-button[hidden],
+			#advanced-editing-button[hidden] {
+				display: none;
+			}
 		`];
 	}
 
@@ -72,7 +76,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 		return html`
 			<div id="container">
 				${this._renderPreviewPlayer()}
-				<div id="staged-file" ?hidden=${!(this.canUpload || this.canManage)}>
+				<div id="staged-file">
 					<d2l-button-subtle
 						id="change-file-button"
 						aria-expanded="false"
