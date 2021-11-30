@@ -22,11 +22,13 @@ export class Main extends MobxReactionUpdate(ProviderMixin(LitElement)) {
 	static get properties() {
 		return {
 			apiEndpoint: { type: String, attribute: 'api-endpoint' },
-			tenantId: { type: String, attribute: 'tenant-id' },
+			canManage: { type: Boolean, attribute: 'can-manage' },
+			canUpload: { type: Boolean, attribute: 'can-upload' },
 			orgUnitId: { type: String, attribute: 'org-unit-id' },
+			tenantId: { type: String, attribute: 'tenant-id' },
 			topicId: { type: String, attribute: 'topic-id' },
-			value: { type: String, reflect: true },
 			filename: { type: String, reflect: true },
+			value: { type: String, reflect: true },
 
 			_currentView: { type: Number, attribute: false },
 			_errorMessage: { type: String, attribute: false },
@@ -91,7 +93,8 @@ export class Main extends MobxReactionUpdate(ProviderMixin(LitElement)) {
 				return html`<d2l-loading-spinner></d2l-loading-spinner>`;
 
 			case VIEW.UPLOAD:
-				view = html`
+				// should happen if the user has canManage permission otherwise we should
+				view = this.canUpload ? html`
 					<d2l-content-uploader-upload
 						id="prompt-with-file-drop-enabled"
 						error-message=${this._errorMessage}
@@ -99,11 +102,13 @@ export class Main extends MobxReactionUpdate(ProviderMixin(LitElement)) {
 						@file-change=${this.onFileChange}
 						@file-error=${this.onUploadError}>
 					</d2l-content-uploader-upload>
-					`;
+					` : html`<d2l-loading-spinner></d2l-loading-spinner>`;
 				break;
 			case VIEW.PREVIEW:
 				view = html`
 					<d2l-content-uploader-preview
+						?can-manage=${this.canManage}
+						?can-upload=${this.canUpload}
 						file-type=${this._fileType}
 						resource=${this.value}
 						@cancel=${this.onDiscardStagedFile}
@@ -146,6 +151,7 @@ export class Main extends MobxReactionUpdate(ProviderMixin(LitElement)) {
 		this._currentView = VIEW.UPLOAD;
 		this.updateValue('');
 		this.topicId = '';
+		this.canManage = this.canUpload;
 	}
 
 	onFileChange(event) {

@@ -9,7 +9,6 @@ export const val = {
 	changeFile: 'Change File',
 	closeDialog: 'Close this dialog',
 	dropAudioVideoFile: 'Drop your video or audio file here to upload',
-	fileLimit: 'You can upload files up to a maximum of {localizedMaxFileSize}.',
 	fileTooLarge: 'File size is larger than {localizedMaxFileSize}.',
 	formatHD: 'HD',
 	formatLD: 'LD',
