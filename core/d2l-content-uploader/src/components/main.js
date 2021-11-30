@@ -107,8 +107,8 @@ export class Main extends MobxReactionUpdate(ProviderMixin(LitElement)) {
 			case VIEW.PREVIEW:
 				view = html`
 					<d2l-content-uploader-preview
-						can-manage=${this.canManage}
-						can-upload=${this.canUpload}
+						?can-manage=${this.canManage}
+						?can-upload=${this.canUpload}
 						file-type=${this._fileType}
 						resource=${this.value}
 						@cancel=${this.onDiscardStagedFile}
