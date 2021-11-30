@@ -16,7 +16,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 		return {
 			_mediaSources: { type: Array, attribute: false },
 			_captionSignedUrls: { type: Array, attribute: false },
-			_metadata: { type: Object, attribute: false },
+			_metadata: { type: String, attribute: false },
 			_thumbnails: { type: String, attribute: false },
 			activity: { type: String, attribute: 'activity' },
 			allowDownload: { type: Boolean, attribute: 'allow-download'},
