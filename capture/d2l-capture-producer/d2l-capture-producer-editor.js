@@ -5,8 +5,10 @@ import '@brightspace-ui/core/components/colors/colors.js';
 import '@brightspace-ui/core/components/dialog/dialog-confirm.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-button-subtle.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-menu.js';
+import '@brightspace-ui/core/components/icons/icon.js';
 import '@brightspace-ui/core/components/tabs/tabs.js';
 import '@brightspace-ui/core/components/tabs/tab-panel.js';
+import '@brightspace-ui/core/components/tooltip/tooltip.js';
 import '@brightspace-ui-labs/media-player/media-player.js';
 import './src/d2l-video-producer-language-selector.js';
 import './src/d2l-video-producer-captions.js';
@@ -77,12 +79,28 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 				display: inline-flex;
 				height: 90px;
 				justify-content: center;
+				margin-top: 8px;
 				vertical-align: top;
 				width: 170px;
 			}
 
-			.d2l-video-producer-timeline-controls d2l-button-icon {
-				margin: 0 4px;
+			.d2l-video-producer-timeline-mode-button input[type="radio"] {
+				display: none;
+			}
+
+			.d2l-video-producer-timeline-mode-button label {
+				border-radius: 8px;
+				margin: 0 5px 0 5px;
+				padding: 12px;
+			}
+
+			.d2l-video-producer-timeline-mode-button input[type="radio"]:hover + label {
+				background-color: var(--d2l-color-gypsum);
+				cursor: pointer;
+			}
+
+			.d2l-video-producer-timeline-mode-button input[type="radio"]:checked + label {
+				background-color: var(--d2l-color-gypsum);
 			}
 
 			#timeline-canvas {
@@ -249,9 +267,27 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 							</div>
 						</div>
 						<div class="d2l-video-producer-timeline-controls">
-							<d2l-button-icon @click="${this._changeToSeekMode}" text="${this.localize(constants.CONTROL_MODES.SEEK)}" icon="tier1:arrow-thin-up"></d2l-button-icon>
-							<d2l-button-icon @click="${this._changeToMarkMode}" text="${this.localize(constants.CONTROL_MODES.MARK)}" icon="tier1:divider-solid"></d2l-button-icon>
-							<d2l-button-icon @click="${this._changeToCutMode}" text="${this.localize(constants.CONTROL_MODES.CUT)}" icon="html-editor:cut"></d2l-button-icon>
+							<div class="d2l-video-producer-timeline-mode-button">
+								<input type="radio" name="d2l-video-producer-timeline-mode" id="d2l-video-producer-seek-button" />
+								<label for="d2l-video-producer-seek-button" @click="${this._changeToSeekMode}" id="d2l-video-producer-seek-button-label">
+									<d2l-icon id="d2l-video-producer-seek-button-icon" icon="tier1:arrow-thin-up"></d2l-icon>
+									<d2l-tooltip for="d2l-video-producer-seek-button-label" delay="500">${this.localize(constants.CONTROL_MODES.SEEK)}</d2l-tooltip>
+								</label>
+							</div>
+							<div class="d2l-video-producer-timeline-mode-button">
+								<input type="radio" name="d2l-video-producer-timeline-mode" id="d2l-video-producer-mark-button" />
+								<label for="d2l-video-producer-mark-button" @click="${this._changeToMarkMode}" id="d2l-video-producer-mark-button-label">
+									<d2l-icon id="d2l-video-producer-mark-button-icon" icon="tier1:divider-solid"></d2l-icon>
+									<d2l-tooltip for="d2l-video-producer-mark-button-label" delay="500">${this.localize(constants.CONTROL_MODES.MARK)}</d2l-tooltip>
+								</label>
+							</div>
+							<div class="d2l-video-producer-timeline-mode-button">
+								<input type="radio" name="d2l-video-producer-timeline-mode" id="d2l-video-producer-cut-button" />
+								<label for="d2l-video-producer-cut-button" @click="${this._changeToCutMode}" id="d2l-video-producer-cut-button-label">
+									<d2l-icon id="d2l-video-producer-cut-button-icon" icon="html-editor:cut"></d2l-icon>
+									<d2l-tooltip for="d2l-video-producer-cut-button-label" delay="500">${this.localize(constants.CONTROL_MODES.CUT)}</d2l-tooltip>
+								</label>
+							</div>
 						</div>
 					</div>
 				` : '')}
