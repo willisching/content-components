@@ -207,6 +207,7 @@ class DemoVideoProducer extends LitElement {
 					.defaultLanguage="${this.defaultLanguage}"
 					?enableCutsAndChapters="${this._videoSelected}"
 					.languages="${this.languages}"
+					.mediaType="${this._videoSelected ? 'video' : 'audio'}"
 					.metadata="${this.metadata}"
 					?metadata-loading="${this._metadataLoading}"
 					@metadata-changed="${this._handleMetadataChanged}"
