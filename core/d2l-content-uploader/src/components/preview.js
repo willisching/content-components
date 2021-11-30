@@ -14,9 +14,11 @@ import '../../../d2l-content-viewer.js';
 export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
 		return {
+			canManage: { type: Boolean, attribute: 'can-manage' },
+			canUpload: { type: Boolean, attribute: 'can-upload' },
 			fileType: { type: String, attribute: 'file-type', reflect: true },
-			resource: { type: String, attribute: true },
 			orgUnitId: { type: String, attribute: 'org-unit-id' },
+			resource: { type: String, attribute: true },
 			topicId: { type: String, attribute: 'topic-id' },
 			_mediaSources: { type: Array, attribute: false },
 		};
@@ -70,14 +72,15 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 		return html`
 			<div id="container">
 				${this._renderPreviewPlayer()}
-				<div id="staged-file">
+				<div id="staged-file" ?hidden=${!(this.canUpload || this.canManage)}>
 					<d2l-button-subtle
 						id="change-file-button"
 						aria-expanded="false"
 						aria-haspopup="false"
 						aria-label=${this.localize('changeFile')}
 						text=${this.localize('changeFile')}
-						@click=${this._onChangeFile}>
+						@click=${this._onChangeFile}
+						?hidden="${!this.canUpload}">
 					</d2l-button-subtle>
 					<d2l-button-subtle
 						id="advanced-editing-button"
@@ -85,7 +88,8 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 						aria-haspopup="false"
 						aria-label=${this.localize('advancedEditing')}
 						text=${this.localize('advancedEditing')}
-						@click=${this._onAdvancedEditing}>
+						@click=${this._onAdvancedEditing}
+						?hidden="${!this.canManage}">
 					</d2l-button-subtle>
 				</div>
 			</div>
