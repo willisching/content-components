@@ -132,13 +132,13 @@ export class Main extends MobxReactionUpdate(ProviderMixin(LitElement)) {
 					this._errorMessage = this.localize('workerErrorCancelUploadFailed');
 				})
 				.finally(() => {
-					this._uploader.reset();
 					this.onDiscardStagedFile();
 				});
 		}
 	}
 
 	onDiscardStagedFile() {
+		this._uploader.reset();
 		this._file = undefined;
 		this._fileName = '';
 		this._fileSize = 0;
