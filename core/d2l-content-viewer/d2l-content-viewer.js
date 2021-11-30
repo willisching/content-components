@@ -1,6 +1,7 @@
 import '@brightspace-ui-labs/media-player/media-player.js';
 import { getDocumentLocaleSettings } from '@brightspace-ui/intl/lib/common.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
+import { ifDefined } from 'lit-html/directives/if-defined.js';
 
 import ContentServiceClient from './src/clients/rest-client.js';
 import HypermediaClient from './src/clients/hypermedia-client.js';
@@ -15,6 +16,8 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 		return {
 			_mediaSources: { type: Array, attribute: false },
 			_captionSignedUrls: { type: Array, attribute: false },
+			_metadata: { type: Object, attribute: false },
+			_thumbnails: { type: String, attribute: false },
 			activity: { type: String, attribute: 'activity' },
 			allowDownload: { type: Boolean, attribute: 'allow-download'},
 			allowDownloadOnError: { type: Boolean, attribute: 'allow-download-on-error' },
@@ -48,6 +51,8 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 		this._trackErrorFetchTimeoutId = null;
 		this._revision = null;
 		this._lastRefreshAttempted = null;
+		this._thumbnails = null;
+		this._metadata = null;
 	}
 
 	async firstUpdated() {
@@ -71,8 +76,11 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 		await this._loadCaptions();
 		this._setupDownload();
 		this._loadLocale();
-		await this._loadMetadata();
-		await this._loadThumbnails();
+
+		if (this._revision.type === ContentType.Video) {
+			await this._loadMetadata();
+			await this._loadThumbnails();
+		}
 
 		this.dispatchEvent(new CustomEvent('cs-content-loaded', {
 			bubbles: true,
@@ -85,6 +93,8 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 			<d2l-labs-media-player
 				crossorigin="anonymous"
 				media-type="${this._revision.type === ContentType.Video ? 'video' : 'audio'}"
+				metadata=${ifDefined(this._metadata ? this._metadata : undefined)}
+				thumbnails=${ifDefined(this._thumbnails ? this._thumbnails : undefined)}
 				@error=${this._onError}
 				@trackloadfailed=${this._onTrackLoadFailed}
 				@tracksmenuitemchanged=${this._onTracksChanged}
@@ -156,12 +166,11 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	async _loadMetadata() {
-		const metadata = this.activity ? await this.hmClient.getMetadata(this._resourceEntity)
+		const result = this.activity ? await this.hmClient.getMetadata(this._resourceEntity)
 			: await this.client.getMetadata();
-
-		if (!metadata) return;
-		const mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
-		mediaPlayer.metadata = metadata;
+		if (result) {
+			this._metadata = JSON.stringify(result);
+		}
 	}
 
 	async _loadRevisionData() {
@@ -181,14 +190,13 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 
 		this._verifyContentType(this._revision.type);
 	}
+
 	async _loadThumbnails() {
-		const thumbnails = this.activity ? await this.hmClient.getThumbnails(this._resourceEntity)
+		const result = this.activity ? await this.hmClient.getThumbnails(this._resourceEntity)
 			: await this.client.getThumbnails();
-		if (!thumbnails) {
-			return;
+		if (result) {
+			this._thumbnails = result.Value;
 		}
-		const mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
-		mediaPlayer.thumbnails = thumbnails.Value;
 	}
 
 	_onError() {
