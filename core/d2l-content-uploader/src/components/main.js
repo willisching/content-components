@@ -143,15 +143,17 @@ export class Main extends MobxReactionUpdate(ProviderMixin(LitElement)) {
 	}
 
 	onDiscardStagedFile() {
-		this._uploader.reset();
-		this._file = undefined;
-		this._fileName = '';
-		this._fileSize = 0;
-		this._fileType = '';
-		this._currentView = VIEW.UPLOAD;
-		this.updateValue('');
-		this.topicId = '';
-		this.canManage = this.canUpload;
+		if (this.canUpload) {
+			this._uploader.reset();
+			this._file = undefined;
+			this._fileName = '';
+			this._fileSize = 0;
+			this._fileType = '';
+			this._currentView = VIEW.UPLOAD;
+			this.updateValue('');
+			this.topicId = '';
+			this.canManage = this.canUpload;
+		}
 	}
 
 	onFileChange(event) {
