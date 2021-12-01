@@ -60,8 +60,7 @@ export class Main extends MobxReactionUpdate(ProviderMixin(LitElement)) {
 
 		const apiClient = new ContentServiceClient({
 			endpoint: this.apiEndpoint,
-			tenantId: this.tenantId,
-			orgUnitId: this.orgUnitId
+			tenantId: this.tenantId
 		});
 		this.provideInstance('content-service-client', apiClient);
 
