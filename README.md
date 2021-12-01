@@ -16,7 +16,6 @@ A collection of components used for content in Brightspace.
 ### Capture
 * [d2l-capture-producer](capture/d2l-capture-producer)
 
-
 ## Developing, Testing and Contributing
 
 After cloning the repo, run `npm install` to install dependencies.
@@ -41,7 +40,7 @@ To run both linting and unit tests:
 npm test
 ```
 
-## Versioning & Releasing 
+## Versioning & Releasing
 
 > TL;DR: Commits prefixed with `fix:` and `feat:` will trigger patch and minor releases when merged to `main`. Read on for more details...
 
