@@ -185,6 +185,7 @@ export class Main extends MobxReactionUpdate(ProviderMixin(LitElement)) {
 
 	reactToUploadSuccess(value) {
 		this.updateValue(value);
+		this.canManage = this.canUpload;
 		this._currentView = VIEW.PREVIEW;
 	}
 
