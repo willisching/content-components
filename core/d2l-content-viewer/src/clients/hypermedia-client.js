@@ -73,7 +73,7 @@ export default class HypermediaClient {
 			const metadataEntity = SirenParse(metadataResponse);
 			return metadataEntity.properties;
 		} catch (e) {
-			if (e.code != 404) throw e;
+			if (e.code !== 404) throw e;
 			return null;
 		}
 	}
@@ -111,7 +111,7 @@ export default class HypermediaClient {
 			const thumbnailsEntity = SirenParse(thumbnailsResponse);
 			return thumbnailsEntity.properties;
 		} catch (e) {
-			if (e.code != 404) throw e;
+			if (e.code !== 404) throw e;
 			return null;
 		}
 	}
