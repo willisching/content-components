@@ -29,7 +29,12 @@ export class S3Uploader {
 	async upload() {
 		const { file, key } = this;
 		const signResult = await this.signRequest({ file, key });
-		return new Promise((resolve, reject) => {
+		let resolve, reject;
+		const promise = new Promise((res, rej) => {
+			resolve = res;
+			reject = rej;
+		});
+		const run = async() => {
 			const xhr = this.createRequest('PUT', signResult.signedUrl);
 			xhr.addEventListener('load', () => {
 				if (xhr.status >= 200 && xhr.status <= 299) {
@@ -39,7 +44,9 @@ export class S3Uploader {
 				}
 			});
 			xhr.addEventListener('error', () => {
-				reject(new Error(`XHR error for ${file.name}: ${xhr.status} ${xhr.statusText}`));
+				setTimeout(() => {
+					run();
+				}, 5000);
 			});
 			xhr.upload.addEventListener('progress', event => {
 				if (event.lengthComputable) {
@@ -60,7 +67,10 @@ export class S3Uploader {
 			this.httprequest = xhr;
 			xhr.onload = () => resolve(xhr.response);
 			xhr.send(file);
-		});
+		};
+
+		run();
+		return promise;
 	}
 
 	_getErrorRequestContext(xhr) {
