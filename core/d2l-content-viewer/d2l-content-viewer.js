@@ -192,10 +192,12 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	async _loadThumbnails() {
-		const result = this.activity ? await this.hmClient.getThumbnails(this._resourceEntity)
-			: await this.client.getThumbnails();
-		if (result) {
-			this._thumbnails = result.Value;
+		if (this.activity) {
+			const result = await this.hmClient.getThumbnails(this._resourceEntity);
+			if (result) this._thumbnails = result.value;
+		} else {
+			const result = await this.client.getThumbnails();
+			if (result) this._thumbnails = result.Value;
 		}
 	}
 

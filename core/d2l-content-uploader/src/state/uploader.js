@@ -1,20 +1,7 @@
 import { action, decorate, flow, observable } from 'mobx';
 import resolveWorkerError from '../util/resolve-worker-error';
 import { S3Uploader } from '../util/s3-uploader';
-
-const randomizeDelay = (delay = 30000, range = 5000) => {
-	const low = delay - range;
-	const random = Math.round(Math.random() * range * 2);
-	return low + random;
-};
-
-const sleep = async(delay = 0) => {
-	await new Promise(resolve => {
-		setTimeout(() => {
-			resolve();
-		}, delay);
-	});
-};
+import { randomizeDelay, sleep } from '../util/delay';
 
 export class Uploader {
 	constructor({ apiClient, onSuccess, onError }) {

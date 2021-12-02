@@ -73,7 +73,7 @@ export default class HypermediaClient {
 			const metadataEntity = SirenParse(metadataResponse);
 			return metadataEntity.properties;
 		} catch (e) {
-			if (e.message !== 'Not Found') throw e;
+			if (e.code !== 404) throw e;
 			return null;
 		}
 	}
@@ -88,6 +88,7 @@ export default class HypermediaClient {
 		const resourceEntity = SirenParse(resourceResponse);
 		return resourceEntity;
 	}
+
 	async getRevision(resourceEntity) {
 		if (!resourceEntity.hasActionByName('get-revision')) {
 			return null;
@@ -98,6 +99,7 @@ export default class HypermediaClient {
 		const mediaEntity = SirenParse(getMediaResponse);
 		return this._formatRevision(mediaEntity.properties);
 	}
+
 	async getThumbnails(resourceEntity) {
 		if (!resourceEntity.hasActionByName('get-thumbnails')) {
 			return null;
@@ -109,7 +111,7 @@ export default class HypermediaClient {
 			const thumbnailsEntity = SirenParse(thumbnailsResponse);
 			return thumbnailsEntity.properties;
 		} catch (e) {
-			if (e.message !== 'Not Found') throw e;
+			if (e.code !== 404) throw e;
 			return null;
 		}
 	}
@@ -143,7 +145,9 @@ export default class HypermediaClient {
 		const request = new Request(this._url(url, query), requestInit);
 		const response = await this.d2lfetch.fetch(request);
 		if (!response.ok) {
-			throw new Error(response.statusText);
+			const err = new Error(response.statusText);
+			err.code = response.status;
+			throw err;
 		}
 
 		if (extractJsonBody) {
