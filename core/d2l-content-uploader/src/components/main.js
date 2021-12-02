@@ -2,6 +2,7 @@ import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
 import ContentServiceClient from '../util/content-service-client';
 import UserBrightspaceClient from '../util/user-brightspace-client.js';
+import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin.js';
 import { ProviderMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { Uploader } from '../state/uploader';
@@ -18,7 +19,7 @@ const VIEW = Object.freeze({
 	LOADING: 'LOADING'
 });
 
-export class Main extends MobxReactionUpdate(ProviderMixin(LitElement)) {
+export class Main extends InternalLocalizeMixin(MobxReactionUpdate(ProviderMixin(LitElement))) {
 	static get properties() {
 		return {
 			apiEndpoint: { type: String, attribute: 'api-endpoint' },
