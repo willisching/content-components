@@ -695,7 +695,7 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 		}
 
 		if (activeCueListItem) {
-			activeCueListItem.scrollIntoView();
+			activeCueListItem.scrollIntoView({block: 'nearest', inline: 'nearest'});
 		}
 	}
 
