@@ -52,9 +52,11 @@ export class Uploader {
 				return;
 			}
 		} catch (error) {
-			this.onError(resolveWorkerError(error));
-			this.s3Uploader = undefined;
-			return;
+			if (error.cause > 399 && error.cause < 500) {
+				this.onError(resolveWorkerError(error));
+				this.s3Uploader = undefined;
+				return;
+			}
 		}
 
 		await sleep(randomizeDelay(5000, 1000));
