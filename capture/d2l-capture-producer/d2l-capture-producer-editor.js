@@ -269,21 +269,36 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 						</div>
 						<div class="d2l-video-producer-timeline-controls">
 							<div class="d2l-video-producer-timeline-mode-button">
-								<input type="radio" name="d2l-video-producer-timeline-mode" id="d2l-video-producer-seek-button" />
+								<input
+									type="radio"
+									name="d2l-video-producer-timeline-mode"
+									id="d2l-video-producer-seek-button"
+									?checked="${this._controlMode === constants.CONTROL_MODES.SEEK}"
+									/>
 								<label for="d2l-video-producer-seek-button" @click="${this._changeToSeekMode}" id="d2l-video-producer-seek-button-label">
 									<d2l-icon id="d2l-video-producer-seek-button-icon" icon="tier1:arrow-thin-up"></d2l-icon>
 									<d2l-tooltip for="d2l-video-producer-seek-button-label" delay="500">${this.localize(constants.CONTROL_MODES.SEEK)}</d2l-tooltip>
 								</label>
 							</div>
 							<div class="d2l-video-producer-timeline-mode-button">
-								<input type="radio" name="d2l-video-producer-timeline-mode" id="d2l-video-producer-mark-button" />
+								<input
+									type="radio"
+									name="d2l-video-producer-timeline-mode"
+									id="d2l-video-producer-mark-button"
+									?checked="${this._controlMode === constants.CONTROL_MODES.MARK}"
+									/>
 								<label for="d2l-video-producer-mark-button" @click="${this._changeToMarkMode}" id="d2l-video-producer-mark-button-label">
 									<d2l-icon id="d2l-video-producer-mark-button-icon" icon="tier1:divider-solid"></d2l-icon>
 									<d2l-tooltip for="d2l-video-producer-mark-button-label" delay="500">${this.localize(constants.CONTROL_MODES.MARK)}</d2l-tooltip>
 								</label>
 							</div>
 							<div class="d2l-video-producer-timeline-mode-button">
-								<input type="radio" name="d2l-video-producer-timeline-mode" id="d2l-video-producer-cut-button" />
+								<input
+									type="radio"
+									name="d2l-video-producer-timeline-mode"
+									id="d2l-video-producer-cut-button"
+									?checked="${this._controlMode === constants.CONTROL_MODES.CUT}"
+									/>
 								<label for="d2l-video-producer-cut-button" @click="${this._changeToCutMode}" id="d2l-video-producer-cut-button-label">
 									<d2l-icon id="d2l-video-producer-cut-button-icon" icon="html-editor:cut"></d2l-icon>
 									<d2l-tooltip for="d2l-video-producer-cut-button-label" delay="500">${this.localize(constants.CONTROL_MODES.CUT)}</d2l-tooltip>
