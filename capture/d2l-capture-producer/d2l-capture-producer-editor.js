@@ -902,13 +902,16 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			editedCue.startTime = Math.max(editedCue.endTime - cueDuration, 0);
 		}
 
+		// Make the end time slightly later than the Media Player's current time position.
+		// If this is not done, Producer's Media Player will not update to display the cue. (Because the "end time" specifies when to *hide* the cue.)
+		// This would be confusing to users, due to the lack of visual feedback.
+		if (editedCue.endTime < this._mediaPlayer.duration) {
+			editedCue.endTime += 0.001;
+		}
+
 		this._mediaPlayer.textTracks[0].addCue(editedCue); // TextTrack.addCue() automatically inserts the cue at the appropriate index based on startTime.
 		this._mediaPlayer.textTracks[0].removeCue(originalCue);
 		this._syncCaptionsWithMediaPlayer();
-
-		setTimeout(() => {
-			this._mediaPlayer.currentTime = editedCue.startTime + 0.001;
-		}, 100); // Give the new cue element time to be drawn.
 	}
 
 	_handleCaptionsCueStartTimestampSynced(event) {
@@ -923,10 +926,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this._mediaPlayer.textTracks[0].addCue(editedCue); // TextTrack.addCue() automatically inserts the cue at the appropriate index based on startTime.
 		this._mediaPlayer.textTracks[0].removeCue(originalCue);
 		this._syncCaptionsWithMediaPlayer();
-
-		setTimeout(() => {
-			this._mediaPlayer.currentTime = editedCue.startTime + 0.001;
-		}, 100); // Give the new cue element time to be drawn.
 	}
 
 	_handleCaptionsVttReplaced(e) {
