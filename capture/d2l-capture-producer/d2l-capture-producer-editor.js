@@ -204,6 +204,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 						crossorigin="anonymous"
 						@cuechange="${this._handleCueChange}"
 						@error="${this._handleMediaError}"
+						hide-captions-selection
 						?hide-seek-bar="${this.enableCutsAndChapters}"
 						media-type="${this.mediaType}"
 						@pause="${this._pauseUpdatingVideoTime}"
