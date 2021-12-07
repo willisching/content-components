@@ -872,10 +872,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			!this._content ||
 			// Disable if the current revision is processing.
 			this._selectedRevisionIsProcessing ||
-			// Disable if the latest draft is loaded and there are no unsaved changes.
-			// (If a non-draft revision is loaded, we always allow the user to Save Draft,
-			// because they may want to copy the revision's data into a new draft but make changes at a later time.)
-			((this._selectedRevisionIndex === 0) && this._selectedRevision.draft && !this._unsavedChanges) ||
+			// Disable if the latest revision is loaded and there are no unsaved changes.
+			((this._selectedRevisionIndex === 0) && !this._unsavedChanges) ||
 			// Disable if we are currently loading/saving data.
 			this._saving || this._finishing || this._metadataLoading || this._captionsLoading
 		);
