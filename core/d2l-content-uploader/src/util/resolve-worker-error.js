@@ -1,42 +1,20 @@
-const prefix = 'workerError';
-const defaultErrorType = 'UploadFailed';
+const PREFIX = 'workerError';
+const DEFAULT_ERROR_TYPE = 'UploadFailed';
 
-const getActivityWorkerErrorType = details => {
-	if (details && details.Error) {
-		const error = JSON.parse(details.Error);
-		if (error && error.message) {
-			const message = JSON.parse(error.message);
-			if (message && message.type) {
-				return message.type;
-			}
-		}
-	}
-
-	return defaultErrorType;
-};
-
-const getLambdaWorkerErrorType = details => {
-	if (details && details.Cause) {
-		const cause = JSON.parse(details.Cause);
-		if (cause && cause.errorMessage) {
-			const errorMessage = JSON.parse(cause.errorMessage);
+const getWorkerErrorType = details => {
+	if (details && (details.Cause || details.Error)) {
+		const error = JSON.parse(details.Cause || details.Error);
+		const rawErrorMessage = error && (error.errorMessage || error.message);
+		if (rawErrorMessage) {
+			const errorMessage = JSON.parse(rawErrorMessage);
 			if (errorMessage && errorMessage.type) {
 				return errorMessage.type;
 			}
 		}
 	}
-
-	return defaultErrorType;
+	return DEFAULT_ERROR_TYPE;
 };
 
 export default details => {
-	if (details && details.Cause) {
-		return `${prefix}${getLambdaWorkerErrorType(details)}`;
-	}
-
-	if (details && details.Error) {
-		return `${prefix}${getActivityWorkerErrorType(details)}`;
-	}
-
-	return `${prefix}${defaultErrorType}`;
+	return `${PREFIX}${getWorkerErrorType(details)}`;
 };

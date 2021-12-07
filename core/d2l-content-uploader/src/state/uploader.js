@@ -3,6 +3,7 @@ import resolveWorkerError from '../util/resolve-worker-error';
 import { S3Uploader } from '../util/s3-uploader';
 import { randomizeDelay, sleep } from '../util/delay';
 
+const UPLOAD_FAILED_ERROR = 'workerErrorUploadFailed';
 export class Uploader {
 	constructor({ apiClient, onSuccess, onError }) {
 		this.apiClient = apiClient;
@@ -51,10 +52,18 @@ export class Uploader {
 				this.s3Uploader = undefined;
 				return;
 			}
+
+			if (progress.didFail) {
+				this.onError(UPLOAD_FAILED_ERROR);
+				this.s3Uploader = undefined;
+				return;
+			}
 		} catch (error) {
-			this.onError(resolveWorkerError(error));
-			this.s3Uploader = undefined;
-			return;
+			if (error.cause > 399 && error.cause < 500) {
+				this.onError(resolveWorkerError(error));
+				this.s3Uploader = undefined;
+				return;
+			}
 		}
 
 		await sleep(randomizeDelay(5000, 1000));
