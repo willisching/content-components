@@ -235,7 +235,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_renderCaptionsTrack(captionsUrl) {
-		return html`<track src="${captionsUrl.Value}" kind="captions" label=${captionsUrl.Locale} srclang=${captionsUrl.Locale.slice(0, 2)}>`;
+		return html`<track src="${captionsUrl.Value}" kind="captions" label=${captionsUrl.Locale} srclang=${captionsUrl.Locale}>`;
 	}
 
 	_renderMediaSource(source) {
