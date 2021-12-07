@@ -130,7 +130,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 			dialog.style.height = 'calc(100% - 50px)';
 		};
 
-		await D2L.LP.Web.UI.Desktop.MasterPages.Dialog.Open(
+		const dialogResult = await D2L.LP.Web.UI.Desktop.MasterPages.Dialog.Open(
 			getComposedActiveElement(),
 			new D2L.LP.Web.Http.UrlLocation(location),
 			{
@@ -144,7 +144,10 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 				}
 			}
 		);
-		topWindow.removeEventListener('resize', onResize);
+
+		dialogResult.AddListener(() => {
+			topWindow.removeEventListener('resize', onResize);
+		});
 	}
 
 	_onChangeFile() {
