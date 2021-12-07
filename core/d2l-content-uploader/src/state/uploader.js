@@ -3,6 +3,7 @@ import resolveWorkerError from '../util/resolve-worker-error';
 import { S3Uploader } from '../util/s3-uploader';
 import { randomizeDelay, sleep } from '../util/delay';
 
+const UPLOAD_FAILED_ERROR = 'workerErrorUploadFailed';
 export class Uploader {
 	constructor({ apiClient, onSuccess, onError }) {
 		this.apiClient = apiClient;
@@ -48,6 +49,12 @@ export class Uploader {
 
 			if (progress.ready) {
 				this.onSuccess(this.revision.d2lrn);
+				this.s3Uploader = undefined;
+				return;
+			}
+
+			if (progress.didFail) {
+				this.onError(UPLOAD_FAILED_ERROR);
 				this.s3Uploader = undefined;
 				return;
 			}
