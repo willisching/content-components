@@ -126,9 +126,8 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 				Onload: (handle) => {
 					setTimeout(() => {
 						handle.dialog.style.width = 'calc(100% - 50px)';
-						handle.dialog.style.maxWidth = '1179px';
-						handle.dialog.style.left = '25px'; // TODO center dialog based on the handle.win.top
-						handle.dialog.style.top = `calc(${handle.win.top.scrollY}px + 25px)`;
+						handle.dialog.style.left = '25px';
+						handle.dialog.style.top = `calc(${handle.win.top.scrollY}px + 50px)`;
 						handle.dialog.style.height = 'calc(100% - 50px)';
 					}, 500);
 				}
