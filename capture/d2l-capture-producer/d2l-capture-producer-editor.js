@@ -936,7 +936,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		const editedCue = new VTTCue(originalCue.startTime, originalCue.endTime, originalCue.text);
 		editedCue.startTime = Math.floor(this._mediaPlayer.currentTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
 		if (editedCue.startTime >= editedCue.endTime) {
-			editedCue.endTime = editedCue.startTime + cueDuration;
+			editedCue.endTime = Math.min(editedCue.startTime + cueDuration, this._mediaPlayer.duration);
 		}
 
 		this._mediaPlayer.textTracks[0].addCue(editedCue); // TextTrack.addCue() automatically inserts the cue at the appropriate index based on startTime.
