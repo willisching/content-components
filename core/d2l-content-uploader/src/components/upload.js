@@ -11,10 +11,12 @@ import { css, html, LitElement } from 'lit-element';
 import { RequesterMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
 import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin';
 
+const SUPPORTED_AUDIO_EXTENSIONS = ['.m4a', '.mp3', '.ogg', '.wav', '.wma'];
+const SUPPORTED_VIDEO_EXTENSIONS = ['.avi', '.f4v', '.flv', '.m4v', '.mov', '.mp4', '.webm', '.wmv'];
+
 export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
 		return {
-			_supportedMimeTypes: { type: Array, attribute: false },
 			errorMessage: { type: String, attribute: 'error-message', reflect: true },
 		};
 	}
@@ -79,7 +81,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 
 	constructor() {
 		super();
-		this._supportedMimeTypes = [];
+		this._supportedTypes = [...SUPPORTED_AUDIO_EXTENSIONS, ...SUPPORTED_VIDEO_EXTENSIONS];
 		this.enableFileDrop = false;
 		this.maxFileSizeInBytes = 1024 * 1024 * 1024 * 5; // 5GB
 	}
@@ -88,8 +90,6 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 		super.connectedCallback();
 
 		this.client = this.requestInstance('content-service-client');
-		this._supportedMimeTypes = (await this.client.getSupportedMimeTypes())
-			.filter(x => x.startsWith('video/') || x.startsWith('audio/'));
 
 		this.userBrightspaceClient = this.requestInstance('user-brightspace-client');
 	}
@@ -97,7 +97,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 	render() {
 		return html`
 			<div class="upload-container">
-				<file-drop @filedrop=${this.onFileDrop} accept=${this._supportedMimeTypes.join(',')}>
+				<file-drop @filedrop=${this.onFileDrop} accept=${this._supportedTypes.join(',')}>
 					<div class="file-drop-content-container">
 						<h2 class="d2l-heading-2">${this.localize('dropAudioVideoFile')}</h2>
 						<p class="d2l-body-standard">${this.localize('or')}</p>
@@ -109,7 +109,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 							<input
 								id="file-select"
 								type="file"
-								accept=${this._supportedMimeTypes.join(',')}
+								accept=${this._supportedTypes.join(',')}
 								@change=${this.onFileInputChange}
 							/>
 						</d2l-button>
@@ -145,7 +145,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 		}
 
 		const file = files[0];
-		if (!this._supportedMimeTypes.includes(file.type)) {
+		if (!this._supportedTypes.includes(`.${file.name.split('.').pop().toLowerCase()}`)) {
 			this.dispatchEvent(new CustomEvent('file-error', {
 				detail: {
 					message: this.localize('invalidFileType')
