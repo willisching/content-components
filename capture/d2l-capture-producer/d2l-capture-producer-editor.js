@@ -81,8 +81,8 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 				justify-content: center;
 				margin-top: 8px;
 				vertical-align: top;
-				width: 170px;
-				min-width: 170px;
+				width: 160px;
+				min-width: 160px;
 			}
 
 			.d2l-video-producer-timeline-mode-button input[type="radio"] {
