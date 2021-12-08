@@ -56,10 +56,6 @@ export default class ContentServiceClient {
 		});
 	}
 
-	getSupportedMimeTypes() {
-		return this._fetch({ path: '/api/conf/supported-mime-types' });
-	}
-
 	getWorkflowProgress({
 		contentId,
 		revisionId
