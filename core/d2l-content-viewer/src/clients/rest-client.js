@@ -28,8 +28,7 @@ export default class ContentServiceClient {
 			query: {
 				format: format ? format.value : undefined,
 				attachment
-			},
-			doNotUseCache: false
+			}
 		});
 		return {
 			expires: result.ExpireTime * 1000,
