@@ -97,7 +97,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 	render() {
 		return html`
 			<div class="upload-container">
-				<file-drop @filedrop=${this.onFileDrop} accept=${this._supportedTypes.join(',')}>
+				<file-drop @filedrop=${this.onFileDrop}>
 					<div class="file-drop-content-container">
 						<h2 class="d2l-heading-2">${this.localize('dropAudioVideoFile')}</h2>
 						<p class="d2l-body-standard">${this.localize('or')}</p>
