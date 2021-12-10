@@ -11,6 +11,7 @@ import { labelStyles, bodyStandardStyles } from '@brightspace-ui/core/components
 import { formatTimestampText, convertSrtTextToVttText }  from './captions-utils.js';
 import constants from './constants.js';
 import './d2l-video-producer-auto-generate-captions-dialog';
+import 'webvtt-parser/parser.js';
 
 class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
@@ -495,14 +496,15 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 			const fileReader = new FileReader();
 			fileReader.addEventListener('load', event => {
 				try {
-					if (extension === 'vtt') {
-						this._dispatchCaptionsVttReplaced(event.target.result);
-					} else {
-						const vttText = convertSrtTextToVttText(event.target.result);
-						this._dispatchCaptionsVttReplaced(vttText);
+					const vttText = extension === 'vtt' ? event.target.result : convertSrtTextToVttText(event.target.result);
+					const {errors} = new window.WebVTTParser().parse(vttText, 'metadata');
+					if (errors && errors.length > 0) {
+						throw new Error(JSON.stringify(errors));
 					}
+					this._dispatchCaptionsVttReplaced(vttText);
 				} catch (error) {
-					this._openAlertToast({type: 'critical', text: this.localize(error.message) });
+					console.error(error);
+					this._openAlertToast({type: 'critical', text: this.localize('captionsInvalidContent') });
 					return;
 				}
 			});
