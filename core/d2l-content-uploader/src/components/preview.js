@@ -57,15 +57,13 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 		this.fileType = '';
 		this._mediaSources = null;
 		this._contentId = null;
+		this._lastRefreshAttempted = null;
 	}
 
 	async connectedCallback() {
 		super.connectedCallback();
 		if (!this.topicId) {
-			const formats = this._isAudio() ? ['mp3'] : ['hd', 'sd'];
-			this._mediaSources = this.resource ?
-				await Promise.all(formats.map(format => this._getSource(this.resource, format))) :
-				null;
+			this._loadMediaPlayerSources();
 		}
 
 	}
@@ -107,14 +105,24 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 
 	async _getSource(resourceUrn, format) {
 		const client = this.requestInstance('content-service-client');
+		const url = await client.getSecureUrlByName(resourceUrn, format);
+
 		return {
-			src: (await client.getSecureUrlByName(resourceUrn, format)).value,
-			format
+			src: url.value,
+			format,
+			expires: url.expireTime * 1000
 		};
 	}
 
 	_isAudio() {
 		return this.fileType.startsWith('audio');
+	}
+
+	async _loadMediaPlayerSources() {
+		const formats = this._isAudio() ? ['mp3'] : ['hd', 'sd'];
+		this._mediaSources = this.resource ?
+			await Promise.all(formats.map(format => this._getSource(this.resource, format))) :
+			null;
 	}
 
 	async _onAdvancedEditing() {
@@ -157,6 +165,19 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 		}));
 	}
 
+	_onMediaPlayerError() {
+		if (this._mediaSources && this._mediaSources.length > 0) {
+			const expires = this._mediaSources[0].expires;
+			if (this._lastRefreshAttempted !== expires && expires - Date.now() < 0) {
+				// Prevent multiple attempts to load with same URLs
+				this._lastRefreshAttempted = expires;
+
+				// Get new signed URLs and load them
+				this._loadMediaPlayerSources();
+			}
+		}
+	}
+
 	_renderContentViewer() {
 		return html`
 			<d2l-content-viewer
@@ -171,7 +192,11 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 		}
 
 		return html`
-			<d2l-labs-media-player style="width:100%" media-type="${this._isAudio() ? 'audio' : 'video'}">
+			<d2l-labs-media-player
+				@error=${this._onMediaPlayerError}
+				media-type="${this._isAudio() ? 'audio' : 'video'}"
+				style="width:100%"
+			>
 				${this._mediaSources.map(mediaSource => this._renderSource(mediaSource))}
 			</d2l-labs-media-player>`;
 	}
