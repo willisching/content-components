@@ -153,9 +153,19 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 			}
 		);
 
-		dialogResult.AddReleaseListener(() => {
-			topWindow.removeEventListener('resize', onResize);
+		await new Promise(resolve => {
+			dialogResult.AddReleaseListener(() => {
+				topWindow.removeEventListener('resize', onResize);
+				resolve();
+			});
 		});
+
+		if (this.topicId) {
+			const contentViewer = this.shadowRoot.getElementById('content-viewer');
+			await contentViewer.reloadResources();
+		} else {
+			await this._loadMediaPlayerSources();
+		}
 	}
 
 	_onChangeFile() {
@@ -181,6 +191,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 	_renderContentViewer() {
 		return html`
 			<d2l-content-viewer
+				id="content-viewer"
 				org-unit-id=${this.orgUnitId}
 				topic-id=${this.topicId}>
 			</d2l-content-viewer>`;
