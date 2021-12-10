@@ -10,13 +10,14 @@ import { getComposedActiveElement } from '@brightspace-ui/core/helpers/focus.js'
 import { parse } from '../util/d2lrn';
 import '../../../../capture/d2l-capture-producer.js';
 import '../../../d2l-content-viewer.js';
+import { isAudioType } from '../util/media-type-util';
 
 export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
 		return {
 			canManage: { type: Boolean, attribute: 'can-manage' },
 			canUpload: { type: Boolean, attribute: 'can-upload' },
-			fileType: { type: String, attribute: 'file-type', reflect: true },
+			fileName: { type: String, attribute: 'file-name', reflect: true },
 			orgUnitId: { type: String, attribute: 'org-unit-id' },
 			resource: { type: String, attribute: true },
 			topicId: { type: String, attribute: 'topic-id' },
@@ -54,7 +55,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 	constructor() {
 		super();
 		this.contentTitle = '';
-		this.fileType = '';
+		this.fileName = '';
 		this._mediaSources = null;
 		this._contentId = null;
 		this._lastRefreshAttempted = null;
@@ -115,7 +116,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 	}
 
 	_isAudio() {
-		return this.fileType.startsWith('audio');
+		return isAudioType(this.fileName);
 	}
 
 	async _loadMediaPlayerSources() {
