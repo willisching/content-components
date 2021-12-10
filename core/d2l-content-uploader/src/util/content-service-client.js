@@ -118,6 +118,11 @@ export default class ContentServiceClient {
 			headers.append('Content-Type', 'application/json');
 		}
 
+		if (method === 'GET') {
+			headers.append('pragma', 'no-cache');
+			headers.append('cache-control', 'no-cache');
+		}
+
 		const requestInit = {
 			method,
 			...body && {
