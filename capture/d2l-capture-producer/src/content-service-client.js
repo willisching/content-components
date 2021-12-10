@@ -51,33 +51,21 @@ export default class ContentServiceClient {
 	}
 
 	async getCaptionsUrl({ contentId, revisionId, locale, adjusted = true }) {
-		const headers = new Headers();
-		headers.append('pragma', 'no-cache');
-		headers.append('cache-control', 'no-cache');
 		return await this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/resources/captions/signed-url`,
-			query: { locale, exact: true, adjusted },
-			headers
+			query: { locale, exact: true, adjusted }
 		});
 	}
 
 	getContent(id) {
-		const headers = new Headers();
-		headers.append('pragma', 'no-cache');
-		headers.append('cache-control', 'no-cache');
 		return this._fetch({
-			path: `/api/${this.tenantId}/content/${id}`,
-			headers,
+			path: `/api/${this.tenantId}/content/${id}`
 		});
 	}
 
 	getMetadata({ contentId, revisionId }) {
-		const headers = new Headers();
-		headers.append('pragma', 'no-cache');
-		headers.append('cache-control', 'no-cache');
 		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/resources/metadata/file-content`,
-			headers
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/resources/metadata/file-content`
 		});
 	}
 
@@ -94,12 +82,8 @@ export default class ContentServiceClient {
 	}
 
 	getRevisionProgress({ contentId, revisionId }) {
-		const headers = new Headers();
-		headers.append('pragma', 'no-cache');
-		headers.append('cache-control', 'no-cache');
 		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/progress`,
-			headers
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/progress`
 		});
 	}
 
@@ -163,6 +147,11 @@ export default class ContentServiceClient {
 	}) {
 		if (body && contentType) {
 			headers.append('Content-Type', contentType);
+		}
+
+		if (method === 'GET') {
+			headers.append('pragma', 'no-cache');
+			headers.append('cache-control', 'no-cache');
 		}
 
 		const requestInit = {
