@@ -62,6 +62,7 @@
     "parse-srt": "^1.0.0-alpha",
     "siren-parser": "^8.5.0",
     "superagent": "^3",
-    "superagent-d2l-session-auth": "^2.0.1"
+    "superagent-d2l-session-auth": "^2.0.1",
+    "webvtt-parser": "^2.1.2"
   }
 }

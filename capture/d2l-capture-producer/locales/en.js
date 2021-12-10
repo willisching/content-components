@@ -10,6 +10,7 @@ export const val = {
 	captionsCueStartTimestamp: 'Start',
 	captionsCueStartTimestampDescription: 'Set the start timestamp for this captions cue',
 	captionsCueText: 'Editable caption cue text',
+	captionsInvalidContent: 'Invalid captions content.',
 	captionsInvalidFileType: 'Invalid file type. Please provide a .srt or .vtt file.',
 	captionsFileTooLarge: 'File size cannot be larger than {localizedMaxFileSize}.',
 	captionsReadError: 'Could not read captions file. It might be corrupted.',
