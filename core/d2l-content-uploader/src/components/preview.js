@@ -163,7 +163,6 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 		if (this.topicId) {
 			const contentViewer = this.shadowRoot.getElementById('content-viewer');
 			await contentViewer.reloadResources();
-			contentViewer.requestUpdate();
 		} else {
 			await this._loadMediaPlayerSources();
 		}
