@@ -173,6 +173,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this.languages = [];
 		this.defaultLanguage = {};
 		this.selectedLanguage = {};
+		this._is_IOS = /iPad|iPhone|iPod/.test(navigator.platform);
 	}
 
 	firstUpdated() {
@@ -201,6 +202,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 					<!-- crossorigin needs to be set in order for <track> elements to load sources from different origins. -->
 					<d2l-labs-media-player
 						controls
+						?autoplay="${this._is_IOS}"
 						crossorigin="anonymous"
 						@cuechange="${this._handleCueChange}"
 						@error="${this._handleMediaError}"
