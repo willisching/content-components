@@ -201,6 +201,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 					<!-- crossorigin needs to be set in order for <track> elements to load sources from different origins. -->
 					<d2l-labs-media-player
 						controls
+						autoplay
 						crossorigin="anonymous"
 						@cuechange="${this._handleCueChange}"
 						@error="${this._handleMediaError}"
