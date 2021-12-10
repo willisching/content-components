@@ -71,9 +71,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 			});
 		}
 
-		await this._loadRevisionData();
-		await this._loadMedia();
-		await this._loadCaptions();
+		await this.reloadResources();
 		this._setupDownload();
 		this._loadLocale();
 
@@ -104,6 +102,12 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 				${this.allowDownload ? html`<d2l-menu-item slot='settings-menu-item' id='download-menu-item' text=${this.localize('download')}></d2l-menu-item>` : ''}
 			</d2l-labs-media-player>
 		`;
+	}
+
+	async reloadResources() {
+		await this._loadRevisionData();
+		await this._loadMedia();
+		await this._loadCaptions();
 	}
 
 	async _download() {
