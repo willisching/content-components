@@ -145,7 +145,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 			}
 		);
 
-		dialogResult.AddListener(() => {
+		dialogResult.AddReleaseListener(() => {
 			topWindow.removeEventListener('resize', onResize);
 		});
 	}
