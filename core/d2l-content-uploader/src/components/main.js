@@ -109,7 +109,7 @@ export class Main extends InternalLocalizeMixin(MobxReactionUpdate(ProviderMixin
 					<d2l-content-uploader-preview
 						?can-manage=${this.canManage}
 						?can-upload=${this.canUpload}
-						file-type=${this._fileType}
+						file-name=${this._fileName}
 						resource=${this.value}
 						@cancel=${this.onDiscardStagedFile}
 						org-unit-id=${this.orgUnitId}

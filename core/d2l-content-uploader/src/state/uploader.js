@@ -2,6 +2,7 @@ import { action, decorate, flow, observable } from 'mobx';
 import resolveWorkerError from '../util/resolve-worker-error';
 import { S3Uploader } from '../util/s3-uploader';
 import { randomizeDelay, sleep } from '../util/delay';
+import { getExtension, isAudioType } from '../util/media-type-util';
 
 const UPLOAD_FAILED_ERROR = 'workerErrorUploadFailed';
 export class Uploader {
@@ -12,9 +13,9 @@ export class Uploader {
 
 		this.uploadProgress = 0;
 
-		this.uploadFile = flow((function * (file, title, fileType) {
+		this.uploadFile = flow((function * (file, title) {
 			/* eslint-disable no-invalid-this */
-			yield this._uploadWorkflowAsync(file, title, fileType);
+			yield this._uploadWorkflowAsync(file, title);
 			/* eslint-enable no-invalid-this */
 		}));
 	}
@@ -70,10 +71,10 @@ export class Uploader {
 		await this._monitorProgressAsync(this.content, this.revision);
 	}
 
-	async _uploadWorkflowAsync(file, title, fileType) {
+	async _uploadWorkflowAsync(file, title) {
 		try {
-			const extension = file.name.split('.').pop();
-			const isAudio = fileType.startsWith('audio');
+			const isAudio = isAudioType(file.name);
+			const extension = getExtension(file.name);
 			this.content = await this.apiClient.createContent({
 				title,
 			});

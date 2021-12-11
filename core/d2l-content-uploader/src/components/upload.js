@@ -10,9 +10,7 @@ import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { css, html, LitElement } from 'lit-element';
 import { RequesterMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
 import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin';
-
-const SUPPORTED_AUDIO_EXTENSIONS = ['.m4a', '.mp3', '.ogg', '.wav', '.wma'];
-const SUPPORTED_VIDEO_EXTENSIONS = ['.avi', '.f4v', '.flv', '.m4v', '.mov', '.mp4', '.webm', '.wmv'];
+import { getSupportedExtensions, isSupported } from '../util/media-type-util';
 
 export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
@@ -81,7 +79,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 
 	constructor() {
 		super();
-		this._supportedTypes = [...SUPPORTED_AUDIO_EXTENSIONS, ...SUPPORTED_VIDEO_EXTENSIONS];
+		this._supportedTypes = getSupportedExtensions();
 		this.enableFileDrop = false;
 		this.maxFileSizeInBytes = 1024 * 1024 * 1024 * 5; // 5GB
 	}
@@ -145,7 +143,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 		}
 
 		const file = files[0];
-		if (!this._supportedTypes.includes(`.${file.name.split('.').pop().toLowerCase()}`)) {
+		if (!isSupported(file.name)) {
 			this.dispatchEvent(new CustomEvent('file-error', {
 				detail: {
 					message: this.localize('invalidFileType')
