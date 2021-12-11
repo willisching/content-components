@@ -232,8 +232,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	async _onTracksChanged() {
-		const elapsedTimeSinceLoadCaptions = (new Date()).getTime() - this._captionsSignedUrlStartTime;
-		if (elapsedTimeSinceLoadCaptions > this._captionsSignedUrlExpireTime) {
+		if (Date.now() > this._captionsSignedUrlExpireTime) {
 			await this._loadCaptions();
 		}
 	}
