@@ -6,7 +6,7 @@ describe('timeline.js', () => {
 
 	beforeEach(() => {
 		timeline = new Timeline({
-			durationSeconds: 120.22,
+			durationSeconds: 120,
 			widthPixels: 30,
 			zoomMultiplier: 2
 		});
@@ -15,7 +15,7 @@ describe('timeline.js', () => {
 	describe('Timeline', () => {
 		describe('addCutAtPoint', () => {
 			it('should create a cut over the entire duration when there are no other cuts or marks, regardless of zoom multiplier', () => {
-				const durationSeconds = 120.22;
+				const durationSeconds = 120;
 				const widthPixels = 30;
 
 				for (let zoomMultiplier = 1; zoomMultiplier <= 2; zoomMultiplier++) {
