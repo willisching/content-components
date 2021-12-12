@@ -1116,7 +1116,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		}
 
 		this._timeline = new Timeline({
-			durationSeconds: Math.ceil(this._mediaPlayer.duration),
+			durationSeconds: this._mediaPlayer.duration,
 			widthPixels: constants.TIMELINE_WIDTH,
 			cuts,
 			zoomMultiplier: this._zoomMultiplier,
@@ -1158,7 +1158,8 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			this._currentMark = markUnderMouse;
 			setMarkStyleHighlighted(markUnderMouse.displayObject);
 			this._showAndMoveTimeContainer(markUnderMouse.seconds);
-		} else if (this._isMouseOverTimeline(false)) {
+		} else if (this._isMouseOverTimeline(false)
+			&& (roundedTime >= 0 && roundedTime < this._mediaPlayer.duration)) {
 			this._cursor.time = roundedTime;
 			this._cursor.displayObject.visible = true;
 			this._cursor.displayObject.setTransform(this._getRoundedPosition(stageXPosition) + constants.CURSOR_OFFSET_X, constants.CURSOR_OFFSET_Y);
