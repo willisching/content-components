@@ -297,7 +297,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	_askBeforeExit(e) {
-		// Ref: https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload
+		// Reference: https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload
 		if (this._saveIsDisabled) {
 			delete e.returnValue;
 		} else {
