@@ -50,9 +50,9 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 		this._lastTrackLoadFailedTime = null;
 		this._trackErrorFetchTimeoutId = null;
 		this._revision = null;
-		this._lastRefreshAttempted = null;
 		this._thumbnails = null;
 		this._metadata = null;
+		this._attemptedReloadOnError = false;
 	}
 
 	async firstUpdated() {
@@ -89,6 +89,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 				metadata=${ifDefined(this._metadata ? this._metadata : undefined)}
 				thumbnails=${ifDefined(this._thumbnails ? this._thumbnails : undefined)}
 				@error=${this._onError}
+				@loadeddata=${this._onLoadedData}
 				@trackloadfailed=${this._onTrackLoadFailed}
 				@tracksmenuitemchanged=${this._onTracksChanged}
 				?allow-download-on-error=${this.allowDownloadOnError}>
@@ -206,16 +207,14 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_onError() {
-		if (this._mediaSources && this._mediaSources.length > 0) {
-			const expires = this._mediaSources[0].expires;
-			if (this._lastRefreshAttempted !== expires && expires - Date.now() < 0) {
-				// Prevent multiple attempts to load with same URLs
-				this._lastRefreshAttempted = expires;
-
-				// Get new signed URLs and load them
-				this._loadMedia();
-			}
+		if (this._mediaSources && this._mediaSources.length > 0 && !this._attemptedReloadOnError) {
+			this._attemptedReloadOnError = true;
+			this._loadMedia();
 		}
+	}
+
+	_onLoadedData() {
+		this._attemptedReloadOnError = false;
 	}
 
 	async _onTrackLoadFailed() {
