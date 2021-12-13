@@ -169,6 +169,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			await this._setupLanguages();
 			await this._loadContentAndAllRelatedData();
 		});
+
+		window.addEventListener('beforeunload', this._askBeforeExit.bind(this));
 	}
 
 	render() {
@@ -292,6 +294,16 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				</d2l-dialog-confirm>
 			</div>
 		`;
+	}
+
+	_askBeforeExit(e) {
+		// Ref: https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload
+		if (this._saveIsDisabled) {
+			delete e.returnValue;
+		} else {
+			e.preventDefault();
+			e.returnValue = '';
+		}
 	}
 
 	async _createNewDraftRevision() {
