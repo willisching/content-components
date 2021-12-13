@@ -58,7 +58,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 		this.fileName = '';
 		this._mediaSources = null;
 		this._contentId = null;
-		this._lastRefreshAttempted = null;
+		this._attemptedReloadOnError = false;
 	}
 
 	async connectedCallback() {
@@ -177,16 +177,14 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 	}
 
 	_onMediaPlayerError() {
-		if (this._mediaSources && this._mediaSources.length > 0) {
-			const expires = this._mediaSources[0].expires;
-			if (this._lastRefreshAttempted !== expires && expires - Date.now() < 0) {
-				// Prevent multiple attempts to load with same URLs
-				this._lastRefreshAttempted = expires;
-
-				// Get new signed URLs and load them
-				this._loadMediaPlayerSources();
-			}
+		if (this._mediaSources && this._mediaSources.length > 0 && !this._attemptedReloadOnError) {
+			this._attemptedReloadOnError = true;
+			this._loadMediaPlayerSources();
 		}
+	}
+
+	_onMediaPlayerLoadedData() {
+		this._attemptedReloadOnError = false;
 	}
 
 	_renderContentViewer() {
@@ -206,6 +204,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 		return html`
 			<d2l-labs-media-player
 				@error=${this._onMediaPlayerError}
+				@loadeddata=${this._onMediaPlayerLoadedData}
 				media-type="${this._isAudio() ? 'audio' : 'video'}"
 				style="width:100%"
 			>
