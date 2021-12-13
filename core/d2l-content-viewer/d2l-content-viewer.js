@@ -235,7 +235,9 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	async _onTracksChanged() {
-		await this._loadCaptions();
+		if (Date.now() > this._captionsSignedUrlExpireTime) {
+			await this._loadCaptions();
+		}
 	}
 
 	_renderCaptionsTrack(captionsUrl) {
