@@ -8,7 +8,7 @@ import HypermediaClient from './src/clients/hypermedia-client.js';
 import { VideoFormat, ContentType } from './src/clients/enums.js';
 import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
 
-const TRACK_ERROR_FETCH_INTERVAL_MILLISECONDS = 5000;
+const TRACK_ERROR_FETCH_WAIT_MILLISECONDS = 5000;
 const VALID_CONTENT_TYPES = [ContentType.Video, ContentType.Audio];
 
 class ContentViewer extends InternalLocalizeMixin(LitElement) {
@@ -218,22 +218,24 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	async _onTrackLoadFailed() {
-		const elapsedTimeSinceLastTrackLoadFailed = (new Date()).getTime() - (this._lastTrackLoadFailedTime || 0);
-		const trackErrorFetchIntervalElapsed = elapsedTimeSinceLastTrackLoadFailed > TRACK_ERROR_FETCH_INTERVAL_MILLISECONDS;
+		const timeNow = Date.now();
+		const timeSinceLastTrackLoadFailed = timeNow - (this._lastTrackLoadFailedTime || 0);
+		const shouldWaitToLoadCaptions = timeSinceLastTrackLoadFailed <= TRACK_ERROR_FETCH_WAIT_MILLISECONDS;
 
-		if (trackErrorFetchIntervalElapsed && !this._trackErrorFetchTimeoutId) {
-			this._lastTrackLoadFailedTime = (new Date()).getTime();
+		if (this._trackErrorFetchTimeoutId) {
+			return;
+		}
+
+		this._lastTrackLoadFailedTime = timeNow;
+		if (shouldWaitToLoadCaptions) {
+			this._trackErrorFetchTimeoutId = setTimeout(this._loadCaptions.bind(this), TRACK_ERROR_FETCH_WAIT_MILLISECONDS);
+		} else {
 			await this._loadCaptions();
-		} else if (!trackErrorFetchIntervalElapsed && !this._trackErrorFetchTimeoutId) {
-			this._lastTrackLoadFailedTime = (new Date()).getTime();
-			this._trackErrorFetchTimeoutId = setTimeout(this._loadCaptions.bind(this), TRACK_ERROR_FETCH_INTERVAL_MILLISECONDS);
 		}
 	}
 
 	async _onTracksChanged() {
-		if (Date.now() > this._captionsSignedUrlExpireTime) {
-			await this._loadCaptions();
-		}
+		await this._loadCaptions();
 	}
 
 	_renderCaptionsTrack(captionsUrl) {
