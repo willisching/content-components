@@ -75,11 +75,6 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 		this._setupDownload();
 		this._loadLocale();
 
-		if (this._revision.type === ContentType.Video) {
-			await this._loadMetadata();
-			await this._loadThumbnails();
-		}
-
 		this.dispatchEvent(new CustomEvent('cs-content-loaded', {
 			bubbles: true,
 			composed: true,
@@ -108,6 +103,11 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 		await this._loadRevisionData();
 		await this._loadMedia();
 		await this._loadCaptions();
+
+		if (this._revision.type === ContentType.Video) {
+			await this._loadMetadata();
+			await this._loadThumbnails();
+		}
 	}
 
 	async _download() {
