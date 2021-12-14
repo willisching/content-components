@@ -588,9 +588,8 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 			${this._renderingCues ? this._renderPreparingCaptionsOverlay() :
 		html`<div class="d2l-video-producer-captions-cues-list">
 			${this._currentVisibleCueBatch > 0 ? this._renderPreviousCuesBatchButton() : ''}
-			${this.captions.slice(cuesListStart, cuesListEnd).map((cue, index) => html`
+			${this.captions.slice(cuesListStart, cuesListEnd).map(cue => html`
 				<d2l-video-producer-captions-cues-list-item
-					id="cue-${index + cuesListStart}"
 					?active="${this.activeCue && (cue.startTime === this.activeCue.startTime) && (cue.endTime === this.activeCue.endTime)}"
 					.cue="${cue}"
 				></d2l-video-producer-captions-cues-list-item>
