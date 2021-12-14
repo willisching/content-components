@@ -585,17 +585,18 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 		const cuesListStart = this._currentVisibleCueBatch * constants.NUM_OF_VISIBLE_CUES;
 		const cuesListEnd = cuesListStart + constants.NUM_OF_VISIBLE_CUES;
 		return html`
-			<div class="d2l-video-producer-captions-cues-list">
-				${this._currentVisibleCueBatch > 0 ? this._renderPreviousCuesBatchButton() : ''}
-				${this.captions.slice(cuesListStart, cuesListEnd).map(cue => html`
-					<d2l-video-producer-captions-cues-list-item
-						?active="${this.activeCue && (cue.startTime === this.activeCue.startTime) && (cue.endTime === this.activeCue.endTime)}"
-						.cue="${cue}"
-					></d2l-video-producer-captions-cues-list-item>
-				`)}
-				${((this._currentVisibleCueBatch + 1) * constants.NUM_OF_VISIBLE_CUES) < this.captions?.length ? this._renderNextCuesBatchButton() : ''}
-			</div>
-			${this._renderingCues ? this._renderPreparingCaptionsOverlay() : ''}
+			${this._renderingCues ? this._renderPreparingCaptionsOverlay() :
+		html`<div class="d2l-video-producer-captions-cues-list">
+			${this._currentVisibleCueBatch > 0 ? this._renderPreviousCuesBatchButton() : ''}
+			${this.captions.slice(cuesListStart, cuesListEnd).map((cue, index) => html`
+				<d2l-video-producer-captions-cues-list-item
+					id="cue-${index + cuesListStart}"
+					?active="${this.activeCue && (cue.startTime === this.activeCue.startTime) && (cue.endTime === this.activeCue.endTime)}"
+					.cue="${cue}"
+				></d2l-video-producer-captions-cues-list-item>
+			`)}
+			${((this._currentVisibleCueBatch + 1) * constants.NUM_OF_VISIBLE_CUES) < this.captions?.length ? this._renderNextCuesBatchButton() : ''}
+		</div>`}
 		`;
 	}
 
@@ -682,22 +683,15 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 			await new Promise(resolve => waitUntilListIsReady(resolve));
 		}
 
-		let activeCueListItem;
-		let i = 0;
-		while ((!activeCueListItem) && (i < captionsCuesList.childNodes.length)) {
-			const cueListItem = captionsCuesList.childNodes[i];
+		for (const cueListItem of captionsCuesList.childNodes) {
 			if (
 				(cueListItem.startTime === this.activeCue.startTime) &&
 				(cueListItem.endTime === this.activeCue.endTime) &&
 				(cueListItem.text === this.activeCue.text)
 			) {
-				activeCueListItem = cueListItem;
+				cueListItem.scrollIntoView({block: 'nearest', inline: 'nearest'});
+				break;
 			}
-			i++;
-		}
-
-		if (activeCueListItem) {
-			activeCueListItem.scrollIntoView({block: 'nearest', inline: 'nearest'});
 		}
 	}
 
