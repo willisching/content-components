@@ -174,41 +174,17 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	render() {
-		if (!this._selectedRevision || !this._src) {
-			return html`
-				<div class="d2l-video-producer">
-					${this._renderLoadingIndicator()}
-				</div>
-			`;
-		}
-
-		if (this._selectedRevision.processingFailed) {
-			return html`
-				<div class="d2l-video-producer">
-					${this._renderTopBar()}
-					${this._renderProcessingFailedMessage()}
-					<d2l-alert-toast type="${this._errorOccurred ? 'error' : 'default'}">
-						${this._alertMessage}
-					</d2l-alert-toast>
-					</div>
-			`;
-		}
-
-		if (!this._selectedRevision.draft && !this._selectedRevision.ready) {
-			return html`
-				<div class="d2l-video-producer">
-					${this._renderTopBar()}
-					${this._renderProcessingMessage()}
-					<d2l-alert-toast type="${this._errorOccurred ? 'error' : 'default'}">
-						${this._alertMessage}
-					</d2l-alert-toast>
-					</div>
-			`;
-		}
+		const isLoading = !this._selectedRevision || !this._src;
+		const isProcessing = !isLoading && !this._selectedRevision.draft && !this._selectedRevision.ready;
+		const isProcessingFailed = !isLoading && this._selectedRevision.processingFailed;
+		const isReadyForEdit = [isLoading, isProcessing, isProcessingFailed].every(statusFlag => !statusFlag);
 
 		return html`
 			<div class="d2l-video-producer">
-				${this._renderTopBar()}
+				${isLoading ? this._renderLoadingIndicator() : html`${this._renderTopBar()}`}
+				${isProcessingFailed ? html`${this._renderProcessingFailedMessage()}` : html``}
+				${isProcessing ? html`${this._renderProcessingMessage()}` : html``}
+				${isReadyForEdit ? html `
 				<d2l-capture-producer-editor
 					.captions="${this._captions}"
 					@captions-auto-generation-started="${this._handleCaptionsAutoGenerationStarted}"
@@ -231,9 +207,6 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 					.src="${this._src}"
 					?timeline-visible="${this._timelineVisible}"
 				></d2l-capture-producer-editor>
-				<d2l-alert-toast type="${this._errorOccurred ? 'error' : 'default'}">
-					${this._alertMessage}
-				</d2l-alert-toast>
 				<d2l-dialog-confirm
 					class="d2l-video-producer-dialog-confirm-copy-from-revision"
 					text="${this.localize('confirmLoadRevisionWithUnsavedChanges')}"
@@ -292,6 +265,10 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 						${this.localize('cancel')}
 					</d2l-button>
 				</d2l-dialog-confirm>
+				` : html``}
+				<d2l-alert-toast type="${this._errorOccurred ? 'error' : 'default'}">
+					${this._alertMessage}
+				</d2l-alert-toast>
 			</div>
 		`;
 	}
@@ -512,19 +489,12 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		let revisionToUpdate = this._latestDraftRevision;
 		let newRevisionCreated = false;
 
-		if (!this._latestDraftRevision || this._selectedRevisionIndex !== 0) {
-			try {
+		try {
+			if (!this._latestDraftRevision || this._selectedRevisionIndex !== 0) {
 				revisionToUpdate = await this._createNewDraftRevision();
 				newRevisionCreated = true;
-			} catch (error) {
-				this._errorOccurred = true;
-				this._alertMessage = this.localize('saveError');
-				this._saving = false;
-				return;
 			}
-		}
 
-		try {
 			if (this._metadataChanged) {
 				await this.apiClient.updateMetadata({
 					contentId: this._content.id,
@@ -541,14 +511,14 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				this._selectedRevisionIndex = 0;
 				this._loadSelectedRevision();
 			}
+			this._alertMessage = this.localize('saveSuccess');
 		} catch (error) {
 			this._errorOccurred = true;
+			this._alertMessage = this.localize('saveError');
+		} finally {
+			this.shadowRoot.querySelector('d2l-alert-toast').open = true;
+			this._saving = false;
 		}
-		this._alertMessage = this._errorOccurred
-			? this.localize('saveError')
-			: this.localize('saveSuccess');
-		this.shadowRoot.querySelector('d2l-alert-toast').open = true;
-		this._saving = false;
 	}
 
 	_handleSelectedLanguageChanged(e) {
@@ -740,7 +710,6 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			} catch (error) {
 				this._alertMessage = this.localize('getProcessingProgressError');
 				this.shadowRoot.querySelector('d2l-alert-toast').open = true;
-				return;
 			}
 		}, 3000);
 	}
