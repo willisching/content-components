@@ -515,7 +515,6 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		} catch (error) {
 			this._errorOccurred = true;
 			this._alertMessage = this.localize('saveError');
-			return;
 		} finally {
 			this.shadowRoot.querySelector('d2l-alert-toast').open = true;
 			this._saving = false;
@@ -711,7 +710,6 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			} catch (error) {
 				this._alertMessage = this.localize('getProcessingProgressError');
 				this.shadowRoot.querySelector('d2l-alert-toast').open = true;
-				return;
 			}
 		}, 3000);
 	}
