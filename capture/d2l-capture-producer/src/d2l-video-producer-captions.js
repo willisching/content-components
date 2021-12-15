@@ -223,10 +223,11 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 		return html`
 			<div class="d2l-video-producer-captions-cue-main-controls">
 				<textarea
+					aria-label=${this.localize('captionsCueText')}
 					class="d2l-input d2l-video-producer-captions-cue-text-input"
 					@focus="${this._handleFocus}"
 					@input="${this._handleTextInput}"
-					aria-label=${this.localize('captionsCueText')}
+					maxlength="${constants.MAX_CAPTIONS_CUE_CHARACTERS}"
 					rows="2"
 				>${this.cue.text}</textarea>
 				<div class="d2l-video-producer-captions-cue-main-controls-buttons">
