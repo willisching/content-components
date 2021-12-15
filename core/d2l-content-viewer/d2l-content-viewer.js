@@ -90,6 +90,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 				@error=${this._onError}
 				@loadeddata=${this._onLoadedData}
 				@trackloadfailed=${this._onTrackLoadFailed}
+				@tracksmenuitemchanged=${this._onTracksChanged}
 				?allow-download-on-error=${this.allowDownloadOnError}>
 				${this._mediaSources.map(mediaSource => this._renderMediaSource(mediaSource))}
 				${this._captionSignedUrls.map(captionSignedUrl => this._renderCaptionsTrack(captionSignedUrl))}
@@ -144,6 +145,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 			await this.updateComplete;
 
 			this._captionSignedUrls = captionSignedUrls;
+			this._captionsSignedUrlExpireTime = ((this._captionSignedUrls.length && this._captionSignedUrls[0].ExpireTime) || 0) * 1000;
 			this.requestUpdate();
 		}
 	}
@@ -226,6 +228,12 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 		if (shouldWaitToLoadCaptions) {
 			this._trackErrorFetchTimeoutId = setTimeout(this._loadCaptions.bind(this), TRACK_ERROR_FETCH_WAIT_MILLISECONDS);
 		} else {
+			await this._loadCaptions();
+		}
+	}
+
+	async _onTracksChanged() {
+		if (Date.now() > this._captionsSignedUrlExpireTime) {
 			await this._loadCaptions();
 		}
 	}
