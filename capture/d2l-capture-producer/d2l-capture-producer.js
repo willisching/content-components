@@ -36,6 +36,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			_defaultLanguage: { type: Object, attribute: false },
 			_errorOccurred: { type: Boolean, attribute: false },
 			_finishing: { type: Boolean, attribute: false },
+			_format: { type: String, attribute: false },
 			_languages: { type: Array, attribute: false },
 			_languageToLoad: { type: Object, attribute: false },
 			_mediaType: { type: String, attribute: false },
@@ -146,6 +147,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._metadata = { cuts: [], chapters: [] };
 		this._metadataChanged = false;
 		this._metadataLoading = true;
+		this._format = '';
 		this._src = '';
 		this._defaultLanguage = {};
 		this._languages = null;
@@ -196,6 +198,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 					@captions-url-changed="${this._handleCaptionsUrlChanged}"
 					?enableCutsAndChapters="${this._enableCutsAndChapters}"
 					.defaultLanguage="${this._defaultLanguage}"
+					.format="${this._format}"
 					.languages="${this._languages}"
 					@media-error="${this._handleMediaError}"
 					@media-loaded="${this._handleMediaLoaded}"
@@ -612,6 +615,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			contentId: this.contentId,
 			revisionId: this._selectedRevision.id,
 		});
+		const formatsBestFirst = ['hd', 'sd', 'ld', 'mp3'];
+		this._format = formatsBestFirst.find(f => this._selectedRevision.formats?.includes(f));
 		this._src = signedUrlResponse.value;
 	}
 
@@ -671,6 +676,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._captionsUrl = '';
 
 		this._src = '';
+		this._format = '';
 		this._mediaType = this._getMediaType();
 		await this._loadMedia();
 
