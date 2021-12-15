@@ -46,7 +46,6 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 		super();
 		this._resourceEntity = null;
 		this._captionSignedUrls = [];
-		this._captionsSignedUrlStartTime = null;
 		this._lastTrackLoadFailedTime = null;
 		this._trackErrorFetchTimeoutId = null;
 		this._revision = null;
@@ -146,7 +145,6 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 			await this.updateComplete;
 
 			this._captionSignedUrls = captionSignedUrls;
-			this._captionsSignedUrlStartTime = (new Date()).getTime();
 			this._captionsSignedUrlExpireTime = ((this._captionSignedUrls.length && this._captionSignedUrls[0].ExpireTime) || 0) * 1000;
 			this.requestUpdate();
 		}
