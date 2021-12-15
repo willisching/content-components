@@ -22,6 +22,7 @@ const constants = {
 	// Captions
 	ADD_NEW_CUE_KEY_CODE: 13, // 13 is the "Enter" key in Javascript
 	MAX_CAPTIONS_UPLOAD_SIZE_IN_BYTES: 15 * 1024 * 1024, // 15MB
+	MAX_CAPTIONS_CUE_CHARACTERS: 100, // Auto-generated captions: 40 character per line limit, 2 lines per caption cue limit = 80 characters. We add a 20 character buffer.
 	NEW_CUE_DEFAULT_DURATION_IN_SECONDS: 3,
 	NUM_OF_VISIBLE_CUES: 60, // https://web.dev/dom-size/
 
