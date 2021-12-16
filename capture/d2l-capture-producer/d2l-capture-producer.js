@@ -619,8 +619,6 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	async _loadMedia() {
-		this._src = '';
-		this._format = '';
 		const signedUrlResponse = await this.apiClient.getOriginalSignedUrlForRevision({
 			contentId: this.contentId,
 			revisionId: this._selectedRevision.id,
@@ -684,6 +682,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		// Clear captions data, to ensure stale data isn't displayed before we start loading the new captions.
 		this._captions = [];
 		this._captionsUrl = '';
+		this._src = '';
+		this._format = '';
 
 		this._mediaType = this._getMediaType();
 		await this._loadMedia();
