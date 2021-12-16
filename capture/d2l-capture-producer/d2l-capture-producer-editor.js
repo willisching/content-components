@@ -416,7 +416,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		mark.displayObject = displayObject;
 
 		const hitArea = new Shape();
-		hitArea.graphics.beginFill(constants.COLOURS.CONTENT_HIT_BOX).drawRect(constants.HITBOX_OFFSET, constants.HITBOX_OFFSET, constants.HITBOX_WIDTH, constants.HITBOX_HEIGHT);
+		hitArea.graphics.beginFill(constants.COLOURS.CONTENT_HIT_BOX).drawRect(constants.HITBOX_OFFSET, constants.HITBOX_OFFSET, constants.HITBOX_WIDTH, this._getHitBoxHeight());
 		displayObject.hitArea = hitArea;
 
 		this._stage.addChildAt(displayObject, this._stage.numChildren - 1);
@@ -537,7 +537,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this._contentMarker.mouseEnabled = false;
 
 		this._contentMarkerHitBox = new Shape();
-		this._contentMarkerHitBox.graphics.beginFill(constants.COLOURS.CONTENT_HIT_BOX).drawRect(constants.HITBOX_OFFSET, constants.HITBOX_OFFSET, constants.HITBOX_WIDTH, constants.HITBOX_HEIGHT);
+		this._contentMarkerHitBox.graphics.beginFill(constants.COLOURS.CONTENT_HIT_BOX).drawRect(constants.HITBOX_OFFSET, constants.HITBOX_OFFSET, constants.HITBOX_WIDTH, this._getHitBoxHeight());
 		this._contentMarker.hitArea = this._contentMarkerHitBox;
 
 		this._contentMarker.on('pressmove', (event) => {
@@ -686,6 +686,10 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 				}
 			}
 		};
+	}
+
+	_getHitBoxHeight() {
+		return constants.HITBOX_HEIGHT_MIN + this._getZoomHandleValue();
 	}
 
 	_getMarkHeight() {
@@ -1086,6 +1090,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this._updateMouseEnabledForCuts();
 
 		this._contentMarker.graphics.clear().beginFill(constants.COLOURS.CONTENT).drawRect(0, 0, constants.MARK_WIDTH, this._getMarkHeight());
+		this._contentMarkerHitBox.graphics.clear().beginFill(constants.COLOURS.CONTENT_HIT_BOX).drawRect(constants.HITBOX_OFFSET, constants.HITBOX_OFFSET, constants.HITBOX_WIDTH, this._getHitBoxHeight());
 
 		if (this._chaptersComponent.activeChapter !== null) {
 			const time = this._chaptersComponent.activeChapter.time;

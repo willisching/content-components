@@ -64,7 +64,7 @@ const constants = {
 
 	// Hitbox
 	HITBOX_WIDTH: 20,
-	HITBOX_HEIGHT: 50,
+	HITBOX_HEIGHT_MIN: 50,
 	HITBOX_OFFSET: -5,
 
 	// Mark
