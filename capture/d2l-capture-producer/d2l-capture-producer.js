@@ -176,16 +176,24 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	render() {
-		const isLoading = !this._selectedRevision || !this._src;
-		const isProcessing = !isLoading && !this._selectedRevision.draft && !this._selectedRevision.ready;
-		const isProcessingFailed = !isLoading && this._selectedRevision.processingFailed;
-		const isReadyForEdit = [isLoading, isProcessing, isProcessingFailed].every(statusFlag => !statusFlag);
+		const isLoadingRevisions = !this._revisionsLatestToOldest;
+		const isProcessingFailed = this._selectedRevision?.processingFailed;
+		const isProcessing = this._selectedRevisionIsProcessing;
+		const isLoadingSource = !isProcessing && !isProcessingFailed && !this._src;
+		const isLoadingRevision = !isProcessing && !this._selectedRevision;
+		const isReadyForEdit = [
+			isLoadingRevisions,
+			isProcessing,
+			isProcessingFailed,
+			isLoadingRevision,
+			isLoadingSource].every(statusFlag => !statusFlag);
 
 		return html`
 			<div class="d2l-video-producer">
-				${isLoading ? this._renderLoadingIndicator() : html`${this._renderTopBar()}`}
-				${isProcessingFailed ? html`${this._renderProcessingFailedMessage()}` : html``}
+				${!isLoadingRevisions ? this._renderTopBar() : html``}
+				${isLoadingRevision || isLoadingSource ? this._renderLoadingIndicator() : html``}
 				${isProcessing ? html`${this._renderProcessingMessage()}` : html``}
+				${isProcessingFailed ? html`${this._renderProcessingFailedMessage()}` : html``}
 				${isReadyForEdit ? html `
 				<d2l-capture-producer-editor
 					.captions="${this._captions}"
@@ -611,6 +619,8 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	async _loadMedia() {
+		this._src = '';
+		this._format = '';
 		const signedUrlResponse = await this.apiClient.getOriginalSignedUrlForRevision({
 			contentId: this.contentId,
 			revisionId: this._selectedRevision.id,
@@ -675,8 +685,6 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._captions = [];
 		this._captionsUrl = '';
 
-		this._src = '';
-		this._format = '';
 		this._mediaType = this._getMediaType();
 		await this._loadMedia();
 
@@ -871,7 +879,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	get _selectedRevisionIsProcessing() {
-		return (this._selectedRevision && !this._selectedRevision.draft && !this._selectedRevision.ready);
+		return this._selectedRevision && !this._selectedRevision.draft && !this._selectedRevision.ready && !this._selectedRevision.processingFailed;
 	}
 
 	async _setupLanguages() {
