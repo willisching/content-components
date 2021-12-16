@@ -363,6 +363,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			});
 
 			await this._loadContentAndAllRelatedData(draftToPublish.id);
+			this._errorOccurred = false;
 		} catch (error) {
 			this._errorOccurred = true;
 		}
@@ -522,6 +523,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				this._selectedRevisionIndex = 0;
 				this._loadSelectedRevision();
 			}
+			this._errorOccurred = false;
 			this._alertMessage = this.localize('saveSuccess');
 		} catch (error) {
 			this._errorOccurred = true;
