@@ -198,7 +198,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 				this._changeToSeekMode();
 			}
 			this._videoLoaded = true;
-			this._mediaPlayer.currentTime = 0; // Seek so that the signed URL request is forced to finish on Firefox. Details: https://trello.com/c/TnBQ51mi
 			this.dispatchEvent(new CustomEvent('media-loaded', { composed: false }));
 		});
 	}
