@@ -81,6 +81,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 				height: 90px;
 				justify-content: center;
 				margin-top: 8px;
+				position: relative;
 				vertical-align: top;
 				width: 160px;
 				min-width: 160px;
