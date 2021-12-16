@@ -67,6 +67,14 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 				width: 100%;
 			}
 
+			.d2l-video-producer-editor #d2l-labs-media-player-skeleton {
+				display: flex;
+				margin-right: 20px;
+				width: 100%;
+				height: 100%;
+				background-color: #000;
+			}
+
 			.d2l-video-producer-captions-header {
 				margin: 10px 0px 10px 0px;
 			}
@@ -202,23 +210,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			<div class="d2l-video-producer-editor">
 				<div class="d2l-video-producer-video-controls">
 					<!-- crossorigin needs to be set in order for <track> elements to load sources from different origins. -->
-					<d2l-labs-media-player
-						controls
-						?autoplay="${this._is_IOS}"
-						crossorigin="anonymous"
-						@cuechange="${this._handleCueChange}"
-						@error="${this._handleMediaError}"
-						hide-captions-selection
-						?hide-seek-bar="${this.enableCutsAndChapters}"
-						media-type="${this.mediaType}"
-						@pause="${this._pauseUpdatingVideoTime}"
-						@play="${this._startUpdatingVideoTime}"
-						@seeking="${this._updateVideoTime}"
-						@trackloaded="${this._handleTrackLoaded}"
-					>
-						<source src="${this.src}" label="${this.format}">
-						${this.captionsUrl ? html`<track default-ignore-preferences src="${this.captionsUrl}" srclang="${this._formatCaptionsSrcLang()}" label="${this.selectedLanguage.name}" kind="subtitles">` : ''}
-					</d2l-labs-media-player>
+					${this._renderMediaPlayer()}
 					<d2l-tabs>
 						${ (this.enableCutsAndChapters ? html`
 							<d2l-tab-panel
@@ -1106,6 +1098,26 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this._zoomHandle.graphics.clear().beginFill(newZoomHandleColour).drawRect(0, 0, constants.ZOOM_HANDLE_WIDTH, constants.ZOOM_HANDLE_HEIGHT);
 
 		this._updateVideoTime();
+	}
+
+	_renderMediaPlayer() {
+		return this.src && this.format ? html`<d2l-labs-media-player
+			controls
+			?autoplay="${this._is_IOS}"
+			crossorigin="anonymous"
+			@cuechange="${this._handleCueChange}"
+			@error="${this._handleMediaError}"
+			hide-captions-selection
+			?hide-seek-bar="${this.enableCutsAndChapters}"
+			media-type="${this.mediaType}"
+			@pause="${this._pauseUpdatingVideoTime}"
+			@play="${this._startUpdatingVideoTime}"
+			@seeking="${this._updateVideoTime}"
+			@trackloaded="${this._handleTrackLoaded}"
+		>
+			<source src="${this.src}" label="${this.format}">
+			${this.captionsUrl ? html`<track default-ignore-preferences src="${this.captionsUrl}" srclang="${this._formatCaptionsSrcLang()}" label="${this.selectedLanguage.name}" kind="subtitles">` : ''}
+		</d2l-labs-media-player>` : html`<div id="d2l-labs-media-player-skeleton"></div>`;
 	}
 
 	_resetTimelineWithNewCuts(cuts) {
