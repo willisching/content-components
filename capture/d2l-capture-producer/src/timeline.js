@@ -544,7 +544,7 @@ class Timeline {
 				}
 			}
 
-			if (cut.out < this.durationSeconds) {
+			if (cut.out && cut.out < this.durationSeconds) {
 				const markAtEndOfCut = this._getCutEndingAtTime(cut.out);
 
 				if (!markAtEndOfCut) {
