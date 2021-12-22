@@ -5,12 +5,14 @@ jobs:
     timeout-minutes: 5
     runs-on: ubuntu-latest
     steps:
-      - uses: Brightspace/third-party-actions@actions/checkout
-      - uses: Brightspace/third-party-actions@actions/setup-node
+      - name: Checkout
+        uses: Brightspace/third-party-actions@actions/checkout
+      - name: Set up node
+        uses: Brightspace/third-party-actions@actions/setup-node
         with:
-          node-version: '12'
+          node-version-file: .nvmrc
       - name: Install dependencies
-        run: npm install
+        run: npm i
       - name: Lint (JavaScript)
         run: npm run lint:eslint
       - name: Lint (Lit)
@@ -18,5 +20,5 @@ jobs:
       - name: Unit Tests (SauceLabs)
         run: npm run test:sauce
         env:
-          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY_DESIRE2LEARN }}
+          SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY_DESIRE2LEARN}}
           SAUCE_USERNAME: Desire2Learn

@@ -10,7 +10,7 @@ import '@brightspace-ui/core/components/list/list.js';
 import '@brightspace-ui/core/components/list/list-item.js';
 import '@brightspace-ui/core/components/button/button-icon.js';
 import '@brightspace-ui/core/components/icons/icon.js';
-import 'd2l-alert/d2l-alert-toast.js';
+import '@brightspace-ui/core/components/alert/alert-toast.js';
 import './content-list-item.js';
 import './content-list-item-ghost.js';
 import './content-list-header.js';
