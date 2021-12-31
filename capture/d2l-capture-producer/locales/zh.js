@@ -10,6 +10,7 @@ export const val = {
 	captionsCueStartTimestamp: '开始',
 	captionsCueStartTimestampDescription: '设置此字幕提示的开始时间戳',
 	captionsCueText: '可编辑的标题提示文本',
+	captionsInvalidContent: '标题内容无效。',
 	captionsInvalidFileType: '无效的文件类型。请提供 .srt 或 .vtt 文件。',
 	captionsFileTooLarge: '文件大小不能大于 {localizedMaxFileSize}。',
 	captionsReadError: '无法读取字幕文件。它可能已损坏。',

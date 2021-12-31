@@ -10,6 +10,7 @@ export const val = {
 	captionsCueStartTimestamp: '시작',
 	captionsCueStartTimestampDescription: '이 캡션 큐의 시작 타임스탬프 설정',
 	captionsCueText: '편집 가능한 캡션 큐 텍스트',
+	captionsInvalidContent: '유효하지 않은 캡션 내용.',
 	captionsInvalidFileType: '파일 유형이 유효하지 않습니다. srt 또는 .vtt 파일을 제공하십시오.',
 	captionsFileTooLarge: '파일 크기는 {localizedMaxFileSize}보다 클 수 없습니다.',
 	captionsReadError: '캡션 파일을 읽을 수 없습니다. 손상되었을 수 있습니다.',

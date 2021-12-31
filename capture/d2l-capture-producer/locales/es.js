@@ -10,6 +10,7 @@ export const val = {
 	captionsCueStartTimestamp: 'Inicio',
 	captionsCueStartTimestampDescription: 'Establezca la marca de tiempo inicial para esta indicación de subtítulos',
 	captionsCueText: 'Texto de la indicación de subtítulo editable',
+	captionsInvalidContent: 'Contenido de subtítulos no válido.',
 	captionsInvalidFileType: 'Tipo de archivo no válido. Proporcione un archivo con formato .srt o .vtt.',
 	captionsFileTooLarge: 'El tamaño del archivo no puede ser mayor que {localizedMaxFileSize}.',
 	captionsReadError: 'No se pudo leer el archivo de subtítulos. Puede que esté dañado.',

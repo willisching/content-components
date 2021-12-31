@@ -10,6 +10,7 @@ export const val = {
 	captionsCueStartTimestamp: 'Start',
 	captionsCueStartTimestampDescription: 'Ange starttidsstämpel för den här undertexten',
 	captionsCueText: 'Redigerbar undertext',
+	captionsInvalidContent: 'Ogiltigt undertextinnehåll.',
 	captionsInvalidFileType: 'Ogiltig filtyp. Välj en .srt- eller .vtt-fil.',
 	captionsFileTooLarge: 'Filstorleken får inte överskrida {localizedMaxFileSize}.',
 	captionsReadError: 'Det gick inte att läsa undertextfilen. Den är eventuellt skadad.',

@@ -10,6 +10,7 @@ export const val = {
 	captionsCueStartTimestamp: 'Start',
 	captionsCueStartTimestampDescription: 'Angiv starttidsstemplet for dette undertekstsignal',
 	captionsCueText: 'Redigerbar undertekstsignaltekst',
+	captionsInvalidContent: 'Ugyldigt billedtekstindhold.',
 	captionsInvalidFileType: 'Ugyldig filtype. Angiv en .srt- eller .vtt-fil.',
 	captionsFileTooLarge: 'Filstørrelsen kan ikke være større end {localizedMaxFileSize}.',
 	captionsReadError: 'Kunne ikke læse undertekstfil. Den kan være beskadiget.',

@@ -10,6 +10,7 @@ export const val = {
 	captionsCueStartTimestamp: 'Başlat',
 	captionsCueStartTimestampDescription: 'Bu alt yazı işareti için başlangıç zaman damgasını belirle',
 	captionsCueText: 'Düzenlenebilir alt yazı işareti metni',
+	captionsInvalidContent: 'Geçersiz altyazı içeriği.',
 	captionsInvalidFileType: 'Geçersiz dosya türü. Lütfen bir .srt veya .vtt dosyası sağlayın.',
 	captionsFileTooLarge: 'Dosya boyutu {localizedMaxFileSize} boyutundan büyük olamaz.',
 	captionsReadError: 'Alt yazı dosyası okunamadı. Bozuk olabilir.',
