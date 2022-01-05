@@ -49,7 +49,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 
 	constructor() {
 		super();
-		this.selectable = true;
+		this.selectable = false; // Hide checkboxes until bulk actions are implemented
 		this.dropdownBoundary = {};
 		this.content = null;
 		this.confirmDisabled = false;

@@ -319,7 +319,6 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 		<content-list-item
 			id=${item.id}
 			revision-id=${item.revisionId}
-			selectable
 			title=${item.title}
 			@content-list-item-renamed=${this.contentListItemRenamedHandler}
 			@content-list-item-deleted=${this.contentListItemDeletedHandler}
