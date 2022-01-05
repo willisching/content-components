@@ -20,7 +20,7 @@ class D2lCaptureCentralLanding extends DependencyRequester(navigationMixin(PageV
 		if (permissions.canManage) {
 			this._navigate('/my-videos');
 		} else {
-			this._navigate('/course-videos');
+			this._navigate('/404');
 		}
 	}
 }

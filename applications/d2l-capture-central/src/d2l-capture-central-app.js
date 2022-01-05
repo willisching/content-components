@@ -148,13 +148,6 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			case pageNames.auditLogs:
 				import('./pages/reporting/d2l-capture-central-audit-logs.js');
 				return;
-			case pageNames.courseVideos:
-				if (subView) {
-					import('./pages/course-videos/d2l-capture-central-course-video-player.js');
-					return;
-				}
-				import('./pages/course-videos/d2l-capture-central-course-videos.js');
-				return;
 			case pageNames.clips:
 				import('./pages/clips/d2l-capture-central-clips.js');
 				return;
@@ -212,8 +205,6 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			<div class="d2l-capture-central-primary d2l-navigation-gutters ${this._shouldRenderSidebar ? 'sidebar' : ''}">
 				<d2l-capture-central-landing class="page" ?active=${currentPage === pageNames.landing}></d2l-capture-central-landing>
 				<d2l-capture-central-audit-logs class="page" ?active=${currentPage === pageNames.auditLogs}></d2l-capture-central-audit-logs>
-				<d2l-capture-central-course-videos class="page ${this._shouldRenderSidebar ? 'sidebar' : ''}" ?active=${currentPage === pageNames.courseVideos && !subView}></d2l-capture-central-course-videos>
-				<d2l-capture-central-course-video-player class="page" ?active=${currentPage === pageNames.courseVideos && !!subView}></d2l-capture-central-course-video-player>
 				<d2l-capture-central-clips class="page" ?active=${currentPage === pageNames.clips}></d2l-capture-central-clips>
 				<d2l-capture-central-folders class="page" ?active=${currentPage === pageNames.folders}></d2l-capture-central-folders>
 				<d2l-capture-central-live-events class="page" ?active=${currentPage === pageNames.manageLiveEvents && !subView}></d2l-capture-central-live-events>
@@ -231,11 +222,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 	}
 
 	_renderSidebar() {
-		const sidebarItems = [{
-			langterm: 'courseVideos',
-			location: `/${pageNames.courseVideos}`,
-			icon: 'tier2:content',
-		}, {
+		const sidebarItems = [ {
 			langterm: 'myVideos',
 			location: `/${pageNames.myVideos}`,
 			icon: 'tier2:folder',
@@ -287,8 +274,6 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			`/:orgUnitId/${pageNames.page404}`,
 			`/:orgUnitId/${pageNames.auditLogs}`,
 			`/:orgUnitId/${pageNames.clips}`,
-			`/:orgUnitId/${pageNames.courseVideos}`,
-			`/:orgUnitId/${pageNames.courseVideos}/:id`,
 			`/:orgUnitId/${pageNames.folders}`,
 			`/:orgUnitId/${pageNames.viewLiveEvent}`,
 			`/:orgUnitId/${pageNames.manageLiveEvents}`,
