@@ -54,12 +54,6 @@ class ContentList extends CaptureCentralList {
 		`;
 	}
 
-	areAnyFiltersActive() {
-		return this.queryParams.searchQuery ||
-			this.queryParams.dateModified ||
-			this.queryParams.dateCreated;
-	}
-
 	contentListItemDeletedHandler(e) {
 		if (e && e.detail && e.detail.id) {
 			const { id } = e.detail;

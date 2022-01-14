@@ -17,7 +17,6 @@ import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin.js';
 import { NavigationMixin } from '../mixins/navigation-mixin.js';
 import { navigationSharedStyle } from '../style/d2l-navigation-shared-styles.js';
 import { rootStore } from '../state/root-store.js';
-import { root } from '@polymer/polymer/lib/utils/path';
 
 export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixin(NavigationMixin(contentSearchMixin(LitElement)))) {
 	static get properties() {
