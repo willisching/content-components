@@ -22,7 +22,7 @@ export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixi
 	static get properties() {
 		return {
 			loading: { type: Boolean, attribute: false },
-			page: {type: String, attribute: ""}
+			page: {type: String, attribute: ''}
 		};
 	}
 
@@ -98,7 +98,7 @@ export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixi
 	}
 
 	changeSort({ detail = {} }) {
- 		const { sortKey, sortQuery } = detail;
+		const { sortKey, sortQuery } = detail;
 		if (/^(createdAt|updatedAt)$/.test(sortKey)) {
 			this.dateField = sortKey;
 		}
@@ -106,8 +106,8 @@ export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixi
 		this._navigate(this.page, {
 			...this.queryParams,
 			sortQuery
-		}); 
-		}
+		});
+	}
 
 	getCompareBasedOnSort(item) {
 		const itemUpdatedAtDate = new Date(item.updatedAt);
@@ -152,11 +152,11 @@ export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixi
 		}
 	}
 
-	async loadNext({ append = true} = {}) {		
+	async loadNext({ append = true} = {}) {
 		this.loading = true;
 		const { sortQuery, searchQuery, dateModified, dateCreated } = this.queryParams;
 
-		const func = this.page == '/recycle-bin' ? this._handleDeletedVideoSearch : this._handleVideoSearch();
+		const func = this.page === '/recycle-bin' ? this._handleDeletedVideoSearch : this._handleVideoSearch();
 		func({
 			append,
 			createdAt: dateCreated,
@@ -173,7 +173,7 @@ export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixi
 			rootStore.routingStore,
 			'queryParams',
 			change => {
-				if (this.loading || rootStore.routingStore.page != this.page) {
+				if (this.loading || rootStore.routingStore.page !== this.page) {
 					return;
 				}
 
@@ -198,7 +198,7 @@ export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixi
 					sortQuery: updatedSortQuery,
 					dateCreated: updatedDateCreated,
 					dateModified: updatedDateModified,
-					filter: this.page == 'recycle-bin' ? "DELETED" : undefined,
+					filter: this.page === 'recycle-bin' ? 'DELETED' : undefined,
 				};
 				this.reloadPage();
 			}
@@ -216,14 +216,6 @@ export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixi
 		}
 	}
 
-	renderNotFound() {
-		return !this.loading && this._videos.length === 0 ? html`
-			<div class="d2l-capture-central-content-list-no-results">
-				${this.localize('noResults')}
-			</div>
-		` : html``;
-	}
-
 	async reloadPage() {
 		this.loading = true;
 		this._videos = [];
@@ -238,4 +230,12 @@ export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixi
 			this._start = 0;
 		}
 	}
+	renderNotFound() {
+		return !this.loading && this._videos.length === 0 ? html`
+			<div class="d2l-capture-central-content-list-no-results">
+				${this.localize('noResults')}
+			</div>
+		` : html``;
+	}
+
 }
