@@ -169,6 +169,37 @@ export default class ContentServiceClient {
 		});
 	}
 
+	searchDeletedContent({
+		start = 0,
+		size = 15,
+		sort = 'updatedAt:desc',
+		query = '',
+		contentType = '',
+		updatedAt = '',
+		createdAt = '',
+		includeThumbnails = false
+	}) {
+		console.log('SEARCHING DELETED CONTENT');
+		const headers = new Headers();
+		headers.append('pragma', 'no-cache');
+		headers.append('cache-control', 'no-cache');
+
+		return this._fetch({
+			path: `/api/${this.tenantId}/search/content`,
+			query: {
+				start,
+				size,
+				sort,
+				query,
+				contentType: contentFilterToSearchQuery(contentType),
+				updatedAt: dateFilterToSearchQuery(updatedAt),
+				filter: 'DELETED',
+				includeThumbnails
+			},
+			headers
+		});
+	}
+
 	signUploadRequest({
 		fileName,
 		contentType,
