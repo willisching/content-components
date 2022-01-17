@@ -14,7 +14,8 @@ import { selectStyles } from '@brightspace-ui/core/components/inputs/input-selec
 class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
 		return {
-			numSelectedFilters: { type: Number }
+			numSelectedFilters: { type: Number },
+			deleted: {type: Boolean} // Is this filter for the recycle bin?
 		};
 	}
 
@@ -61,7 +62,7 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 			<d2l-dropdown-button-subtle text="${this.localize('filterCount', { count: this.numSelectedFilters})}" primary>
 				<d2l-dropdown-content min-width="150" max-width="400">
 					<div class="filter-option">
-						<div class="filter-type d2l-label-text" id="date-modified-label">${this.localize('dateModified')}</div>
+						<div class="filter-type d2l-label-text" id="date-modified-label">${this.deleted ? this.localize('dateDeleted') : this.localize('dateModified')}</div>
 						<select class="d2l-input-select" aria-labelledby="date-modified-label" data-filter='dateModified'>
 							<option value="">${this.localize('anyTime')}</option>
 							${this.renderFilterOptions(dateFilters, 'dateModified')}

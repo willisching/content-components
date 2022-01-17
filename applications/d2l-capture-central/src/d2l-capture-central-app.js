@@ -172,6 +172,9 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			case pageNames.viewLiveEvent:
 				import('./pages/live-events/d2l-capture-central-live-events-view.js');
 				return;
+			case pageNames.recycleBin:
+				import('./pages/recycle-bin/d2l-capture-central-recycle-bin.js');
+				return;
 			case pageNames.liveEventsReporting:
 				import('./pages/reporting/d2l-capture-central-live-events-reporting.js');
 				return;
@@ -213,6 +216,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				<d2l-capture-central-live-events-create class="page" ?active=${currentPage === pageNames.manageLiveEvents && subView === 'create'}></d2l-capture-central-live-events-create>
 				<d2l-capture-central-live-events-reporting class="page" ?active=${currentPage === pageNames.liveEventsReporting}></d2l-capture-central-live-events-reporting>
 				<d2l-capture-central-my-videos class="page" ?active=${currentPage === pageNames.myVideos}></d2l-capture-central-my-videos>
+				<d2l-capture-central-recycle-bin class="page" ?active=${currentPage === pageNames.recycleBin}></d2l-capture-central-recycle-bin>
 				<d2l-capture-central-producer class="page" ?active=${currentPage === pageNames.producer && !!subView}></d2l-capture-central-producer>
 				<d2l-capture-central-settings class="page" ?active=${currentPage === pageNames.settings}></d2l-capture-central-settings>
 				<d2l-capture-central-visits class="page" ?active=${currentPage === pageNames.visits}></d2l-capture-central-visits>
@@ -232,7 +236,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			icon: 'tier2:file-video',
 		}, {
 			langterm: 'recycleBin',
-			location: '/recycle-bin',
+			location: `/${pageNames.recycleBin}`,
 			icon: 'tier2:delete',
 		}];
 
@@ -280,6 +284,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			`/:orgUnitId/${pageNames.manageLiveEvents}/create`,
 			`/:orgUnitId/${pageNames.manageLiveEvents}/edit`,
 			`/:orgUnitId/${pageNames.myVideos}`,
+			`/:orgUnitId/${pageNames.recycleBin}`,
 			`/:orgUnitId/${pageNames.liveEventsReporting}`,
 			`/:orgUnitId/${pageNames.producer}/:id`,
 			`/:orgUnitId/${pageNames.settings}`,

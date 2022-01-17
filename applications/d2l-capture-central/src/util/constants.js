@@ -9,6 +9,7 @@ export const pageNames = {
 	manageLiveEventsEdit: 'edit',
 	myVideos: 'my-videos',
 	viewLiveEvent: 'view-live-event',
+	recycleBin: 'recycle-bin',
 	page404: '404',
 	producer: 'producer',
 	settings: 'settings',

@@ -17,6 +17,8 @@ import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin.js';
 import { NavigationMixin } from '../mixins/navigation-mixin.js';
 import { navigationSharedStyle } from '../style/d2l-navigation-shared-styles.js';
 import { rootStore } from '../state/root-store.js';
+export const myVideosPage = '/my-videos';
+export const recycleBinPage = '/recycle-bin';
 
 export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixin(NavigationMixin(contentSearchMixin(LitElement)))) {
 	static get properties() {
@@ -156,8 +158,8 @@ export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixi
 		this.loading = true;
 		const { sortQuery, searchQuery, dateModified, dateCreated } = this.queryParams;
 
-		const searchFunc = this.page === '/recycle-bin' ? this._handleDeletedVideoSearch : this._handleVideoSearch;
-		searchFunc.bind(this)({
+		const searchFunc = this.page === recycleBinPage ? this._handleDeletedVideoSearch : this._handleVideoSearch;
+		await searchFunc.bind(this)({
 			append,
 			createdAt: dateCreated,
 			query: searchQuery,
@@ -173,7 +175,7 @@ export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixi
 			rootStore.routingStore,
 			'queryParams',
 			change => {
-				if (this.loading || rootStore.routingStore.page !== this.page) {
+				if (this.loading || `/${  rootStore.routingStore.page}` !== this.page) {
 					return;
 				}
 
@@ -190,6 +192,7 @@ export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixi
 				if (updatedSearchQuery === searchQuery && updatedSortQuery === sortQuery &&
 					updatedDateCreated === dateCreated && updatedDateModified === dateModified
 				) {
+					this.reloadPage();
 					return;
 				}
 
@@ -198,7 +201,7 @@ export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixi
 					sortQuery: updatedSortQuery,
 					dateCreated: updatedDateCreated,
 					dateModified: updatedDateModified,
-					filter: this.page === 'recycle-bin' ? 'DELETED' : undefined,
+					filter: this.page === recycleBinPage ? 'DELETED' : undefined,
 				};
 				this.reloadPage();
 			}
@@ -230,6 +233,7 @@ export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixi
 			this._start = 0;
 		}
 	}
+
 	renderNotFound() {
 		return !this.loading && this._videos.length === 0 ? html`
 			<div class="d2l-capture-central-content-list-no-results">
