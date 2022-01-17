@@ -17,6 +17,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 			_mediaSources: { type: Array, attribute: false },
 			_captionSignedUrls: { type: Array, attribute: false },
 			_metadata: { type: String, attribute: false },
+			_poster: { type: String, attribute: false },
 			_thumbnails: { type: String, attribute: false },
 			activity: { type: String, attribute: 'activity' },
 			allowDownload: { type: Boolean, attribute: 'allow-download'},
@@ -51,6 +52,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 		this._revision = null;
 		this._thumbnails = null;
 		this._metadata = null;
+		this._poster = null;
 		this._attemptedReloadOnError = false;
 	}
 
@@ -86,6 +88,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 				crossorigin="anonymous"
 				media-type="${this._revision.type === ContentType.Video ? 'video' : 'audio'}"
 				metadata=${ifDefined(this._metadata ? this._metadata : undefined)}
+				poster=${ifDefined(this._poster ? this._poster : undefined)}
 				thumbnails=${ifDefined(this._thumbnails ? this._thumbnails : undefined)}
 				@error=${this._onError}
 				@loadeddata=${this._onLoadedData}
@@ -106,6 +109,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 
 		if (this._revision.type === ContentType.Video) {
 			await this._loadMetadata();
+			await this._loadPoster();
 			await this._loadThumbnails();
 		}
 	}
@@ -174,6 +178,14 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 		if (result) {
 			this._metadata = JSON.stringify(result);
 		}
+	}
+
+	async _loadPoster() {
+		const result = this.activity ?
+			this._resourceEntity.entities.find(entity => entity.class.find(name => name === 'thumbnail'))?.properties.src
+			: await this.client.getPoster();
+
+		if (result) this._poster = result.Value || result;
 	}
 
 	async _loadRevisionData() {
