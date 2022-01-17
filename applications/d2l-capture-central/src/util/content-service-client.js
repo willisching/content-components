@@ -179,7 +179,6 @@ export default class ContentServiceClient {
 		createdAt = '',
 		includeThumbnails = false
 	}) {
-		console.log('SEARCHING DELETED CONTENT');
 		const headers = new Headers();
 		headers.append('pragma', 'no-cache');
 		headers.append('cache-control', 'no-cache');
