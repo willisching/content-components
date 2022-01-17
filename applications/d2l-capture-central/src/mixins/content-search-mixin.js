@@ -22,6 +22,30 @@ export const contentSearchMixin = superClass => class extends superClass {
 		this._totalResults = 0;
 	}
 
+	async _handleDeletedVideoSearch({
+		append = false,
+		query = this._query,
+		createdAt,
+		sort = '',
+		updatedAt
+	} = {}) {
+		if (append) {
+			this._start += this._resultSize;
+		}
+
+		const { hits: { hits, total } } = await this.apiClient.searchDeletedContent({
+			contentType: 'video',
+			createdAt: createdAt,
+			includeThumbnails: false,
+			query: query,
+			sort: sort,
+			start: this._start,
+			updatedAt: updatedAt
+		});
+		this._updateVideoList(hits, append);
+		this._totalResults = total;
+		this._moreResultsAvailable = this._videos.length < total;
+	}
 	async _handleInputVideoSearch({ detail: { value: query } }) {
 		this._start = 0;
 		this._query = query;
