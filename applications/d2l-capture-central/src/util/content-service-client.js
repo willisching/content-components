@@ -192,6 +192,7 @@ export default class ContentServiceClient {
 				query,
 				contentType: contentFilterToSearchQuery(contentType),
 				updatedAt: dateFilterToSearchQuery(updatedAt),
+				createdAt: dateFilterToSearchQuery(createdAt),
 				filter: 'DELETED',
 				includeThumbnails
 			},

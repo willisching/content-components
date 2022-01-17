@@ -157,7 +157,7 @@ export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixi
 		const { sortQuery, searchQuery, dateModified, dateCreated } = this.queryParams;
 
 		const searchFunc = this.page === '/recycle-bin' ? this._handleDeletedVideoSearch : this._handleVideoSearch;
-		searchFunc({
+		searchFunc.bind(this)({
 			append,
 			createdAt: dateCreated,
 			query: searchQuery,
