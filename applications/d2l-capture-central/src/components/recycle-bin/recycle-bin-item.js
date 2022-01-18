@@ -110,16 +110,6 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 		}
 	}
 
-	delete() {
-		return async() => {
-			await this.apiClient.deleteContent({
-				contentId: this.id
-			});
-			this.dispatchDeletedEvent();
-			this.deleted = true;
-		};
-	}
-
 	dispatchRestoreEvent() {
 		this.dispatchEvent(new CustomEvent('recycle-bin-item-restored', {
 			detail: {
@@ -127,36 +117,7 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 			}
 		}));
 	}
-	download() {
-		// Safari blocks calls to window.open within an async call
-		const downloadWindow = window.open('', '_blank');
-		this.apiClient.getSignedUrlForRevision({
-			contentId: this.id,
-			revisionId: this.revisionId
-		})
-			.then(res => {
-				if (res && res.value) {
-					downloadWindow.location.replace(res.value);
-				} else {
-					downloadWindow.close();
-				}
-			})
-			.catch(() => downloadWindow.close());
-	}
-	async rename(newTitle) {
-		if (this.title !== newTitle) {
-			this.dispatchRenameEvent(newTitle);
 
-			if (!this.content) {
-				this.content = await this.apiClient.getContent(this.id);
-			}
-			const updatedContent = Object.assign({}, this.content, { title: newTitle });
-			await this.apiClient.updateContent({
-				id: this.id,
-				body: updatedContent,
-			});
-		}
-	}
 	restore() {
 		this.dispatchRestoreEvent();
 	}

@@ -177,7 +177,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 			revisionId: this.revisionId
 		})
 			.then(res => {
-				if (res && res.value) {
+				if (res?.value) {
 					downloadWindow.location.replace(res.value);
 				} else {
 					downloadWindow.close();
@@ -237,7 +237,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 
 	titleInputChangedHandler() {
 		const titleInputElement = this.shadowRoot.querySelector('#rename-input');
-		const titleInputValue = titleInputElement && titleInputElement.value;
+		const titleInputValue = titleInputElement?.value;
 		this.confirmDisabled = !titleInputValue || titleInputValue.trim().length === 0;
 	}
 }

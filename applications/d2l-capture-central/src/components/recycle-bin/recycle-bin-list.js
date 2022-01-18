@@ -113,7 +113,7 @@ class RecycleBinList extends CaptureCentralList {
 			<div slot="title" class="title">${item.title}</div>
 			<div slot="type">${item.type}</div>
 			<relative-date slot="date" value=${item[this.dateField]}></relative-date>
-			<div slot="expiry" class=d2l-body-small>Permanently deleted in ${numDays} ${numDays === 1 ? 'day' : 'days'}</div>
+			<div slot="expiry" class=d2l-body-small>${this.localize('permanentlyDeletedIn', { count: numDays })}</div>
 		</recycle-bin-item>
 		`;
 	}

@@ -175,7 +175,7 @@ export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixi
 			rootStore.routingStore,
 			'queryParams',
 			change => {
-				if (this.loading || `/${  rootStore.routingStore.page}` !== this.page) {
+				if (this.loading || `/${rootStore.routingStore.page}` !== this.page) {
 					return;
 				}
 

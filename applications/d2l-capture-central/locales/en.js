@@ -86,6 +86,7 @@ export const val = {
 	openInPlayer: 'Open in Player',
 	openInProducer: 'Open in Producer',
 	pageNotFound: 'Page not found.',
+	permanentlyDeletedIn: 'Permanently deleted in {count} {count, plural, =1 {day} other {days}}',
 	postRollClip: 'Post-roll clip:',
 	prepostRollClipSettings: 'Pre-roll and Post-roll Video Clip Settings',
 	prepostRollHeading: 'PRE-ROLL/POST-ROLL',
