@@ -97,7 +97,7 @@ class D2LCaptureCentralRecycleBin extends contentSearchMixin(DependencyRequester
 			<div class="d2l-capture-central-manage-container">
 				<h2 class="d2l-capture-central-recycle-bin-heading d2l-heading-2">${this.localize('recycleBin')}</h2>
 				<div class="d2l-capture-central-recycle-bin-controls">
-					<content-filter-dropdown deleted='true'
+					<content-filter-dropdown deleted
 						@change-filter-cleared=${this._handleFilterCleared}
 						@change-filter=${this._handleFilterChange}
 					></content-filter-dropdown>
