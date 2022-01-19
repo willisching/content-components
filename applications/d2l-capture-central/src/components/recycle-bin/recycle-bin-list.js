@@ -39,7 +39,7 @@ class RecycleBinList extends CaptureCentralList {
 			</content-file-drop>
 
 			<d2l-alert-toast
-				id="restored-toast"
+				id="recycle-bin-toast"
 				type="default"
 				button-text=${this.alertToastButtonText}
 				announce-text=${this.alertToastMessage}>
@@ -68,7 +68,19 @@ class RecycleBinList extends CaptureCentralList {
 		}
 	}
 
-	async recycleBinItemRestoredHandler(e) {
+	recycleBinItemDestroyHandler(e) {
+		this.removeFromRecycleBin(e);
+		this.requestUpdate();
+		this.showToast('permanentlyDeletedFile');
+	}
+
+	recycleBinItemRestoredHandler(e) {
+		this.removeFromRecycleBin(e);
+		this.requestUpdate();
+		this.showToast('restoredFile');
+	}
+
+	removeFromRecycleBin(e) {
 		const { detail } = e;
 
 		if (!detail || !detail.id) {
@@ -76,15 +88,8 @@ class RecycleBinList extends CaptureCentralList {
 		}
 
 		const index = this._videos.findIndex(c => c.id === detail.id);
-
 		if (index >= 0 && index < this._videos.length) {
-			await this.apiClient.undeleteContent({ contentId: detail.id });
 			this._videos.splice(index, 1);
-
-			this.alertToastMessage = this.localize('restoredFile');
-			this.alertToastButtonText = '';
-			this.requestUpdate();
-			this.showRestoredToast();
 
 			if (this._videos.length < this._resultSize && this._moreResultsAvailable && !this.loading) {
 				this.loadNext();
@@ -108,6 +113,7 @@ class RecycleBinList extends CaptureCentralList {
 			revision-id=${item.revisionId}
 			title=${item.title}
 			@recycle-bin-item-restored=${this.recycleBinItemRestoredHandler}
+			@recycle-bin-item-destroyed=${this.recycleBinItemDestroyHandler}
 		>
 			<d2l-icon icon="tier1:file-video" slot="icon"></d2l-icon>
 			<div slot="title" class="title">${item.title}</div>
@@ -118,13 +124,13 @@ class RecycleBinList extends CaptureCentralList {
 		`;
 	}
 
-	showRestoredToast() {
-		const restoredToastElement = this.shadowRoot.querySelector('#restored-toast');
-
-		if (restoredToastElement) {
-			restoredToastElement.removeAttribute('open');
-			this.alertToastMessage = this.localize('restoredFile');
-			restoredToastElement.setAttribute('open', true);
+	showToast(alertLocaleKey) {
+		const toastElement = this.shadowRoot.querySelector('#recycle-bin-toast');
+		if (toastElement) {
+			toastElement.removeAttribute('open');
+			this.alertToastMessage = this.localize(alertLocaleKey);
+			this.alertToastButtonText = '';
+			toastElement.setAttribute('open', true);
 		}
 	}
 

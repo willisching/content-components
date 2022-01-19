@@ -34,10 +34,11 @@ export default class ContentServiceClient {
 		});
 	}
 
-	deleteContent({ contentId }) {
+	deleteContent({ contentId, hardDelete = false }) {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}`,
 			method: 'DELETE',
+			body: {hardDelete: hardDelete},
 			extractJsonBody: false
 		});
 	}

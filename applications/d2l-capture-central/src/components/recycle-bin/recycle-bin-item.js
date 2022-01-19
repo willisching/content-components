@@ -6,6 +6,7 @@ import '@brightspace-ui/core/components/dropdown/dropdown-menu.js';
 import '@brightspace-ui/core/components/menu/menu.js';
 import '@brightspace-ui/core/components/menu/menu-item.js';
 import '@brightspace-ui/core/components/dialog/dialog.js';
+import '@brightspace-ui/core/components/dialog/dialog-confirm.js';
 import '@brightspace-ui/core/components/inputs/input-text.js';
 import './recycle-bin-list-columns.js';
 
@@ -47,6 +48,7 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 	constructor() {
 		super();
 		this.selectable = false; // Hide checkboxes until bulk actions are implemented
+		this.dropdownBoundary = {};
 		this.content = null;
 		this.confirmDisabled = false;
 		this.deleted = false;
@@ -59,6 +61,8 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 
 	firstUpdated() {
 		super.firstUpdated();
+		this.addEventListener('d2l-dropdown-close', this.dropdownClosed);
+		this.addEventListener('d2l-dropdown-open', this.adjustDropdownBoundary);
 	}
 
 	render() {
@@ -85,12 +89,36 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 				</recycle-bin-list-columns>
 
 				<div slot="actions" id="actions" class="actions">
-					<d2l-button
-						class="d2l-capture-central-restore-button"
-						@click="${this.restore}"
-						type="button"
-					>${this.localize('restore')}</d2l-button>
+					<d2l-dropdown-more text="${this.localize('moreActions')}" @click=${this.dropdownClicked} ?disabled=${this.disabled}>
+						<d2l-dropdown-menu id="actions-dropdown-menu" align="end" boundary=${JSON.stringify(this.dropdownBoundary)}>
+							<d2l-menu label="${this.localize('moreActions')}">
+								<d2l-menu-item text="${this.localize('restore')}" @click="${this.restore()}"></d2l-menu-item>
+								<d2l-menu-item text="${this.localize('deletePermanently')}" @click="${this.destroyHandler()}"></d2l-menu-item>
+							</d2l-menu>
+						</d2l-dropdown-menu>
+					</d2l-dropdown-more>
 				</div>
+				<d2l-dialog-confirm
+					id="d2l-capture-central-confirm-destroy"
+					class="d2l-capture-central-confirm-destroy"
+					title-text="${this.localize('confirmDeletePermanently')}"
+					text="${this.localize('permanentActionWarning')}"
+				>
+					<d2l-button
+						@click="${this.destroy()}"
+						data-dialog-action="yes"
+						primary
+						slot="footer"
+					>
+					${this.localize('deletePermanently')}
+					</d2l-button>
+					<d2l-button
+						data-dialog-action="no"
+						slot="footer"
+					>
+					${this.localize('cancel')}
+					</d2l-button>
+				</d2l-dialog-confirm>
 			</d2l-list-item>
 		`;
 	}
@@ -110,6 +138,30 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 		}
 	}
 
+	destroy() {
+		return async() => {
+			await this.apiClient.deleteContent(
+				{contentId: this.id,
+					hardDelete: true}
+			);
+			this.dispatchDestroyEvent();
+		};
+	}
+
+	destroyHandler() {
+		return async() => {
+			await this.shadowRoot.querySelector('.d2l-capture-central-confirm-destroy').open();
+		};
+	}
+
+	dispatchDestroyEvent() {
+		this.dispatchEvent(new CustomEvent('recycle-bin-item-destroyed', {
+			detail: {
+				id: this.id
+			}
+		}));
+	}
+
 	dispatchRestoreEvent() {
 		this.dispatchEvent(new CustomEvent('recycle-bin-item-restored', {
 			detail: {
@@ -119,13 +171,12 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 	}
 
 	restore() {
-		this.dispatchRestoreEvent();
-	}
-
-	titleInputChangedHandler() {
-		const titleInputElement = this.shadowRoot.querySelector('#rename-input');
-		const titleInputValue = titleInputElement && titleInputElement.value;
-		this.confirmDisabled = !titleInputValue || titleInputValue.trim().length === 0;
+		return async() => {
+			await this.apiClient.undeleteContent(
+				{ contentId: this.id }
+			);
+			this.dispatchRestoreEvent();
+		};
 	}
 }
 
