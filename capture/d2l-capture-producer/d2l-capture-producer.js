@@ -172,6 +172,22 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			await this._loadContentAndAllRelatedData();
 		});
 
+		// we only need resizing for case when capture-producer is opened in the dialog
+		if (window.self !== window.top) {
+			const dialog = window.parent.document.getElementsByClassName('d2l-dialog-frame')?.[window.name]?.parentElement?.parentElement;
+			const topWindow = window.top;
+			const onResize = () => {
+				dialog.style.width = 'calc(100% - 50px)';
+				dialog.style.maxWidth = '1200px';
+				dialog.style.left = `${(topWindow.innerWidth - dialog.offsetWidth) / 2}px`;
+				dialog.style.top = `calc(${topWindow.scrollY}px + 25px)`;
+				dialog.style.height = 'calc(100% - 50px)';
+			};
+
+			setTimeout(() => onResize(), 1000);
+			topWindow.addEventListener('resize', onResize);
+			window.addEventListener('unload', () => topWindow.removeEventListener('resize', onResize));
+		}
 		window.addEventListener('beforeunload', this._askBeforeExit.bind(this));
 	}
 
