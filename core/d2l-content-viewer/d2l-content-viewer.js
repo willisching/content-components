@@ -182,10 +182,10 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 
 	async _loadPoster() {
 		const result = this.activity ?
-			this._resourceEntity.entities.find(entity => entity.class.find(name => name === 'thumbnail'))?.properties.src
+			this._resourceEntity.entities.find(entity => entity.class.find(name => name === 'thumbnail'))
 			: await this.client.getPoster();
 
-		if (result) this._poster = result.Value || result;
+		if (result) this._poster = result.Value || result.properties.src;
 	}
 
 	async _loadRevisionData() {
