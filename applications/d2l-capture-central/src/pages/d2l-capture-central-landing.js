@@ -18,7 +18,7 @@ class D2lCaptureCentralLanding extends DependencyRequester(navigationMixin(PageV
 		super.connectedCallback();
 		const permissions = rootStore.permissionStore.getPermissions();
 		if (permissions.canManage) {
-			this._navigate('/my-videos');
+			this._navigate('/videos');
 		} else {
 			this._navigate('/404');
 		}

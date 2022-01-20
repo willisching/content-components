@@ -9,7 +9,7 @@ import '../relative-date.js';
 import './content-list-header.js';
 import './content-list-item-ghost.js';
 import './content-list-item.js';
-import { CaptureCentralList, myVideosPage } from '../capture-central-list.js';
+import { CaptureCentralList, videosPage } from '../capture-central-list.js';
 
 import { html } from 'lit-element/lit-element.js';
 import { observe, toJS } from 'mobx';
@@ -19,7 +19,7 @@ import { rootStore } from '../../state/root-store.js';
 class ContentList extends CaptureCentralList {
 	constructor() {
 		super();
-		this.page = myVideosPage;
+		this.page = videosPage;
 	}
 
 	connectedCallback() {
