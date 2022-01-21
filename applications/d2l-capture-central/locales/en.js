@@ -45,6 +45,7 @@ export const val = {
 	editProperties: 'Edit Properties',
 	enableChat: 'Enable Chat',
 	enterAnItemName: 'Enter an item name',
+	everyonesVideos: 'Everyone\'s Videos',
 	export: 'Export',
 	exportAsCsv: 'Export as a list of comma-separated values.',
 	filterCount: '{count, plural, =0 {Filter} =1 {Filter ({count})} other {Filters ({count})}}',

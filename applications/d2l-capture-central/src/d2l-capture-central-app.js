@@ -2,6 +2,7 @@ import './components/two-column-layout.js';
 import '@brightspace-ui/core/components/list/list-item-content.js';
 import '@brightspace-ui/core/components/list/list-item.js';
 import '@brightspace-ui/core/components/list/list.js';
+import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { BASE_PATH } from './state/routing-store.js';
 
@@ -18,6 +19,8 @@ import { rootStore } from './state/root-store.js';
 class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalLocalizeMixin(MobxReactionUpdate(LitElement)))) {
 	static get properties() {
 		return {
+			canManageAllVideos: { type: Boolean, attribute: 'can-manage-all-videos' },
+			_loading: { type: Boolean, attribute: false },
 			_permissionError: { type: Boolean, attribute: false },
 			_shouldRenderSidebar: { type: Boolean, attribute: false },
 		};
@@ -30,6 +33,11 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				height: 100%;
 				margin: 0 auto;
 				max-width: 1230px;
+			}
+
+			.d2l-capture-central-loading-spinner {
+				display: block;
+				margin-top: 20px;
 			}
 
 			.d2l-capture-central-primary {
@@ -85,7 +93,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 		const documentObserver = new ResizeObserver(this._resized.bind(this));
 		documentObserver.observe(document.body, { attributes: true });
 
-		this.loading = true;
+		this._loading = true;
 		this._shouldRenderSidebar = null;
 		this._permissionError = false;
 		this._setupPageNavigation();
@@ -97,15 +105,32 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 
 		try {
 			const permissions = await this.userBrightspaceClient.getPermissions();
+
+			// "Can Manage All Videos" is mapped from the "Can Manage All Content" permission in Content Service.
+			// Since it's not a Capture permission, it is passed down from the LMS to Capture Central as a Lit attribute.
+			permissions.canManageAllVideos = this.canManageAllVideos ? 'true' : 'false';
+			console.log(permissions.canManageAllVideos);
+
 			rootStore.permissionStore.setPermissions(permissions);
+			console.log(rootStore.permissionStore.getCanManageAllVideos());
 			this._shouldRenderSidebar = this._shouldRenderSidebar
 				&& rootStore.permissionStore.getCanManageCaptureCentral();
 		} catch (error) {
 			this._permissionError = true;
 		}
+
+		this._loading = false;
 	}
 
 	render() {
+		if (this._loading) {
+			return html`
+				<d2l-loading-spinner
+					class="d2l-capture-central-loading-spinner"
+					size="150"
+				></d2l-loading-spinner>
+			`;
+		}
 		if (this._permissionError) {
 			return html `
 				${this.localize('unableToGetPermissions')}
@@ -166,8 +191,8 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 						import('./pages/live-events/d2l-capture-central-live-events.js');
 						return;
 				}
-			case pageNames.myVideos:
-				import('./pages/my-videos/d2l-capture-central-my-videos.js');
+			case pageNames.videos:
+				import('./pages/videos/d2l-capture-central-videos.js');
 				return;
 			case pageNames.viewLiveEvent:
 				import('./pages/live-events/d2l-capture-central-live-events-view.js');
@@ -215,7 +240,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				<d2l-capture-central-live-events-edit class="page" ?active=${currentPage === pageNames.manageLiveEvents && subView === 'edit'}></d2l-capture-central-live-events-edit>
 				<d2l-capture-central-live-events-create class="page" ?active=${currentPage === pageNames.manageLiveEvents && subView === 'create'}></d2l-capture-central-live-events-create>
 				<d2l-capture-central-live-events-reporting class="page" ?active=${currentPage === pageNames.liveEventsReporting}></d2l-capture-central-live-events-reporting>
-				<d2l-capture-central-my-videos class="page" ?active=${currentPage === pageNames.myVideos}></d2l-capture-central-my-videos>
+				<d2l-capture-central-videos class="page" ?active=${currentPage === pageNames.videos}></d2l-capture-central-videos>
 				<d2l-capture-central-recycle-bin class="page" ?active=${currentPage === pageNames.recycleBin}></d2l-capture-central-recycle-bin>
 				<d2l-capture-central-producer class="page" ?active=${currentPage === pageNames.producer && !!subView}></d2l-capture-central-producer>
 				<d2l-capture-central-settings class="page" ?active=${currentPage === pageNames.settings}></d2l-capture-central-settings>
@@ -227,9 +252,9 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 
 	_renderSidebar() {
 		const sidebarItems = [ {
-			langterm: 'myVideos',
-			location: `/${pageNames.myVideos}`,
-			icon: 'tier2:folder',
+			langterm: rootStore.permissionStore.getCanManageAllVideos() ? 'everyonesVideos' : 'myVideos',
+			location: `/${pageNames.videos}`,
+			icon: rootStore.permissionStore.getCanManageAllVideos() ? 'tier2:browser' : 'tier2:folder',
 		}, {
 			langterm: 'liveEvents',
 			location: `/${pageNames.manageLiveEvents}`,
@@ -283,7 +308,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			`/:orgUnitId/${pageNames.manageLiveEvents}`,
 			`/:orgUnitId/${pageNames.manageLiveEvents}/create`,
 			`/:orgUnitId/${pageNames.manageLiveEvents}/edit`,
-			`/:orgUnitId/${pageNames.myVideos}`,
+			`/:orgUnitId/${pageNames.videos}`,
 			`/:orgUnitId/${pageNames.recycleBin}`,
 			`/:orgUnitId/${pageNames.liveEventsReporting}`,
 			`/:orgUnitId/${pageNames.producer}/:id`,

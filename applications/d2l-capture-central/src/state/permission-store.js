@@ -7,6 +7,10 @@ export class PermissionStore {
 		this.permissions = {};
 	}
 
+	getCanManageAllVideos() {
+		return this.permissions.canManageAllVideos === 'true';
+	}
+
 	getCanManageCaptureCentral() {
 		return true; // TODO: update after permission is added
 	}

@@ -17,7 +17,7 @@ import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin.js';
 import { NavigationMixin } from '../mixins/navigation-mixin.js';
 import { navigationSharedStyle } from '../style/d2l-navigation-shared-styles.js';
 import { rootStore } from '../state/root-store.js';
-export const myVideosPage = '/my-videos';
+export const videosPage = '/videos';
 export const recycleBinPage = '/recycle-bin';
 
 export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixin(NavigationMixin(contentSearchMixin(LitElement)))) {

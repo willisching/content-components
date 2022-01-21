@@ -6,7 +6,7 @@ import '@brightspace-ui/core/components/list/list-item-content.js';
 import '@brightspace-ui/core/components/list/list-item.js';
 import '@brightspace-ui/core/components/list/list.js';
 import '../../components/content-filter-dropdown.js';
-import '../../components/my-videos/content-list.js';
+import '../../components/videos/content-list.js';
 import '../../components/upload-status-management.js';
 import '../../components/unauthorized-message.js';
 
@@ -18,7 +18,7 @@ import { navigationSharedStyle } from '../../style/d2l-navigation-shared-styles.
 import { PageViewElement } from '../../components/page-view-element';
 import { rootStore } from '../../state/root-store.js';
 import { sharedManageStyles } from '../../style/shared-styles.js';
-class D2LCaptureCentralMyVideos extends contentSearchMixin(DependencyRequester(PageViewElement)) {
+class D2LCaptureCentralVideos extends contentSearchMixin(DependencyRequester(PageViewElement)) {
 	static get properties() {
 		return {
 			contentItems: { type: Array, attribute: false },
@@ -27,15 +27,15 @@ class D2LCaptureCentralMyVideos extends contentSearchMixin(DependencyRequester(P
 
 	static get styles() {
 		return [heading2Styles, navigationSharedStyle, sharedManageStyles, css`
-			.d2l-capture-central-my-videos-heading {
+			.d2l-capture-central-videos-heading {
 				display: none;
 			}
-			.d2l-capture-central-my-videos-controls {
+			.d2l-capture-central-videos-controls {
 				display: flex;
 				margin: 25px 0;
 			}
 
-			.d2l-capture-central-my-videos-upload-button {
+			.d2l-capture-central-videos-upload-button {
 				margin-right: 10px;
 			}
 
@@ -43,7 +43,7 @@ class D2LCaptureCentralMyVideos extends contentSearchMixin(DependencyRequester(P
 				margin-left: auto;
 			}
 
-			.d2l-capture-central-my-videos-input-search {
+			.d2l-capture-central-videos-input-search {
 				margin-left: 10px;
 				max-width: 375px;
 			}
@@ -72,11 +72,11 @@ class D2LCaptureCentralMyVideos extends contentSearchMixin(DependencyRequester(P
 			}
 
 			@media (max-width: 768px) {
-				.d2l-capture-central-my-videos-heading {
+				.d2l-capture-central-videos-heading {
 					display: flex;
 					width: 100%;
 				}
-				.d2l-capture-central-my-videos-controls {
+				.d2l-capture-central-videos-controls {
 					margin-top: 0;
 				}
 			}
@@ -94,12 +94,13 @@ class D2LCaptureCentralMyVideos extends contentSearchMixin(DependencyRequester(P
 				<unauthorized-message></unauthorized-message>
 			`;
 		}
+		const heading = rootStore.permissionStore.getCanManageAllVideos() ? this.localize('everyonesVideos') : this.localize('myVideos');
 		return html`
 			<div class="d2l-capture-central-manage-container">
-				<h2 class="d2l-capture-central-my-videos-heading d2l-heading-2">${this.localize('myVideos')}</h2>
-				<div class="d2l-capture-central-my-videos-controls">
+				<h2 class="d2l-capture-central-videos-heading d2l-heading-2">${heading}</h2>
+				<div class="d2l-capture-central-videos-controls">
 					<d2l-button
-						class="d2l-capture-central-my-videos-upload-button"
+						class="d2l-capture-central-videos-upload-button"
 						@click=${this._handleFileUploadClick}
 						primary
 					>${this.localize('upload')}
@@ -109,7 +110,7 @@ class D2LCaptureCentralMyVideos extends contentSearchMixin(DependencyRequester(P
 						@change-filter=${this._handleFilterChange}
 					></content-filter-dropdown>
 					<d2l-input-search
-						class="d2l-capture-central-my-videos-input-search"
+						class="d2l-capture-central-videos-input-search"
 						label="${this.localize('searchPlaceholder')}"
 						placeholder="${this.localize('searchPlaceholder')}"
 						maxlength="100"
@@ -134,7 +135,7 @@ class D2LCaptureCentralMyVideos extends contentSearchMixin(DependencyRequester(P
 	}
 
 	_handleFilterChange({ detail = {} }) {
-		this._navigate('/my-videos', {
+		this._navigate('/videos', {
 			...this.rootStore.routingStore.getQueryParams(),
 			...detail
 		});
@@ -144,16 +145,16 @@ class D2LCaptureCentralMyVideos extends contentSearchMixin(DependencyRequester(P
 		const queryParams = this.rootStore.routingStore.getQueryParams();
 		delete queryParams.dateCreated;
 		delete queryParams.dateModified;
-		this._navigate('/my-videos', queryParams);
+		this._navigate('/videos', queryParams);
 	}
 
 	_handleSearch(event) {
 		const { value } = event.detail;
 
-		this._navigate('/my-videos', {
+		this._navigate('/videos', {
 			...this.rootStore.routingStore.getQueryParams(),
 			searchQuery: value
 		});
 	}
 }
-customElements.define('d2l-capture-central-my-videos', D2LCaptureCentralMyVideos);
+customElements.define('d2l-capture-central-videos', D2LCaptureCentralVideos);
