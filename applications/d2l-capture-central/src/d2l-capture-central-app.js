@@ -109,10 +109,8 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			// "Can Manage All Videos" is mapped from the "Can Manage All Content" permission in Content Service.
 			// Since it's not a Capture permission, it is passed down from the LMS to Capture Central as a Lit attribute.
 			permissions.canManageAllVideos = this.canManageAllVideos ? 'true' : 'false';
-			console.log(permissions.canManageAllVideos);
 
 			rootStore.permissionStore.setPermissions(permissions);
-			console.log(rootStore.permissionStore.getCanManageAllVideos());
 			this._shouldRenderSidebar = this._shouldRenderSidebar
 				&& rootStore.permissionStore.getCanManageCaptureCentral();
 		} catch (error) {
@@ -179,6 +177,8 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			case pageNames.folders:
 				import('./pages/folders/d2l-capture-central-folders.js');
 				return;
+			/*
+			Live Events will be hidden for now. See: US134918
 			case pageNames.manageLiveEvents:
 				switch (subView) {
 					case 'edit':
@@ -191,18 +191,23 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 						import('./pages/live-events/d2l-capture-central-live-events.js');
 						return;
 				}
+			*/
 			case pageNames.videos:
 				import('./pages/videos/d2l-capture-central-videos.js');
 				return;
+			/*
 			case pageNames.viewLiveEvent:
 				import('./pages/live-events/d2l-capture-central-live-events-view.js');
 				return;
+			*/
 			case pageNames.recycleBin:
 				import('./pages/recycle-bin/d2l-capture-central-recycle-bin.js');
 				return;
+			/*
 			case pageNames.liveEventsReporting:
 				import('./pages/reporting/d2l-capture-central-live-events-reporting.js');
 				return;
+			*/
 			case pageNames.producer:
 				this._shouldRenderSidebar = false;
 				if (subView) {
@@ -229,17 +234,21 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 
 	_renderPrimary() {
 		const { page: currentPage, subView } = rootStore.routingStore;
+		/*
+		Live Events will be hidden for now. See: US134918
+		To re-add Live Events, the block below will need to be included in the returned html string.
+		<d2l-capture-central-live-events class="page" ?active=${currentPage === pageNames.manageLiveEvents && !subView}></d2l-capture-central-live-events>
+		<d2l-capture-central-live-events-view class="page" ?active=${currentPage === pageNames.viewLiveEvent && subView === 'view'}></d2l-capture-central-live-events-view>
+		<d2l-capture-central-live-events-edit class="page" ?active=${currentPage === pageNames.manageLiveEvents && subView === 'edit'}></d2l-capture-central-live-events-edit>
+		<d2l-capture-central-live-events-create class="page" ?active=${currentPage === pageNames.manageLiveEvents && subView === 'create'}></d2l-capture-central-live-events-create>
+		<d2l-capture-central-live-events-reporting class="page" ?active=${currentPage === pageNames.liveEventsReporting}></d2l-capture-central-live-events-reporting>
+		*/
 		return html`
 			<div class="d2l-capture-central-primary d2l-navigation-gutters ${this._shouldRenderSidebar ? 'sidebar' : ''}">
 				<d2l-capture-central-landing class="page" ?active=${currentPage === pageNames.landing}></d2l-capture-central-landing>
 				<d2l-capture-central-audit-logs class="page" ?active=${currentPage === pageNames.auditLogs}></d2l-capture-central-audit-logs>
 				<d2l-capture-central-clips class="page" ?active=${currentPage === pageNames.clips}></d2l-capture-central-clips>
 				<d2l-capture-central-folders class="page" ?active=${currentPage === pageNames.folders}></d2l-capture-central-folders>
-				<d2l-capture-central-live-events class="page" ?active=${currentPage === pageNames.manageLiveEvents && !subView}></d2l-capture-central-live-events>
-				<d2l-capture-central-live-events-view class="page" ?active=${currentPage === pageNames.viewLiveEvent && subView === 'view'}></d2l-capture-central-live-events-view>
-				<d2l-capture-central-live-events-edit class="page" ?active=${currentPage === pageNames.manageLiveEvents && subView === 'edit'}></d2l-capture-central-live-events-edit>
-				<d2l-capture-central-live-events-create class="page" ?active=${currentPage === pageNames.manageLiveEvents && subView === 'create'}></d2l-capture-central-live-events-create>
-				<d2l-capture-central-live-events-reporting class="page" ?active=${currentPage === pageNames.liveEventsReporting}></d2l-capture-central-live-events-reporting>
 				<d2l-capture-central-videos class="page" ?active=${currentPage === pageNames.videos}></d2l-capture-central-videos>
 				<d2l-capture-central-recycle-bin class="page" ?active=${currentPage === pageNames.recycleBin}></d2l-capture-central-recycle-bin>
 				<d2l-capture-central-producer class="page" ?active=${currentPage === pageNames.producer && !!subView}></d2l-capture-central-producer>
@@ -255,11 +264,16 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			langterm: rootStore.permissionStore.getCanManageAllVideos() ? 'everyonesVideos' : 'myVideos',
 			location: `/${pageNames.videos}`,
 			icon: rootStore.permissionStore.getCanManageAllVideos() ? 'tier2:browser' : 'tier2:folder',
-		}, {
+		},
+		/*
+		Live Events will be hidden for now. See: US134918
+		{
 			langterm: 'liveEvents',
 			location: `/${pageNames.manageLiveEvents}`,
 			icon: 'tier2:file-video',
-		}, {
+		},
+		*/
+		{
 			langterm: 'recycleBin',
 			location: `/${pageNames.recycleBin}`,
 			icon: 'tier2:delete',
@@ -304,13 +318,16 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			`/:orgUnitId/${pageNames.auditLogs}`,
 			`/:orgUnitId/${pageNames.clips}`,
 			`/:orgUnitId/${pageNames.folders}`,
+			/*
+			Live Events will be hidden for now. See: US134918
 			`/:orgUnitId/${pageNames.viewLiveEvent}`,
 			`/:orgUnitId/${pageNames.manageLiveEvents}`,
 			`/:orgUnitId/${pageNames.manageLiveEvents}/create`,
 			`/:orgUnitId/${pageNames.manageLiveEvents}/edit`,
+			`/:orgUnitId/${pageNames.liveEventsReporting}`,
+			*/
 			`/:orgUnitId/${pageNames.videos}`,
 			`/:orgUnitId/${pageNames.recycleBin}`,
-			`/:orgUnitId/${pageNames.liveEventsReporting}`,
 			`/:orgUnitId/${pageNames.producer}/:id`,
 			`/:orgUnitId/${pageNames.settings}`,
 			`/:orgUnitId/${pageNames.visits}`,
