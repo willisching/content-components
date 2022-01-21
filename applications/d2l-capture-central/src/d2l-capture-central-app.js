@@ -194,6 +194,10 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			*/
 			case pageNames.videos:
 				import('./pages/videos/d2l-capture-central-videos.js');
+				if (rootStore.routingStore.previousPage === '') {
+					// Ensures the DOM updates when redirecting from the initial landing page. Otherwise, the app shows a blank page.
+					this.requestUpdate();
+				}
 				return;
 			/*
 			case pageNames.viewLiveEvent:
