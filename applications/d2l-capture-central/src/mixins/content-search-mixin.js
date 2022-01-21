@@ -8,7 +8,8 @@ export const contentSearchMixin = superClass => class extends superClass {
 			_resultSize: { type: Number },
 			_start: { type: Number },
 			_totalResults: { type: Number },
-			_videos: { type: Array }
+			_videos: { type: Array },
+			_userCache: { type: Object }
 		};
 	}
 
@@ -20,6 +21,27 @@ export const contentSearchMixin = superClass => class extends superClass {
 		this._start = 0;
 		this._videos = [];
 		this._totalResults = 0;
+		this._userCache = {};
+	}
+
+	async _addDisplayNames(hits) {
+		const results = hits.map(hit => hit._source);
+		for (const result of results) {
+			result.ownerDisplayName = await this._getDisplayName(result.ownerId);
+		}
+	}
+
+	async _getDisplayName(userId) {
+		if (!this._userCache[userId]) {
+			try {
+				const { DisplayName } = await this.userBrightspaceClient.getUser(userId);
+				this._userCache[userId] = DisplayName || userId;
+			} catch (error) {
+				this._userCache[userId] = userId;
+			}
+		}
+
+		return this._userCache[userId];
 	}
 
 	async _handleDeletedVideoSearch({
@@ -46,6 +68,7 @@ export const contentSearchMixin = superClass => class extends superClass {
 		this._totalResults = total;
 		this._moreResultsAvailable = this._videos.length < total;
 	}
+
 	async _handleInputVideoSearch({ detail: { value: query } }) {
 		this._start = 0;
 		this._query = query;
@@ -81,6 +104,9 @@ export const contentSearchMixin = superClass => class extends superClass {
 			start: this._start,
 			updatedAt
 		});
+		if (this.canTransferOwnership && this.userBrightspaceClient) {
+			await this._addDisplayNames(hits);
+		}
 		this._updateVideoList(hits, append);
 		this._totalResults = total;
 		this._moreResultsAvailable = this._videos.length < total;
@@ -99,6 +125,8 @@ export const contentSearchMixin = superClass => class extends superClass {
 				duration: `${getRandomInt(0, 20)}:${randomSeconds < 10 ? '0' : ''}${randomSeconds}`,
 				id: result.id,
 				revisionId: result.lastRevId,
+				ownerId: result.ownerId,
+				ownerDisplayName: result.ownerDisplayName,
 				thumbnail: result.thumbnail,
 				title: result.title || result.lastRevTitle,
 				type: result.lastRevType,

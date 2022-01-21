@@ -15,11 +15,15 @@ class ContentListColumns extends LitElement {
 			}
 
 			.col.detail {
-				width: 70%;
+				width: 50%;
+			}
+
+			.col.owner {
+				width: 30%
 			}
 
 			.col.date {
-				width: 30%;
+				width: 20%;
 			}
 		`];
 	}
@@ -27,6 +31,7 @@ class ContentListColumns extends LitElement {
 	render() {
 		return html`
 			<div class="col detail"><slot name="detail"></slot></div>
+			<div class="col owner"><slot name="owner"></slot></div>
 			<div class="col date"><slot name="date"></slot></div>
 		`;
 	}

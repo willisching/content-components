@@ -9,6 +9,7 @@ import '@brightspace-ui/core/components/dialog/dialog.js';
 import '@brightspace-ui/core/components/dialog/dialog-confirm.js';
 import '@brightspace-ui/core/components/inputs/input-text.js';
 import './content-list-columns.js';
+import './transfer-ownership-dialog.js';
 
 import {
 	bodyCompactStyles,
@@ -34,6 +35,8 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 			revisionId: { type: String, attribute: 'revision-id' },
 			selectable: { type: Boolean },
 			title: { type: String },
+			ownerId: { type: String, attribute: 'owner-id' },
+			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
 		};
 	}
 
@@ -44,6 +47,9 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 			}
 			content-list-columns div {
 				margin-right: 5px;
+			}
+			.break-word {
+				overflow-wrap: break-word;
 			}
 		`];
 	}
@@ -84,6 +90,9 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 						<slot name="title"></slot>
 						<slot name="type" class="d2l-body-small"></slot>
 					</div>
+					<div slot="owner" class="break-word">
+						<slot name="owner"></slot>
+					</div>
 					<div slot="date">
 						<slot name="date"></slot>
 					</div>
@@ -102,6 +111,8 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 								<d2l-menu-item text="${this.localize('download')}" @click="${this.download}"></d2l-menu-item>
 								<d2l-menu-item text="${this.localize('edit')}" @click=${this._goTo(`/${pageNames.producer}/${this.id}`)}></d2l-menu-item>
 								<d2l-menu-item id="rename-initiator" text="${this.localize('rename')}" @click="${this.openDialog()}"></d2l-menu-item>
+								${this.canTransferOwnership ? html`
+									<d2l-menu-item text="${this.localize('transferOwnership')}" @click="${this.openTransferOwnershipDialog()}"></d2l-menu-item>` : ''}
 								<d2l-menu-item text="${this.localize('delete')}" @click="${this.deleteHandler()}"></d2l-menu-item>
 							</d2l-menu>
 						</d2l-dropdown-menu>
@@ -144,6 +155,15 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 				<d2l-button slot="footer" ?disabled=${this.confirmDisabled} id="rename-dialog-confirm" primary dialog-action="${dialogConfirmAction}">${this.localize('save')}</d2l-button>
 				<d2l-button slot="footer" id="rename-dialog-cancel" dialog-action>${this.localize('cancel')}</d2l-button>
 			</d2l-dialog>
+
+			${this.canTransferOwnership ? html`
+				<d2l-transfer-ownership-dialog
+					id="transfer-ownership"
+					content-id=${this.id}
+					owner-id=${this.ownerId}
+					title=${this.title}
+					@transfer-ownership-dialog-transfer=${this.transferOwnershipHandler}
+				></d2l-transfer-ownership-dialog>` : ''}
 		`;
 	}
 
@@ -194,6 +214,17 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 			detail: {
 				id: this.id,
 				title
+			}
+		}));
+	}
+
+	dispatchTransferOwnershipEvent(displayName) {
+		this.dispatchEvent(new CustomEvent('content-list-item-owner-changed', {
+			bubbles: true,
+			composed: true,
+			detail: {
+				id: this.id,
+				displayName
 			}
 		}));
 	}
@@ -249,6 +280,12 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 		};
 	}
 
+	openTransferOwnershipDialog() {
+		return () => {
+			this.shadowRoot.querySelector('#transfer-ownership').open();
+		};
+	}
+
 	async rename(newTitle) {
 		if (this.title !== newTitle) {
 			this.dispatchRenameEvent(newTitle);
@@ -268,6 +305,27 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 		const titleInputElement = this.shadowRoot.querySelector('#rename-input');
 		const titleInputValue = titleInputElement?.value;
 		this.confirmDisabled = !titleInputValue || titleInputValue.trim().length === 0;
+	}
+
+	async transferOwnershipHandler(e) {
+		const { detail } = e;
+		if (!detail) {
+			return;
+		}
+
+		const { userId, displayName } = detail;
+		if (this.ownerId !== userId) {
+			this.dispatchTransferOwnershipEvent(displayName);
+
+			if (!this.content) {
+				this.content = await this.apiClient.getContent(this.id);
+			}
+			const updatedContent = Object.assign({}, this.content, { ownerId: userId });
+			await this.apiClient.updateContent({
+				id: this.id,
+				body: updatedContent,
+			});
+		}
 	}
 }
 

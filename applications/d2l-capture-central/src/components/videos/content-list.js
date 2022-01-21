@@ -26,13 +26,21 @@ class ContentList extends CaptureCentralList {
 		super.connectedCallback();
 		this.apiClient = this.requestDependency('content-service-client');
 		this.uploader = this.requestDependency('uploader') || rootStore.uploader;
+		this.canTransferOwnership = rootStore.permissionStore.getCanTransferOwnership();
+		if (this.canTransferOwnership) {
+			// needed to retrieve display names for owners in contentSearchMixin
+			this.userBrightspaceClient = this.requestDependency('user-brightspace-client');
+		}
 		this.observeSuccessfulUpload();
 		this.reloadPage();
 	}
 
 	render() {
 		return html`
-			<content-list-header @change-sort=${this.changeSort}></content-list-header>
+			<content-list-header
+				@change-sort=${this.changeSort}
+				?can-transfer-ownership=${this.canTransferOwnership}
+			></content-list-header>
 			<content-file-drop>
 			<d2l-list>
 				<div id="d2l-content-store-list">
@@ -68,6 +76,25 @@ class ContentList extends CaptureCentralList {
 				if (this._videos.length < this._resultSize && this._moreResultsAvailable && !this.loading) {
 					this.loadNext();
 				}
+			}
+		}
+	}
+
+	contentListItemOwnerHandler(e) {
+		const { detail } = e;
+
+		if (!detail) {
+			return;
+		}
+
+		const { id, displayName } = detail;
+
+		if (id && displayName) {
+			const index = this._videos.findIndex(c => c.id === id);
+			if (index >= 0 && index < this._videos.length) {
+				this._videos[index].ownerDisplayName = displayName;
+				this._videos[index][this.dateField] = (new Date()).toISOString();
+				this.requestUpdate();
 			}
 		}
 	}
@@ -110,13 +137,17 @@ class ContentList extends CaptureCentralList {
 		<content-list-item
 			id=${item.id}
 			revision-id=${item.revisionId}
+			owner-id=${item.ownerId}
 			title=${item.title}
+			?can-transfer-ownership=${this.canTransferOwnership}
 			@content-list-item-renamed=${this.contentListItemRenamedHandler}
 			@content-list-item-deleted=${this.contentListItemDeletedHandler}
+			@content-list-item-owner-changed=${this.contentListItemOwnerHandler}
 		>
 			<d2l-icon icon="tier1:file-video" slot="icon"></d2l-icon>
 			<div slot="title" class="title">${item.title}</div>
 			<div slot="type">${item.type}</div>
+			<div slot="owner">${item.ownerDisplayName}</div>
 			<relative-date slot="date" value=${item[this.dateField]}></relative-date>
 		</content-list-item>
 		`;

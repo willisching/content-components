@@ -9,6 +9,12 @@ import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
 
 class ContentListHeader extends InternalLocalizeMixin(LitElement) {
+	static get properties() {
+		return {
+			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
+		};
+	}
+
 	static get styles() {
 		return [labelStyles, css`
 			:host {
@@ -43,6 +49,9 @@ class ContentListHeader extends InternalLocalizeMixin(LitElement) {
 							label="${this.localize('name')}"
 							sort-key="lastRevTitle.keyword"
 						></column-header-choice>
+					</column-header>
+					<column-header slot="owner" group="content-list" ?hidden=${!this.canTransferOwnership}>
+						${this.localize('owner')}
 					</column-header>
 					<column-header slot="date" group="content-list">
 						<column-header-choice
