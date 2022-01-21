@@ -109,10 +109,8 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			// "Can Manage All Videos" is mapped from the "Can Manage All Content" permission in Content Service.
 			// Since it's not a Capture permission, it is passed down from the LMS to Capture Central as a Lit attribute.
 			permissions.canManageAllVideos = this.canManageAllVideos ? 'true' : 'false';
-			console.log(permissions.canManageAllVideos);
 
 			rootStore.permissionStore.setPermissions(permissions);
-			console.log(rootStore.permissionStore.getCanManageAllVideos());
 			this._shouldRenderSidebar = this._shouldRenderSidebar
 				&& rootStore.permissionStore.getCanManageCaptureCentral();
 		} catch (error) {
