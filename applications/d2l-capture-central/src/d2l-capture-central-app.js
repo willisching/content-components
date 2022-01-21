@@ -318,16 +318,16 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			`/:orgUnitId/${pageNames.auditLogs}`,
 			`/:orgUnitId/${pageNames.clips}`,
 			`/:orgUnitId/${pageNames.folders}`,
-			`/:orgUnitId/${pageNames.viewLiveEvent}`,
-			// Live Events will be hidden for now. See: US134918
 			/*
+			Live Events will be hidden for now. See: US134918
+			`/:orgUnitId/${pageNames.viewLiveEvent}`,
 			`/:orgUnitId/${pageNames.manageLiveEvents}`,
 			`/:orgUnitId/${pageNames.manageLiveEvents}/create`,
 			`/:orgUnitId/${pageNames.manageLiveEvents}/edit`,
+			`/:orgUnitId/${pageNames.liveEventsReporting}`,
 			*/
 			`/:orgUnitId/${pageNames.videos}`,
 			`/:orgUnitId/${pageNames.recycleBin}`,
-			//`/:orgUnitId/${pageNames.liveEventsReporting}`,
 			`/:orgUnitId/${pageNames.producer}/:id`,
 			`/:orgUnitId/${pageNames.settings}`,
 			`/:orgUnitId/${pageNames.visits}`,
