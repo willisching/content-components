@@ -6,6 +6,7 @@ import '@brightspace-ui/core/components/dropdown/dropdown-menu.js';
 import '@brightspace-ui/core/components/menu/menu.js';
 import '@brightspace-ui/core/components/menu/menu-item.js';
 import '@brightspace-ui/core/components/dialog/dialog.js';
+import '@brightspace-ui/core/components/dialog/dialog-confirm.js';
 import '@brightspace-ui/core/components/inputs/input-text.js';
 import './content-list-columns.js';
 
@@ -101,11 +102,33 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 								<d2l-menu-item text="${this.localize('download')}" @click="${this.download}"></d2l-menu-item>
 								<d2l-menu-item text="${this.localize('edit')}" @click=${this._goTo(`/${pageNames.producer}/${this.id}`)}></d2l-menu-item>
 								<d2l-menu-item id="rename-initiator" text="${this.localize('rename')}" @click="${this.openDialog()}"></d2l-menu-item>
-								<d2l-menu-item text="${this.localize('delete')}" @click="${this.delete()}"></d2l-menu-item>
+								<d2l-menu-item text="${this.localize('delete')}" @click="${this.deleteHandler()}"></d2l-menu-item>
 							</d2l-menu>
 						</d2l-dropdown-menu>
 					</d2l-dropdown-more>
 				</div>
+
+				<d2l-dialog-confirm
+				id="d2l-capture-central-confirm-delete"
+				class="d2l-capture-central-confirm-delete"
+				title-text="${this.localize('confirmDelete')}"
+				text="${this.localize('confirmDeleteMessage', {fileName: this.title})}"
+			>
+				<d2l-button
+					@click="${this.delete()}"
+					data-dialog-action="yes"
+					primary
+					slot="footer"
+				>
+				${this.localize('delete')}
+				</d2l-button>
+				<d2l-button
+					data-dialog-action="no"
+					slot="footer"
+				>
+				${this.localize('cancel')}
+				</d2l-button>
+				</d2l-dialog-confirm>
 			</d2l-list-item>
 
 			<d2l-dialog id="rename-dialog" title-text="${this.localize('rename')}">
@@ -145,6 +168,12 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 				contentId: this.id
 			});
 			this.dispatchDeletedEvent();
+		};
+	}
+
+	deleteHandler() {
+		return async() => {
+			await this.shadowRoot.querySelector('.d2l-capture-central-confirm-delete').open();
 		};
 	}
 

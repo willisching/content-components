@@ -102,7 +102,8 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 					id="d2l-capture-central-confirm-destroy"
 					class="d2l-capture-central-confirm-destroy"
 					title-text="${this.localize('confirmDeletePermanently')}"
-					text="${this.localize('permanentActionWarning')}"
+					text="${this.localize('confirmDeleteMessage', {fileName: this.title})}
+					${this.localize('permanentActionWarning')}"
 				>
 					<d2l-button
 						@click="${this.destroy()}"
