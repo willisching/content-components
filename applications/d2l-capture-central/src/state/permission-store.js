@@ -7,6 +7,10 @@ export class PermissionStore {
 		this.permissions = {};
 	}
 
+	getCanAccessCaptureCentral() {
+		return this.permissions.canAccessCaptureCentral === 'true';
+	}
+
 	getCanManageAllVideos() {
 		return this.permissions.canManageAllVideos === 'true';
 	}
