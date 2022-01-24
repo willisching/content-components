@@ -16,6 +16,8 @@ export const val = {
 	clear: 'Clear',
 	clips: 'Clips',
 	close: 'Close',
+	confirmDelete: 'Confirm Delete',
+	confirmDeleteMessage: 'Are you sure you want to delete {fileName}?',
 	confirmDeletePermanently: 'Confirm Delete Permanently',
 	copiedToClipboard: 'Copied to clipboard',
 	copyContents: 'Copy Contents',
