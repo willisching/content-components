@@ -96,6 +96,9 @@ export default class HypermediaClient {
 
 		const getRevisionAction = resourceEntity.getActionByName('get-revision');
 		const getMediaResponse = await this._fetch({ url: getRevisionAction.href });
+		if (!getMediaResponse) {
+			return null;
+		}
 		const mediaEntity = SirenParse(getMediaResponse);
 		return this._formatRevision(mediaEntity.properties);
 	}

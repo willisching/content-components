@@ -40,6 +40,15 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 			:host([hidden]) {
 				display: none;
 			}
+
+ 			#not-found-container {
+				text-align: center;
+				line-height: 140px;
+ 				overflow: hidden;
+ 				position: relative;
+				height: 140px;
+ 				width: 100%;
+			}
 		`;
 	}
 
@@ -54,6 +63,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 		this._metadata = null;
 		this._poster = null;
 		this._attemptedReloadOnError = false;
+		this._noMediaFound = false;
 	}
 
 	async firstUpdated() {
@@ -73,9 +83,10 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 		}
 
 		await this.reloadResources();
-		this._setupDownload();
-		this._loadLocale();
-
+		if (!this._noMediaFound) {
+			this._setupDownload();
+			this._loadLocale();
+		}
 		this.dispatchEvent(new CustomEvent('cs-content-loaded', {
 			bubbles: true,
 			composed: true,
@@ -83,7 +94,8 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	render() {
-		return this._mediaSources && this._mediaSources.length > 0 && html`
+		if (this._mediaSources && this._mediaSources.length > 0) {
+			return html`
 			<d2l-labs-media-player
 				crossorigin="anonymous"
 				media-type="${this._revision.type === ContentType.Video ? 'video' : 'audio'}"
@@ -99,7 +111,14 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 				${this._captionSignedUrls.map(captionSignedUrl => this._renderCaptionsTrack(captionSignedUrl))}
 				${this.allowDownload ? html`<d2l-menu-item slot='settings-menu-item' id='download-menu-item' text=${this.localize('download')}></d2l-menu-item>` : ''}
 			</d2l-labs-media-player>
-		`;
+			`;
+		} else if (this._noMediaFound) {
+			return html`
+			<div id="not-found-container">
+				${this.localize('deletedMedia')}
+			</div>
+			`;
+		}
 	}
 
 	async reloadResources() {
@@ -189,19 +208,14 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	async _loadRevisionData() {
-		if (this.activity) {
-			const revision = await this.hmClient.getRevision(this._resourceEntity);
-			this._revision = {
-				type: revision.type,
-				formats: revision.formats,
-			};
-		} else {
-			const revision = await this.client.getRevision();
-			this._revision = {
-				type: revision.Type,
-				formats: revision.Formats
-			};
+		const revision = this.activity ? await this.hmClient.getRevision(this._resourceEntity) :  await this.client.getRevision();
+		if (!revision) {
+			this._noMediaFound = true;
+			return;
 		}
+		this._revision = this.activity ?
+			{ type: revision.type, formats: revision.formats, } :
+			{ type: revision.Type, formats: revision.Formats, };
 
 		this._verifyContentType(this._revision.type);
 	}
