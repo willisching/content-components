@@ -126,7 +126,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 		await this._loadMedia();
 		await this._loadCaptions();
 
-		if (this._revision.type === ContentType.Video) {
+		if (!this._noMediaFound && this._revision.type === ContentType.Video) {
 			await this._loadMetadata();
 			await this._loadPoster();
 			await this._loadThumbnails();
