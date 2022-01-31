@@ -114,7 +114,6 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 						${this.errorMessage ? html`<p id="error-message" class="d2l-body-compact">${this.errorMessage}&nbsp;</p>` : ''}
 					</div>
 				</file-drop>
-				<p>You can upload files up to a maximum of ${formatFileSize(this.maxFileSizeInBytes)}</p>
 			</div>
 		`;
 	}
