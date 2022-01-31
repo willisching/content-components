@@ -84,8 +84,8 @@ export default class HypermediaClient {
 		}
 
 		const { href } = this.entity.getLinkByClass('content-service-resource');
-		try { 
-			const resourceResponse = await this._fetch({ url: href }); 
+		try {
+			const resourceResponse = await this._fetch({ url: href });
 			const resourceEntity = SirenParse(resourceResponse);
 			return resourceEntity;
 		} catch (e) {
