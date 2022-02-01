@@ -231,6 +231,8 @@ class Timeline {
 	addMarkAtPoint(pixelsAlongTimeline) {
 		const time = this.getTimeFromPixelsAlongTimeline(pixelsAlongTimeline);
 
+		if (time >= this.durationSeconds) return null;
+
 		const existingMark = this._getMarkAtTime(time);
 
 		if (existingMark) return null;
