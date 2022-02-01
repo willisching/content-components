@@ -2,6 +2,7 @@ import './components/two-column-layout.js';
 import '@brightspace-ui/core/components/list/list-item-content.js';
 import '@brightspace-ui/core/components/list/list-item.js';
 import '@brightspace-ui/core/components/list/list.js';
+import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { BASE_PATH } from './state/routing-store.js';
 
@@ -18,6 +19,8 @@ import { rootStore } from './state/root-store.js';
 class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalLocalizeMixin(MobxReactionUpdate(LitElement)))) {
 	static get properties() {
 		return {
+			canManageAllVideos: { type: Boolean, attribute: 'can-manage-all-videos' },
+			_loading: { type: Boolean, attribute: false },
 			_permissionError: { type: Boolean, attribute: false },
 			_shouldRenderSidebar: { type: Boolean, attribute: false },
 		};
@@ -30,6 +33,11 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				height: 100%;
 				margin: 0 auto;
 				max-width: 1230px;
+			}
+
+			.d2l-capture-central-loading-spinner {
+				display: block;
+				margin-top: 20px;
 			}
 
 			.d2l-capture-central-primary {
@@ -85,7 +93,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 		const documentObserver = new ResizeObserver(this._resized.bind(this));
 		documentObserver.observe(document.body, { attributes: true });
 
-		this.loading = true;
+		this._loading = true;
 		this._shouldRenderSidebar = null;
 		this._permissionError = false;
 		this._setupPageNavigation();
@@ -97,15 +105,30 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 
 		try {
 			const permissions = await this.userBrightspaceClient.getPermissions();
+
+			// "Can Manage All Videos" is mapped from the "Can Manage All Content" permission in Content Service.
+			// Since it's not a Capture permission, it is passed down from the LMS to Capture Central as a Lit attribute.
+			permissions.canManageAllVideos = this.canManageAllVideos ? 'true' : 'false';
+
 			rootStore.permissionStore.setPermissions(permissions);
 			this._shouldRenderSidebar = this._shouldRenderSidebar
 				&& rootStore.permissionStore.getCanManageCaptureCentral();
 		} catch (error) {
 			this._permissionError = true;
 		}
+
+		this._loading = false;
 	}
 
 	render() {
+		if (this._loading) {
+			return html`
+				<d2l-loading-spinner
+					class="d2l-capture-central-loading-spinner"
+					size="150"
+				></d2l-loading-spinner>
+			`;
+		}
 		if (this._permissionError) {
 			return html `
 				${this.localize('unableToGetPermissions')}
@@ -148,19 +171,14 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			case pageNames.auditLogs:
 				import('./pages/reporting/d2l-capture-central-audit-logs.js');
 				return;
-			case pageNames.courseVideos:
-				if (subView) {
-					import('./pages/course-videos/d2l-capture-central-course-video-player.js');
-					return;
-				}
-				import('./pages/course-videos/d2l-capture-central-course-videos.js');
-				return;
 			case pageNames.clips:
 				import('./pages/clips/d2l-capture-central-clips.js');
 				return;
 			case pageNames.folders:
 				import('./pages/folders/d2l-capture-central-folders.js');
 				return;
+			/*
+			Live Events will be hidden for now. See: US134918
 			case pageNames.manageLiveEvents:
 				switch (subView) {
 					case 'edit':
@@ -173,15 +191,27 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 						import('./pages/live-events/d2l-capture-central-live-events.js');
 						return;
 				}
-			case pageNames.myVideos:
-				import('./pages/my-videos/d2l-capture-central-my-videos.js');
+			*/
+			case pageNames.videos:
+				import('./pages/videos/d2l-capture-central-videos.js');
+				if (rootStore.routingStore.previousPage === '') {
+					// Ensures the DOM updates when redirecting from the initial landing page. Otherwise, the app shows a blank page.
+					this.requestUpdate();
+				}
 				return;
+			/*
 			case pageNames.viewLiveEvent:
 				import('./pages/live-events/d2l-capture-central-live-events-view.js');
 				return;
+			*/
+			case pageNames.recycleBin:
+				import('./pages/recycle-bin/d2l-capture-central-recycle-bin.js');
+				return;
+			/*
 			case pageNames.liveEventsReporting:
 				import('./pages/reporting/d2l-capture-central-live-events-reporting.js');
 				return;
+			*/
 			case pageNames.producer:
 				this._shouldRenderSidebar = false;
 				if (subView) {
@@ -208,20 +238,23 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 
 	_renderPrimary() {
 		const { page: currentPage, subView } = rootStore.routingStore;
+		/*
+		Live Events will be hidden for now. See: US134918
+		To re-add Live Events, the block below will need to be included in the returned html string.
+		<d2l-capture-central-live-events class="page" ?active=${currentPage === pageNames.manageLiveEvents && !subView}></d2l-capture-central-live-events>
+		<d2l-capture-central-live-events-view class="page" ?active=${currentPage === pageNames.viewLiveEvent && subView === 'view'}></d2l-capture-central-live-events-view>
+		<d2l-capture-central-live-events-edit class="page" ?active=${currentPage === pageNames.manageLiveEvents && subView === 'edit'}></d2l-capture-central-live-events-edit>
+		<d2l-capture-central-live-events-create class="page" ?active=${currentPage === pageNames.manageLiveEvents && subView === 'create'}></d2l-capture-central-live-events-create>
+		<d2l-capture-central-live-events-reporting class="page" ?active=${currentPage === pageNames.liveEventsReporting}></d2l-capture-central-live-events-reporting>
+		*/
 		return html`
 			<div class="d2l-capture-central-primary d2l-navigation-gutters ${this._shouldRenderSidebar ? 'sidebar' : ''}">
 				<d2l-capture-central-landing class="page" ?active=${currentPage === pageNames.landing}></d2l-capture-central-landing>
 				<d2l-capture-central-audit-logs class="page" ?active=${currentPage === pageNames.auditLogs}></d2l-capture-central-audit-logs>
-				<d2l-capture-central-course-videos class="page ${this._shouldRenderSidebar ? 'sidebar' : ''}" ?active=${currentPage === pageNames.courseVideos && !subView}></d2l-capture-central-course-videos>
-				<d2l-capture-central-course-video-player class="page" ?active=${currentPage === pageNames.courseVideos && !!subView}></d2l-capture-central-course-video-player>
 				<d2l-capture-central-clips class="page" ?active=${currentPage === pageNames.clips}></d2l-capture-central-clips>
 				<d2l-capture-central-folders class="page" ?active=${currentPage === pageNames.folders}></d2l-capture-central-folders>
-				<d2l-capture-central-live-events class="page" ?active=${currentPage === pageNames.manageLiveEvents && !subView}></d2l-capture-central-live-events>
-				<d2l-capture-central-live-events-view class="page" ?active=${currentPage === pageNames.viewLiveEvent && subView === 'view'}></d2l-capture-central-live-events-view>
-				<d2l-capture-central-live-events-edit class="page" ?active=${currentPage === pageNames.manageLiveEvents && subView === 'edit'}></d2l-capture-central-live-events-edit>
-				<d2l-capture-central-live-events-create class="page" ?active=${currentPage === pageNames.manageLiveEvents && subView === 'create'}></d2l-capture-central-live-events-create>
-				<d2l-capture-central-live-events-reporting class="page" ?active=${currentPage === pageNames.liveEventsReporting}></d2l-capture-central-live-events-reporting>
-				<d2l-capture-central-my-videos class="page" ?active=${currentPage === pageNames.myVideos}></d2l-capture-central-my-videos>
+				<d2l-capture-central-videos class="page" ?active=${currentPage === pageNames.videos}></d2l-capture-central-videos>
+				<d2l-capture-central-recycle-bin class="page" ?active=${currentPage === pageNames.recycleBin}></d2l-capture-central-recycle-bin>
 				<d2l-capture-central-producer class="page" ?active=${currentPage === pageNames.producer && !!subView}></d2l-capture-central-producer>
 				<d2l-capture-central-settings class="page" ?active=${currentPage === pageNames.settings}></d2l-capture-central-settings>
 				<d2l-capture-central-visits class="page" ?active=${currentPage === pageNames.visits}></d2l-capture-central-visits>
@@ -231,21 +264,22 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 	}
 
 	_renderSidebar() {
-		const sidebarItems = [{
-			langterm: 'courseVideos',
-			location: `/${pageNames.courseVideos}`,
-			icon: 'tier2:content',
-		}, {
-			langterm: 'myVideos',
-			location: `/${pageNames.myVideos}`,
-			icon: 'tier2:folder',
-		}, {
+		const sidebarItems = [ {
+			langterm: rootStore.permissionStore.getCanManageAllVideos() ? 'everyonesVideos' : 'myVideos',
+			location: `/${pageNames.videos}`,
+			icon: rootStore.permissionStore.getCanManageAllVideos() ? 'tier2:browser' : 'tier2:folder',
+		},
+		/*
+		Live Events will be hidden for now. See: US134918
+		{
 			langterm: 'liveEvents',
 			location: `/${pageNames.manageLiveEvents}`,
 			icon: 'tier2:file-video',
-		}, {
+		},
+		*/
+		{
 			langterm: 'recycleBin',
-			location: '/recycle-bin',
+			location: `/${pageNames.recycleBin}`,
 			icon: 'tier2:delete',
 		}];
 
@@ -287,15 +321,17 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			`/:orgUnitId/${pageNames.page404}`,
 			`/:orgUnitId/${pageNames.auditLogs}`,
 			`/:orgUnitId/${pageNames.clips}`,
-			`/:orgUnitId/${pageNames.courseVideos}`,
-			`/:orgUnitId/${pageNames.courseVideos}/:id`,
 			`/:orgUnitId/${pageNames.folders}`,
+			/*
+			Live Events will be hidden for now. See: US134918
 			`/:orgUnitId/${pageNames.viewLiveEvent}`,
 			`/:orgUnitId/${pageNames.manageLiveEvents}`,
 			`/:orgUnitId/${pageNames.manageLiveEvents}/create`,
 			`/:orgUnitId/${pageNames.manageLiveEvents}/edit`,
-			`/:orgUnitId/${pageNames.myVideos}`,
 			`/:orgUnitId/${pageNames.liveEventsReporting}`,
+			*/
+			`/:orgUnitId/${pageNames.videos}`,
+			`/:orgUnitId/${pageNames.recycleBin}`,
 			`/:orgUnitId/${pageNames.producer}/:id`,
 			`/:orgUnitId/${pageNames.settings}`,
 			`/:orgUnitId/${pageNames.visits}`,

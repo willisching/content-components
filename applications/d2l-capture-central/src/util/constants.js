@@ -1,18 +1,18 @@
 export const pageNames = {
 	auditLogs: 'audit-logs',
 	clips: 'clips',
-	courseVideos: 'course-videos',
 	folders: 'folders',
 	landing: '',
 	liveEventsReporting: 'live-events-reporting',
 	manageLiveEvents: 'manage-live-events',
 	manageLiveEventsCreate: 'create',
 	manageLiveEventsEdit: 'edit',
-	myVideos: 'my-videos',
 	viewLiveEvent: 'view-live-event',
+	recycleBin: 'recycle-bin',
 	page404: '404',
 	producer: 'producer',
 	settings: 'settings',
+	videos: 'videos',
 	visits: 'visits'
 };
 

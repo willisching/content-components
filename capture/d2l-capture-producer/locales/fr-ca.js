@@ -46,7 +46,7 @@ export const val = {
 	newCaptionsTextPlaceholder: 'Nouveau texte de sous-titres…',
 	no: 'Non',
 	noCaptions: 'Il n’y a actuellement aucun sous-titre pour {language}.',
-	noChapters: 'Aucun chapitre n'a été ajouté.',
+	noChapters: 'Aucun chapitre n’a été ajouté.',
 	openExpandedCaptionsCueControls: 'Ouvrir la fenêtre élargie des commandes pour cet indicateur de sous-titres',
 	preparingCaptions: 'Préparation des sous-titres…',
 	publishWarning: 'Si vous poursuivez, toutes les références à ce dossier média dans le SGF recevront vos modifications.',

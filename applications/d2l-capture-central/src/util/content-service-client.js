@@ -34,10 +34,11 @@ export default class ContentServiceClient {
 		});
 	}
 
-	deleteContent({ contentId }) {
+	deleteContent({ contentId, hardDelete = false }) {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}`,
 			method: 'DELETE',
+			body: {hardDelete: hardDelete},
 			extractJsonBody: false
 		});
 	}
@@ -163,6 +164,37 @@ export default class ContentServiceClient {
 				contentType: contentFilterToSearchQuery(contentType),
 				updatedAt: dateFilterToSearchQuery(updatedAt),
 				createdAt: dateFilterToSearchQuery(createdAt),
+				includeThumbnails
+			},
+			headers
+		});
+	}
+
+	searchDeletedContent({
+		start = 0,
+		size = 15,
+		sort = 'updatedAt:desc',
+		query = '',
+		contentType = '',
+		updatedAt = '',
+		createdAt = '',
+		includeThumbnails = false
+	}) {
+		const headers = new Headers();
+		headers.append('pragma', 'no-cache');
+		headers.append('cache-control', 'no-cache');
+
+		return this._fetch({
+			path: `/api/${this.tenantId}/search/content`,
+			query: {
+				start,
+				size,
+				sort,
+				query,
+				contentType: contentFilterToSearchQuery(contentType),
+				updatedAt: dateFilterToSearchQuery(updatedAt),
+				createdAt: dateFilterToSearchQuery(createdAt),
+				filter: 'DELETED',
 				includeThumbnails
 			},
 			headers

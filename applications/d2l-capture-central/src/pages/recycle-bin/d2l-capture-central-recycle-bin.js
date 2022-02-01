@@ -6,9 +6,9 @@ import '@brightspace-ui/core/components/list/list-item-content.js';
 import '@brightspace-ui/core/components/list/list-item.js';
 import '@brightspace-ui/core/components/list/list.js';
 import '../../components/content-filter-dropdown.js';
-import '../../components/my-videos/content-list.js';
 import '../../components/upload-status-management.js';
 import '../../components/unauthorized-message.js';
+import '../../components/recycle-bin/recycle-bin-list.js';
 
 import { css, html } from 'lit-element/lit-element.js';
 import { contentSearchMixin } from '../../mixins/content-search-mixin.js';
@@ -18,7 +18,7 @@ import { navigationSharedStyle } from '../../style/d2l-navigation-shared-styles.
 import { PageViewElement } from '../../components/page-view-element';
 import { rootStore } from '../../state/root-store.js';
 import { sharedManageStyles } from '../../style/shared-styles.js';
-class D2LCaptureCentralMyVideos extends contentSearchMixin(DependencyRequester(PageViewElement)) {
+class D2LCaptureCentralRecycleBin extends contentSearchMixin(DependencyRequester(PageViewElement)) {
 	static get properties() {
 		return {
 			contentItems: { type: Array, attribute: false },
@@ -27,25 +27,25 @@ class D2LCaptureCentralMyVideos extends contentSearchMixin(DependencyRequester(P
 
 	static get styles() {
 		return [heading2Styles, navigationSharedStyle, sharedManageStyles, css`
-			.d2l-capture-central-my-videos-heading {
+			.d2l-capture-central-recycle-bin-heading {
 				display: none;
 			}
-			.d2l-capture-central-my-videos-controls {
+			.d2l-capture-central-recycle-bin-controls {
 				display: flex;
 				margin: 25px 0;
-			}
-
-			.d2l-capture-central-my-videos-upload-button {
-				margin-right: 10px;
 			}
 
 			content-filter-dropdown {
 				margin-left: auto;
 			}
 
-			.d2l-capture-central-my-videos-input-search {
+			.d2l-capture-central-recycle-bin-input-search {
 				margin-left: 10px;
 				max-width: 375px;
+			}
+
+			.d2l-capture-central-restore-button {
+				margin-right: 10px;
 			}
 
 			.sidebar-container {
@@ -72,11 +72,11 @@ class D2LCaptureCentralMyVideos extends contentSearchMixin(DependencyRequester(P
 			}
 
 			@media (max-width: 768px) {
-				.d2l-capture-central-my-videos-heading {
+				.d2l-capture-central-recycle-bin-heading {
 					display: flex;
 					width: 100%;
 				}
-				.d2l-capture-central-my-videos-controls {
+				.d2l-capture-central-recycle-bin-controls {
 					margin-top: 0;
 				}
 			}
@@ -85,7 +85,6 @@ class D2LCaptureCentralMyVideos extends contentSearchMixin(DependencyRequester(P
 
 	connectedCallback() {
 		super.connectedCallback();
-		this.uploader = this.requestDependency('uploader');
 	}
 
 	render() {
@@ -96,20 +95,14 @@ class D2LCaptureCentralMyVideos extends contentSearchMixin(DependencyRequester(P
 		}
 		return html`
 			<div class="d2l-capture-central-manage-container">
-				<h2 class="d2l-capture-central-my-videos-heading d2l-heading-2">${this.localize('myVideos')}</h2>
-				<div class="d2l-capture-central-my-videos-controls">
-					<d2l-button
-						class="d2l-capture-central-my-videos-upload-button"
-						@click=${this._handleFileUploadClick}
-						primary
-					>${this.localize('upload')}
-					</d2l-button>
-					<content-filter-dropdown
+				<h2 class="d2l-capture-central-recycle-bin-heading d2l-heading-2">${this.localize('recycleBin')}</h2>
+				<div class="d2l-capture-central-recycle-bin-controls">
+					<content-filter-dropdown deleted
 						@change-filter-cleared=${this._handleFilterCleared}
 						@change-filter=${this._handleFilterChange}
 					></content-filter-dropdown>
 					<d2l-input-search
-						class="d2l-capture-central-my-videos-input-search"
+						class="d2l-capture-central-recycle-bin-input-search"
 						label="${this.localize('searchPlaceholder')}"
 						placeholder="${this.localize('searchPlaceholder')}"
 						maxlength="100"
@@ -117,24 +110,13 @@ class D2LCaptureCentralMyVideos extends contentSearchMixin(DependencyRequester(P
 						@d2l-input-search-searched=${this._handleSearch}
 					></d2l-input-search>
 				</div>
-				<content-list></content-list>
+				<recycle-bin-list></recycle-bin-list>
 			</div>
-			<upload-status-management id="upload-status-management"></upload-status-management>
-			<input type="file" id="fileInput" @change=${this._handleFileChange} style="display:none" multiple />
 		`;
 	}
 
-	_handleFileChange(event) {
-		this.uploader.uploadFiles(event.target.files);
-		event.target.value = '';
-	}
-
-	_handleFileUploadClick() {
-		this.shadowRoot.querySelector('#fileInput').click();
-	}
-
 	_handleFilterChange({ detail = {} }) {
-		this._navigate('/my-videos', {
+		this._navigate('/recycle-bin', {
 			...this.rootStore.routingStore.getQueryParams(),
 			...detail
 		});
@@ -144,16 +126,16 @@ class D2LCaptureCentralMyVideos extends contentSearchMixin(DependencyRequester(P
 		const queryParams = this.rootStore.routingStore.getQueryParams();
 		delete queryParams.dateCreated;
 		delete queryParams.dateModified;
-		this._navigate('/my-videos', queryParams);
+		this._navigate('/recycle-bin', queryParams);
 	}
 
 	_handleSearch(event) {
 		const { value } = event.detail;
 
-		this._navigate('/my-videos', {
+		this._navigate('/recycle-bin', {
 			...this.rootStore.routingStore.getQueryParams(),
-			searchQuery: value
+			searchQuery: value,
 		});
 	}
 }
-customElements.define('d2l-capture-central-my-videos', D2LCaptureCentralMyVideos);
+customElements.define('d2l-capture-central-recycle-bin', D2LCaptureCentralRecycleBin);

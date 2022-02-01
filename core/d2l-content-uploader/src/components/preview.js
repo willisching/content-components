@@ -128,35 +128,14 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 
 	async _onAdvancedEditing() {
 		const location = `/d2l/le/contentservice/producer/${this._contentId}/view`;
-		let dialog = null;
-		let topWindow = null;
-
-		const onResize = () => {
-			dialog.style.width = 'calc(100% - 50px)';
-			dialog.style.maxWidth = '1200px';
-			dialog.style.left = `${(topWindow.innerWidth - dialog.offsetWidth) / 2}px`;
-			dialog.style.top = `calc(${topWindow.scrollY}px + 25px)`;
-			dialog.style.height = 'calc(100% - 50px)';
-		};
 
 		const dialogResult = await D2L.LP.Web.UI.Desktop.MasterPages.Dialog.Open(
 			getComposedActiveElement(),
 			new D2L.LP.Web.Http.UrlLocation(location),
-			{
-				Onload: (handle) => {
-					setTimeout(() => {
-						dialog = handle.dialog;
-						topWindow = handle.win.top;
-						onResize();
-						topWindow.addEventListener('resize', onResize);
-					}, 500);
-				}
-			}
 		);
 
 		await new Promise(resolve => {
 			dialogResult.AddReleaseListener(() => {
-				topWindow.removeEventListener('resize', onResize);
 				resolve();
 			});
 		});

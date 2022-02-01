@@ -17,6 +17,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 			_mediaSources: { type: Array, attribute: false },
 			_captionSignedUrls: { type: Array, attribute: false },
 			_metadata: { type: String, attribute: false },
+			_poster: { type: String, attribute: false },
 			_thumbnails: { type: String, attribute: false },
 			activity: { type: String, attribute: 'activity' },
 			allowDownload: { type: Boolean, attribute: 'allow-download'},
@@ -39,6 +40,15 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 			:host([hidden]) {
 				display: none;
 			}
+
+ 			#not-found-container {
+				text-align: center;
+				line-height: 140px;
+ 				overflow: hidden;
+ 				position: relative;
+				height: 140px;
+ 				width: 100%;
+			}
 		`;
 	}
 
@@ -51,7 +61,9 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 		this._revision = null;
 		this._thumbnails = null;
 		this._metadata = null;
+		this._poster = null;
 		this._attemptedReloadOnError = false;
+		this._noMediaFound = false;
 	}
 
 	async firstUpdated() {
@@ -71,9 +83,10 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 		}
 
 		await this.reloadResources();
-		this._setupDownload();
-		this._loadLocale();
-
+		if (!this._noMediaFound) {
+			this._setupDownload();
+			this._loadLocale();
+		}
 		this.dispatchEvent(new CustomEvent('cs-content-loaded', {
 			bubbles: true,
 			composed: true,
@@ -81,11 +94,13 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	render() {
-		return this._mediaSources && this._mediaSources.length > 0 && html`
+		if (this._mediaSources && this._mediaSources.length > 0) {
+			return html`
 			<d2l-labs-media-player
 				crossorigin="anonymous"
 				media-type="${this._revision.type === ContentType.Video ? 'video' : 'audio'}"
 				metadata=${ifDefined(this._metadata ? this._metadata : undefined)}
+				poster=${ifDefined(this._poster ? this._poster : undefined)}
 				thumbnails=${ifDefined(this._thumbnails ? this._thumbnails : undefined)}
 				@error=${this._onError}
 				@loadeddata=${this._onLoadedData}
@@ -96,7 +111,14 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 				${this._captionSignedUrls.map(captionSignedUrl => this._renderCaptionsTrack(captionSignedUrl))}
 				${this.allowDownload ? html`<d2l-menu-item slot='settings-menu-item' id='download-menu-item' text=${this.localize('download')}></d2l-menu-item>` : ''}
 			</d2l-labs-media-player>
-		`;
+			`;
+		} else if (this._noMediaFound) {
+			return html`
+			<div id="not-found-container">
+				${this.localize('deletedMedia')}
+			</div>
+			`;
+		}
 	}
 
 	async reloadResources() {
@@ -104,8 +126,9 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 		await this._loadMedia();
 		await this._loadCaptions();
 
-		if (this._revision.type === ContentType.Video) {
+		if (!this._noMediaFound && this._revision.type === ContentType.Video) {
 			await this._loadMetadata();
+			await this._loadPoster();
 			await this._loadThumbnails();
 		}
 	}
@@ -176,20 +199,23 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 		}
 	}
 
+	async _loadPoster() {
+		const result = this.activity ?
+			this._resourceEntity.entities.find(entity => entity.class.find(name => name === 'thumbnail'))
+			: await this.client.getPoster();
+
+		if (result) this._poster = result.Value || result.properties.src;
+	}
+
 	async _loadRevisionData() {
-		if (this.activity) {
-			const revision = await this.hmClient.getRevision(this._resourceEntity);
-			this._revision = {
-				type: revision.type,
-				formats: revision.formats,
-			};
-		} else {
-			const revision = await this.client.getRevision();
-			this._revision = {
-				type: revision.Type,
-				formats: revision.Formats
-			};
+		const revision = this.activity ? await this.hmClient.getRevision(this._resourceEntity) :  await this.client.getRevision();
+		if (!revision) {
+			this._noMediaFound = true;
+			return;
 		}
+		this._revision = this.activity ?
+			{ type: revision.type, formats: revision.formats, } :
+			{ type: revision.Type, formats: revision.Formats, };
 
 		this._verifyContentType(this._revision.type);
 	}

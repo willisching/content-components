@@ -43,11 +43,18 @@ export default class ContentServiceClient {
 		});
 	}
 
-	async getRevision() {
-		return this._formatRevision(await this._fetch({
-			path: `/d2l/le/content/contentservice/resources/${this.orgUnitId}/topics/${this.topicId}/revision`
-		}));
+	getPoster() {
+		return this._fetch({
+			path: `/d2l/le/content/contentservice/resources/${this.orgUnitId}/topics/${this.topicId}/poster`
+		});
 	}
+
+	async getRevision() {
+		const revision = await this._fetch({
+			path: `/d2l/le/content/contentservice/resources/${this.orgUnitId}/topics/${this.topicId}/revision`});
+		return revision ? this._formatRevision(revision) : null;
+	}
+
 	getThumbnails() {
 		return this._fetch({
 			path: `/d2l/le/content/contentservice/resources/${this.orgUnitId}/topics/${this.topicId}/thumbnails`

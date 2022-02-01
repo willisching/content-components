@@ -57,9 +57,9 @@ export class RoutingStore {
 		this.orgUnitId = orgUnitId;
 		this.page = page;
 		this.params = routeCtx.params;
+		this.subView = subView;
 		this.queryParams = queryParams;
 		this.routeCtx = routeCtx;
-		this.subView = subView;
 	}
 
 	setSubView(subView) {

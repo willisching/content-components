@@ -16,7 +16,7 @@ export default class HypermediaClient {
 	}
 
 	async getCaptions(resourceEntity) {
-		if (!resourceEntity.hasActionByName('get-tracks')) {
+		if (!resourceEntity || !resourceEntity.hasActionByName('get-tracks')) {
 			return null;
 		}
 		const getTracksAction = resourceEntity.getActionByName('get-tracks');
@@ -27,7 +27,7 @@ export default class HypermediaClient {
 	}
 
 	async getMedia(resourceEntity) {
-		if (!resourceEntity.hasActionByName('get-media')) {
+		if (!resourceEntity || !resourceEntity.hasActionByName('get-media')) {
 			return null;
 		}
 
@@ -45,7 +45,7 @@ export default class HypermediaClient {
 	}
 
 	async getMediaWithBestFormat({ resourceEntity, attachment = false }) {
-		if (!resourceEntity.hasActionByName('get-media')) {
+		if (!resourceEntity || !resourceEntity.hasActionByName('get-media')) {
 			return null;
 		}
 
@@ -63,7 +63,7 @@ export default class HypermediaClient {
 	}
 
 	async getMetadata(resourceEntity) {
-		if (!resourceEntity.hasActionByName('get-metadata')) {
+		if (!resourceEntity || !resourceEntity.hasActionByName('get-metadata')) {
 			return null;
 		}
 
@@ -84,24 +84,34 @@ export default class HypermediaClient {
 		}
 
 		const { href } = this.entity.getLinkByClass('content-service-resource');
-		const resourceResponse = await this._fetch({ url: href });
-		const resourceEntity = SirenParse(resourceResponse);
-		return resourceEntity;
+		try {
+			const resourceResponse = await this._fetch({ url: href });
+			const resourceEntity = SirenParse(resourceResponse);
+			return resourceEntity;
+		} catch (e) {
+			if (e.code === 404) {
+				return null;
+			}
+			throw e;
+		}
 	}
 
 	async getRevision(resourceEntity) {
-		if (!resourceEntity.hasActionByName('get-revision')) {
+		if (!resourceEntity || !resourceEntity.hasActionByName('get-revision')) {
 			return null;
 		}
 
 		const getRevisionAction = resourceEntity.getActionByName('get-revision');
 		const getMediaResponse = await this._fetch({ url: getRevisionAction.href });
+		if (!getMediaResponse) {
+			return null;
+		}
 		const mediaEntity = SirenParse(getMediaResponse);
 		return this._formatRevision(mediaEntity.properties);
 	}
 
 	async getThumbnails(resourceEntity) {
-		if (!resourceEntity.hasActionByName('get-thumbnails')) {
+		if (!resourceEntity || !resourceEntity.hasActionByName('get-thumbnails')) {
 			return null;
 		}
 

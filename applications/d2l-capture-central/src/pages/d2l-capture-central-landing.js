@@ -16,11 +16,10 @@ class D2lCaptureCentralLanding extends DependencyRequester(navigationMixin(PageV
 
 	connectedCallback() {
 		super.connectedCallback();
-		const permissions = rootStore.permissionStore.getPermissions();
-		if (permissions.canManage) {
-			this._navigate('/my-videos');
+		if (rootStore.permissionStore.getCanAccessCaptureCentral()) {
+			this._navigate('/videos');
 		} else {
-			this._navigate('/course-videos');
+			this._navigate('/404');
 		}
 	}
 }

@@ -11,6 +11,7 @@ class D2lCaptureCentral extends DependencyProvider(LitElement) {
 	static get properties() {
 		return {
 			apiEndpoint: { type: String, attribute: 'content-service-endpoint' },
+			canManageAllVideos: { type: Boolean, attribute: 'can-manage-all-videos' },
 			contentServiceEndpoint: { type: String, attribute: 'content-service-endpoint' },
 			captureServiceEndpoint: { type: String, attribute: 'capture-service-endpoint' },
 			tenantId: { type: String, attribute: 'tenant-id' }
@@ -60,7 +61,11 @@ class D2lCaptureCentral extends DependencyProvider(LitElement) {
 	}
 
 	render() {
-		return html`<d2l-capture-central-app class="d2l-body-standard"></d2l-capture-central-app>`;
+		return html`
+			<d2l-capture-central-app
+				class="d2l-body-standard"
+				?can-manage-all-videos="${this.canManageAllVideos}"
+			></d2l-capture-central-app>`;
 	}
 }
 
