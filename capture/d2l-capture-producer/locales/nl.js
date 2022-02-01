@@ -10,6 +10,7 @@ export const val = {
 	captionsCueStartTimestamp: 'Start',
 	captionsCueStartTimestampDescription: 'De begintijdstempel voor deze ondertitelingstijdcode instellen',
 	captionsCueText: 'Bewerkbare tekst van ondertitelingstijdcode',
+	captionsInvalidContent: 'Ongeldige inhoud ondertiteling.',
 	captionsInvalidFileType: 'Ongeldig bestandstype. Lever een .srt- of .vtt-bestand.',
 	captionsFileTooLarge: 'Bestandsformaat mag niet groter zijn dan {localizedMaxFileSize}.',
 	captionsReadError: 'Kan ondertitelingsbestand niet lezen. Mogelijk is het beschadigd.',

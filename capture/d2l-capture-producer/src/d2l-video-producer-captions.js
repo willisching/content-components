@@ -549,7 +549,7 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 				<d2l-button-icon
 					class="d2l-video-producer-captions-clear-all-button"
 					@click="${this._handleClearAllClicked}"
-					?disabled="${this._renderingCues}"
+					?disabled="${this.captions.length === 0 || this._renderingCues}"
 					icon="tier1:blocked"
 					text="${this.localize('clearAll')}"
 				></d2l-button-icon>

@@ -9,15 +9,18 @@ import { VideoFormat, ContentType } from './src/clients/enums.js';
 import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
 
 const TRACK_ERROR_FETCH_WAIT_MILLISECONDS = 5000;
+const REVISION_POLL_WAIT_MILLISECONDS = 10000;
 const VALID_CONTENT_TYPES = [ContentType.Video, ContentType.Audio];
 
 class ContentViewer extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
-			_mediaSources: { type: Array, attribute: false },
 			_captionSignedUrls: { type: Array, attribute: false },
+			_mediaSources: { type: Array, attribute: false },
 			_metadata: { type: String, attribute: false },
+			_noMediaFound: { type: Boolean, attribute: false },
 			_poster: { type: String, attribute: false },
+			_revision: { type: Object, attribute: false },
 			_thumbnails: { type: String, attribute: false },
 			activity: { type: String, attribute: 'activity' },
 			allowDownload: { type: Boolean, attribute: 'allow-download'},
@@ -40,6 +43,18 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 			:host([hidden]) {
 				display: none;
 			}
+			#status-container {
+				aspect-ratio: 16/9;
+				background-color: black;
+				color: white;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+ 				overflow: hidden;
+ 				position: relative;
+				text-align: center;
+ 				width: 100%;
+			}
 		`;
 	}
 
@@ -54,6 +69,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 		this._metadata = null;
 		this._poster = null;
 		this._attemptedReloadOnError = false;
+		this._noMediaFound = false;
 	}
 
 	async firstUpdated() {
@@ -72,9 +88,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 			});
 		}
 
-		await this.reloadResources();
-		this._setupDownload();
-		this._loadLocale();
+		await this._setup();
 
 		this.dispatchEvent(new CustomEvent('cs-content-loaded', {
 			bubbles: true,
@@ -83,7 +97,25 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	render() {
-		return this._mediaSources && this._mediaSources.length > 0 && html`
+		if (this._noMediaFound) {
+			return html`
+			<div id="status-container">
+				${this.localize('deletedMedia')}
+			</div>
+			`;
+		}
+		if (!this._revision) {
+			return html``;
+		}
+		if (!this._revision.ready) {
+			return html`
+				<div id="status-container">
+					${this.localize('mediaFileIsProcessing')}
+				</div>
+			`;
+		}
+		if (this._mediaSources && this._mediaSources.length > 0) {
+			return html`
 			<d2l-labs-media-player
 				crossorigin="anonymous"
 				media-type="${this._revision.type === ContentType.Video ? 'video' : 'audio'}"
@@ -99,15 +131,18 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 				${this._captionSignedUrls.map(captionSignedUrl => this._renderCaptionsTrack(captionSignedUrl))}
 				${this.allowDownload ? html`<d2l-menu-item slot='settings-menu-item' id='download-menu-item' text=${this.localize('download')}></d2l-menu-item>` : ''}
 			</d2l-labs-media-player>
-		`;
+			`;
+		}
 	}
 
-	async reloadResources() {
-		await this._loadRevisionData();
+	async reloadResources(reloadRevision = true) {
+		if (reloadRevision) {
+			await this._loadRevisionData();
+		}
 		await this._loadMedia();
 		await this._loadCaptions();
 
-		if (this._revision.type === ContentType.Video) {
+		if (!this._noMediaFound && this._revision.type === ContentType.Video) {
 			await this._loadMetadata();
 			await this._loadPoster();
 			await this._loadThumbnails();
@@ -189,19 +224,14 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	async _loadRevisionData() {
-		if (this.activity) {
-			const revision = await this.hmClient.getRevision(this._resourceEntity);
-			this._revision = {
-				type: revision.type,
-				formats: revision.formats,
-			};
-		} else {
-			const revision = await this.client.getRevision();
-			this._revision = {
-				type: revision.Type,
-				formats: revision.Formats
-			};
+		const revision = this.activity ? await this.hmClient.getRevision(this._resourceEntity) :  await this.client.getRevision();
+		if (!revision) {
+			this._noMediaFound = true;
+			return;
 		}
+		this._revision = this.activity ?
+			{ type: revision.type, formats: revision.formats, ready: revision.ready } :
+			{ type: revision.Type, formats: revision.Formats, ready: revision.Ready };
 
 		this._verifyContentType(this._revision.type);
 	}
@@ -256,6 +286,23 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 
 	_renderMediaSource(source) {
 		return html`<source src=${source.src} label=${source.format} ?default=${source.format === VideoFormat.HD}>`;
+	}
+
+	async _setup() {
+		await this._loadRevisionData();
+		if (!this._noMediaFound && this._revision && this._revision.ready) {
+			await this._setupAfterRevisionReady();
+		} else if (!this._noMediaFound && this._revision && !this._revision.ready) {
+			setTimeout(() => {
+				this._setup();
+			}, REVISION_POLL_WAIT_MILLISECONDS);
+		}
+	}
+
+	async _setupAfterRevisionReady() {
+		await this.reloadResources(false);
+		this._setupDownload();
+		this._loadLocale();
 	}
 
 	_setupDownload() {

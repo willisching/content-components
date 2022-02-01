@@ -10,6 +10,7 @@ export const val = {
 	captionsCueStartTimestamp: 'Cychwyn',
 	captionsCueStartTimestampDescription: 'Gosod y stamp amser cychwyn ar gyfer y ciw capsiynau hwn',
 	captionsCueText: 'Testun ciw capsiynau y gellir ei golygu',
+	captionsInvalidContent: 'Cynnwys capsiynau annilys.',
 	captionsInvalidFileType: 'Math ffeil annilys. Rhowch ffeil .srt neu .vtt.',
 	captionsFileTooLarge: 'Ni all maint y ffeil fod yn fwy na {localizedMaxFileSize}.',
 	captionsReadError: 'Ni ellid darllen y ffeil capsiynau. Gallai fod wedi’i llygru.',

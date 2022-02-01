@@ -10,6 +10,7 @@ export const val = {
 	captionsCueStartTimestamp: 'Início',
 	captionsCueStartTimestampDescription: 'Defina o carimbo de data/hora inicial para essa indicação de legendas',
 	captionsCueText: 'Texto de indicação de legendas editável',
+	captionsInvalidContent: 'Conteúdo de legendas inválido.',
 	captionsInvalidFileType: 'Tipo de arquivo inválido. Forneça um arquivo .srt ou .vtt.',
 	captionsFileTooLarge: 'O tamanho do arquivo não pode ser maior que {localizedMaxFileSize}.',
 	captionsReadError: 'Não foi possível ler o arquivo de legendas. Ele pode estar corrompido.',

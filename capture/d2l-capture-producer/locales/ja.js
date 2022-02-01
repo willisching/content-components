@@ -10,6 +10,7 @@ export const val = {
 	captionsCueStartTimestamp: '開始',
 	captionsCueStartTimestampDescription: 'このキャプションキューの開始タイムスタンプを設定します',
 	captionsCueText: '編集可能なキャプションキューテキスト',
+	captionsInvalidContent: 'キャプションの内容が無効です。',
 	captionsInvalidFileType: 'ファイルタイプが無効です。.srt または .vtt ファイルを指定してください。',
 	captionsFileTooLarge: 'ファイルのサイズは {localizedMaxFileSize} 以下である必要があります。',
 	captionsReadError: 'キャプションファイルを読み取れませんでした。破損している可能性があります。',

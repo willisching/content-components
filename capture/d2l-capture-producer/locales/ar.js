@@ -10,6 +10,7 @@ export const val = {
 	captionsCueStartTimestamp: 'البدء',
 	captionsCueStartTimestampDescription: 'تعيين الطابع الزمني للبدء لرمز التسميات التوضيحية هذا',
 	captionsCueText: 'نص رمز التسميات التوضيحية القابل للتحرير',
+	captionsInvalidContent: 'محتوى التسميات التوضيحية غير صالح.',
 	captionsInvalidFileType: 'نوع الملف غير صالح. يُرجى توفير ملف ‎.srt أو ‎..vtt',
 	captionsFileTooLarge: 'لا يمكن أن يكون حجم الملف أكبر من {localizedMaxFileSize}.',
 	captionsReadError: 'تعذرت قراءة ملف التسميات التوضيحية. قد يكون تالفًا.',
