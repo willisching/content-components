@@ -16,6 +16,7 @@ export const val = {
 	formatSD: 'SD',
 	invalidFileType: 'Invalid file type.',
 	mayOnlyUpload1File: 'You may only upload 1 file.',
+	mediaFileIsProcessing: 'Your media file is now being processed.\nPlease wait, or save and come back later.\nYou will receive a notification when processing is complete.',
 	or: 'or',
 	remove: 'Remove',
 	save: 'Save',

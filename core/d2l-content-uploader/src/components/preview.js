@@ -12,9 +12,12 @@ import '../../../../capture/d2l-capture-producer.js';
 import '../../../d2l-content-viewer.js';
 import { isAudioType } from '../util/media-type-util';
 
+const REVISION_POLL_WAIT_MILLISECONDS = 10000;
+
 export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
 		return {
+			allowAsyncProcessing: { type: Boolean, attribute: 'allow-async-processing' },
 			canManage: { type: Boolean, attribute: 'can-manage' },
 			canUpload: { type: Boolean, attribute: 'can-upload' },
 			fileName: { type: String, attribute: 'file-name', reflect: true },
@@ -49,6 +52,25 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 			#advanced-editing-button[hidden] {
 				display: none;
 			}
+			#processing-message {
+				white-space: pre-line;
+				margin-top: 0px;
+				margin-bottom: 40px;
+				text-align: center;
+			}
+			#processing-container {
+				aspect-ratio: 16/9;
+				background-color: black;
+				color: white;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+ 				overflow: hidden;
+ 				position: relative;
+				text-align: center;
+				white-space: pre-line;
+ 				width: 100%;
+			}
 		`];
 	}
 
@@ -64,14 +86,14 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 	async connectedCallback() {
 		super.connectedCallback();
 		if (!this.topicId) {
-			this._loadMediaPlayerSources();
+			this._loadNonTopicVideo();
 		}
-
 	}
 
 	render() {
 		const {contentId} = parse(this.resource);
 		this._contentId = contentId;
+		const hideAdvancedEditing = !this.canManage || (!this.topicId && !this._mediaSources);
 		return html`
 			<div id="container">
 				${this._renderPreviewPlayer()}
@@ -92,7 +114,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 						aria-label=${this.localize('advancedEditing')}
 						text=${this.localize('advancedEditing')}
 						@click=${this._onAdvancedEditing}
-						?hidden="${!this.canManage}">
+						?hidden="${hideAdvancedEditing}">
 					</d2l-button-subtle>
 				</div>
 			</div>
@@ -124,6 +146,19 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 		this._mediaSources = this.resource ?
 			await Promise.all(formats.map(format => this._getSource(this.resource, format))) :
 			null;
+	}
+
+	async _loadNonTopicVideo() {
+		const { contentId, revisionId } = parse(this.resource);
+		const client = this.requestInstance('content-service-client');
+		const revisionProgressInfo = await client.getWorkflowProgress({ contentId, revisionId });
+		if (!revisionProgressInfo.ready) {
+			setTimeout(() => {
+				this._loadNonTopicVideo();
+			}, REVISION_POLL_WAIT_MILLISECONDS);
+		} else {
+			this._loadMediaPlayerSources();
+		}
 	}
 
 	async _onAdvancedEditing() {
@@ -195,8 +230,22 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 		if (this.topicId) {
 			return this._renderContentViewer();
 		} else {
-			return this._renderMediaSources();
+			if (!this._mediaSources && this.allowAsyncProcessing) {
+				return this._renderProcessingMessage();
+			} else {
+				return this._renderMediaSources();
+			}
 		}
+	}
+
+	_renderProcessingMessage() {
+		return html`
+			<div
+				id="processing-container"
+			>
+				${this.localize('mediaFileIsProcessing')}
+			</div>
+		`;
 	}
 
 	_renderSource(source) {

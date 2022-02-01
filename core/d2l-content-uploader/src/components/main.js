@@ -22,6 +22,7 @@ const VIEW = Object.freeze({
 export class Main extends InternalLocalizeMixin(MobxReactionUpdate(ProviderMixin(LitElement))) {
 	static get properties() {
 		return {
+			allowAsyncProcessing: { type: Boolean, attribute: 'allow-async-processing' },
 			apiEndpoint: { type: String, attribute: 'api-endpoint' },
 			canManage: { type: Boolean, attribute: 'can-manage' },
 			canUpload: { type: Boolean, attribute: 'can-upload' },
@@ -71,7 +72,8 @@ export class Main extends InternalLocalizeMixin(MobxReactionUpdate(ProviderMixin
 		this._uploader = new Uploader({
 			apiClient,
 			onSuccess: this.reactToUploadSuccess,
-			onError: this.reactToUploadError
+			onError: this.reactToUploadError,
+			waitForProcessing: !this.allowAsyncProcessing
 		});
 
 		if (this.value) {
@@ -107,6 +109,7 @@ export class Main extends InternalLocalizeMixin(MobxReactionUpdate(ProviderMixin
 			case VIEW.PREVIEW:
 				view = html`
 					<d2l-content-uploader-preview
+						?allow-async-processing=${this.allowAsyncProcessing}
 						?can-manage=${this.canManage}
 						?can-upload=${this.canUpload}
 						file-name=${this._fileName}
