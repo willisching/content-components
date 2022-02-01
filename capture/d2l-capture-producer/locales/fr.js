@@ -10,6 +10,7 @@ export const val = {
 	captionsCueStartTimestamp: 'Commencer',
 	captionsCueStartTimestampDescription: 'Définissez l’horodatage de début pour cette réplique de sous-titres',
 	captionsCueText: 'Texte de réplique de sous-titres modifiable',
+	captionsInvalidContent: 'Contenu des légendes non valide.',
 	captionsInvalidFileType: 'Type de fichier non valide. Veuillez fournir un fichier .srt ou .vtt.',
 	captionsFileTooLarge: 'La taille du fichier ne peut pas être supérieure à {localizedMaxFileSize}.',
 	captionsReadError: 'Impossible de lire le fichier de sous-titres. Il est peut-être corrompu.',

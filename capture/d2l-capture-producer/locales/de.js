@@ -10,6 +10,7 @@ export const val = {
 	captionsCueStartTimestamp: 'Start',
 	captionsCueStartTimestampDescription: 'Legen Sie den Startzeitstempel für diesen Untertitel-Cue fest',
 	captionsCueText: 'Bearbeitbarer Untertitel-Cue-Text',
+	captionsInvalidContent: 'Inhalt mit ungültigen Untertiteln.',
 	captionsInvalidFileType: 'Ungültiger Dateityp. Geben Sie eine SRT- oder VTT-Datei an.',
 	captionsFileTooLarge: 'Die Dateigröße darf nicht größer als {localizedMaxFileSize} sein.',
 	captionsReadError: 'Untertiteldatei konnte nicht gelesen werden. Möglicherweise ist sie beschädigt.',
