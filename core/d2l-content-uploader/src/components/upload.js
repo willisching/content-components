@@ -16,6 +16,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 	static get properties() {
 		return {
 			errorMessage: { type: String, attribute: 'error-message', reflect: true },
+			maxFileSizeInBytesString: {type: String, attribute: 'max-file-size'},
 		};
 	}
 
@@ -81,7 +82,6 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 		super();
 		this._supportedTypes = getSupportedExtensions();
 		this.enableFileDrop = false;
-		this.maxFileSizeInBytes = 1024 * 1024 * 1024 * 5; // 5GB
 	}
 
 	async connectedCallback() {
@@ -114,7 +114,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 						${this.errorMessage ? html`<p id="error-message" class="d2l-body-compact">${this.errorMessage}&nbsp;</p>` : ''}
 					</div>
 				</file-drop>
-				<p>${this.localize('fileSizeLimitMessage', {localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes)})}</p>
+				<p>${this.localize('fileSizeLimitMessage', {localizedMaxFileSize: formatFileSize(parseInt(this.maxFileSizeInBytesString))})}</p>
 			</div>
 		`;
 	}
