@@ -29,6 +29,7 @@ export class Main extends InternalLocalizeMixin(MobxReactionUpdate(ProviderMixin
 			orgUnitId: { type: String, attribute: 'org-unit-id' },
 			tenantId: { type: String, attribute: 'tenant-id' },
 			topicId: { type: String, attribute: 'topic-id' },
+			maxFileUploadSize: { type: String, attribute: 'max-file-upload-size' },
 			filename: { type: String, reflect: true },
 			value: { type: String, reflect: true },
 
@@ -100,6 +101,7 @@ export class Main extends InternalLocalizeMixin(MobxReactionUpdate(ProviderMixin
 					<d2l-content-uploader-upload
 						id="prompt-with-file-drop-enabled"
 						error-message=${this._errorMessage}
+						max-file-size=${this.maxFileUploadSize}
 						enable-file-drop
 						@file-change=${this.onFileChange}
 						@file-error=${this.onUploadError}>
