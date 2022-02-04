@@ -16,7 +16,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 	static get properties() {
 		return {
 			errorMessage: { type: String, attribute: 'error-message', reflect: true },
-			maxFileSizeInBytesString: {type: String, attribute: 'max-file-size'},
+			maxFileSizeInBytes: {type: Number, attribute: 'max-file-size'},
 		};
 	}
 
@@ -114,7 +114,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 						${this.errorMessage ? html`<p id="error-message" class="d2l-body-compact">${this.errorMessage}&nbsp;</p>` : ''}
 					</div>
 				</file-drop>
-				<p>${this.localize('fileSizeLimitMessage', {localizedMaxFileSize: formatFileSize(parseInt(this.maxFileSizeInBytesString))})}</p>
+				<p>${this.localize('fileSizeLimitMessage', {localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes)})}</p>
 			</div>
 		`;
 	}

@@ -28,7 +28,7 @@ export class Main extends InternalLocalizeMixin(MobxReactionUpdate(ProviderMixin
 			orgUnitId: { type: String, attribute: 'org-unit-id' },
 			tenantId: { type: String, attribute: 'tenant-id' },
 			topicId: { type: String, attribute: 'topic-id' },
-			maxFileUploadSize: { type: Number, attribute: 'max-file-upload-size'},
+			maxFileUploadSize: { type: String, attribute: 'max-file-upload-size'},
 			filename: { type: String, reflect: true },
 			value: { type: String, reflect: true },
 
