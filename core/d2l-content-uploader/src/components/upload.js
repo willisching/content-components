@@ -16,7 +16,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 	static get properties() {
 		return {
 			errorMessage: { type: String, attribute: 'error-message', reflect: true },
-			maxFileSizeInBytes: {type: Number, attribute: 'max-file-size'},
+			maxFileSizeInBytes: { type: Number, attribute: 'max-file-size' },
 		};
 	}
 
