@@ -18,7 +18,6 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 			_captionSignedUrls: { type: Array, attribute: false },
 			_mediaSources: { type: Array, attribute: false },
 			_metadata: { type: String, attribute: false },
-			_noMediaFound: { type: Boolean, attribute: false },
 			_poster: { type: String, attribute: false },
 			_revision: { type: Object, attribute: false },
 			_thumbnails: { type: String, attribute: false },
@@ -26,6 +25,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 			allowDownload: { type: Boolean, attribute: 'allow-download'},
 			allowDownloadOnError: { type: Boolean, attribute: 'allow-download-on-error' },
 			framed: { type: Boolean, value: false, attribute: 'framed' },
+			noMediaFound: { type: Boolean, attribute: false },
 			orgUnitId: { type: Number, attribute: 'org-unit-id' },
 			topicId: { type: Number, attribute: 'topic-id' },
 			// href and captions-href deprecated, use orgUnitId and topicId instead
@@ -69,7 +69,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 		this._metadata = null;
 		this._poster = null;
 		this._attemptedReloadOnError = false;
-		this._noMediaFound = false;
+		this.noMediaFound = false;
 	}
 
 	async firstUpdated() {
@@ -97,7 +97,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	render() {
-		if (this._noMediaFound) {
+		if (this.noMediaFound) {
 			return html`
 			<div id="status-container">
 				${this.localize('deletedMedia')}
@@ -142,7 +142,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 		await this._loadMedia();
 		await this._loadCaptions();
 
-		if (!this._noMediaFound && this._revision.type === ContentType.Video) {
+		if (!this.noMediaFound && this._revision.type === ContentType.Video) {
 			await this._loadMetadata();
 			await this._loadPoster();
 			await this._loadThumbnails();
@@ -226,7 +226,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 	async _loadRevisionData() {
 		const revision = this.activity ? await this.hmClient.getRevision(this._resourceEntity) :  await this.client.getRevision();
 		if (!revision) {
-			this._noMediaFound = true;
+			this.noMediaFound = true;
 			return;
 		}
 		this._revision = this.activity ?
@@ -290,9 +290,9 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 
 	async _setup() {
 		await this._loadRevisionData();
-		if (!this._noMediaFound && this._revision && this._revision.ready) {
+		if (!this.noMediaFound && this._revision && this._revision.ready) {
 			await this._setupAfterRevisionReady();
-		} else if (!this._noMediaFound && this._revision && !this._revision.ready) {
+		} else if (!this.noMediaFound && this._revision && !this._revision.ready) {
 			setTimeout(() => {
 				this._setup();
 			}, REVISION_POLL_WAIT_MILLISECONDS);

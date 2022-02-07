@@ -18,6 +18,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 			canManage: { type: Boolean, attribute: 'can-manage' },
 			canUpload: { type: Boolean, attribute: 'can-upload' },
 			fileName: { type: String, attribute: 'file-name', reflect: true },
+			noMediaFound: { type: Boolean, attribute: false },
 			orgUnitId: { type: String, attribute: 'org-unit-id' },
 			resource: { type: String, attribute: true },
 			topicId: { type: String, attribute: 'topic-id' },
@@ -59,6 +60,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 		this._mediaSources = null;
 		this._contentId = null;
 		this._attemptedReloadOnError = false;
+		this.noMediaFound = false;
 	}
 
 	async connectedCallback() {
@@ -66,7 +68,10 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 		if (!this.topicId) {
 			this._loadMediaPlayerSources();
 		}
-
+	}
+	firstUpdated() {
+		super.firstUpdated();
+		this._updateNoMediaFound();
 	}
 
 	render() {
@@ -92,7 +97,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 						aria-label=${this.localize('advancedEditing')}
 						text=${this.localize('advancedEditing')}
 						@click=${this._onAdvancedEditing}
-						?hidden="${!this.canManage}">
+						?hidden="${!this.canManage || this.noMediaFound}">
 					</d2l-button-subtle>
 				</div>
 			</div>
@@ -201,6 +206,12 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 
 	_renderSource(source) {
 		return html`<source src=${source.src} label=${this.localize(`format${source.format.toUpperCase()}`)} ?default=${source.format === 'hd'}>`;
+	}
+
+	async _updateNoMediaFound() {
+		const contentViewer = this.shadowRoot.getElementById('content-viewer');
+		await contentViewer.firstUpdated;
+		this.noMediaFound = contentViewer.noMediaFound;
 	}
 }
 
