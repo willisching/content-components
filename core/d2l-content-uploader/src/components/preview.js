@@ -91,7 +91,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 			this._loadNonTopicVideo();
 		}
 	}
-	
+
 	firstUpdated() {
 		super.firstUpdated();
 		this._updateNoMediaFound();
