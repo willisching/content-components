@@ -21,6 +21,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 			canManage: { type: Boolean, attribute: 'can-manage' },
 			canUpload: { type: Boolean, attribute: 'can-upload' },
 			fileName: { type: String, attribute: 'file-name', reflect: true },
+			noMediaFound: { type: Boolean, attribute: false },
 			orgUnitId: { type: String, attribute: 'org-unit-id' },
 			resource: { type: String, attribute: true },
 			topicId: { type: String, attribute: 'topic-id' },
@@ -81,6 +82,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 		this._mediaSources = null;
 		this._contentId = null;
 		this._attemptedReloadOnError = false;
+		this.noMediaFound = false;
 	}
 
 	async connectedCallback() {
@@ -90,10 +92,15 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 		}
 	}
 
+	firstUpdated() {
+		super.firstUpdated();
+		this._updateNoMediaFound();
+	}
+
 	render() {
 		const {contentId} = parse(this.resource);
 		this._contentId = contentId;
-		const hideAdvancedEditing = !this.canManage || (!this.topicId && !this._mediaSources);
+		const hideAdvancedEditing = !this.canManage || (!this.topicId && !this._mediaSources) || this.noMediaFound;
 		return html`
 			<div id="container">
 				${this._renderPreviewPlayer()}
@@ -250,6 +257,12 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 
 	_renderSource(source) {
 		return html`<source src=${source.src} label=${this.localize(`format${source.format.toUpperCase()}`)} ?default=${source.format === 'hd'}>`;
+	}
+
+	async _updateNoMediaFound() {
+		const contentViewer = this.shadowRoot.getElementById('content-viewer');
+		await contentViewer.firstUpdated();
+		this.noMediaFound = contentViewer.noMediaFound;
 	}
 }
 
