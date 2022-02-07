@@ -5,11 +5,13 @@ import { randomizeDelay, sleep } from '../util/delay';
 import { getExtension, isAudioType } from '../util/media-type-util';
 
 const UPLOAD_FAILED_ERROR = 'workerErrorUploadFailed';
+
 export class Uploader {
-	constructor({ apiClient, onSuccess, onError }) {
+	constructor({ apiClient, onSuccess, onError, waitForProcessing }) {
 		this.apiClient = apiClient;
 		this.onSuccess = onSuccess;
 		this.onError = onError;
+		this.waitForProcessing = waitForProcessing;
 
 		this.uploadProgress = 0;
 
@@ -96,7 +98,7 @@ export class Uploader {
 						contentDisposition: 'auto'
 					}),
 				onProgress: progress => {
-					this.uploadProgress = progress / 2;
+					this.uploadProgress = progress / (this.waitForProcessing ? 2 : 1);
 				}
 			});
 
@@ -107,7 +109,12 @@ export class Uploader {
 				revisionId: this.revision.id,
 			});
 
-			await this._monitorProgressAsync();
+			if (this.waitForProcessing) {
+				await this._monitorProgressAsync();
+			} else {
+				this.onSuccess(this.revision.d2lrn);
+				this.s3Uploader = undefined;
+			}
 		} catch (error) {
 			this.onError(resolveWorkerError(error));
 		}
