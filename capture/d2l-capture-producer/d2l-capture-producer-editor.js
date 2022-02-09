@@ -212,6 +212,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 						hide-captions-selection
 						?hide-seek-bar="${this.enableCutsAndChapters}"
 						media-type="${this.mediaType}"
+						disable-set-preferences
 						@pause="${this._pauseUpdatingVideoTime}"
 						@play="${this._startUpdatingVideoTime}"
 						@seeking="${this._updateVideoTime}"
