@@ -59,7 +59,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 				margin-bottom: 40px;
 				text-align: center;
 			}
-			#processing-container {
+			#status-message-container {
 				aspect-ratio: 16/9;
 				background-color: black;
 				color: white;
@@ -135,7 +135,16 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 
 	async _getSource(resourceUrn, format) {
 		const client = this.requestInstance('content-service-client');
-		const url = await client.getSecureUrlByName(resourceUrn, format);
+
+		let url;
+		try {
+			url = await client.getSecureUrlByName(resourceUrn, format);
+		} catch (error) {
+			if (error.cause === 404) {
+				return null;
+			}
+			throw error;
+		}
 
 		return {
 			src: url.value,
@@ -149,10 +158,13 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 	}
 
 	async _loadMediaPlayerSources() {
+		if (!this.resource) {
+			return null;
+		}
+
 		const formats = this._isAudio() ? ['mp3'] : ['hd', 'sd'];
-		this._mediaSources = this.resource ?
-			await Promise.all(formats.map(format => this._getSource(this.resource, format))) :
-			null;
+		this._mediaSources = (await Promise.all(formats.map(format => this._getSource(this.resource, format))))
+			.filter(mediaSource => mediaSource !== null);
 	}
 
 	async _loadNonTopicVideo() {
@@ -217,9 +229,23 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 			</d2l-content-viewer>`;
 	}
 
+	_renderMediaFileFailedProcessing() {
+		return html`
+			<div
+				id="status-message-container"
+			>
+				${this.localize('mediaFileFailedProcessing')}
+			</div>
+		`;
+	}
+
 	_renderMediaSources() {
 		if (!this._mediaSources) {
 			return html``;
+		}
+
+		if (this._mediaSources.length === 0) {
+			return this._renderMediaFileFailedProcessing();
 		}
 
 		return html`
@@ -248,7 +274,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 	_renderProcessingMessage() {
 		return html`
 			<div
-				id="processing-container"
+				id="status-message-container"
 			>
 				${this.localize('mediaFileIsProcessing')}
 			</div>

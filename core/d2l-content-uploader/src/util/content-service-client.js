@@ -134,7 +134,7 @@ export default class ContentServiceClient {
 
 		const response = await d2lfetch.fetch(request);
 		if (!response.ok) {
-			throw new Error(response.statusText);
+			throw new Error(response.statusText, { cause: response.status });
 		}
 
 		if (extractJsonBody) {
