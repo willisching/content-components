@@ -15,7 +15,7 @@ export default class UserBrightspaceClient {
 		headers.append('cache-control', 'no-cache');
 
 		return this._fetch({
-			path: '/d2l/api/lp/unstable/locales/',
+			path: '/d2l/api/le/1.58/wcs/captionsLocales',
 			headers
 		});
 	}

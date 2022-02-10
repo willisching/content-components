@@ -645,6 +645,7 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 				<d2l-button-subtle
 					text="${this.localize('autoGenerate')}"
 					icon="tier1:manual-run"
+					?disabled="${!this.selectedLanguage.autoCaptions}"
 					@click="${this._onAutoGenerateClicked}"
 				></d2l-button-subtle>
 				<d2l-button-subtle
