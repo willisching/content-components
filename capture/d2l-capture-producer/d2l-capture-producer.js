@@ -904,10 +904,10 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	async _setupLanguages() {
-		const { Items } = await this.userBrightspaceClient.getLocales();
-		this._languages = Items.map(({ LocaleName, CultureCode, IsDefault }) => {
+		const Items = await this.userBrightspaceClient.getLocales();
+		this._languages = Items.map(({ LocaleName, CultureCode, IsDefault, AutoCaptions }) => {
 			const code = CultureCode.toLowerCase();
-			return { name: LocaleName, code, isDefault: IsDefault  };
+			return { name: LocaleName, code, isDefault: IsDefault, autoCaptions: AutoCaptions  };
 		});
 		this._selectedLanguage = this._languages.find(language => language.isDefault);
 		this._defaultLanguage = this._selectedLanguage;
