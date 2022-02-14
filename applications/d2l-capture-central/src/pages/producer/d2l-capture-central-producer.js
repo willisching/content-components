@@ -47,7 +47,7 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 	}
 
 	render() {
-		if (this._loading) {
+		if (this._loading || !this.rootStore.routingStore.params.id) {
 			return html`<d2l-loading-spinner size=150></d2l-loading-spinner>`;
 		}
 
