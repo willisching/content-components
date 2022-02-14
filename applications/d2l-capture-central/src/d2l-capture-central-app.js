@@ -20,6 +20,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 	static get properties() {
 		return {
 			canManageAllVideos: { type: Boolean, attribute: 'can-manage-all-videos' },
+			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
 			_loading: { type: Boolean, attribute: false },
 			_permissionError: { type: Boolean, attribute: false },
 			_shouldRenderSidebar: { type: Boolean, attribute: false },
@@ -109,6 +110,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			// "Can Manage All Videos" is mapped from the "Can Manage All Content" permission in Content Service.
 			// Since it's not a Capture permission, it is passed down from the LMS to Capture Central as a Lit attribute.
 			permissions.canManageAllVideos = this.canManageAllVideos ? 'true' : 'false';
+			permissions.canTransferOwnership = this.canTransferOwnership ? 'true' : 'false';
 
 			rootStore.permissionStore.setPermissions(permissions);
 			this._shouldRenderSidebar = this._shouldRenderSidebar

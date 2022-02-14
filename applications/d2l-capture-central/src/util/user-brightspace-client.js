@@ -36,6 +36,17 @@ export default class UserBrightspaceClient {
 		});
 	}
 
+	getUser(userId) {
+		const headers = new Headers();
+		headers.append('pragma', 'no-cache');
+		headers.append('cache-control', 'no-cache');
+
+		return this._fetch({
+			path: `/d2l/api/lp/1.31/users/${userId}`,
+			headers
+		});
+	}
+
 	async _fetch({
 		path,
 		method = 'GET',
