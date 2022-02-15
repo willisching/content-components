@@ -143,6 +143,8 @@ class LiveEventForm extends MobxReactionUpdate(NavigationMixin(RtlMixin(Internal
 	}
 
 	getPresentationLayoutSelection() {
+		if (!this.shadowRoot) return layoutNames.default;
+
 		const layoutCameraInputElement = this.shadowRoot.querySelector('#presentation-layout-camera');
 		const layoutScreenInputElement = this.shadowRoot.querySelector('#presentation-layout-screen');
 		const layoutCameraAndScreenInputElement = this.shadowRoot.querySelector('#presentation-layout-camera-and-screen');
@@ -163,14 +165,14 @@ class LiveEventForm extends MobxReactionUpdate(NavigationMixin(RtlMixin(Internal
 	}
 
 	hideAccordions() {
-		const accessControlAccordionElement = this.shadowRoot.querySelector('#access-control-accordion');
+		const accessControlAccordionElement = this.shadowRoot && this.shadowRoot.querySelector('#access-control-accordion');
 		if (accessControlAccordionElement) {
 			accessControlAccordionElement.removeAttribute('opened');
 		}
 	}
 
 	hideFailureAlert() {
-		const criticalAlert = this.shadowRoot.querySelector('#live-event-form-critical-alert');
+		const criticalAlert = this.shadowRoot && this.shadowRoot.querySelector('#live-event-form-critical-alert');
 		if (criticalAlert) {
 			criticalAlert.style.display = 'none';
 			const inputContainerElement = this.shadowRoot.querySelector('#input-container');
@@ -181,6 +183,8 @@ class LiveEventForm extends MobxReactionUpdate(NavigationMixin(RtlMixin(Internal
 	}
 
 	reload() {
+		if (!this.shadowRoot) return;
+
 		const titleInputElement = this.shadowRoot.querySelector('#title-input');
 		if (titleInputElement) {
 			titleInputElement.value = '';
@@ -225,7 +229,7 @@ class LiveEventForm extends MobxReactionUpdate(NavigationMixin(RtlMixin(Internal
 	}
 
 	renderFailureAlert({ message, hideInputs = false}) {
-		const criticalAlert = this.shadowRoot.querySelector('#live-event-form-critical-alert');
+		const criticalAlert = this.shadowRoot && this.shadowRoot.querySelector('#live-event-form-critical-alert');
 		if (criticalAlert) {
 			this._alertMessage = message;
 			criticalAlert.style.display = 'block';
@@ -245,7 +249,7 @@ class LiveEventForm extends MobxReactionUpdate(NavigationMixin(RtlMixin(Internal
 	}
 
 	setFocus() {
-		const titleInputElement = this.shadowRoot.querySelector('#title-input');
+		const titleInputElement = this.shadowRoot && this.shadowRoot.querySelector('#title-input');
 		if (titleInputElement) {
 			titleInputElement.focus();
 		}
@@ -253,6 +257,7 @@ class LiveEventForm extends MobxReactionUpdate(NavigationMixin(RtlMixin(Internal
 
 	setLiveEvent(liveEvent) {
 		this._liveEvent = liveEvent;
+		if (!this.shadowRoot) return;
 
 		const titleInputElement = this.shadowRoot.querySelector('#title-input');
 		if (titleInputElement) {
@@ -292,6 +297,8 @@ class LiveEventForm extends MobxReactionUpdate(NavigationMixin(RtlMixin(Internal
 	}
 
 	setPresentationLayoutSelection({ layoutName }) {
+		if (!this.shadowRoot) return;
+
 		const layoutCameraInputElement = this.shadowRoot.querySelector('#presentation-layout-camera');
 		const layoutScreenInputElement = this.shadowRoot.querySelector('#presentation-layout-screen');
 		const layoutCameraAndScreenInputElement = this.shadowRoot.querySelector('#presentation-layout-camera-and-screen');

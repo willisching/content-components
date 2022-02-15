@@ -98,7 +98,7 @@ class CaptionsUpload extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	resetSelection() {
-		const languageSelectElement = this.shadowRoot.querySelector('#captions-add-language-selector');
+		const languageSelectElement = this.shadowRoot && this.shadowRoot.querySelector('#captions-add-language-selector');
 		if (languageSelectElement) {
 			languageSelectElement.value = this.selectALanguageOptionValue;
 		}

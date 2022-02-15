@@ -105,7 +105,7 @@ class D2LCaptureLiveEventsCreate extends DependencyRequester(PageViewElement) {
 	}
 
 	async reloadPage() {
-		if (!rootStore.permissionStore.getCanManageLiveEvents()) {
+		if (!rootStore.permissionStore.getCanManageLiveEvents() || !this.shadowRoot) {
 			return;
 		}
 

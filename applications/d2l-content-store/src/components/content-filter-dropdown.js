@@ -104,7 +104,7 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 	}
 
 	get filterOptions() {
-		return this.shadowRoot.querySelectorAll('select');
+		return this.shadowRoot ? this.shadowRoot.querySelectorAll('select') : [];
 	}
 
 	getFilterText() {
