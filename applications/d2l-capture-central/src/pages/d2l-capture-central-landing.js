@@ -6,6 +6,7 @@ import { DependencyRequester } from '../mixins/dependency-requester-mixin.js';
 import { navigationMixin } from '../mixins/navigation-mixin.js';
 import { PageViewElement } from '../components/page-view-element.js';
 import { rootStore } from '../state/root-store.js';
+import { pageNames } from '../util/constants.js';
 
 class D2lCaptureCentralLanding extends DependencyRequester(navigationMixin(PageViewElement)) {
 
@@ -14,8 +15,14 @@ class D2lCaptureCentralLanding extends DependencyRequester(navigationMixin(PageV
 		`];
 	}
 
-	connectedCallback() {
-		super.connectedCallback();
+	update() {
+		super.update();
+
+		if (![pageNames.landing, pageNames.videos].includes(rootStore.routingStore.page)) {
+			// current page should not be landing page
+			return;
+		}
+
 		if (rootStore.permissionStore.getCanAccessCaptureCentral()) {
 			this._navigate('/videos');
 		} else {
