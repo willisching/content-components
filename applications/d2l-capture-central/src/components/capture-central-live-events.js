@@ -136,7 +136,7 @@ class CaptureCentralLiveEvents extends DependencyRequester(InternalLocalizeMixin
 	}
 
 	hideAlerts() {
-		const inlineCriticalAlertElement = this.shadowRoot.querySelector('#live-events-inline-critical-alert');
+		const inlineCriticalAlertElement = this.shadowRoot && this.shadowRoot.querySelector('#live-events-inline-critical-alert');
 		if (inlineCriticalAlertElement) {
 			inlineCriticalAlertElement.style.display = 'none';
 			this._alertMessage = '';

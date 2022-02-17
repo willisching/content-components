@@ -365,7 +365,7 @@ class DemoVideoProducer extends LitElement {
 	}
 
 	get _producer() {
-		return this.shadowRoot.querySelector('d2l-capture-producer-editor');
+		return this.shadowRoot && this.shadowRoot.querySelector('d2l-capture-producer-editor');
 	}
 
 	_renderSavedUnsavedIndicator() {

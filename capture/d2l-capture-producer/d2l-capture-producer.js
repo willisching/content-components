@@ -321,7 +321,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	get _editor() {
-		return this.shadowRoot.querySelector('d2l-capture-producer-editor');
+		return this.shadowRoot && this.shadowRoot.querySelector('d2l-capture-producer-editor');
 	}
 
 	get _enableCutsAndChapters() {
