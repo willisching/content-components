@@ -83,15 +83,21 @@ export default class ContentServiceClient {
 		});
 	}
 
-	getSignedUrl(contentId) {
+	getSignedUrl({ contentId, attachment = false }) {
+		const query = {};
+		if (attachment) query.attachment = true;
 		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/signedUrl`
+			path: `/api/${this.tenantId}/content/${contentId}/signedUrl`,
+			query
 		});
 	}
 
-	getSignedUrlForRevision({ contentId, revisionId }) {
+	getSignedUrlForRevision({ contentId, revisionId, attachment = false }) {
+		const query = {};
+		if (attachment) query.attachment = true;
 		return this._fetch({
-			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/signedUrl`
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/signedUrl`,
+			query
 		});
 	}
 
