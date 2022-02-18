@@ -230,20 +230,20 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 	}
 
 	download() {
-		// Safari blocks calls to window.open within an async call
-		const downloadWindow = window.open('', '_blank');
 		this.apiClient.getSignedUrlForRevision({
 			contentId: this.id,
-			revisionId: this.revisionId
+			revisionId: this.revisionId,
+			attachment: true
 		})
 			.then(res => {
-				if (res?.value) {
-					downloadWindow.location.replace(res.value);
-				} else {
-					downloadWindow.close();
+				const downloadUrl = res.value;
+				if (downloadUrl) {
+					const anchor = document.createElement('a');
+					anchor.href = downloadUrl;
+					anchor.download = '';
+					anchor.click();
 				}
-			})
-			.catch(() => downloadWindow.close());
+			});
 	}
 
 	// The class "actions" and methods dropdownClicked and dropdownClosed
