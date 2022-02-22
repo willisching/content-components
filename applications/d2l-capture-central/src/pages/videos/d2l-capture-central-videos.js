@@ -1,3 +1,4 @@
+import '@brightspace-ui/core/components/alert/alert-toast.js';
 import '@brightspace-ui/core/components/breadcrumbs/breadcrumb-current-page.js';
 import '@brightspace-ui/core/components/breadcrumbs/breadcrumb.js';
 import '@brightspace-ui/core/components/breadcrumbs/breadcrumbs.js';
@@ -18,6 +19,10 @@ import { navigationSharedStyle } from '../../style/d2l-navigation-shared-styles.
 import { PageViewElement } from '../../components/page-view-element';
 import { rootStore } from '../../state/root-store.js';
 import { sharedManageStyles } from '../../style/shared-styles.js';
+import { getSupportedExtensions } from '../../util/media-type-util.js';
+import { maxFileSizeInBytes } from '../../util/constants.js';
+import { formatFileSize } from '@brightspace-ui/intl/lib/fileSize';
+
 class D2LCaptureCentralVideos extends contentSearchMixin(DependencyRequester(PageViewElement)) {
 	static get properties() {
 		return {
@@ -83,6 +88,11 @@ class D2LCaptureCentralVideos extends contentSearchMixin(DependencyRequester(Pag
 		`];
 	}
 
+	constructor() {
+		super();
+		this._supportedTypes = getSupportedExtensions();
+	}
+
 	connectedCallback() {
 		super.connectedCallback();
 		this.uploader = this.requestDependency('uploader');
@@ -121,12 +131,41 @@ class D2LCaptureCentralVideos extends contentSearchMixin(DependencyRequester(Pag
 				<content-list></content-list>
 			</div>
 			<upload-status-management id="upload-status-management"></upload-status-management>
-			<input type="file" id="fileInput" @change=${this._handleFileChange} style="display:none" multiple />
+			<input
+				type="file"
+				id="fileInput"
+				accept=${this._supportedTypes.join(',')}
+				@change=${this._handleFileChange}
+				style="display:none"
+				multiple
+			/>
+			<d2l-alert-toast
+				id="upload-toast"
+				type="error"
+				announce-text=${this.uploadErrorMessage}>
+				${this.uploadErrorMessage}
+			</d2l-alert-toast>
 		`;
 	}
 
 	_handleFileChange(event) {
-		this.uploader.uploadFiles(event.target.files);
+		const { files } = event.target;
+		for (const file of files) {
+			if (file.size > maxFileSizeInBytes) {
+				const errorToastElement = this.shadowRoot.querySelector('#upload-toast');
+				if (errorToastElement) {
+					this.uploadErrorMessage = this.localize(
+						'fileTooLarge',
+						{ localizedMaxFileSize: formatFileSize(maxFileSizeInBytes) }
+					);
+					this.requestUpdate();
+					errorToastElement.setAttribute('open', true);
+				}
+				event.target.value = '';
+				return;
+			}
+		}
+		this.uploader.uploadFiles(files);
 		event.target.value = '';
 	}
 

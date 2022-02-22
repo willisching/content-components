@@ -35,3 +35,5 @@ export const sortNames = {
 	status: 'status',
 	default: 'startTime'
 };
+
+export const maxFileSizeInBytes = 5 * 1024 * 1024 * 1024;

@@ -41,7 +41,7 @@ class ContentList extends CaptureCentralList {
 				@change-sort=${this.changeSort}
 				?can-transfer-ownership=${this.canTransferOwnership}
 			></content-list-header>
-			<content-file-drop>
+			<content-file-drop @file-drop-error=${this.fileDropErrorHandler}>
 			<d2l-list>
 				<div id="d2l-content-store-list">
 					${this.renderNotFound()}
@@ -58,6 +58,13 @@ class ContentList extends CaptureCentralList {
 				announce-text=${this.alertToastMessage}
 				@d2l-alert-button-pressed=${this.undoDeleteHandler}>
 				${this.alertToastMessage}
+			</d2l-alert-toast>
+
+			<d2l-alert-toast
+				id="file-drop-toast"
+				type="error"
+				announce-text=${this.fileDropErrorMessage}>
+				${this.fileDropErrorMessage}
 			</d2l-alert-toast>
 		`;
 	}
@@ -115,6 +122,15 @@ class ContentList extends CaptureCentralList {
 				this._videos[index][this.dateField] = (new Date()).toISOString();
 				this.requestUpdate();
 			}
+		}
+	}
+
+	fileDropErrorHandler(e) {
+		const errorToastElement = this.shadowRoot.querySelector('#file-drop-toast');
+		if (e && e.detail && e.detail.message && errorToastElement) {
+			this.fileDropErrorMessage = e.detail.message;
+			this.requestUpdate();
+			errorToastElement.setAttribute('open', true);
 		}
 	}
 
