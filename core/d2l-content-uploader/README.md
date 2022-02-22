@@ -23,7 +23,7 @@ Dialog for adding content.
 
 **Accessibility:**
 
-To make your usage of `d2l-content-uploadert` accessible, use the following properties when applicable:
+To make your usage of `d2l-content-uploader` accessible, use the following properties when applicable:
 
 | Attribute | Description |
 |--|--|
