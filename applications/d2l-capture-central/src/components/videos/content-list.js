@@ -126,7 +126,11 @@ class ContentList extends CaptureCentralList {
 				if (change.newValue &&
 					change.newValue.content &&
 					!this.areAnyFiltersActive()) {
-					return this.addNewItemIntoContentItems(toJS(change.newValue));
+					const newValue = toJS(change.newValue);
+					if (this.canTransferOwnership) {
+						newValue.ownerDisplayName = await this._getUserDisplayName(newValue.content.ownerId);
+					}
+					return this.addNewItemIntoContentItems(newValue);
 				}
 			}
 		);
@@ -189,6 +193,19 @@ class ContentList extends CaptureCentralList {
 			this.requestUpdate();
 			deleteToastElement.setAttribute('open', true);
 		}
+	}
+
+	async _getUserDisplayName(userId) {
+		if (!this.userDisplayName) {
+			try {
+				const { DisplayName } = await this.userBrightspaceClient.getUser(userId);
+				this.userDisplayName = DisplayName || userId;
+			} catch (error) {
+				this.userDisplayName = userId;
+			}
+		}
+
+		return this.userDisplayName;
 	}
 }
 
