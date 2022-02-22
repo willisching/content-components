@@ -6,7 +6,7 @@ export const val = {
 	clickHereToReload: 'Cliciwch yma i geisio ail-lwytho capsiynau.',
 	deletingFile: 'Wrthi’n dileu {filename}...',
 	failedToLoadCaptions: 'Wedi methu â llwytho capsiynau ar gyfer y pwnc hwn.',
-	loading: 'Wrthi\'n llwytho...',
+	loading: "Wrthi'n llwytho...",
 	manageCaptions: 'Rheoli Capsiynau',
 	noCaptionsForTopic: 'Ar hyn o bryd nid oes unrhyw gapsiynau ar gyfer y pwnc hwn.',
 	removeCaptionsForLanguage: 'Tynnu capsiynau ar gyfer yr iaith {langName}.',
