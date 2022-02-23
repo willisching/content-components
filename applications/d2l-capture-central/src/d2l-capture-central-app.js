@@ -225,6 +225,9 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				}
 				this._navigate('/404');
 				return;
+			case pageNames.preview:
+				import('./pages/preview/d2l-capture-central-preview.js');
+				return;
 			case pageNames.settings:
 				import('./pages/settings/d2l-capture-central-settings.js');
 				return;
@@ -239,6 +242,10 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				this._navigate('/404');
 				return;
 		}
+	}
+
+	_renderPreview() {
+		return html `<d2l-capture-central-preview id="d2l-capture-central-preview" class="page" active></d2l-capture-central-preview>`;
 	}
 
 	_renderPrimary() {
@@ -262,6 +269,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				<d2l-capture-central-encoder class="page" ?active=${currentPage === pageNames.encoder}></d2l-capture-central-encoder>
 				<d2l-capture-central-recycle-bin class="page" ?active=${currentPage === pageNames.recycleBin}></d2l-capture-central-recycle-bin>
 				<d2l-capture-central-producer class="page" ?active=${currentPage === pageNames.producer && !!subView}></d2l-capture-central-producer>
+				${currentPage === pageNames.preview ? this._renderPreview() : ''}
 				<d2l-capture-central-settings class="page" ?active=${currentPage === pageNames.settings}></d2l-capture-central-settings>
 				<d2l-capture-central-visits class="page" ?active=${currentPage === pageNames.visits}></d2l-capture-central-visits>
 				<d2l-capture-central-404 class="page" ?active=${currentPage === pageNames.page404}></d2l-capture-central-404>
@@ -345,6 +353,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			`/:orgUnitId/${pageNames.encoder}`,
 			`/:orgUnitId/${pageNames.recycleBin}`,
 			`/:orgUnitId/${pageNames.producer}/:id`,
+			`/:orgUnitId/${pageNames.preview}/:id/:revisionId`,
 			`/:orgUnitId/${pageNames.settings}`,
 			`/:orgUnitId/${pageNames.visits}`,
 			'/:orgUnitId/',

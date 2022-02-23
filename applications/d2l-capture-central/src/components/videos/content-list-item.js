@@ -100,7 +100,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 
 				<div slot="actions" id="actions" class="actions">
 					<d2l-button-icon
-						@click=${this._goTo(`/${pageNames.courseVideos}/${this.id}`)}
+						@click=${this._goTo(`/${pageNames.preview}/${this.id}/${this.revisionId}`)}
 						text="${this.localize('preview')}"
 						icon="tier1:preview"
 						?disabled=${this.disabled}
