@@ -10,6 +10,7 @@ export const pageNames = {
 	viewLiveEvent: 'view-live-event',
 	recycleBin: 'recycle-bin',
 	page404: '404',
+	preview: 'preview',
 	producer: 'producer',
 	settings: 'settings',
 	videos: 'videos',

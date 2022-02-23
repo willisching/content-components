@@ -62,9 +62,22 @@ export default class ContentServiceClient {
 		return `Content Service Client: ${this.endpoint}`;
 	}
 
+	async getCaptionsUrl({ contentId, revisionId, locale }) {
+		return await this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/resources/captions/signed-url`,
+			query: { locale }
+		});
+	}
+
 	getContent(id) {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${id}`
+		});
+	}
+
+	getMetadata({ contentId, revisionId }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/resources/metadata/file-content`
 		});
 	}
 
@@ -98,6 +111,12 @@ export default class ContentServiceClient {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/signedUrl`,
 			query
+		});
+	}
+
+	getSignedUrls({ contentId, revisionId }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/resources/transcodes/signed-urls`
 		});
 	}
 
