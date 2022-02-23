@@ -53,6 +53,13 @@ export default class CaptureServiceClient {
 		});
 	}
 
+	getEncoderUpdates() {
+		return this._fetch({
+			path: '/encoder/update',
+			doNotUseCache: true
+		});
+	}
+
 	getEvent({ id }) {
 		return this._fetch({
 			path: `/events/${id}`,
