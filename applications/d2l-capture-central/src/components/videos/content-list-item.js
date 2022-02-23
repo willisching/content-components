@@ -74,9 +74,12 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 	}
 
 	render() {
+		const previewUrl = `./${pageNames.preview}/${this.id}/${this.revisionId}`;
+
 		return html`
 			<d2l-list-item class="d2l-body-compact"
 				?disabled=${this.disabled}
+				href="${previewUrl}"
 				label="${this.title}"
 				?selectable=${this.selectable}
 				key=${this.id}
@@ -99,15 +102,10 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 				</content-list-columns>
 
 				<div slot="actions" id="actions" class="actions">
-					<d2l-button-icon
-						@click=${this._goTo(`/${pageNames.preview}/${this.id}/${this.revisionId}`)}
-						text="${this.localize('preview')}"
-						icon="tier1:preview"
-						?disabled=${this.disabled}
-					></d2l-button-icon>
 					<d2l-dropdown-more text="${this.localize('moreActions')}" @click=${this.dropdownClicked} ?disabled=${this.disabled}>
 						<d2l-dropdown-menu id="actions-dropdown-menu" align="end" boundary=${JSON.stringify(this.dropdownBoundary)}>
 							<d2l-menu label="${this.localize('moreActions')}">
+								<d2l-menu-item text="${this.localize('preview')}" @click=${this._goTo(previewUrl)}></d2l-menu-item>
 								<d2l-menu-item text="${this.localize('download')}" @click="${this.download}"></d2l-menu-item>
 								<d2l-menu-item text="${this.localize('edit')}" @click=${this._goTo(`/${pageNames.producer}/${this.id}`)}></d2l-menu-item>
 								<d2l-menu-item id="rename-initiator" text="${this.localize('rename')}" @click="${this.openDialog()}"></d2l-menu-item>
