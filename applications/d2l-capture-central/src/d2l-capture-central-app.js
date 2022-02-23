@@ -166,7 +166,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 		const { page: currentPage, subView } = rootStore.routingStore;
 		this._shouldRenderSidebar =  rootStore.permissionStore.getCanManageCaptureCentral();
 
-		const preview = this.shadowRoot.getElementById('d2l-capture-central-preview');
+		const preview = this.shadowRoot?.getElementById('d2l-capture-central-preview');
 		const mp = preview?.shadowRoot?.getElementById('d2l-capture-central-mp');
 		mp?.remove();
 

@@ -109,7 +109,7 @@ class D2LCaptureCentralPreview extends DependencyRequester(PageViewElement) {
 	loadLocale() {
 		const defaultLocale = getDocumentLocaleSettings()._language || getDocumentLocaleSettings()._fallbackLanguage;
 		if (!defaultLocale) return;
-		const mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
+		const mediaPlayer = this.shadowRoot?.querySelector('d2l-labs-media-player');
 		if (mediaPlayer) mediaPlayer.locale = defaultLocale.toLowerCase();
 	}
 
