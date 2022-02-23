@@ -166,10 +166,6 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 		const { page: currentPage, subView } = rootStore.routingStore;
 		this._shouldRenderSidebar =  rootStore.permissionStore.getCanManageCaptureCentral();
 
-		const preview = this.shadowRoot?.getElementById('d2l-capture-central-preview');
-		const mp = preview?.shadowRoot?.getElementById('d2l-capture-central-mp');
-		mp?.remove();
-
 		switch (currentPage) {
 			case '':
 				import('./pages/d2l-capture-central-landing.js');
@@ -227,7 +223,6 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				this._navigate('/404');
 				return;
 			case pageNames.preview:
-				preview?.firstUpdated?.();
 				import('./pages/preview/d2l-capture-central-preview.js');
 				return;
 			case pageNames.settings:
@@ -244,6 +239,10 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				this._navigate('/404');
 				return;
 		}
+	}
+
+	_renderPreview() {
+		return html `<d2l-capture-central-preview id="d2l-capture-central-preview" class="page" active></d2l-capture-central-preview>`;
 	}
 
 	_renderPrimary() {
@@ -266,7 +265,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				<d2l-capture-central-videos class="page" ?active=${currentPage === pageNames.videos}></d2l-capture-central-videos>
 				<d2l-capture-central-recycle-bin class="page" ?active=${currentPage === pageNames.recycleBin}></d2l-capture-central-recycle-bin>
 				<d2l-capture-central-producer class="page" ?active=${currentPage === pageNames.producer && !!subView}></d2l-capture-central-producer>
-				<d2l-capture-central-preview id="d2l-capture-central-preview" class="page" ?active=${currentPage === pageNames.preview}></d2l-capture-central-preview>
+				${currentPage === pageNames.preview ? this._renderPreview() : ''}
 				<d2l-capture-central-settings class="page" ?active=${currentPage === pageNames.settings}></d2l-capture-central-settings>
 				<d2l-capture-central-visits class="page" ?active=${currentPage === pageNames.visits}></d2l-capture-central-visits>
 				<d2l-capture-central-404 class="page" ?active=${currentPage === pageNames.page404}></d2l-capture-central-404>
