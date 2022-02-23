@@ -3,14 +3,12 @@ import 'file-drop-element';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 
 import { DependencyRequester } from '../mixins/dependency-requester-mixin.js';
+import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin.js';
+import { isSupported } from '../util/media-type-util.js';
+import { maxFileSizeInBytes } from '../util/constants';
+import { formatFileSize } from '@brightspace-ui/intl/lib/fileSize';
 
-class ContentFileDrop extends DependencyRequester(LitElement) {
-	static get properties() {
-		return {
-			_supportedMimeTypes: { type: Array }
-		};
-	}
-
+class ContentFileDrop extends InternalLocalizeMixin(DependencyRequester(LitElement)) {
 	static get styles() {
 		return [css`
 			file-drop {
@@ -29,27 +27,42 @@ class ContentFileDrop extends DependencyRequester(LitElement) {
 		`];
 	}
 
-	constructor() {
-		super();
-		this._supportedMimeTypes = [];
-	}
-
 	async connectedCallback() {
 		super.connectedCallback();
 		this.uploader = this.requestDependency('uploader');
-		this.client = this.requestDependency('content-service-client');
-		this._supportedMimeTypes = await this.client.getSupportedMimeTypes();
 	}
 
 	render() {
 		return html`
-			<file-drop multiple @filedrop=${this.onFileDrop} accept=${this._supportedMimeTypes.join(',')}>
+			<file-drop multiple @filedrop=${this.onFileDrop}>
 				<slot></slot>
 			</file-drop>
 		`;
 	}
+
 	onFileDrop(event) {
-		this.uploader.uploadFiles(event._files);
+		const { files } = event;
+		for (const file of files) {
+			if (file.size > maxFileSizeInBytes) {
+				this._dispatchFileDropErrorEvent(this.localize(
+					'fileTooLarge',
+					{ localizedMaxFileSize: formatFileSize(maxFileSizeInBytes) }
+				));
+				return;
+			} else if (!isSupported(file.name)) {
+				this._dispatchFileDropErrorEvent(this.localize('invalidFileType'));
+				return;
+			}
+		}
+		this.uploader.uploadFiles(files);
+	}
+
+	_dispatchFileDropErrorEvent(message) {
+		this.dispatchEvent(new CustomEvent('file-drop-error', {
+			detail: { message },
+			bubbles: true,
+			composed: true
+		}));
 	}
 }
 

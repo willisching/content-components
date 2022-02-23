@@ -4,7 +4,6 @@ import '@brightspace-ui/core/components/colors/colors.js';
 import '@brightspace-ui/core/components/icons/icon.js';
 import '@brightspace-ui/core/components/list/list-item.js';
 import '@brightspace-ui/core/components/list/list.js';
-import '../content-file-drop.js';
 import '../relative-date.js';
 import './recycle-bin-list-header.js';
 import './recycle-bin-item-ghost.js';
@@ -28,7 +27,6 @@ class RecycleBinList extends CaptureCentralList {
 	render() {
 		return html`
 			<recycle-bin-list-header @change-sort=${this.changeSort}></recycle-bin-list-header>
-			<content-file-drop>
 			<d2l-list>
 				<div id="d2l-content-store-list">
 					${this.renderNotFound()}
@@ -36,7 +34,6 @@ class RecycleBinList extends CaptureCentralList {
 					${this.renderGhosts()}
 				</div>
 			</d2l-list>
-			</content-file-drop>
 
 			<d2l-alert-toast
 				id="recycle-bin-toast"
