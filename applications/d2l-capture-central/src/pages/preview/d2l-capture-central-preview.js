@@ -15,7 +15,6 @@ class D2LCaptureCentralPreview extends DependencyRequester(PageViewElement) {
 	static get properties() {
 		return {
 			id: { type: String, attribute: true },
-			revisionId: { type: String, attribute: true },
 			loading: {type: Boolean, attribute: false},
 		};
 	}
@@ -31,6 +30,19 @@ class D2LCaptureCentralPreview extends DependencyRequester(PageViewElement) {
 				display: flex;
 				margin: auto;
 				margin-top: 200px;
+			}
+
+			#status-container {
+				aspect-ratio: 16/9;
+				background-color: black;
+				color: white;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+ 				overflow: hidden;
+ 				position: relative;
+				text-align: center;
+ 				width: 100%;
 			}
 		`];
 	}
@@ -51,11 +63,11 @@ class D2LCaptureCentralPreview extends DependencyRequester(PageViewElement) {
 		this.loading = true;
 		this.apiClient = this.requestDependency('content-service-client');
 		this.id = this.rootStore.routingStore.params.id;
-		this.revisionId = this.rootStore.routingStore.params.revisionId;
+		this.revision = await this.apiClient.getLatestRevision(this.id);
 
-		this.urls = await this.apiClient.getSignedUrls({ contentId: this.id, revisionId: this.revisionId });
-		this.revision = await this.apiClient.getRevision({ contentId: this.id, revisionId: this.revisionId });
-		const metadata = await this.apiClient.getMetadata({ contentId: this.id, revisionId: this.revisionId });
+		this.urls = await this.apiClient.getSignedUrls({ contentId: this.id, revisionId: this.revision.id });
+
+		const metadata = await this.apiClient.getMetadata({ contentId: this.id, revisionId: this.revision.id });
 		this.metadata = metadata ? JSON.stringify(metadata) : undefined;
 
 		await this.loadAllCaptions();
@@ -67,7 +79,14 @@ class D2LCaptureCentralPreview extends DependencyRequester(PageViewElement) {
 		if (this.loading) {
 			return html`<d2l-loading-spinner size=150></d2l-loading-spinner>`;
 		}
-		// TODO: check if revision is ready and add "please come back later" message
+
+		if (!this.revision.ready) {
+			return html`
+				<div id="status-container">
+					${this.localize('mediaFileIsProcessing')}
+				</div>
+			`;
+		}
 
 		return html`
 		<d2l-labs-media-player
