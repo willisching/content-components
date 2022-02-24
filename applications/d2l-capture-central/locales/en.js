@@ -110,6 +110,7 @@ export const val = {
 	preRollClip: 'Pre-roll clip:',
 	presentationLayout: 'Presentation Layout',
 	presenter: 'Presenter',
+	preview: 'Preview',
 	publish: 'Publish',
 	publishError: 'An error occurred during publishing.',
 	publishSuccess: 'Published successfully.',
