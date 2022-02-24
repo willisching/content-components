@@ -1,9 +1,9 @@
 export const val = {
-	deletedMedia: 'This media file has been deleted',
+	deletedMedia: 'Ce fichier multimédia a été supprimé',
 	download: 'Télécharger',
 	formatHD: 'HD',
 	formatLD: 'LD',
 	formatMP3: 'MP3',
 	formatSD: 'SD',
-	mediaFileIsProcessing: 'This media file is currently being processed. Please come back later.'
+	mediaFileIsProcessing: 'Ce fichier multimédia est en cours de traitement. Veuillez revenir plus tard.'
 };
