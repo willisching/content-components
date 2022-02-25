@@ -74,7 +74,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 	}
 
 	render() {
-		const previewUrl = `./${pageNames.preview}/${this.id}`;
+		const previewUrl = `/${pageNames.preview}/${this.id}`;
 
 		return html`
 			<d2l-list-item class="d2l-body-compact"
