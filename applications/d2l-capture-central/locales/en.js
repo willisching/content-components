@@ -79,6 +79,7 @@ export const val = {
 	manageClips: 'Manage Clips',
 	manageFolders: 'Manage Folders',
 	manageLiveEvents: 'Manage Live Events',
+	mediaFileIsProcessing: 'This media file is currently being processed. Please come back later.',
 	modified: 'Modified',
 	moreOptions: 'More options',
 	moveContents: 'Move Contents',

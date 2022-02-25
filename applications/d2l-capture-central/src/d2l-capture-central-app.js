@@ -353,7 +353,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			`/:orgUnitId/${pageNames.encoder}`,
 			`/:orgUnitId/${pageNames.recycleBin}`,
 			`/:orgUnitId/${pageNames.producer}/:id`,
-			`/:orgUnitId/${pageNames.preview}/:id/:revisionId`,
+			`/:orgUnitId/${pageNames.preview}/:id`,
 			`/:orgUnitId/${pageNames.settings}`,
 			`/:orgUnitId/${pageNames.visits}`,
 			'/:orgUnitId/',
