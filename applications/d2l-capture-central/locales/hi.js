@@ -49,7 +49,7 @@ export const val = {
 	editProperties: 'गुण संपादित करें',
 	enableChat: 'चैट सक्षम करें',
 	enterAnItemName: 'कोई आइटम नाम दर्ज करें',
-	everyonesVideos: 'Everyone's Videos',
+	everyonesVideos: "Everyone's Videos",
 	export: 'निर्यात करें',
 	exportAsCsv: 'अल्पविराम से अलग किए गए मानों की सूची के रूप में निर्यात करें।',
 	fileTooLarge: 'File size is larger than {localizedMaxFileSize}.',
