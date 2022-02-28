@@ -1,7 +1,7 @@
 {
   "name": "@brightspace/content-components",
   "description": "Web components for content in Brightspace",
-  "version": "2.20.5",
+  "version": "2.20.6",
   "scripts": {
     "eslint-fix": "eslint . --ext .js,.html --fix",
     "lint": "npm run lint:eslint && npm run lint:lit",
