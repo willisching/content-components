@@ -150,6 +150,7 @@ export class Uploader {
 			this.runningJobs += 1;
 			const content = await this.apiClient.createContent({
 				title: file.name,
+				clientApp: 'LmsCapture',
 			});
 			const revision = await this.apiClient.createRevision({
 				contentId: content.id,
