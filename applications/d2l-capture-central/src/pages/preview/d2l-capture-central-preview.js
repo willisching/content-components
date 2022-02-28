@@ -118,7 +118,7 @@ class D2LCaptureCentralPreview extends DependencyRequester(PageViewElement) {
 	async loadCaptions(locale) {
 		const res = await this.apiClient.getCaptionsUrl({
 			contentId: this.id,
-			revisionId: this.revisionId,
+			revisionId: this.revision.id,
 			locale: locale
 		});
 		res.locale = locale;
