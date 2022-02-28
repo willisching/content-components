@@ -176,6 +176,7 @@ export default class ContentServiceClient {
 		sort = 'updatedAt:desc',
 		query = '',
 		contentType = '',
+		clientApps = 'all',
 		updatedAt = '',
 		createdAt = '',
 		includeThumbnails = false
@@ -192,6 +193,7 @@ export default class ContentServiceClient {
 				sort,
 				query,
 				contentType: contentFilterToSearchQuery(contentType),
+				clientApps,
 				updatedAt: dateFilterToSearchQuery(updatedAt),
 				createdAt: dateFilterToSearchQuery(createdAt),
 				includeThumbnails
@@ -206,6 +208,7 @@ export default class ContentServiceClient {
 		sort = 'updatedAt:desc',
 		query = '',
 		contentType = '',
+		clientApps = 'all',
 		updatedAt = '',
 		createdAt = '',
 		includeThumbnails = false
@@ -222,6 +225,7 @@ export default class ContentServiceClient {
 				sort,
 				query,
 				contentType: contentFilterToSearchQuery(contentType),
+				clientApps,
 				updatedAt: dateFilterToSearchQuery(updatedAt),
 				createdAt: dateFilterToSearchQuery(createdAt),
 				filter: 'DELETED',

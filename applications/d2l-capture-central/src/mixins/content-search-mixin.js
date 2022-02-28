@@ -1,5 +1,7 @@
 import { formatDate } from '@brightspace-ui/intl/lib/dateTime.js';
 
+const clientApps = ['LmsContent', 'LmsCourseImport', 'LmsCapture', 'Capture', 'none'];
+
 export const contentSearchMixin = superClass => class extends superClass {
 	static get properties() {
 		return {
@@ -57,6 +59,7 @@ export const contentSearchMixin = superClass => class extends superClass {
 
 		const { hits: { hits, total } } = await this.apiClient.searchDeletedContent({
 			contentType: 'video',
+			clientApps: clientApps.join(','),
 			createdAt: createdAt,
 			includeThumbnails: false,
 			query: query,
@@ -97,6 +100,7 @@ export const contentSearchMixin = superClass => class extends superClass {
 
 		const { hits: { hits, total } } = await this.apiClient.searchContent({
 			contentType: 'video',
+			clientApps: clientApps.join(','),
 			createdAt,
 			includeThumbnails: true,
 			query,
