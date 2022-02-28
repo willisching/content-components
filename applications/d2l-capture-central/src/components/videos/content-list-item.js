@@ -79,7 +79,8 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 		return html`
 			<d2l-list-item class="d2l-body-compact"
 				?disabled=${this.disabled}
-				href="${previewUrl}"
+				@click=${this._goTo(previewUrl)}
+				href="#"
 				label="${this.title}"
 				?selectable=${this.selectable}
 				key=${this.id}
@@ -247,6 +248,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 	// The class "actions" and methods dropdownClicked and dropdownClosed
 	// are used to work around an issue with dropdown menus inside a list item: https://github.com/BrightspaceUI/core/issues/399
 	dropdownClicked(e) {
+		e.stopPropagation();
 		if (e && e.target && e.target.parentNode) {
 			const actionsDropdownMenu = this.shadowRoot.querySelector('#actions-dropdown-menu');
 			const opened = actionsDropdownMenu && actionsDropdownMenu.opened;
