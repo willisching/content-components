@@ -182,7 +182,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	firstUpdated() {
 		super.firstUpdated();
 
-		this._mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
+		this._mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player'); // why is this variable getting a this. call, when it is not a property of the class
 
 		// Wait for video to be loaded
 		this._mediaPlayer.addEventListener('loadeddata', () => {
@@ -193,12 +193,14 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			this._videoLoaded = true;
 			this.dispatchEvent(new CustomEvent('media-loaded', { composed: false }));
 		});
+
 	}
 
 	render() {
 		const zoomMultiplierStyleMap = {
 			opacity: this._zoomMultiplierDisplayOpacity
 		};
+		const mediaPlayerDuration = this._mediaPlayer?.duration;
 		return html`
 			<div class="d2l-video-producer-editor">
 				<div class="d2l-video-producer-video-controls">
@@ -252,6 +254,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 							<d2l-video-producer-captions
 								.activeCue="${this._activeCue}"
 								.captions="${this.captions}"
+								.mediaPlayerDuration="${this._mediaPlayer?.duration??0}"
 								@captions-cue-added="${this._handleCaptionsCueAdded}"
 								@captions-cue-deleted="${this._handleCaptionsCueDeleted}"
 								@captions-cue-end-timestamp-synced="${this._handleCaptionsCueEndTimestampSynced}"
@@ -330,6 +333,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		if (this.enableCutsAndChapters && changedProperties.has('metadata') && this.metadata && this._videoLoaded && this._cutsDifferInMetadataAndTimeline()) {
 			this._resetTimelineWithNewCuts(this.metadata.cuts);
 		}
+		// this.shadowRoot.querySelector('d2l-video-producer-captions').mediaPlayerDuration = this._mediaPlayer.duration;
 	}
 
 	get mediaPlayer() {
@@ -923,7 +927,9 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		const originalCue = event.detail.cue;
 		const cueDuration = originalCue.endTime - originalCue.startTime;
 		const editedCue = new VTTCue(originalCue.startTime, originalCue.endTime, originalCue.text);
-		editedCue.endTime = Math.floor(this._mediaPlayer.currentTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
+		const endTimeEditedByTextInput = event.detail.endTimeEditedByTextInput;
+		const newEndTime = event.detail.newEndTime;
+		editedCue.endTime = endTimeEditedByTextInput ? Math.floor(newEndTime * 1000) / 1000 : Math.floor(this._mediaPlayer.currentTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
 		if (editedCue.endTime <= editedCue.startTime) {
 			editedCue.startTime = Math.max(editedCue.endTime - cueDuration, 0);
 		}
@@ -944,7 +950,9 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		const originalCue = event.detail.cue;
 		const cueDuration = originalCue.endTime - originalCue.startTime;
 		const editedCue = new VTTCue(originalCue.startTime, originalCue.endTime, originalCue.text);
-		editedCue.startTime = Math.floor(this._mediaPlayer.currentTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
+		const startTimeEditedByTextInput = event.detail.startTimeEditedByTextInput;
+		const newStartTime = event.detail.newStartTime;
+		editedCue.startTime = startTimeEditedByTextInput ? Math.floor(newStartTime * 1000) / 1000 : Math.floor(this._mediaPlayer.currentTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
 		if (editedCue.startTime >= editedCue.endTime) {
 			editedCue.endTime = Math.min(editedCue.startTime + cueDuration, this._mediaPlayer.duration);
 		}

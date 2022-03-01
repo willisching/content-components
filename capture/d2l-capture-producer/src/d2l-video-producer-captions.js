@@ -2,13 +2,16 @@ import '@brightspace-ui/core/components/alert/alert-toast.js';
 import '@brightspace-ui/core/components/button/button-icon.js';
 import '@brightspace-ui/core/components/button/button-subtle.js';
 import '@brightspace-ui/core/components/colors/colors.js';
+import '@brightspace-ui/core/components/icons/icon.js';
 import '@brightspace-ui/core/components/inputs/input-text.js';
+import '@brightspace-ui/core/components/inputs/input-text.js';
+import '@brightspace-ui/core/components/tooltip/tooltip.js';
 import { formatFileSize } from '@brightspace-ui/intl/lib/fileSize.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { inputStyles } from '@brightspace-ui/core/components/inputs/input-styles.js';
 import { InternalLocalizeMixin } from './internal-localize-mixin.js';
 import { labelStyles, bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
-import { formatTimestampText, convertSrtTextToVttText }  from './captions-utils.js';
+import { formatTimestampText, convertSrtTextToVttText, validTimestampFormat, unformatTimestampText }  from './captions-utils.js';
 import constants from './constants.js';
 import './d2l-video-producer-auto-generate-captions-dialog';
 import 'webvtt-parser/parser.js';
@@ -19,6 +22,12 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 			active: { type: Boolean },
 			cue: { type: Object },
 			expanded: { type: Boolean },
+			newStartTime: { type: String },
+			newEndTime: { type: String },
+			startValidationError: { type: String },
+			endValidationError: { type: String },
+			errors: { type: Object },
+			mediaPlayerDuration: { type: Number },
 		};
 	}
 
@@ -91,6 +100,7 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 
 			.start-timestamp-row {
 				grid-row: 1;
+				margin-bottom: 10%;
 			}
 
 			.end-timestamp-row {
@@ -101,13 +111,19 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 				grid-column: 1;
 			}
 
-			.d2l-video-producer-captions-cue-timestamp-text {
+			.d2l-video-producer-captions-cue-timestamp-input {
 				grid-column: 2;
 			}
 
 			.d2l-video-producer-captions-sync-cue-button {
 				grid-column: 3;
 			}
+
+			.d2l-video-producer-captions-error-icon {
+				grid-column: 2;
+				align-self: center;
+			}
+
 		` ];
 	}
 
@@ -115,7 +131,16 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 		super();
 		this.active = false;
 		this.cue = { startTime: 0, endTime: 0, text: '' };
+		this.mediaPlayerDuration = 0;
 		this.expanded = false;
+		this.newStartTime = formatTimestampText(this.cue.startTime);
+		this.newEndTime = formatTimestampText(this.cue.endTime);
+		this.startValidationError = '';
+		this.endValidationError = '';
+		this.errors = { 
+			'INVALID_FORMAT': 'invalidFormat',
+			'INVALID_TIME': 'invalidTime',
+		}
 	}
 
 	render() {
@@ -127,6 +152,16 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 				${this.expanded ? this._renderExpandedControls() : ''}
 			</div>
 		`;
+	}
+
+	updated(changedProperties){
+		super.updated(changedProperties);
+		if (changedProperties.has('cue')) {
+			this.newStartTime = formatTimestampText(this.cue.startTime);
+			this.newEndTime = formatTimestampText(this.cue.endTime - 0.001);
+			this.startValidationError = '';
+			this.endValidationError = '';
+		}
 	}
 
 	get endTime() {
@@ -153,20 +188,75 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 		this._jumpToCueStartTime();
 	}
 
+	_handleIsInputValidTimestamp(timestampInText){
+		if (!validTimestampFormat(timestampInText)) return 'INVALID_FORMAT';
+		const timestampInSeconds = unformatTimestampText(timestampInText);
+		if(timestampInSeconds >= this.mediaPlayerDuration) return 'INVALID_TIME';
+		return '';
+	}
+
+	_handleNewEndTimeInput(event){
+		this.newEndTime = event.target.value;
+	}
+
+	_handleNewStartTimeInput(event){
+		this.newStartTime = event.target.value;
+	}
+
 	_handleSyncEndTimestampClicked() {
+		this.endValidationError = '';
 		this.dispatchEvent(new CustomEvent('captions-cue-end-timestamp-synced', {
-			detail: { cue: this.cue },
+			detail: { 
+				cue: this.cue,
+				endTimeEditedByTextInput: false, 
+				newEndTime: this.newEndTime,
+			},
 			bubbles: true,
 			composed: true,
 		}));
 	}
 
 	_handleSyncStartTimestampClicked() {
+		this.startValidationError = '';
 		this.dispatchEvent(new CustomEvent('captions-cue-start-timestamp-synced', {
-			detail: { cue: this.cue },
+			detail: { 
+				cue: this.cue,
+				startTimeEditedByTextInput: false,
+				newStartTime: this.newStartTime,
+			},
 			bubbles: true,
 			composed: true,
 		}));
+	}
+
+	_handleSyncEndTimestampFocusout() {
+		this.endValidationError = this._handleIsInputValidTimestamp(this.newEndTime);
+		if (!this.endValidationError){
+			this.dispatchEvent(new CustomEvent('captions-cue-end-timestamp-synced', {
+				detail: {
+					cue: this.cue,
+					endTimeEditedByTextInput: true, 
+					newEndTime: unformatTimestampText(this.newEndTime),		
+				},
+				bubbles: true,
+				composed: true,
+			}));
+		}
+	}
+
+	_handleSyncStartTimestampFocusout() {
+		this.startValidationError = this._handleIsInputValidTimestamp(this.newStartTime);
+		if (!this.startValidationError){
+			this.dispatchEvent(new CustomEvent('captions-cue-start-timestamp-synced', {
+				detail: {
+					cue: this.cue,
+					startTimeEditedByTextInput: true,
+					newStartTime: unformatTimestampText(this.newStartTime),
+				},
+				bubbles: true,
+				composed: true,
+			}));
+		}
 	}
 
 	_handleTextInput(event) {
@@ -180,6 +270,8 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 
 	_hideExpandedControls() {
 		this.expanded = false;
+		this.startValidationError = '';
+		this.endValidationError = '';
 	}
 
 	_jumpToCueStartTime() {
@@ -195,21 +287,79 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_renderExpandedControls() {
+		const startTimeTooltip = this.startValidationError ?  
+			html`
+				<d2l-icon
+					class="start-timestamp-row"
+					id="d2l-advanced-editing-disabled-icon-start"
+					icon="tier1:help"
+				></d2l-icon>
+				<d2l-tooltip
+					id="start-time-tooltip"
+					for="d2l-advanced-editing-disabled-icon-start"
+					state="error"
+					showing
+				>${this.localize(this.errors[this.startValidationError], { formattedTime: formatTimestampText(this.mediaPlayerDuration)})}</d2l-tooltip>`
+				: null;
+
+		const endTimeTooltip = this.endValidationError ?  
+			html`
+				<d2l-icon
+					class="end-timestamp-row"
+					id="d2l-advanced-editing-disabled-icon-end"
+					icon="tier1:help"
+				></d2l-icon>
+				<d2l-tooltip
+					id="end-time-tooltip" 
+					for="d2l-advanced-editing-disabled-icon-end"
+					showing
+					state="error"
+				>${this.localize(this.errors[this.endValidationError], { formattedTime: formatTimestampText(this.mediaPlayerDuration)})}</d2l-tooltip>`
+			: null;
+		
 		return html`
 			<div class="d2l-video-producer-captions-cue-expanded-controls">
 				<div class="d2l-video-producer-captions-cue-start-end-grid">
 					<p class="start-timestamp-row d2l-label-text d2l-video-producer-captions-cue-timestamp-label">${this.localize('captionsCueStartTimestamp')}</p>
-					<p class="start-timestamp-row d2l-body-standard d2l-video-producer-captions-cue-timestamp-text">${formatTimestampText(this.cue.startTime)}</p>
+					<p class="start-timestamp-row d2l-body-standard d2l-video-producer-captions-cue-timestamp-input">
+						<d2l-input-text
+							id="start-time"
+							class="d2l-input-text start-time-input-text"
+							label="Cue Start Time"
+							label-hidden
+							@input="${this._handleNewStartTimeInput}"
+							@focusout="${this._handleSyncStartTimestampFocusout}"
+							maxlength="${constants.MAX_NEW_TIME_CHARACTERS}"
+							rows="1"
+							value="${this.newStartTime}"
+						></d2l-input-text>
+					</p>
+					${startTimeTooltip}
 					<d2l-button-icon
-						class="start-timestamp-row d2l-video-producer-sync-cue-button"
+						id="start-time-captions-sync-cue-button"
+						class="start-timestamp-row d2l-video-producer-captions-sync-cue-button"
 						@click="${this._handleSyncStartTimestampClicked}"
 						text=${this.localize('syncStartTimeToTimeline')}
 						icon="tier1:time"
 					></d2l-button-icon>
 					<p class="end-timestamp-row d2l-label-text d2l-video-producer-captions-cue-timestamp-label">${this.localize('captionsCueEndTimestamp')}</p>
-					<p class="end-timestamp-row d2l-body-standard d2l-video-producer-captions-cue-timestamp-text">${formatTimestampText(this.cue.endTime)}</p>
+					<p class="end-timestamp-row d2l-body-standard d2l-video-producer-captions-cue-timestamp-input">
+						<d2l-input-text
+							id="end-time"
+							class="d2l-input-text time-input-text"
+							label="Cue End Time"
+							label-hidden
+							@input="${this._handleNewEndTimeInput}"
+							@focusout="${this._handleSyncEndTimestampFocusout}"
+							maxlength="${constants.MAX_NEW_TIME_CHARACTERS}"
+							rows="1"
+							value="${this.newEndTime}"
+						></d2l-input-text>
+					</p>
+					${endTimeTooltip}
 					<d2l-button-icon
-						class="end-timestamp-row d2l-video-producer-sync-cue-button"
+						id="end-timestamp-captions-sync-cue-button"
+						class="end-timestamp-row d2l-video-producer-captions-sync-cue-button"
 						@click="${this._handleSyncEndTimestampClicked}"
 						text=${this.localize('syncEndTimeToTimeline')}
 						icon="tier1:time"
@@ -254,9 +404,17 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 		`;
 	}
 
+	_setNewTimeVariables(){
+		this.newStartTime = formatTimestampText(this.cue.startTime);
+		this.newEndTime = formatTimestampText(this.cue.endTime);
+	}
+
 	_showExpandedControls() {
 		this.expanded = true;
+		this.endValidationError = this._handleIsInputValidTimestamp(this.newEndTime);
+		this.startValidationError = this._handleIsInputValidTimestamp(this.newStartTime);
 	}
+
 }
 
 customElements.define('d2l-video-producer-captions-cues-list-item', CaptionsCueListItem);
@@ -356,6 +514,7 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 		super();
 		this.activeCue = null;
 		this.captions = [];
+		this.mediaPlayerDuration = 0;
 		this.languages = [];
 		this._autoGenerateDialogOpened = false;
 		this._currentVisibleCueBatch = 0;
@@ -593,6 +752,7 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 				<d2l-video-producer-captions-cues-list-item
 					?active="${this.activeCue && (cue.startTime === this.activeCue.startTime) && (cue.endTime === this.activeCue.endTime)}"
 					.cue="${cue}"
+					.mediaPlayerDuration="${this.mediaPlayerDuration}"
 				></d2l-video-producer-captions-cues-list-item>
 			`)}
 			${((this._currentVisibleCueBatch + 1) * constants.NUM_OF_VISIBLE_CUES) < this.captions?.length ? this._renderNextCuesBatchButton() : ''}
