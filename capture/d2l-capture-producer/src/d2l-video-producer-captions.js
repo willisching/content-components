@@ -218,7 +218,7 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 	_handleSyncEndTimestampFocusout() {
 		this.endValidationError = this._handleIsInputValidTimestamp(this.newEndTime);
 		if (!this.endValidationError) {
-			this.dispatchEvent(new CustomEvent('captions-cue-end-timestampd-synced', {
+			this.dispatchEvent(new CustomEvent('captions-cue-end-timestamp-synced', {
 				detail: {
 					cue: this.cue,
 					endTimeEditedByTextInput: true,
