@@ -403,11 +403,6 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 		`;
 	}
 
-	_setNewTimeVariables() {
-		this.newStartTime = formatTimestampText(this.cue.startTime);
-		this.newEndTime = formatTimestampText(this.cue.endTime);
-	}
-
 	_showExpandedControls() {
 		this.expanded = true;
 		this.endValidationError = this._handleIsInputValidTimestamp(this.newEndTime);
