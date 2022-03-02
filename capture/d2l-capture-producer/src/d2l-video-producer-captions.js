@@ -4,7 +4,6 @@ import '@brightspace-ui/core/components/button/button-subtle.js';
 import '@brightspace-ui/core/components/colors/colors.js';
 import '@brightspace-ui/core/components/icons/icon.js';
 import '@brightspace-ui/core/components/inputs/input-text.js';
-import '@brightspace-ui/core/components/inputs/input-text.js';
 import '@brightspace-ui/core/components/tooltip/tooltip.js';
 import { formatFileSize } from '@brightspace-ui/intl/lib/fileSize.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
@@ -137,10 +136,10 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 		this.newEndTime = formatTimestampText(this.cue.endTime);
 		this.startValidationError = '';
 		this.endValidationError = '';
-		this.errors = { 
+		this.errors = {
 			'INVALID_FORMAT': 'invalidFormat',
 			'INVALID_TIME': 'invalidTime',
-		}
+		};
 	}
 
 	render() {
@@ -154,7 +153,7 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 		`;
 	}
 
-	updated(changedProperties){
+	updated(changedProperties) {
 		super.updated(changedProperties);
 		if (changedProperties.has('cue')) {
 			this.newStartTime = formatTimestampText(this.cue.startTime);
@@ -188,27 +187,27 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 		this._jumpToCueStartTime();
 	}
 
-	_handleIsInputValidTimestamp(timestampInText){
+	_handleIsInputValidTimestamp(timestampInText) {
 		if (!validTimestampFormat(timestampInText)) return 'INVALID_FORMAT';
 		const timestampInSeconds = unformatTimestampText(timestampInText);
-		if(timestampInSeconds >= this.mediaPlayerDuration) return 'INVALID_TIME';
+		if (timestampInSeconds >= this.mediaPlayerDuration) return 'INVALID_TIME';
 		return '';
 	}
 
-	_handleNewEndTimeInput(event){
+	_handleNewEndTimeInput(event) {
 		this.newEndTime = event.target.value;
 	}
 
-	_handleNewStartTimeInput(event){
+	_handleNewStartTimeInput(event) {
 		this.newStartTime = event.target.value;
 	}
 
 	_handleSyncEndTimestampClicked() {
 		this.endValidationError = '';
 		this.dispatchEvent(new CustomEvent('captions-cue-end-timestamp-synced', {
-			detail: { 
+			detail: {
 				cue: this.cue,
-				endTimeEditedByTextInput: false, 
+				endTimeEditedByTextInput: false,
 				newEndTime: this.newEndTime,
 			},
 			bubbles: true,
@@ -216,10 +215,25 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 		}));
 	}
 
+	_handleSyncEndTimestampFocusout() {
+		this.endValidationError = this._handleIsInputValidTimestamp(this.newEndTime);
+		if (!this.endValidationError) {
+			this.dispatchEvent(new CustomEvent('captions-cue-end-timestampd-synced', {
+				detail: {
+					cue: this.cue,
+					endTimeEditedByTextInput: true,
+					newEndTime: unformatTimestampText(this.newEndTime),
+				},
+				bubbles: true,
+				composed: true,
+			}));
+		}
+	}
+
 	_handleSyncStartTimestampClicked() {
 		this.startValidationError = '';
 		this.dispatchEvent(new CustomEvent('captions-cue-start-timestamp-synced', {
-			detail: { 
+			detail: {
 				cue: this.cue,
 				startTimeEditedByTextInput: false,
 				newStartTime: this.newStartTime,
@@ -229,24 +243,9 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 		}));
 	}
 
-	_handleSyncEndTimestampFocusout() {
-		this.endValidationError = this._handleIsInputValidTimestamp(this.newEndTime);
-		if (!this.endValidationError){
-			this.dispatchEvent(new CustomEvent('captions-cue-end-timestamp-synced', {
-				detail: {
-					cue: this.cue,
-					endTimeEditedByTextInput: true, 
-					newEndTime: unformatTimestampText(this.newEndTime),		
-				},
-				bubbles: true,
-				composed: true,
-			}));
-		}
-	}
-
 	_handleSyncStartTimestampFocusout() {
 		this.startValidationError = this._handleIsInputValidTimestamp(this.newStartTime);
-		if (!this.startValidationError){
+		if (!this.startValidationError) {
 			this.dispatchEvent(new CustomEvent('captions-cue-start-timestamp-synced', {
 				detail: {
 					cue: this.cue,
@@ -287,7 +286,7 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_renderExpandedControls() {
-		const startTimeTooltip = this.startValidationError ?  
+		const startTimeTooltip = this.startValidationError ?
 			html`
 				<d2l-icon
 					class="start-timestamp-row"
@@ -300,9 +299,9 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 					state="error"
 					showing
 				>${this.localize(this.errors[this.startValidationError], { formattedTime: formatTimestampText(this.mediaPlayerDuration)})}</d2l-tooltip>`
-				: null;
+			: null;
 
-		const endTimeTooltip = this.endValidationError ?  
+		const endTimeTooltip = this.endValidationError ?
 			html`
 				<d2l-icon
 					class="end-timestamp-row"
@@ -310,13 +309,13 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 					icon="tier1:help"
 				></d2l-icon>
 				<d2l-tooltip
-					id="end-time-tooltip" 
+					id="end-time-tooltip"
 					for="d2l-advanced-editing-disabled-icon-end"
 					showing
 					state="error"
 				>${this.localize(this.errors[this.endValidationError], { formattedTime: formatTimestampText(this.mediaPlayerDuration)})}</d2l-tooltip>`
 			: null;
-		
+
 		return html`
 			<div class="d2l-video-producer-captions-cue-expanded-controls">
 				<div class="d2l-video-producer-captions-cue-start-end-grid">
@@ -404,7 +403,7 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 		`;
 	}
 
-	_setNewTimeVariables(){
+	_setNewTimeVariables() {
 		this.newStartTime = formatTimestampText(this.cue.startTime);
 		this.newEndTime = formatTimestampText(this.cue.endTime);
 	}

@@ -82,7 +82,7 @@ function formatTimestampText(timestampInSeconds) {
 
 /**
  * Takes a string of and validates that is is of the format hh:mm:ss.sss, hh:mm:ss.ss, hh:mm:ss.s, hh:mm:ss., or hh:mm:ss
- * @param {string} timestampInText The timestamp string in format described above, storing hours, minutes, and seconds to three or less decimal places
+ * @param {string} timestampInText A timestamp string in format described above, storing hours, minutes, and seconds to three or less decimal places
  * @returns true if the string is correctly formated, and false if it is not
  */
 function validTimestampFormat(timestampInText) { // Timestamp format from function formatTimestampText(timestampInSeconds): 00:00:00.000
@@ -91,16 +91,16 @@ function validTimestampFormat(timestampInText) { // Timestamp format from functi
 }
 
 /**
- * Converts a string timestamp of format hh:mm:ss.sss to seconds 
- * @param {string} timestampInText 
- * @returns 
+ * Converts a string timestamp of format hh:mm:ss.sss to seconds
+ * @param {string} timestampInText A timestamp string in format
+ * @returns
  */
 function unformatTimestampText(timestampInText) {
 	timestampInText = timestampInText.trim();
-	const hours = parseInt(timestampInText.substring(0,2));
-	const minutes = parseInt(timestampInText.substring(3,5));
+	const hours = parseInt(timestampInText.substring(0, 2));
+	const minutes = parseInt(timestampInText.substring(3, 5));
 	const seconds = parseFloat(timestampInText.substring(6));
-	var timestampInSeconds = (hours * 60 * 60) + (minutes * 60) + seconds; 
+	const timestampInSeconds = (hours * 60 * 60) + (minutes * 60) + seconds;
 	return timestampInSeconds;
 }
 

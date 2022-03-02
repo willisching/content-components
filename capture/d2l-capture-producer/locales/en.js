@@ -36,7 +36,7 @@ export const val = {
 	getProcessingProgressError: 'Failed to load processing status for this media file.',
 	hideExpandedCaptionsCueControls: 'Hide expanded controls for this captions cue',
 	insertNewCaptionsAtCurrentTime: 'Insert new captions at current time',
-	invalidFormat: 'HH:MM:SS.sss',
+	invalidFormat: 'Time must be in the following format: HH:MM:SS.sss',
 	invalidTime: 'Time must be less than: {formattedTime}',
 	languages: 'Languages',
 	loadMetadataError: 'An error occurred while loading chapters and timeline cuts',

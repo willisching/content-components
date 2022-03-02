@@ -1,4 +1,4 @@
-import { convertSrtTextToVttText, convertVttCueArrayToVttText, formatTimestampText, textTrackCueListToArray } from '../src/captions-utils.js';
+import { convertSrtTextToVttText, convertVttCueArrayToVttText, formatTimestampText, textTrackCueListToArray, unformatTimestampText, validTimestampFormat } from '../src/captions-utils.js';
 import { assert } from '@open-wc/testing';
 
 describe('captions-utils.js', () => {
@@ -24,6 +24,80 @@ describe('captions-utils.js', () => {
 		it('works for timestamps that contain milliseconds', () => {
 			const expected = '01:41:05.456';
 			const actual = formatTimestampText(6065.456);
+			assert.equal(actual, expected);
+		});
+	});
+
+	describe('unformatTimestampText', () => {
+		it('works for timestamps < 1 minute', () => {
+			const expected = 37.00;
+			const actual = unformatTimestampText('00:00:37.000');
+			assert.equal(actual, expected);
+		});
+
+		it('works for timestamps > 1 minute and < 1 hour', () => {
+			const expected = 1686;
+			const actual = unformatTimestampText('00:28:06.000');
+			assert.equal(actual, expected);
+		});
+
+		it('works for timestamps > 1 hour', () => {
+			const expected = 6065;
+			const actual = unformatTimestampText('01:41:05.000');
+			assert.equal(actual, expected);
+		});
+
+		it('works for timestamps that contain milliseconds', () => {
+			const expected = 6065.456;
+			const actual = unformatTimestampText('01:41:05.456');
+			assert.equal(actual, expected);
+		});
+	});
+
+	describe('validTimestampFormat', () => {
+		it('works with for an input of the format HH:MM:SS.sss', () => {
+			const expected = true;
+			const actual = validTimestampFormat('00:00:00.000');
+			assert.equal(actual, expected);
+		});
+		it('works with for an input of the format HH:MM:SS.ss', () => {
+			const expected = true;
+			const actual = validTimestampFormat('00:00:00.00');
+			assert.equal(actual, expected);
+		});
+		it('works with for an input of the format HH:MM:SS.s', () => {
+			const expected = true;
+			const actual = validTimestampFormat('00:00:00.0');
+			assert.equal(actual, expected);
+		});
+		it('works with for an input of the format HH:MM:SS.', () => {
+			const expected = true;
+			const actual = validTimestampFormat('00:00:00.');
+			assert.equal(actual, expected);
+		});
+		it('works with for an input of the format HH:MM:SS', () => {
+			const expected = true;
+			const actual = validTimestampFormat('00:00:00');
+			assert.equal(actual, expected);
+		});
+		it('does not work with for an input of the format HH:MM:SS.ssss', () => {
+			const expected = false;
+			const actual = validTimestampFormat('00:00:00.0000');
+			assert.equal(actual, expected);
+		});
+		it('does not work with for an input of the format HH:MM:SSsss', () => {
+			const expected = false;
+			const actual = validTimestampFormat('00:00:000000');
+			assert.equal(actual, expected);
+		});
+		it('does not work with for an input of the format HH:MMSS.ssss', () => {
+			const expected = false;
+			const actual = validTimestampFormat('00:00:00.0000');
+			assert.equal(actual, expected);
+		});
+		it('does not work with for an input of the format HL:MM:SS.ssss', () => {
+			const expected = false;
+			const actual = validTimestampFormat('0a:00:00.0000');
 			assert.equal(actual, expected);
 		});
 	});

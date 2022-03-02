@@ -200,7 +200,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		const zoomMultiplierStyleMap = {
 			opacity: this._zoomMultiplierDisplayOpacity
 		};
-		const mediaPlayerDuration = this._mediaPlayer?.duration;
+
 		return html`
 			<div class="d2l-video-producer-editor">
 				<div class="d2l-video-producer-video-controls">
@@ -254,7 +254,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 							<d2l-video-producer-captions
 								.activeCue="${this._activeCue}"
 								.captions="${this.captions}"
-								.mediaPlayerDuration="${this._mediaPlayer?.duration??0}"
+								.mediaPlayerDuration="${this._mediaPlayer?.duration ?? 0}"
 								@captions-cue-added="${this._handleCaptionsCueAdded}"
 								@captions-cue-deleted="${this._handleCaptionsCueDeleted}"
 								@captions-cue-end-timestamp-synced="${this._handleCaptionsCueEndTimestampSynced}"
@@ -333,7 +333,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		if (this.enableCutsAndChapters && changedProperties.has('metadata') && this.metadata && this._videoLoaded && this._cutsDifferInMetadataAndTimeline()) {
 			this._resetTimelineWithNewCuts(this.metadata.cuts);
 		}
-		// this.shadowRoot.querySelector('d2l-video-producer-captions').mediaPlayerDuration = this._mediaPlayer.duration;
 	}
 
 	get mediaPlayer() {
