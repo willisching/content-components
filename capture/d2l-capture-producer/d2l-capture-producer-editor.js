@@ -182,7 +182,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	firstUpdated() {
 		super.firstUpdated();
 
-		this._mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player'); // why is this variable getting a this. call, when it is not a property of the class
+		this._mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
 
 		// Wait for video to be loaded
 		this._mediaPlayer.addEventListener('loadeddata', () => {
