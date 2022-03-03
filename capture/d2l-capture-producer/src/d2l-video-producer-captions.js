@@ -123,7 +123,7 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 				align-self: center;
 			}
 
-		` ];
+			` ];
 	}
 
 	constructor() {
@@ -144,12 +144,12 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 
 	render() {
 		return html`
-			<div
-				class="d2l-video-producer-captions-cues-list-item${this.active ? '-active' : ''}"
-			>
-				${this._renderMainControls()}
-				${this.expanded ? this._renderExpandedControls() : ''}
-			</div>
+		<div
+		class="d2l-video-producer-captions-cues-list-item${this.active ? '-active' : ''}"
+		>
+		${this._renderMainControls()}
+		${this.expanded ? this._renderExpandedControls() : ''}
+		</div>
 		`;
 	}
 
@@ -157,7 +157,7 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 		super.updated(changedProperties);
 		if (changedProperties.has('cue')) {
 			this.newStartTime = formatTimestampText(this.cue.startTime);
-			this.newEndTime = formatTimestampText(this.cue.endTime - 0.001);
+			this.newEndTime = formatTimestampText(this.cue.endTime);
 			this.startValidationError = '';
 			this.endValidationError = '';
 		}
@@ -183,6 +183,22 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 		}));
 	}
 
+	_handleEndTimestampInputTextFocusout() {
+		this.endValidationError = this._handleIsInputValidTimestamp(this.newEndTime);
+		const newEndTimeInSeconds = unformatTimestampText(this.newEndTime);
+		const inputChanged = this.cue.startTime !== newEndTimeInSeconds;
+		if (!this.endValidationError && inputChanged) {
+			this.dispatchEvent(new CustomEvent('captions-cue-end-timestamp-edited', {
+				detail: {
+					cue: this.cue,
+					newEndTime: unformatTimestampText(this.newEndTime),
+				},
+				bubbles: true,
+				composed: true,
+			}));
+		}
+	}
+
 	_handleFocus() {
 		this._jumpToCueStartTime();
 	}
@@ -202,32 +218,31 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 		this.newStartTime = event.target.value;
 	}
 
-	_handleSyncEndTimestampClicked() {
-		this.endValidationError = '';
-		this.dispatchEvent(new CustomEvent('captions-cue-end-timestamp-synced', {
-			detail: {
-				cue: this.cue,
-				endTimeEditedByTextInput: false,
-				newEndTime: this.newEndTime,
-			},
-			bubbles: true,
-			composed: true,
-		}));
-	}
-
-	_handleSyncEndTimestampFocusout() {
-		this.endValidationError = this._handleIsInputValidTimestamp(this.newEndTime);
-		if (!this.endValidationError) {
-			this.dispatchEvent(new CustomEvent('captions-cue-end-timestamp-synced', {
+	_handleStartTimestampInputTextFocusout() {
+		this.startValidationError = this._handleIsInputValidTimestamp(this.newStartTime);
+		const newStartTimeInSeconds = unformatTimestampText(this.newStartTime);
+		const inputChanged = this.cue.startTime !== newStartTimeInSeconds;
+		if (!this.startValidationError && inputChanged) {
+			this.dispatchEvent(new CustomEvent('captions-cue-start-timestamp-edited', {
 				detail: {
 					cue: this.cue,
-					endTimeEditedByTextInput: true,
-					newEndTime: unformatTimestampText(this.newEndTime),
+					newStartTime: unformatTimestampText(this.newStartTime),
 				},
 				bubbles: true,
 				composed: true,
 			}));
 		}
+	}
+
+	_handleSyncEndTimestampClicked() {
+		this.endValidationError = '';
+		this.dispatchEvent(new CustomEvent('captions-cue-end-timestamp-synced', {
+			detail: {
+				cue: this.cue,
+			},
+			bubbles: true,
+			composed: true,
+		}));
 	}
 
 	_handleSyncStartTimestampClicked() {
@@ -235,27 +250,10 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 		this.dispatchEvent(new CustomEvent('captions-cue-start-timestamp-synced', {
 			detail: {
 				cue: this.cue,
-				startTimeEditedByTextInput: false,
-				newStartTime: this.newStartTime,
 			},
 			bubbles: true,
 			composed: true,
 		}));
-	}
-
-	_handleSyncStartTimestampFocusout() {
-		this.startValidationError = this._handleIsInputValidTimestamp(this.newStartTime);
-		if (!this.startValidationError) {
-			this.dispatchEvent(new CustomEvent('captions-cue-start-timestamp-synced', {
-				detail: {
-					cue: this.cue,
-					startTimeEditedByTextInput: true,
-					newStartTime: unformatTimestampText(this.newStartTime),
-				},
-				bubbles: true,
-				composed: true,
-			}));
-		}
 	}
 
 	_handleTextInput(event) {
@@ -327,7 +325,7 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 							label="Cue Start Time"
 							label-hidden
 							@input="${this._handleNewStartTimeInput}"
-							@focusout="${this._handleSyncStartTimestampFocusout}"
+							@focusout="${this._handleStartTimestampInputTextFocusout}"
 							maxlength="${constants.MAX_NEW_TIME_CHARACTERS}"
 							rows="1"
 							value="${this.newStartTime}"
@@ -349,7 +347,7 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 							label="Cue End Time"
 							label-hidden
 							@input="${this._handleNewEndTimeInput}"
-							@focusout="${this._handleSyncEndTimestampFocusout}"
+							@focusout="${this._handleEndTimestampInputTextFocusout}"
 							maxlength="${constants.MAX_NEW_TIME_CHARACTERS}"
 							rows="1"
 							value="${this.newEndTime}"

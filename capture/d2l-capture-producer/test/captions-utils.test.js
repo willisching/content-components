@@ -100,6 +100,21 @@ describe('captions-utils.js', () => {
 			const actual = validTimestampFormat('0a:00:00.0000');
 			assert.equal(actual, expected);
 		});
+		it('does not work with for an input of random text', () => {
+			const expected = false;
+			const actual = validTimestampFormat('ahsjfge');
+			assert.equal(actual, expected);
+		});
+		it('does not work with for an input of empty string', () => {
+			const expected = false;
+			const actual = validTimestampFormat('');
+			assert.equal(actual, expected);
+		});
+		it('does not work with for an input with letters and special characters, with colons and decimals in correct place', () => {
+			const expected = false;
+			const actual = validTimestampFormat('sd:f&:@).$');
+			assert.equal(actual, expected);
+		});
 	});
 
 	describe('convertSrtTextToVttText', () => {

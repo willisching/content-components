@@ -86,7 +86,7 @@ function formatTimestampText(timestampInSeconds) {
  * @returns true if the string is correctly formated, and false if it is not
  */
 function validTimestampFormat(timestampInText) { // Timestamp format from function formatTimestampText(timestampInSeconds): 00:00:00.000
-	const format = /[0-9][0-9]:[0-9][0-9]:[0-9][0-9](\.[0-9][0-9][0-9]|\.[0-9][0-9]|\.[0-9]|\.|)$/;
+	const format = /([\d]{2}:){2}[\d]{2}(\.[\d]{3}|\.[\d]{2}|\.[\d]|\.|)$/;
 	return format.test(timestampInText);
 }
 
@@ -96,7 +96,6 @@ function validTimestampFormat(timestampInText) { // Timestamp format from functi
  * @returns
  */
 function unformatTimestampText(timestampInText) {
-	timestampInText = timestampInText.trim();
 	const hours = parseInt(timestampInText.substring(0, 2));
 	const minutes = parseInt(timestampInText.substring(3, 5));
 	const seconds = parseFloat(timestampInText.substring(6));
