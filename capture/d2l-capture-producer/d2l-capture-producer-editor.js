@@ -935,17 +935,10 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		const cueDuration = originalCue.endTime - originalCue.startTime;
 		const editedCue = new VTTCue(originalCue.startTime, originalCue.endTime, originalCue.text);
 
-		if (event.detail.newEndTime) {
-			const newEndTime = event.detail.newEndTime;
-			editedCue.endTime = Math.floor(newEndTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
-			if (editedCue.endTime <= editedCue.startTime) {
-				editedCue.startTime = Math.max(editedCue.endTime - cueDuration, 0);
-			}
-		} else {
-			editedCue.endTime = Math.floor(this._mediaPlayer.currentTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
-			if (editedCue.endTime <= editedCue.startTime) {
-				editedCue.startTime = Math.max(editedCue.endTime - cueDuration, 0);
-			}
+		const newEndTime = event.detail.newEndTime ?? this._mediaPlayer.currentTime;
+		editedCue.endTime = Math.floor(newEndTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
+		if (editedCue.endTime <= editedCue.startTime) {
+			editedCue.startTime = Math.max(editedCue.endTime - cueDuration, 0);
 		}
 
 		// Make the end time slightly later than the Media Player's current time position.
@@ -964,17 +957,11 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		const originalCue = event.detail.cue;
 		const cueDuration = originalCue.endTime - originalCue.startTime;
 		const editedCue = new VTTCue(originalCue.startTime, originalCue.endTime, originalCue.text);
-		if (event.detail.newStartTime) {
-			const newStartTime = event.detail.newStartTime;
-			editedCue.startTime = Math.floor(newStartTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
-			if (editedCue.startTime >= editedCue.endTime) {
-				editedCue.endTime = Math.min(editedCue.startTime + cueDuration, this._mediaPlayer.duration);
-			}
-		} else {
-			editedCue.startTime = Math.floor(this._mediaPlayer.currentTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
-			if (editedCue.startTime >= editedCue.endTime) {
-				editedCue.endTime = Math.min(editedCue.startTime + cueDuration, this._mediaPlayer.duration);
-			}
+
+		const newStartTime = event.detail.newStartTime ?? this._mediaPlayer.currentTime;
+		editedCue.startTime = Math.floor(newStartTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
+		if (editedCue.startTime >= editedCue.endTime) {
+			editedCue.endTime = Math.min(editedCue.startTime + cueDuration, this._mediaPlayer.duration);
 		}
 
 		this._mediaPlayer.textTracks[0].addCue(editedCue); // TextTrack.addCue() automatically inserts the cue at the appropriate index based on startTime.
