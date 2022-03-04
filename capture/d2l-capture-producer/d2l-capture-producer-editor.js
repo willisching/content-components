@@ -193,12 +193,14 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			this._videoLoaded = true;
 			this.dispatchEvent(new CustomEvent('media-loaded', { composed: false }));
 		});
+
 	}
 
 	render() {
 		const zoomMultiplierStyleMap = {
 			opacity: this._zoomMultiplierDisplayOpacity
 		};
+
 		return html`
 			<div class="d2l-video-producer-editor">
 				<div class="d2l-video-producer-video-controls">
@@ -252,10 +254,11 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 							<d2l-video-producer-captions
 								.activeCue="${this._activeCue}"
 								.captions="${this.captions}"
+								.mediaPlayerDuration="${this._mediaPlayer?.duration ?? 0}"
 								@captions-cue-added="${this._handleCaptionsCueAdded}"
 								@captions-cue-deleted="${this._handleCaptionsCueDeleted}"
-								@captions-cue-end-timestamp-synced="${this._handleCaptionsCueEndTimestampSynced}"
-								@captions-cue-start-timestamp-synced="${this._handleCaptionsCueStartTimestampSynced}"
+								@captions-cue-end-timestamp-edited="${this._handleChangeCaptionsCueEndTime}"
+								@captions-cue-start-timestamp-edited="${this._handleChangeCaptionsCueStartTime}"
 								@captions-vtt-replaced=${this._handleCaptionsVttReplaced}
 								.defaultLanguage="${this.defaultLanguage}"
 								.languages="${this.languages}"
@@ -919,11 +922,21 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this._mediaPlayer.currentTime = this._mediaPlayer.currentTime + 0.001; // Make the Media Player update to stop showing the deleted cue.
 	}
 
-	_handleCaptionsCueEndTimestampSynced(event) {
+	_handleCaptionsVttReplaced(e) {
+		const localVttUrl = window.URL.createObjectURL(new Blob([e.detail.vttString], { type: 'text/vtt' }));
+		this.dispatchEvent(new CustomEvent('captions-url-changed', {
+			detail: { captionsUrl: localVttUrl },
+			composed: false
+		}));
+	}
+
+	_handleChangeCaptionsCueEndTime(event) {
 		const originalCue = event.detail.cue;
 		const cueDuration = originalCue.endTime - originalCue.startTime;
 		const editedCue = new VTTCue(originalCue.startTime, originalCue.endTime, originalCue.text);
-		editedCue.endTime = Math.floor(this._mediaPlayer.currentTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
+
+		const newEndTime = event.detail.newEndTime ?? this._mediaPlayer.currentTime;
+		editedCue.endTime = Math.floor(newEndTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
 		if (editedCue.endTime <= editedCue.startTime) {
 			editedCue.startTime = Math.max(editedCue.endTime - cueDuration, 0);
 		}
@@ -940,11 +953,13 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this._syncCaptionsWithMediaPlayer();
 	}
 
-	_handleCaptionsCueStartTimestampSynced(event) {
+	_handleChangeCaptionsCueStartTime(event) {
 		const originalCue = event.detail.cue;
 		const cueDuration = originalCue.endTime - originalCue.startTime;
 		const editedCue = new VTTCue(originalCue.startTime, originalCue.endTime, originalCue.text);
-		editedCue.startTime = Math.floor(this._mediaPlayer.currentTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
+
+		const newStartTime = event.detail.newStartTime ?? this._mediaPlayer.currentTime;
+		editedCue.startTime = Math.floor(newStartTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
 		if (editedCue.startTime >= editedCue.endTime) {
 			editedCue.endTime = Math.min(editedCue.startTime + cueDuration, this._mediaPlayer.duration);
 		}
@@ -952,14 +967,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this._mediaPlayer.textTracks[0].addCue(editedCue); // TextTrack.addCue() automatically inserts the cue at the appropriate index based on startTime.
 		this._mediaPlayer.textTracks[0].removeCue(originalCue);
 		this._syncCaptionsWithMediaPlayer();
-	}
-
-	_handleCaptionsVttReplaced(e) {
-		const localVttUrl = window.URL.createObjectURL(new Blob([e.detail.vttString], { type: 'text/vtt' }));
-		this.dispatchEvent(new CustomEvent('captions-url-changed', {
-			detail: { captionsUrl: localVttUrl },
-			composed: false
-		}));
 	}
 
 	_handleChaptersChanged(e) {

@@ -25,6 +25,7 @@ const constants = {
 	MAX_CAPTIONS_CUE_CHARACTERS: 100, // Auto-generated captions: 40 character per line limit, 2 lines per caption cue limit = 80 characters. We add a 20 character buffer.
 	NEW_CUE_DEFAULT_DURATION_IN_SECONDS: 3,
 	NUM_OF_VISIBLE_CUES: 60, // https://web.dev/dom-size/
+	MAX_NEW_TIME_CHARACTERS: 12,
 
 	// Timeline
 	TIMELINE_HEIGHT_MIN: 30,

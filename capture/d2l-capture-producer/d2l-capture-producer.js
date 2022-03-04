@@ -535,6 +535,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				this._metadataChanged = false;
 			}
 			if (this._captionsChanged) {
+				this._captionsLoading = true; // Force the captions tab to reload in order to reset any invalid timestamp text inputs.
 				await this._saveCaptions(revisionToUpdate);
 			}
 			await this._loadContentAndRevisions(); // Revisions list needs to be refreshed, because the captions arrays in the revision objects may have changed
@@ -550,6 +551,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		} finally {
 			this.shadowRoot.querySelector('d2l-alert-toast').open = true;
 			this._saving = false;
+			this._captionsLoading = false;
 		}
 	}
 
