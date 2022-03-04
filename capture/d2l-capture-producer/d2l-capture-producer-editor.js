@@ -257,10 +257,8 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 								.mediaPlayerDuration="${this._mediaPlayer?.duration ?? 0}"
 								@captions-cue-added="${this._handleCaptionsCueAdded}"
 								@captions-cue-deleted="${this._handleCaptionsCueDeleted}"
-								@captions-cue-end-timestamp-synced="${this._handleCaptionsCueEndTimestampSyncedByButton}"
-								@captions-cue-end-timestamp-edited="${this._handleChangeCaptionsCueEndTimestampByTextInput}"
-								@captions-cue-start-timestamp-synced="${this._handleCaptionsCueStartTimestampSyncedByButton}"
-								@captions-cue-start-timestamp-edited="${this._handleChangeCaptionsCueStartTimestampByTextInput}"
+								@captions-cue-end-timestamp-edited="${this._handleChangeCaptionsCueEndTime}"
+								@captions-cue-start-timestamp-edited="${this._handleChangeCaptionsCueStartTime}"
 								@captions-vtt-replaced=${this._handleCaptionsVttReplaced}
 								.defaultLanguage="${this.defaultLanguage}"
 								.languages="${this.languages}"
@@ -924,41 +922,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this._mediaPlayer.currentTime = this._mediaPlayer.currentTime + 0.001; // Make the Media Player update to stop showing the deleted cue.
 	}
 
-	_handleCaptionsCueEndTimestampSyncedByButton(event) {
-		const originalCue = event.detail.cue;
-		const cueDuration = originalCue.endTime - originalCue.startTime;
-		const editedCue = new VTTCue(originalCue.startTime, originalCue.endTime, originalCue.text);
-		editedCue.endTime = Math.floor(this._mediaPlayer.currentTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
-		if (editedCue.endTime <= editedCue.startTime) {
-			editedCue.startTime = Math.max(editedCue.endTime - cueDuration, 0);
-		}
-
-		// Make the end time slightly later than the Media Player's current time position.
-		// If this is not done, Producer's Media Player will not update to display the cue. (Because the "end time" specifies when to *hide* the cue.)
-		// This would be confusing to users, due to the lack of visual feedback.
-		if (editedCue.endTime < this._mediaPlayer.duration) {
-			editedCue.endTime += 0.001;
-		}
-
-		this._mediaPlayer.textTracks[0].addCue(editedCue); // TextTrack.addCue() automatically inserts the cue at the appropriate index based on startTime.
-		this._mediaPlayer.textTracks[0].removeCue(originalCue);
-		this._syncCaptionsWithMediaPlayer();
-	}
-
-	_handleCaptionsCueStartTimestampSyncedByButton(event) {
-		const originalCue = event.detail.cue;
-		const cueDuration = originalCue.endTime - originalCue.startTime;
-		const editedCue = new VTTCue(originalCue.startTime, originalCue.endTime, originalCue.text);
-		editedCue.startTime = Math.floor(this._mediaPlayer.currentTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
-		if (editedCue.startTime >= editedCue.endTime) {
-			editedCue.endTime = Math.min(editedCue.startTime + cueDuration, this._mediaPlayer.duration);
-		}
-
-		this._mediaPlayer.textTracks[0].addCue(editedCue); // TextTrack.addCue() automatically inserts the cue at the appropriate index based on startTime.
-		this._mediaPlayer.textTracks[0].removeCue(originalCue);
-		this._syncCaptionsWithMediaPlayer();
-	}
-
 	_handleCaptionsVttReplaced(e) {
 		const localVttUrl = window.URL.createObjectURL(new Blob([e.detail.vttString], { type: 'text/vtt' }));
 		this.dispatchEvent(new CustomEvent('captions-url-changed', {
@@ -967,14 +930,22 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		}));
 	}
 
-	_handleChangeCaptionsCueEndTimestampByTextInput(event) {
+	_handleChangeCaptionsCueEndTime(event) {
 		const originalCue = event.detail.cue;
 		const cueDuration = originalCue.endTime - originalCue.startTime;
 		const editedCue = new VTTCue(originalCue.startTime, originalCue.endTime, originalCue.text);
-		const newEndTime = event.detail.newEndTime;
-		editedCue.endTime = Math.floor(newEndTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
-		if (editedCue.endTime <= editedCue.startTime) {
-			editedCue.startTime = Math.max(editedCue.endTime - cueDuration, 0);
+
+		if (event.detail.newEndTime) {
+			const newEndTime = event.detail.newEndTime;
+			editedCue.endTime = Math.floor(newEndTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
+			if (editedCue.endTime <= editedCue.startTime) {
+				editedCue.startTime = Math.max(editedCue.endTime - cueDuration, 0);
+			}
+		} else {
+			editedCue.endTime = Math.floor(this._mediaPlayer.currentTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
+			if (editedCue.endTime <= editedCue.startTime) {
+				editedCue.startTime = Math.max(editedCue.endTime - cueDuration, 0);
+			}
 		}
 
 		// Make the end time slightly later than the Media Player's current time position.
@@ -989,14 +960,21 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this._syncCaptionsWithMediaPlayer();
 	}
 
-	_handleChangeCaptionsCueStartTimestampByTextInput(event) {
+	_handleChangeCaptionsCueStartTime(event) {
 		const originalCue = event.detail.cue;
 		const cueDuration = originalCue.endTime - originalCue.startTime;
 		const editedCue = new VTTCue(originalCue.startTime, originalCue.endTime, originalCue.text);
-		const newStartTime = event.detail.newStartTime;
-		editedCue.startTime = Math.floor(newStartTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
-		if (editedCue.startTime >= editedCue.endTime) {
-			editedCue.endTime = Math.min(editedCue.startTime + cueDuration, this._mediaPlayer.duration);
+		if (event.detail.newStartTime) {
+			const newStartTime = event.detail.newStartTime;
+			editedCue.startTime = Math.floor(newStartTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
+			if (editedCue.startTime >= editedCue.endTime) {
+				editedCue.endTime = Math.min(editedCue.startTime + cueDuration, this._mediaPlayer.duration);
+			}
+		} else {
+			editedCue.startTime = Math.floor(this._mediaPlayer.currentTime * 1000) / 1000; // WebVTT uses 3-decimal precision.
+			if (editedCue.startTime >= editedCue.endTime) {
+				editedCue.endTime = Math.min(editedCue.startTime + cueDuration, this._mediaPlayer.duration);
+			}
 		}
 
 		this._mediaPlayer.textTracks[0].addCue(editedCue); // TextTrack.addCue() automatically inserts the cue at the appropriate index based on startTime.

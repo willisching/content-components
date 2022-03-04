@@ -104,6 +104,7 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 
 			.end-timestamp-row {
 				grid-row: 2;
+				align-self: center;
 			}
 
 			.d2l-video-producer-captions-cue-timestamp-label {
@@ -112,6 +113,9 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 
 			.d2l-video-producer-captions-cue-timestamp-input {
 				grid-column: 2;
+				margin-left: auto;
+				margin-right: auto;
+				width: 90%;
 			}
 
 			.d2l-video-producer-captions-sync-cue-button {
@@ -122,7 +126,6 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 				grid-column: 2;
 				align-self: center;
 			}
-
 			` ];
 	}
 
@@ -145,10 +148,10 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 	render() {
 		return html`
 		<div
-		class="d2l-video-producer-captions-cues-list-item${this.active ? '-active' : ''}"
-		>
-		${this._renderMainControls()}
-		${this.expanded ? this._renderExpandedControls() : ''}
+			class="d2l-video-producer-captions-cues-list-item${this.active ? '-active' : ''}"
+			>
+			${this._renderMainControls()}
+			${this.expanded ? this._renderExpandedControls() : ''}
 		</div>
 		`;
 	}
@@ -236,7 +239,7 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 
 	_handleSyncEndTimestampClicked() {
 		this.endValidationError = '';
-		this.dispatchEvent(new CustomEvent('captions-cue-end-timestamp-synced', {
+		this.dispatchEvent(new CustomEvent('captions-cue-end-timestamp-edited', {
 			detail: {
 				cue: this.cue,
 			},
@@ -247,7 +250,7 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 
 	_handleSyncStartTimestampClicked() {
 		this.startValidationError = '';
-		this.dispatchEvent(new CustomEvent('captions-cue-start-timestamp-synced', {
+		this.dispatchEvent(new CustomEvent('captions-cue-start-timestamp-edited', {
 			detail: {
 				cue: this.cue,
 			},
