@@ -21,6 +21,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 		return {
 			canManageAllVideos: { type: Boolean, attribute: 'can-manage-all-videos' },
 			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
+			tenantId: { type: String, attribute: 'tenant-id' },
 			_loading: { type: Boolean, attribute: false },
 			_permissionError: { type: Boolean, attribute: false },
 			_shouldRenderSidebar: { type: Boolean, attribute: false },
@@ -266,7 +267,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				<d2l-capture-central-clips class="page" ?active=${currentPage === pageNames.clips}></d2l-capture-central-clips>
 				<d2l-capture-central-folders class="page" ?active=${currentPage === pageNames.folders}></d2l-capture-central-folders>
 				<d2l-capture-central-videos class="page" ?active=${currentPage === pageNames.videos}></d2l-capture-central-videos>
-				<d2l-capture-central-encoder class="page" ?active=${currentPage === pageNames.encoder}></d2l-capture-central-encoder>
+				<d2l-capture-central-encoder class="page" ?active=${currentPage === pageNames.encoder} tenant-id=${this.tenantId}></d2l-capture-central-encoder>
 				<d2l-capture-central-recycle-bin class="page" ?active=${currentPage === pageNames.recycleBin}></d2l-capture-central-recycle-bin>
 				<d2l-capture-central-producer class="page" ?active=${currentPage === pageNames.producer && !!subView}></d2l-capture-central-producer>
 				${currentPage === pageNames.preview ? this._renderPreview() : ''}
