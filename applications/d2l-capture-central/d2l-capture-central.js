@@ -67,6 +67,7 @@ class D2lCaptureCentral extends DependencyProvider(LitElement) {
 				class="d2l-body-standard"
 				?can-manage-all-videos="${this.canManageAllVideos}"
 				?can-transfer-ownership="${this.canTransferOwnership}"
+				tenant-id="${this.tenantId}"
 			></d2l-capture-central-app>`;
 	}
 }

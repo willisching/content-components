@@ -12,6 +12,7 @@ import { PageViewElement } from '../../components/page-view-element';
 class D2LCaptureCentralEncoder extends InternalLocalizeMixin(DependencyRequester(PageViewElement)) {
 	static get properties() {
 		return {
+			tenantId: { type: String, attribute: 'tenant-id' },
 			_encoderDownloads: { type: Array, attribute: false },
 		};
 	}
@@ -129,7 +130,7 @@ class D2LCaptureCentralEncoder extends InternalLocalizeMixin(DependencyRequester
 	}
 
 	_launchEncoder() {
-		window.location.href = 'd2lce://launch';
+		window.location.href = `d2lce://configure?tenantId=${this.tenantId}`;
 	}
 
 	async _loadEncoderDownloads() {
