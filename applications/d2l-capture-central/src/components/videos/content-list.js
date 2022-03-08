@@ -94,11 +94,12 @@ class ContentList extends CaptureCentralList {
 			return;
 		}
 
-		const { id, displayName } = detail;
+		const { id, userId, displayName } = detail;
 
 		if (id && displayName) {
 			const index = this._videos.findIndex(c => c.id === id);
 			if (index >= 0 && index < this._videos.length) {
+				this._videos[index].ownerId = userId;
 				this._videos[index].ownerDisplayName = displayName;
 				this._videos[index][this.dateField] = (new Date()).toISOString();
 				this.requestUpdate();
