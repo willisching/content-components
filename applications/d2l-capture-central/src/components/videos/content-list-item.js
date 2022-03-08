@@ -217,12 +217,13 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 		}));
 	}
 
-	dispatchTransferOwnershipEvent(displayName) {
+	dispatchTransferOwnershipEvent({ userId, displayName }) {
 		this.dispatchEvent(new CustomEvent('content-list-item-owner-changed', {
 			bubbles: true,
 			composed: true,
 			detail: {
 				id: this.id,
+				userId,
 				displayName
 			}
 		}));
@@ -288,16 +289,15 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 
 	async rename(newTitle) {
 		if (this.title !== newTitle) {
-			this.dispatchRenameEvent(newTitle);
-
 			if (!this.content) {
 				this.content = await this.apiClient.getContent(this.id);
 			}
 			const updatedContent = Object.assign({}, this.content, { title: newTitle });
-			await this.apiClient.updateContent({
+			this.content = await this.apiClient.updateContent({
 				id: this.id,
 				body: updatedContent,
 			});
+			this.dispatchRenameEvent(newTitle);
 		}
 	}
 
@@ -313,18 +313,20 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 			return;
 		}
 
-		const { userId, displayName } = detail;
+		const { userId } = detail;
 		if (this.ownerId !== userId) {
-			this.dispatchTransferOwnershipEvent(displayName);
-
 			if (!this.content) {
 				this.content = await this.apiClient.getContent(this.id);
 			}
-			const updatedContent = Object.assign({}, this.content, { ownerId: userId });
-			await this.apiClient.updateContent({
+			const updatedContent = Object.assign({}, this.content, {
+				ownerId: userId,
+				tenantIdOwnerId: `${this.content.tenantId}_${userId}`
+			});
+			this.content = await this.apiClient.updateContent({
 				id: this.id,
 				body: updatedContent,
 			});
+			this.dispatchTransferOwnershipEvent(detail);
 		}
 	}
 }
