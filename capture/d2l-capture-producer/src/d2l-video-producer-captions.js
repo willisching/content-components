@@ -11,6 +11,7 @@ import { inputStyles } from '@brightspace-ui/core/components/inputs/input-styles
 import { InternalLocalizeMixin } from './internal-localize-mixin.js';
 import { labelStyles, bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { formatTimestampText, convertSrtTextToVttText, validTimestampFormat, unformatTimestampText }  from './captions-utils.js';
+import { getUniqueId } from '@brightspace-ui/core/helpers/uniqueId';
 import constants from './constants.js';
 import './d2l-video-producer-auto-generate-captions-dialog';
 import 'webvtt-parser/parser.js';
@@ -124,7 +125,6 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 
 			.d2l-video-producer-captions-error-icon {
 				grid-column: 2;
-				align-self: center;
 			}
 			` ];
 	}
@@ -133,12 +133,14 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 		super();
 		this.active = false;
 		this.cue = { startTime: 0, endTime: 0, text: '' };
-		this.mediaPlayerDuration = 0;
-		this.expanded = false;
-		this.newStartTime = formatTimestampText(this.cue.startTime);
-		this.newEndTime = formatTimestampText(this.cue.endTime);
-		this.startValidationError = '';
 		this.endValidationError = '';
+		this._endInputId = getUniqueId();
+		this.expanded = false;
+		this.mediaPlayerDuration = 0;
+		this.newEndTime = formatTimestampText(this.cue.endTime);
+		this.newStartTime = formatTimestampText(this.cue.startTime);
+		this.startValidationError = '';
+		this._startInputId = getUniqueId();
 		this.errors = {
 			'INVALID_FORMAT': 'invalidFormat',
 			'INVALID_TIME': 'invalidTime',
@@ -289,30 +291,18 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 	_renderExpandedControls() {
 		const startTimeTooltip = this.startValidationError ?
 			html`
-				<d2l-icon
-					class="start-timestamp-row"
-					id="d2l-advanced-editing-disabled-icon-start"
-					icon="tier1:help"
-				></d2l-icon>
 				<d2l-tooltip
 					id="start-time-tooltip"
-					for="d2l-advanced-editing-disabled-icon-start"
+					for="${this._startInputId}"
 					state="error"
-					showing
 				>${this.localize(this.errors[this.startValidationError], { formattedTime: formatTimestampText(this.mediaPlayerDuration)})}</d2l-tooltip>`
 			: null;
 
 		const endTimeTooltip = this.endValidationError ?
 			html`
-				<d2l-icon
-					class="end-timestamp-row"
-					id="d2l-advanced-editing-disabled-icon-end"
-					icon="tier1:help"
-				></d2l-icon>
 				<d2l-tooltip
 					id="end-time-tooltip"
-					for="d2l-advanced-editing-disabled-icon-end"
-					showing
+					for="${this._endInputId}"
 					state="error"
 				>${this.localize(this.errors[this.endValidationError], { formattedTime: formatTimestampText(this.mediaPlayerDuration)})}</d2l-tooltip>`
 			: null;
@@ -323,18 +313,19 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 					<p class="start-timestamp-row d2l-label-text d2l-video-producer-captions-cue-timestamp-label">${this.localize('captionsCueStartTimestamp')}</p>
 					<p class="start-timestamp-row d2l-body-standard d2l-video-producer-captions-cue-timestamp-input">
 						<d2l-input-text
-							id="start-time"
+							aria-invalid="${this.startValidationError !== ''}"
 							class="d2l-input-text start-time-input-text"
-							label="Cue Start Time"
-							label-hidden
+							id="${this._startInputId}"
 							@input="${this._handleNewStartTimeInput}"
 							@focusout="${this._handleStartTimestampInputTextFocusout}"
+							label="Cue Start Time"
+							label-hidden
 							maxlength="${constants.MAX_NEW_TIME_CHARACTERS}"
 							rows="1"
 							value="${this.newStartTime}"
 						></d2l-input-text>
+						${startTimeTooltip}
 					</p>
-					${startTimeTooltip}
 					<d2l-button-icon
 						id="start-time-captions-sync-cue-button"
 						class="start-timestamp-row d2l-video-producer-captions-sync-cue-button"
@@ -345,18 +336,19 @@ class CaptionsCueListItem extends InternalLocalizeMixin(LitElement) {
 					<p class="end-timestamp-row d2l-label-text d2l-video-producer-captions-cue-timestamp-label">${this.localize('captionsCueEndTimestamp')}</p>
 					<p class="end-timestamp-row d2l-body-standard d2l-video-producer-captions-cue-timestamp-input">
 						<d2l-input-text
-							id="end-time"
-							class="d2l-input-text time-input-text"
-							label="Cue End Time"
-							label-hidden
+							aria-invalid="${this.endValidationError !== ''}"
+							class="d2l-input-text end-time-input-text"
+							id="${this._endInputId}"
 							@input="${this._handleNewEndTimeInput}"
 							@focusout="${this._handleEndTimestampInputTextFocusout}"
+							label="Cue End Time"
+							label-hidden
 							maxlength="${constants.MAX_NEW_TIME_CHARACTERS}"
 							rows="1"
 							value="${this.newEndTime}"
 						></d2l-input-text>
+						${endTimeTooltip}
 					</p>
-					${endTimeTooltip}
 					<d2l-button-icon
 						id="end-timestamp-captions-sync-cue-button"
 						class="end-timestamp-row d2l-video-producer-captions-sync-cue-button"
@@ -474,7 +466,6 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 				overflow-x: hidden;
 				overflow-y: scroll;
 				padding: 0px 10px 10px 0px;
-				position: relative;
 				width: 95%;
 			}
 
