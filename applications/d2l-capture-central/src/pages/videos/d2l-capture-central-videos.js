@@ -19,7 +19,7 @@ import { navigationSharedStyle } from '../../style/d2l-navigation-shared-styles.
 import { PageViewElement } from '../../components/page-view-element';
 import { rootStore } from '../../state/root-store.js';
 import { sharedManageStyles } from '../../style/shared-styles.js';
-import { getSupportedExtensions } from '../../util/media-type-util.js';
+import { getSupportedExtensions, isSupported } from '../../util/media-type-util.js';
 import { maxFileSizeInBytes } from '../../util/constants.js';
 import { formatFileSize } from '@brightspace-ui/intl/lib/fileSize';
 
@@ -152,15 +152,15 @@ class D2LCaptureCentralVideos extends contentSearchMixin(DependencyRequester(Pag
 		const { files } = event.target;
 		for (const file of files) {
 			if (file.size > maxFileSizeInBytes) {
-				const errorToastElement = this.shadowRoot.querySelector('#upload-toast');
-				if (errorToastElement) {
-					this.uploadErrorMessage = this.localize(
-						'fileTooLarge',
-						{ localizedMaxFileSize: formatFileSize(maxFileSizeInBytes) }
-					);
-					this.requestUpdate();
-					errorToastElement.setAttribute('open', true);
-				}
+				this._showUploadErrorToast(this.localize(
+					'fileTooLarge',
+					{ localizedMaxFileSize: formatFileSize(maxFileSizeInBytes) }
+				));
+				event.target.value = '';
+				return;
+			}
+			if (!isSupported(file.name)) {
+				this._showUploadErrorToast(this.localize('invalidFileType'));
 				event.target.value = '';
 				return;
 			}
@@ -194,6 +194,15 @@ class D2LCaptureCentralVideos extends contentSearchMixin(DependencyRequester(Pag
 			...this.rootStore.routingStore.getQueryParams(),
 			searchQuery: value
 		});
+	}
+
+	_showUploadErrorToast(errorMessage) {
+		const errorToastElement = this.shadowRoot.querySelector('#upload-toast');
+		if (errorToastElement) {
+			this.uploadErrorMessage = errorMessage;
+			this.requestUpdate();
+			errorToastElement.setAttribute('open', true);
+		}
 	}
 }
 customElements.define('d2l-capture-central-videos', D2LCaptureCentralVideos);
