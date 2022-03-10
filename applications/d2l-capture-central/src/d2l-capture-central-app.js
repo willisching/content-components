@@ -42,7 +42,6 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			}
 
 			.d2l-capture-central-primary {
-				position: absolute;
 				width: 100%;
 			}
 
@@ -85,6 +84,9 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				}
 				d2l-list-item-content d2l-link {
 					display: none;
+				}
+				.d2l-capture-central-primary {
+					position: absolute;
 				}
 			}
 		`];
