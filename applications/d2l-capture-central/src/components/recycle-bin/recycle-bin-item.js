@@ -93,7 +93,9 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 						<d2l-dropdown-menu id="actions-dropdown-menu" align="end" boundary=${JSON.stringify(this.dropdownBoundary)}>
 							<d2l-menu label="${this.localize('moreActions')}">
 								<d2l-menu-item text="${this.localize('restore')}" @click="${this.restore()}"></d2l-menu-item>
-								<d2l-menu-item text="${this.localize('deletePermanently')}" @click="${this.destroyHandler()}"></d2l-menu-item>
+								${rootStore.permissionStore.getCanManageAllVideos() ? html`
+									<d2l-menu-item text="${this.localize('deletePermanently')}" @click="${this.destroyHandler()}"></d2l-menu-item>
+								` : ''}
 							</d2l-menu>
 						</d2l-dropdown-menu>
 					</d2l-dropdown-more>
