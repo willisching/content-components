@@ -51,6 +51,10 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 			.break-word {
 				overflow-wrap: break-word;
 			}
+
+			.d2l-body-compact {
+				position: relative;
+			}
 		`];
 	}
 

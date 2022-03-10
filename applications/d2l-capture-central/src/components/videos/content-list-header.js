@@ -19,6 +19,7 @@ class ContentListHeader extends InternalLocalizeMixin(LitElement) {
 		return [labelStyles, css`
 			:host {
 				font-weight: bold;
+				overflow-wrap: break-word;
 			}
 
 			:host([hidden]) {

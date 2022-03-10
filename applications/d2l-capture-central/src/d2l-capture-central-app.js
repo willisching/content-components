@@ -42,6 +42,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			}
 
 			.d2l-capture-central-primary {
+				position: absolute;
 				width: 100%;
 			}
 
