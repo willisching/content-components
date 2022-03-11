@@ -165,7 +165,7 @@ class ContentList extends CaptureCentralList {
 			@content-list-item-deleted=${this.contentListItemDeletedHandler}
 			@content-list-item-owner-changed=${this.contentListItemOwnerHandler}
 		>
-			<d2l-icon icon="tier1:file-video" slot="icon"></d2l-icon>
+			<d2l-icon icon="tier1:file-video" style="background-color: transparent;" slot="icon"></d2l-icon>
 			<div slot="title" class="title">${item.title}</div>
 			<div slot="type">${item.type}</div>
 			<div slot="owner">${item.ownerDisplayName}</div>
