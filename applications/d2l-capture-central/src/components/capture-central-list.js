@@ -50,7 +50,6 @@ export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixi
 			d2l-icon {
 				border-radius: 5px;
 				padding: 12px;
-				background-color: var(--d2l-color-celestine);
 				color: var(--d2l-color-white);
 			}
 		`];

@@ -76,7 +76,6 @@ class UploadStatusManagement extends InternalLocalizeMixin(RtlMixin(MobxReaction
 			.upload-video-icon {
 				border-radius: 5px;
 				padding: 3px;
-				background-color: var(--d2l-color-celestine);
 				color: var(--d2l-color-white);
 			}
 			.upload-item-container {
