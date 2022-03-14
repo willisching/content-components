@@ -3,6 +3,7 @@ import '@brightspace-ui/core/components/list/list-item-content.js';
 import '@brightspace-ui/core/components/list/list-item.js';
 import '@brightspace-ui/core/components/list/list.js';
 import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
+import '@brightspace-ui/core/components/dialog/dialog.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { BASE_PATH } from './state/routing-store.js';
 
@@ -125,6 +126,11 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 		this._loading = false;
 	}
 
+	firstUpdated() {
+		super.firstUpdated();
+		this.addEventListener('preview', this.onPreviewClick);
+	}
+
 	render() {
 		if (this._loading) {
 			return html`
@@ -164,6 +170,17 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 		`;
 	}
 
+	onPreviewClick(event) {
+		const previewDialog = this.shadowRoot.querySelector('#preview-dialog');
+		previewDialog.opened = true;
+		const preview = this.shadowRoot.getElementById('d2l-preview-div').firstChild;
+		preview.contentId = event.detail.id;
+		previewDialog.addEventListener('d2l-dialog-close', () => {
+			preview.loading = true;
+		});
+		preview.firstUpdated?.();
+	}
+
 	setupPage(ctx) {
 		rootStore.routingStore.setRouteCtx(ctx);
 		const { page: currentPage, subView } = rootStore.routingStore;
@@ -199,6 +216,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			*/
 			case pageNames.videos:
 				import('./pages/videos/d2l-capture-central-videos.js');
+				import('./pages/preview/d2l-capture-central-preview.js');
 				if (rootStore.routingStore.previousPage === '') {
 					// Ensures the DOM updates when redirecting from the initial landing page. Otherwise, the app shows a blank page.
 					this.requestUpdate();
@@ -247,10 +265,6 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 		}
 	}
 
-	_renderPreview() {
-		return html `<d2l-capture-central-preview id="d2l-capture-central-preview" class="page" active></d2l-capture-central-preview>`;
-	}
-
 	_renderPrimary() {
 		const { page: currentPage, subView } = rootStore.routingStore;
 		/*
@@ -272,7 +286,11 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				<d2l-capture-central-encoder class="page" ?active=${currentPage === pageNames.encoder}></d2l-capture-central-encoder>
 				<d2l-capture-central-recycle-bin class="page" ?active=${currentPage === pageNames.recycleBin}></d2l-capture-central-recycle-bin>
 				<d2l-capture-central-producer class="page" ?active=${currentPage === pageNames.producer && !!subView}></d2l-capture-central-producer>
-				${currentPage === pageNames.preview ? this._renderPreview() : ''}
+				<d2l-dialog id="preview-dialog" title-text="${this.localize('preview')}">
+					<div id="d2l-preview-div">
+						<d2l-capture-central-preview id="d2l-capture-central-preview" class="page" active></d2l-capture-central-preview>
+					</div>
+				</d2l-dialog>
 				<d2l-capture-central-settings class="page" ?active=${currentPage === pageNames.settings}></d2l-capture-central-settings>
 				<d2l-capture-central-visits class="page" ?active=${currentPage === pageNames.visits}></d2l-capture-central-visits>
 				<d2l-capture-central-404 class="page" ?active=${currentPage === pageNames.page404}></d2l-capture-central-404>

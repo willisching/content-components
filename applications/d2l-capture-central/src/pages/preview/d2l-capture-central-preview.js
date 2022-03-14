@@ -14,7 +14,7 @@ import { ifDefined } from 'lit-html/directives/if-defined.js';
 class D2LCaptureCentralPreview extends DependencyRequester(PageViewElement) {
 	static get properties() {
 		return {
-			id: { type: String, attribute: true },
+			contentId: { type: String, attribute: true },
 			loading: {type: Boolean, attribute: false},
 		};
 	}
@@ -61,13 +61,16 @@ class D2LCaptureCentralPreview extends DependencyRequester(PageViewElement) {
 		super.firstUpdated();
 
 		this.loading = true;
+		if (!this.contentId) {
+			console.warn('Missing contentId', this);
+			return;
+		}
 		this.apiClient = this.requestDependency('content-service-client');
-		this.id = this.rootStore.routingStore.params.id;
-		this.revision = await this.apiClient.getLatestRevision(this.id);
+		this.revision = await this.apiClient.getLatestRevision(this.contentId);
 
-		this.urls = await this.apiClient.getSignedUrls({ contentId: this.id, revisionId: this.revision.id });
+		this.urls = await this.apiClient.getSignedUrls({ contentId: this.contentId, revisionId: this.revision.id });
 
-		const metadata = await this.apiClient.getMetadata({ contentId: this.id, revisionId: this.revision.id });
+		const metadata = await this.apiClient.getMetadata({ contentId: this.contentId, revisionId: this.revision.id });
 		this.metadata = metadata ? JSON.stringify(metadata) : undefined;
 
 		await this.loadAllCaptions();
@@ -117,7 +120,7 @@ class D2LCaptureCentralPreview extends DependencyRequester(PageViewElement) {
 
 	async loadCaptions(locale) {
 		const res = await this.apiClient.getCaptionsUrl({
-			contentId: this.id,
+			contentId: this.contentId,
 			revisionId: this.revision.id,
 			locale: locale
 		});
