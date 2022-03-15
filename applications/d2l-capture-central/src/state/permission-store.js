@@ -15,10 +15,6 @@ export class PermissionStore {
 		return this.permissions.canManageAllVideos === 'true';
 	}
 
-	getCanManageCaptureCentral() {
-		return true; // TODO: update after permission is added
-	}
-
 	getCanManageLiveEvents() {
 		return this.permissions.canAccessCaptureCentral === 'true' &&
 			this.permissions.canManageLiveEvents === 'true';

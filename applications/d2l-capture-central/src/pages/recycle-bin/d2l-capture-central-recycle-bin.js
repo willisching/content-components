@@ -16,7 +16,6 @@ import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js'
 import { heading2Styles } from '@brightspace-ui/core/components/typography/styles.js';
 import { navigationSharedStyle } from '../../style/d2l-navigation-shared-styles.js';
 import { PageViewElement } from '../../components/page-view-element';
-import { rootStore } from '../../state/root-store.js';
 import { sharedManageStyles } from '../../style/shared-styles.js';
 class D2LCaptureCentralRecycleBin extends contentSearchMixin(DependencyRequester(PageViewElement)) {
 	static get properties() {
@@ -88,11 +87,6 @@ class D2LCaptureCentralRecycleBin extends contentSearchMixin(DependencyRequester
 	}
 
 	render() {
-		if (!rootStore.permissionStore.getCanManageCaptureCentral()) {
-			return html`
-				<unauthorized-message></unauthorized-message>
-			`;
-		}
 		return html`
 			<div class="d2l-capture-central-manage-container">
 				<h2 class="d2l-capture-central-recycle-bin-heading d2l-heading-2">${this.localize('recycleBin')}</h2>

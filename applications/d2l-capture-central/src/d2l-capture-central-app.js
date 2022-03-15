@@ -118,8 +118,6 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			permissions.canTransferOwnership = this.canTransferOwnership ? 'true' : 'false';
 
 			rootStore.permissionStore.setPermissions(permissions);
-			this._shouldRenderSidebar = this._shouldRenderSidebar
-				&& rootStore.permissionStore.getCanManageCaptureCentral();
 		} catch (error) {
 			this._permissionError = true;
 		}
@@ -185,7 +183,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 	setupPage(ctx) {
 		rootStore.routingStore.setRouteCtx(ctx);
 		const { page: currentPage, subView } = rootStore.routingStore;
-		this._shouldRenderSidebar =  rootStore.permissionStore.getCanManageCaptureCentral();
+		this._shouldRenderSidebar =  true;
 
 		switch (currentPage) {
 			case '':
