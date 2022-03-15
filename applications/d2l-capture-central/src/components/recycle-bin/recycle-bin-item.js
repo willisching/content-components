@@ -24,6 +24,7 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 	static get properties() {
 		return {
 			confirmDisabled: { type: Boolean, attribute: false },
+			description: { type: String },
 			disabled: { type: Boolean },
 			dropdownBoundary: { type: Object, attribute: false },
 			id: { type: String },
@@ -80,7 +81,7 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 				<recycle-bin-list-columns>
 					<div slot="detail">
 						<slot name="title"></slot>
-						<slot name="type" class="d2l-body-small"></slot>
+						<slot name="description" class="d2l-body-small"></slot>
 					</div>
 					<div slot="date">
 						<slot name="date"></slot>

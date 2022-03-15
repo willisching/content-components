@@ -109,12 +109,13 @@ class RecycleBinList extends CaptureCentralList {
 			id=${item.id}
 			revision-id=${item.revisionId}
 			title=${item.title}
+			description=${item.description}
 			@recycle-bin-item-restored=${this.recycleBinItemRestoredHandler}
 			@recycle-bin-item-destroyed=${this.recycleBinItemDestroyHandler}
 		>
 			<d2l-icon icon="tier1:file-video" slot="icon"></d2l-icon>
 			<div slot="title" class="title">${item.title}</div>
-			<div slot="type">${item.type}</div>
+			<div slot="description">${item.description}</div>
 			<relative-date slot="date" value=${item[this.dateField]}></relative-date>
 			<div slot="expiry" class=d2l-body-small>${this.localize('permanentlyDeletedIn', { count: numDays })}</div>
 		</recycle-bin-item>

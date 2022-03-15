@@ -128,6 +128,7 @@ export const contentSearchMixin = superClass => class extends superClass {
 			return {
 				duration: `${getRandomInt(0, 20)}:${randomSeconds < 10 ? '0' : ''}${randomSeconds}`,
 				id: result.id,
+				description: result.lastRevDescription,
 				revisionId: result.lastRevId,
 				ownerId: result.ownerId,
 				ownerDisplayName: result.ownerDisplayName,

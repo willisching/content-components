@@ -28,7 +28,9 @@ const dialogConfirmAction = 'confirm';
 class ContentListItem extends DependencyRequester(navigationMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
 		return {
-			confirmDisabled: { type: Boolean, attribute: false },
+			confirmEditDescriptionDisabled: { type: Boolean, attribute: false },
+			confirmRenameDisabled: { type: Boolean, attribute: false },
+			description: { type: String },
 			disabled: { type: Boolean },
 			dropdownBoundary: { type: Object, attribute: false },
 			id: { type: String },
@@ -63,7 +65,8 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 		this.selectable = false; // Hide checkboxes until bulk actions are implemented
 		this.dropdownBoundary = {};
 		this.content = null;
-		this.confirmDisabled = false;
+		this.confirmEditDescriptionDisabled = false;
+		this.confirmRenameDisabled = false;
 	}
 
 	connectedCallback() {
@@ -94,7 +97,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 				<content-list-columns>
 					<div slot="detail">
 						<slot name="title"></slot>
-						<slot name="type" class="d2l-body-small"></slot>
+						<slot name="description" class="d2l-body-small"></slot>
 					</div>
 					<div slot="owner" class="break-word">
 						<slot name="owner"></slot>
@@ -111,7 +114,8 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 								<d2l-menu-item text="${this.localize('preview')}" @click=${this.dispatchPreviewEvent}></d2l-menu-item>
 								<d2l-menu-item text="${this.localize('download')}" @click="${this.download}"></d2l-menu-item>
 								<d2l-menu-item text="${this.localize('edit')}" @click=${this._goTo(`/${pageNames.producer}/${this.id}`)}></d2l-menu-item>
-								<d2l-menu-item id="rename-initiator" text="${this.localize('rename')}" @click="${this.openDialog()}"></d2l-menu-item>
+								<d2l-menu-item id="rename-initiator" text="${this.localize('rename')}" @click="${this.openRenameDialog()}"></d2l-menu-item>
+								<d2l-menu-item id="edit-description-initiator" text="${this.localize('editDescription')}" @click="${this.openEditDescriptionDialog()}"></d2l-menu-item>
 								${this.canTransferOwnership ? html`
 									<d2l-menu-item text="${this.localize('transferOwnership')}" @click="${this.openTransferOwnershipDialog()}"></d2l-menu-item>` : ''}
 								<d2l-menu-item text="${this.localize('delete')}" @click="${this.deleteHandler()}"></d2l-menu-item>
@@ -143,6 +147,20 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 				</d2l-dialog-confirm>
 			</d2l-list-item>
 
+			<d2l-dialog id="edit-description-dialog" title-text="${this.localize('description')}">
+				<d2l-input-text
+					id="edit-description-input"
+					label="${this.localize('description')}"
+					label-hidden
+					placeholder="${this.localize('descriptionPlaceholder')}"
+					value="${this.description || ''}"
+					novalidate
+					@input="${this.descriptionInputChangedHandler}"
+					maxlength=100></d2l-input-text>
+				<d2l-button slot="footer" ?disabled=${this.confirmEditDescriptionDisabled} id="edit-description-dialog-confirm" primary dialog-action="${dialogConfirmAction}">${this.localize('save')}</d2l-button>
+				<d2l-button slot="footer" id="edit-description-dialog-cancel" dialog-action>${this.localize('cancel')}</d2l-button>
+			</d2l-dialog>
+
 			<d2l-dialog id="rename-dialog" title-text="${this.localize('rename')}">
 				<d2l-input-text
 					id="rename-input"
@@ -153,7 +171,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 					novalidate
 					@input="${this.titleInputChangedHandler}"
 					maxlength=100></d2l-input-text>
-				<d2l-button slot="footer" ?disabled=${this.confirmDisabled} id="rename-dialog-confirm" primary dialog-action="${dialogConfirmAction}">${this.localize('save')}</d2l-button>
+				<d2l-button slot="footer" ?disabled=${this.confirmRenameDisabled} id="rename-dialog-confirm" primary dialog-action="${dialogConfirmAction}">${this.localize('save')}</d2l-button>
 				<d2l-button slot="footer" id="rename-dialog-cancel" dialog-action>${this.localize('cancel')}</d2l-button>
 			</d2l-dialog>
 
@@ -198,12 +216,28 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 		};
 	}
 
+	descriptionInputChangedHandler(event) {
+		const descriptionInputValue = event.target.value;
+		this.confirmEditDescriptionDisabled = !descriptionInputValue?.trim().length > 0;
+	}
+
 	dispatchDeletedEvent() {
 		this.dispatchEvent(new CustomEvent('content-list-item-deleted', {
 			bubbles: true,
 			composed: true,
 			detail: {
 				id: this.id
+			}
+		}));
+	}
+
+	dispatchEditDescriptionEvent(description) {
+		this.dispatchEvent(new CustomEvent('content-list-item-edit-description', {
+			bubbles: true,
+			composed: true,
+			detail: {
+				id: this.id,
+				description
 			}
 		}));
 	}
@@ -281,7 +315,34 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 		}
 	}
 
-	openDialog() {
+	async editDescription(newDescription) {
+		if (this.description !== newDescription) {
+			if (!this.content) {
+				this.content = await this.apiClient.getContent(this.id);
+			}
+			const updatedContent = {...this.content, description: newDescription};
+			this.content = await this.apiClient.updateContent({
+				id: this.id,
+				body: updatedContent,
+			});
+			this.dispatchEditDescriptionEvent(newDescription);
+		}
+	}
+
+	openEditDescriptionDialog() {
+		this.description = this.description === 'undefined' ? '' : this.description;
+		return async() => {
+			const action = await this.shadowRoot.querySelector('#edit-description-dialog').open();
+			const descriptionInputElement = this.shadowRoot.querySelector('#edit-description-input');
+			if (action === dialogConfirmAction && descriptionInputElement && descriptionInputElement.value) {
+				await this.editDescription(descriptionInputElement.value);
+			} else {
+				descriptionInputElement.value = this.description;
+			}
+		};
+	}
+
+	openRenameDialog() {
 		return async() => {
 			const action = await this.shadowRoot.querySelector('#rename-dialog').open();
 			const titleInputElement = this.shadowRoot.querySelector('#rename-input');
@@ -304,7 +365,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 			if (!this.content) {
 				this.content = await this.apiClient.getContent(this.id);
 			}
-			const updatedContent = Object.assign({}, this.content, { title: newTitle });
+			const updatedContent = {...this.content, title: newTitle};
 			this.content = await this.apiClient.updateContent({
 				id: this.id,
 				body: updatedContent,
@@ -313,10 +374,9 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 		}
 	}
 
-	titleInputChangedHandler() {
-		const titleInputElement = this.shadowRoot.querySelector('#rename-input');
-		const titleInputValue = titleInputElement?.value;
-		this.confirmDisabled = !titleInputValue || titleInputValue.trim().length === 0;
+	titleInputChangedHandler(event) {
+		const titleInputValue = event.target.value;
+		this.confirmRenameDisabled = !titleInputValue || titleInputValue.trim().length === 0;
 	}
 
 	async transferOwnershipHandler(e) {
@@ -330,10 +390,10 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 			if (!this.content) {
 				this.content = await this.apiClient.getContent(this.id);
 			}
-			const updatedContent = Object.assign({}, this.content, {
+			const updatedContent = {...this.content, ...{
 				ownerId: userId,
 				tenantIdOwnerId: `${this.content.tenantId}_${userId}`
-			});
+			}};
 			this.content = await this.apiClient.updateContent({
 				id: this.id,
 				body: updatedContent,

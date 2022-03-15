@@ -87,6 +87,25 @@ class ContentList extends CaptureCentralList {
 		}
 	}
 
+	contentListItemEditDescriptionHandler(e) {
+		const { detail } = e;
+
+		if (!detail) {
+			return;
+		}
+
+		const { id, description } = detail;
+
+		if (id && description) {
+			const index = this._videos.findIndex(c => c.id === id);
+			if (index >= 0 && index < this._videos.length) {
+				this._videos[index].description = description;
+				this._videos[index][this.dateField] = (new Date()).toISOString();
+				this.requestUpdate();
+			}
+		}
+	}
+
 	contentListItemOwnerHandler(e) {
 		const { detail } = e;
 
@@ -160,14 +179,16 @@ class ContentList extends CaptureCentralList {
 			revision-id=${item.revisionId}
 			owner-id=${item.ownerId}
 			title=${item.title}
+			description=${item.description}
 			?can-transfer-ownership=${this.canTransferOwnership}
 			@content-list-item-renamed=${this.contentListItemRenamedHandler}
+			@content-list-item-edit-description=${this.contentListItemEditDescriptionHandler}
 			@content-list-item-deleted=${this.contentListItemDeletedHandler}
 			@content-list-item-owner-changed=${this.contentListItemOwnerHandler}
 		>
 			<d2l-icon icon="tier1:file-video" slot="icon"></d2l-icon>
 			<div slot="title" class="title">${item.title}</div>
-			<div slot="type">${item.type}</div>
+			<div slot="description">${item.description}</div>
 			<div slot="owner">${item.ownerDisplayName}</div>
 			<relative-date slot="date" value=${item[this.dateField]}></relative-date>
 		</content-list-item>
