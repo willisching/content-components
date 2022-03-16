@@ -172,7 +172,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 	onPreviewClick(event) {
 		const previewDialog = this.shadowRoot.querySelector('#preview-dialog');
 		previewDialog.opened = true;
-		const preview = this.shadowRoot.getElementById('d2l-preview-div').firstChild;
+		const preview = this.shadowRoot.getElementById('d2l-capture-central-preview');
 		preview.contentId = event.detail.id;
 		previewDialog.addEventListener('d2l-dialog-close', () => {
 			preview.loading = true;
