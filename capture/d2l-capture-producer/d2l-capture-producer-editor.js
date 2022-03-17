@@ -198,10 +198,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 	}
 
-	get _timelineWidth() {
-		return this.canvasWidth - constants.TIMELINE_OFFSET_X * 2;
-	}
-
 	render() {
 		const zoomMultiplierStyleMap = {
 			opacity: this._zoomMultiplierDisplayOpacity
@@ -343,6 +339,10 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 	get mediaPlayer() {
 		return this._mediaPlayer || null;
+	}
+
+	get _timelineWidth() {
+		return this.canvasWidth - constants.TIMELINE_OFFSET_X * 2;
 	}
 
 	_addCutToStage(cut) {
