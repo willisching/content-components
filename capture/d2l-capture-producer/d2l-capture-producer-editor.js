@@ -1240,6 +1240,10 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this._fireCaptionsChangedEvent(textTrackCueListToArray(this._mediaPlayer.textTracks[0].cues));
 	}
 
+	get _timelineWidth() {
+		return this.canvasWidth - constants.TIMELINE_OFFSET_X * 2;
+	}
+
 	_updateCutOnStage(cut) {
 		const { inPixels, outPixels } = cut.getPixelsAlongTimeline();
 		const width = outPixels - inPixels + 1;
@@ -1307,10 +1311,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this._zoomMultiplier = Math.max(Math.pow(Math.pow((2 * this._mediaPlayer.duration * constants.MARK_WIDTH / this._timelineWidth), 1 / constants.ZOOM_HANDLE_MAX_DEPTH), zoomHandleValue), 1);
 
 		this._timeline.zoomMultiplier = this._zoomMultiplier;
-	}
-
-	get _timelineWidth() {
-		return this.canvasWidth - constants.TIMELINE_OFFSET_X * 2;
 	}
 }
 customElements.define('d2l-capture-producer-editor', CaptureProducerEditor);
