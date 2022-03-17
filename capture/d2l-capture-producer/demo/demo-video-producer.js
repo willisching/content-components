@@ -6,7 +6,7 @@ import { radioStyles } from '@brightspace-ui/core/components/inputs/input-radio-
 import { labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import '../d2l-capture-producer-editor.js';
 import '../src/d2l-video-producer-language-selector.js';
-import constants from '../src/constants.js'
+import constants from '../src/constants.js';
 
 const VIDEO_SOURCE = 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
 const AUDIO_SOURCE = 'https://archive.org/download/MlkButIfNot/mlkbutifnot.mp3';
