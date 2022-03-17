@@ -3,7 +3,7 @@ export const dateFilterToSearchQuery = dateFilter => {
 		case 'today':
 			return 'now/d';
 		case 'yesterday':
-			return 'now-1d/d,now-1d';
+			return 'now-1d/d,now-1d/d';
 		case 'last7days':
 			return 'now-7d';
 		case 'last30days':
