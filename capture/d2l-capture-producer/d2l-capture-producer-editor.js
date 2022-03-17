@@ -129,7 +129,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			#canvas-container {
 				height: ${constants.CANVAS_CONTAINER_HEIGHT}px;
 				position: relative;
-				width: ${constants.CANVAS_CONTAINER_WIDTH}px;
+				width: var(--canvas-container-width);
 			}
 		`];
 	}
@@ -181,7 +181,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	firstUpdated() {
-		console.log(this.canvasWidth);
 		super.firstUpdated();
 
 		this._mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
@@ -196,6 +195,12 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			this.dispatchEvent(new CustomEvent('media-loaded', { composed: false }));
 		});
 
+		this.style.setProperty(
+			'--canvas-container-width',
+			this.canvasWidth
+				? `${(this.canvasWidth + constants.CANVAS_BORDER_WIDTH * 2)}px`
+				: 'unset'
+		);
 	}
 
 	render() {
@@ -1311,6 +1316,10 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this._zoomMultiplier = Math.max(Math.pow(Math.pow((2 * this._mediaPlayer.duration * constants.MARK_WIDTH / this._timelineWidth), 1 / constants.ZOOM_HANDLE_MAX_DEPTH), zoomHandleValue), 1);
 
 		this._timeline.zoomMultiplier = this._zoomMultiplier;
+	}
+
+	get canvasContainerWidth() {
+		return this.canvasWidth + constants.CANVAS_BORDER_WIDTH * 2;
 	}
 }
 customElements.define('d2l-capture-producer-editor', CaptureProducerEditor);
