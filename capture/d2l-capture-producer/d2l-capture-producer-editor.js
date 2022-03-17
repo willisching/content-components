@@ -31,6 +31,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			captions: { type: Array },
 			captionsLoading: { type: Boolean, attribute: 'captions-loading' },
 			captionsUrl: { type: String },
+			canvasWidth: { type: Number, attribute: 'canvas-width'},
 			defaultLanguage: { type: Object },
 			enableCutsAndChapters: { type: Boolean },
 			format: { type: String },
@@ -180,6 +181,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	firstUpdated() {
+		console.log(this.canvasWidth);
 		super.firstUpdated();
 
 		this._mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
@@ -194,6 +196,10 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			this.dispatchEvent(new CustomEvent('media-loaded', { composed: false }));
 		});
 
+	}
+
+	get _timelineWidth() {
+		return this.canvasWidth - constants.TIMELINE_OFFSET_X * 2;
 	}
 
 	render() {
@@ -272,7 +278,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 				${(this.enableCutsAndChapters ? html`
 					<div class="d2l-video-producer-timeline" style="visibility: ${this.timelineVisible ? 'visible' : 'hidden'};">
 						<div id="canvas-container">
-							<canvas height="${constants.CANVAS_HEIGHT}px" width="${constants.CANVAS_WIDTH}px" id="timeline-canvas"></canvas>
+							<canvas height="${constants.CANVAS_HEIGHT}px" width="${this.canvasWidth}px" id="timeline-canvas"></canvas>
 							<div id="zoom-multiplier" style=${styleMap(zoomMultiplierStyleMap)}>
 								${this._getZoomMultiplierDisplay()}
 							</div>
@@ -397,7 +403,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		});
 
 		displayObject.on('pressmove', event => {
-			const pixelsAlongTimelineToMoveTo = CaptureProducerEditor._getPixelsAlongTimelineFromStageX(event.stageX);
+			const pixelsAlongTimelineToMoveTo = this._getPixelsAlongTimelineFromStageX(event.stageX);
 
 			const returnValue = mark.move(pixelsAlongTimelineToMoveTo);
 
@@ -506,7 +512,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this._stage.enableMouseOver(30);
 
 		this._zoomHandle = new Shape();
-		this._zoomHandle.setTransform(constants.TIMELINE_WIDTH / 2, constants.ZOOM_HANDLE_OFFSET_Y);
+		this._zoomHandle.setTransform(this._timelineWidth / 2, constants.ZOOM_HANDLE_OFFSET_Y);
 		this._zoomHandle.graphics.beginFill(constants.COLOURS.ZOOM_HANDLE_UNSET).drawRect(0, 0, constants.ZOOM_HANDLE_WIDTH, constants.ZOOM_HANDLE_HEIGHT);
 		this._zoomHandle.on('mousedown', this._onZoomHandleMouseDown.bind(this));
 		this._zoomHandle.on('pressmove', this._onZoomHandlePressMove.bind(this));
@@ -515,7 +521,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 		this._timelineRect = new Shape();
 		this._timelineRect.setTransform(constants.TIMELINE_OFFSET_X, constants.TIMELINE_OFFSET_Y);
-		this._timelineRect.graphics.beginFill(constants.COLOURS.TIMELINE).drawRect(0, 0, constants.TIMELINE_WIDTH, this._getTimelineHeight());
+		this._timelineRect.graphics.beginFill(constants.COLOURS.TIMELINE).drawRect(0, 0, this._timelineWidth, this._getTimelineHeight());
 		this._stage.addChildAt(this._timelineRect, 0);
 
 		this._playedRect = new Shape();
@@ -649,7 +655,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 	_getCutModeHandlers() {
 		const highlightCut = (event) => {
-			const pixelsAlongTimeline = CaptureProducerEditor._getPixelsAlongTimelineFromStageX(event.stageX);
+			const pixelsAlongTimeline = this._getPixelsAlongTimelineFromStageX(event.stageX);
 
 			const { leftBoundPixels, rightBoundPixels } = this._timeline.getPixelBoundsAtPoint(pixelsAlongTimeline);
 
@@ -670,7 +676,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		return {
 			timelineMouseDown: () => {},
 			timelineMouseUp: (event) => {
-				const pixelsAlongTimeline = CaptureProducerEditor._getPixelsAlongTimelineFromStageX(event.stageX);
+				const pixelsAlongTimeline = this._getPixelsAlongTimelineFromStageX(event.stageX);
 
 				const cut = this._timeline.addCutAtPoint(pixelsAlongTimeline);
 
@@ -710,7 +716,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			timelineMouseUp: event => {
 				this._clearCurrentMark();
 
-				const pixelsAlongTimeline = CaptureProducerEditor._getPixelsAlongTimelineFromStageX(event.stageX);
+				const pixelsAlongTimeline = this._getPixelsAlongTimelineFromStageX(event.stageX);
 
 				const returnValue = this._timeline.addMarkAtPoint(pixelsAlongTimeline);
 
@@ -749,7 +755,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	_getMarkUnderMouse() {
-		const pixelsAlongTimeline = CaptureProducerEditor._getPixelsAlongTimelineFromStageX(this._stage.mouseX);
+		const pixelsAlongTimeline = this._getPixelsAlongTimelineFromStageX(this._stage.mouseX);
 
 		let minDiff = null;
 		let closestMark = null;
@@ -772,8 +778,8 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		return closestMark;
 	}
 
-	static _getPixelsAlongTimelineFromStageX(stageX) {
-		return CaptureProducerEditor._clampNumBetweenMinAndMax(stageX - constants.TIMELINE_OFFSET_X, 0, constants.TIMELINE_WIDTH);
+	_getPixelsAlongTimelineFromStageX(stageX) {
+		return CaptureProducerEditor._clampNumBetweenMinAndMax(stageX - constants.TIMELINE_OFFSET_X, 0, this._timelineWidth);
 	}
 
 	_getRoundedPosition(stageXPosition) {
@@ -787,10 +793,11 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	_getSeekModeHandlers() {
+		const me = this;
 		const seek = event => {
 			if (this._mediaPlayer.duration > 0) {
 				const { lowerTimeBound, upperTimeBound } = this._timeline.getTimeBoundsOfTimeline();
-				const progress = event.localX / constants.TIMELINE_WIDTH;
+				const progress = event.localX / me._timelineWidth;
 
 				this._mouseTime = (upperTimeBound - lowerTimeBound) * progress + lowerTimeBound;
 				this._mediaPlayer.currentTime = this._mouseTime;
@@ -846,9 +853,9 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	_getTimeFromStageX(stageX) {
-		const clampedTimelineStageX = CaptureProducerEditor._clampNumBetweenMinAndMax(stageX, constants.TIMELINE_OFFSET_X, constants.TIMELINE_OFFSET_X + constants.TIMELINE_WIDTH);
+		const clampedTimelineStageX = CaptureProducerEditor._clampNumBetweenMinAndMax(stageX, constants.TIMELINE_OFFSET_X, constants.TIMELINE_OFFSET_X + this._timelineWidth);
 
-		const pixelsAlongTimeline = CaptureProducerEditor._getPixelsAlongTimelineFromStageX(clampedTimelineStageX);
+		const pixelsAlongTimeline = this._getPixelsAlongTimelineFromStageX(clampedTimelineStageX);
 
 		return this._timeline.getTimeFromPixelsAlongTimeline(pixelsAlongTimeline);
 	}
@@ -1050,7 +1057,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 		const rect = this._timelineCanvas.getBoundingClientRect();
 
-		const x = CaptureProducerEditor._clampNumBetweenMinAndMax(event.clientX - rect.left - constants.TIMELINE_OFFSET_X, 0, constants.TIMELINE_WIDTH);
+		const x = CaptureProducerEditor._clampNumBetweenMinAndMax(event.clientX - rect.left - constants.TIMELINE_OFFSET_X, 0, this._timelineWidth);
 
 		this._zoomHandle.x = x;
 
@@ -1064,7 +1071,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	_onZoomHandlePressMove(event) {
 		const newZoomHandleY = CaptureProducerEditor._clampNumBetweenMinAndMax(event.stageY - this._zoomHandleDragOffsetY, constants.ZOOM_HANDLE_OFFSET_Y, constants.ZOOM_HANDLE_OFFSET_Y + constants.ZOOM_HANDLE_MAX_DEPTH);
 
-		if (this._zoomHandle.y === constants.ZOOM_HANDLE_OFFSET_Y) this._timeline.pixelsAlongTimelineToZoomAround = CaptureProducerEditor._getPixelsAlongTimelineFromStageX(event.stageX);
+		if (this._zoomHandle.y === constants.ZOOM_HANDLE_OFFSET_Y) this._timeline.pixelsAlongTimelineToZoomAround = this._getPixelsAlongTimelineFromStageX(event.stageX);
 
 		this._zoomHandle.y = newZoomHandleY;
 
@@ -1114,7 +1121,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 		this._cursor.displayObject.graphics.clear().beginFill(constants.COLOURS.MARK).drawRect(0, 0, constants.MARK_WIDTH, this._getMarkHeight());
 
-		this._timelineRect.graphics.clear().beginFill(constants.COLOURS.TIMELINE).drawRect(0, 0, constants.TIMELINE_WIDTH, this._getTimelineHeight());
+		this._timelineRect.graphics.clear().beginFill(constants.COLOURS.TIMELINE).drawRect(0, 0, this._timelineWidth, this._getTimelineHeight());
 
 		const newZoomHandleColour = this._getZoomHandleValue() === 0 ? constants.COLOURS.ZOOM_HANDLE_UNSET : constants.COLOURS.ZOOM_HANDLE_SET;
 		this._zoomHandle.graphics.clear().beginFill(newZoomHandleColour).drawRect(0, 0, constants.ZOOM_HANDLE_WIDTH, constants.ZOOM_HANDLE_HEIGHT);
@@ -1133,7 +1140,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 		this._timeline = new Timeline({
 			durationSeconds: this._mediaPlayer.duration,
-			widthPixels: constants.TIMELINE_WIDTH,
+			widthPixels: this._timelineWidth,
 			cuts,
 			zoomMultiplier: this._zoomMultiplier,
 			pixelsAlongTimelineToZoomAround: this._timeline?.pixelsAlongTimelineToZoomAround
@@ -1197,7 +1204,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			const stageX = this._getStageXFromTime(time);
 			this._timeContainer.x = Math.min(
 				Math.max(stageX + constants.TIME_CONTAINER_OFFSET_X, constants.TIMELINE_OFFSET_X),
-				constants.TIMELINE_OFFSET_X + constants.TIMELINE_WIDTH - constants.TIME_TEXT_BORDER_WIDTH
+				constants.TIMELINE_OFFSET_X + this._timelineWidth - constants.TIME_TEXT_BORDER_WIDTH
 			);
 			this._timeContainer.y = constants.TIME_CONTAINER_OFFSET_Y + this._getZoomHandleValue();
 			this._stage.update();
@@ -1284,11 +1291,11 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		let width;
 
 		if (time < lowerTimeBound) width = 0;
-		else if (time > upperTimeBound) width = constants.TIMELINE_WIDTH;
+		else if (time > upperTimeBound) width = this._timelineWidth;
 		else {
 			const progress = (time - lowerTimeBound) / (upperTimeBound - lowerTimeBound);
 
-			width = constants.TIMELINE_WIDTH * progress;
+			width = this._timelineWidth * progress;
 		}
 
 		this._playedRect.graphics.clear().beginFill(constants.COLOURS.TIMELINE_PLAYED).drawRect(0, 0, width, this._getTimelineHeight());
@@ -1301,7 +1308,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		const zoomHandleValue = this._getZoomHandleValue();
 
 		// See US130745 for details on this calculation
-		this._zoomMultiplier = Math.max(Math.pow(Math.pow((2 * this._mediaPlayer.duration * constants.MARK_WIDTH / constants.TIMELINE_WIDTH), 1 / constants.ZOOM_HANDLE_MAX_DEPTH), zoomHandleValue), 1);
+		this._zoomMultiplier = Math.max(Math.pow(Math.pow((2 * this._mediaPlayer.duration * constants.MARK_WIDTH / this._timelineWidth), 1 / constants.ZOOM_HANDLE_MAX_DEPTH), zoomHandleValue), 1);
 
 		this._timeline.zoomMultiplier = this._zoomMultiplier;
 	}

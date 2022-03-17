@@ -197,6 +197,7 @@ class DemoVideoProducer extends LitElement {
 				</div>
 
 				<d2l-capture-producer-editor
+					canvas-width=${958}
 					.captions="${this.captions}"
 					@captions-auto-generation-started="${this._handleCaptionsAutoGenerationStarted}"
 					@captions-changed="${this._handleCaptionsChanged}"
