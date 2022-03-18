@@ -28,8 +28,7 @@ class D2LCaptureCentralPreview extends DependencyRequester(PageViewElement) {
 
 			d2l-loading-spinner {
 				display: flex;
-				margin: auto;
-				margin-top: 200px;
+				margin-top: 20%;
 			}
 
 			#status-container {
