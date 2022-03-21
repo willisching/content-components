@@ -3,6 +3,7 @@ import auth from 'd2l-fetch-auth/src/unframed/index.js';
 import { contentFilterToSearchQuery } from './content-type.js';
 import { d2lfetch } from 'd2l-fetch/src/index.js';
 import { dateFilterToSearchQuery } from './date-filter.js';
+import { getTimeZoneOrTimeZoneOffset } from './date-time.js';
 
 d2lfetch.use({ name: 'auth', fn: auth });
 
@@ -15,6 +16,7 @@ export default class ContentServiceClient {
 		this.endpoint = endpoint;
 		this.tenantId = tenantId;
 		this.onUploadProgress = onUploadProgress;
+		this.timeZone = getTimeZoneOrTimeZoneOffset();
 	}
 
 	createContent(body) {
@@ -196,6 +198,7 @@ export default class ContentServiceClient {
 				clientApps,
 				updatedAt: dateFilterToSearchQuery(updatedAt),
 				createdAt: dateFilterToSearchQuery(createdAt),
+				timeZone: this.timeZone,
 				includeThumbnails
 			},
 			headers
@@ -228,6 +231,7 @@ export default class ContentServiceClient {
 				clientApps,
 				updatedAt: dateFilterToSearchQuery(updatedAt),
 				createdAt: dateFilterToSearchQuery(createdAt),
+				timeZone: this.timeZone,
 				filter: 'DELETED',
 				includeThumbnails
 			},

@@ -126,6 +126,20 @@ const formatRelative = formatFunction => (inputDate, {
 	return text;
 };
 
+export const getTimeZoneOrTimeZoneOffset = () => {
+	if (Intl && Intl.DateTimeFormat) {
+		const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+		if (timeZone) return timeZone;
+	}
+
+	const date = new Date();
+	const offsetInMinutes = date.getTimezoneOffset();
+	const hours = Math.floor(offsetInMinutes / 60);
+	const minutes = offsetInMinutes % 60;
+
+	return `${offsetInMinutes > 0 ? '-' : '+'}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+};
+
 export const millisecondsPer = { second, minute, hour, day };
 export const formatRelativeDate = formatRelative(formatDate);
 export const formatRelativeDateTime = formatRelative(formatDateTime);
