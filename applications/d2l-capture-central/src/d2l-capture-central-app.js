@@ -74,6 +74,13 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				margin-top: 25px;
 			}
 
+			#d2l-capture-central-preview {
+				display: flex;
+				height: 100%;
+				min-height: 400px;
+				flex-direction: column;
+			}
+
 			@media (max-width: 1056px) {
 				two-column-layout {
 					--sidebar-width: 200px;
@@ -287,7 +294,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				<d2l-capture-central-producer class="page" ?active=${currentPage === pageNames.producer && !!subView}></d2l-capture-central-producer>
 				<d2l-dialog id="preview-dialog" title-text="${this.localize('preview')}">
 					<div id="d2l-preview-div">
-						<d2l-capture-central-preview id="d2l-capture-central-preview" class="page" active></d2l-capture-central-preview>
+						<d2l-capture-central-preview id="d2l-capture-central-preview" active></d2l-capture-central-preview>
 					</div>
 				</d2l-dialog>
 				<d2l-capture-central-settings class="page" ?active=${currentPage === pageNames.settings}></d2l-capture-central-settings>

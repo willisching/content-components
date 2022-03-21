@@ -105,5 +105,9 @@ const constants = {
 		ZOOM_HANDLE_SET: '#006FBF',
 		ZOOM_HANDLE_UNSET: '#CDD5DC',
 	},
+
+	// Tabs
+	TABS_BODY_HEIGHT: 484,
+	TABS_CONTAINER_HEIGHT: 375,
 };
 export default constants;

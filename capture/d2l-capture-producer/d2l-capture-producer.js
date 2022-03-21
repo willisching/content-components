@@ -227,15 +227,19 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 					@captions-url-changed="${this._handleCaptionsUrlChanged}"
 					?enableCutsAndChapters="${this._enableCutsAndChapters}"
 					.defaultLanguage="${this._defaultLanguage}"
+					.finishing="${this?._finishing ?? false}"
 					.format="${this._format}"
-					.languages="${this._languages}"
+					.languages="${this?._languages}"
 					@media-error="${this._handleMediaError}"
 					@media-loaded="${this._handleMediaLoaded}"
 					.mediaType="${this._mediaType}"
 					.metadata="${this._metadata}"
 					@metadata-changed="${this._handleMetadataChanged}"
 					?metadata-loading="${this._metadataLoading}"
-					.selectedLanguage="${this._selectedLanguage}"
+					.saving="${this?._saving ?? false}"
+					.selectedLanguage="${this?._selectedLanguage}"
+					@selected-language-change="${this._handleSelectedLanguageChanged}"
+					.selectedRevisionIsProcessing="${this._selectedRevisionIsProcessing}"
 					.src="${this._src}"
 					?timeline-visible="${this._timelineVisible}"
 				></d2l-capture-producer-editor>
@@ -814,14 +818,6 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	_renderTopBar() {
 		return html`
 			<div class="d2l-video-producer-top-bar-controls">
-				${(this._languages && this._selectedLanguage) ? html`
-					<d2l-video-producer-language-selector
-						?disabled="${this._saving || this._finishing || this._selectedRevisionIsProcessing}"
-						.languages="${this._languages}"
-						.selectedLanguage="${this._selectedLanguage}"
-						@selected-language-changed="${this._handleSelectedLanguageChanged}"
-					></d2l-video-producer-language-selector>
-				` : ''}
 				${this._renderSavedUnsavedIndicator()}
 				<d2l-dropdown-button-subtle
 					class="d2l-video-producer-controls-revision-dropdown"
