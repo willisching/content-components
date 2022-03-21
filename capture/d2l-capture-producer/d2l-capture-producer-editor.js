@@ -168,29 +168,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this.addEventListener('change-to-seek-mode', this._changeToSeekMode);
 	}
 
-	firstUpdatedHelper() {
-		super.firstUpdated();
-
-		this._mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
-
-		// Wait for video to be loaded
-		this._mediaPlayer.addEventListener('loadeddata', () => {
-			if (this.enableCutsAndChapters && this.metadata) {
-				this._resetTimelineWithNewCuts(this.metadata.cuts);
-				this._changeToSeekMode();
-			}
-			this._videoLoaded = true;
-			this.dispatchEvent(new CustomEvent('media-loaded', { composed: false }));
-		});
-
-		this.style.setProperty(
-			'--canvas-container-width',
-			this.canvasWidth
-				? `${(this.canvasWidth + constants.CANVAS_BORDER_WIDTH * 2)}px`
-				: 'unset'
-		);
-	}
-
 	render() {
 		return html`
 			<div class="d2l-video-producer-editor">
@@ -273,6 +250,37 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		`;
 	}
 
+	get canvasContainerWidth() {
+		return this.canvasWidth + constants.CANVAS_BORDER_WIDTH * 2;
+	}
+
+	firstUpdatedHelper() {
+		super.firstUpdated();
+
+		this._mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
+
+		// Wait for video to be loaded
+		this._mediaPlayer.addEventListener('loadeddata', () => {
+			if (this.enableCutsAndChapters && this.metadata) {
+				this._resetTimelineWithNewCuts(this.metadata.cuts);
+				this._changeToSeekMode();
+			}
+			this._videoLoaded = true;
+			this.dispatchEvent(new CustomEvent('media-loaded', { composed: false }));
+		});
+
+		this.style.setProperty(
+			'--canvas-container-width',
+			this.canvasWidth
+				? `${(this.canvasWidth + constants.CANVAS_BORDER_WIDTH * 2)}px`
+				: 'unset'
+		);
+	}
+
+	get mediaPlayer() {
+		return this._mediaPlayer || null;
+	}
+
 	updatedHelper(e) {
 		const changedProperties = e.detail.changedProperties;
 		super.updated(changedProperties);
@@ -286,14 +294,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		if (this.enableCutsAndChapters && changedProperties.has('metadata') && this.metadata && this._videoLoaded && this._cutsDifferInMetadataAndTimeline()) {
 			this._resetTimelineWithNewCuts(this.metadata.cuts);
 		}
-	}
-
-	get canvasContainerWidth() {
-		return this.canvasWidth + constants.CANVAS_BORDER_WIDTH * 2;
-	}
-
-	get mediaPlayer() {
-		return this._mediaPlayer || null;
 	}
 
 	_addCutToStage(cut) {

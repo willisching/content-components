@@ -92,10 +92,6 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		);
 	}
 
-	constructor() {
-		super();
-	}
-
 	render() {
 		const zoomMultiplierStyleMap = {
 			opacity: this._zoomMultiplierDisplayOpacity
