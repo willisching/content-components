@@ -22,7 +22,6 @@ import { InternalLocalizeMixin } from './src/internal-localize-mixin.js';
 import { bodyCompactStyles, labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';
-import { styleMap } from 'lit-html/directives/style-map.js';
 import { Timeline } from './src/timeline';
 import { convertVttCueArrayToVttText, textTrackCueListToArray } from './src/captions-utils.js';
 
@@ -108,29 +107,11 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 				background-color: var(--d2l-color-gypsum);
 			}
 
-			#timeline-canvas {
-				border: ${constants.CANVAS_BORDER_WIDTH}px solid #787878;
-			}
-
 			#zoom-handle {
 				height: ${constants.ZOOM_HANDLE_HEIGHT}px;
 				pointer-events: none;
 				position: absolute;
 				width: ${constants.ZOOM_HANDLE_WIDTH}px;
-			}
-
-			#zoom-multiplier {
-				pointer-events: none;
-				position: absolute;
-				text-align: center;
-				top: ${constants.CANVAS_CONTAINER_HEIGHT / 2}px;
-				width: 100%;
-			}
-
-			#canvas-container {
-				height: ${constants.CANVAS_CONTAINER_HEIGHT}px;
-				position: relative;
-				width: var(--canvas-container-width);
 			}
 		`];
 	}
@@ -184,7 +165,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this.addEventListener('timeline-updated', this.updatedHelper);
 	}
 
-	firstUpdatedHelper(e) {
+	firstUpdatedHelper() {
 		super.firstUpdated();
 
 		this._mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
@@ -473,7 +454,8 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 	//#region Timeline management
 	_configureStage() {
-		this._timelineCanvas = this.shadowRoot.querySelector('d2l-capture-producer-timeline').shadowRoot.querySelector('#timeline-canvas'); 
+		this._timelineCanvas = this.shadowRoot.querySelector('d2l-capture-producer-timeline').shadowRoot.querySelector('#timeline-canvas');
+		console.log(this._timelineWidth);
 		this._timelineCanvas.addEventListener('mousemove', this._onCanvasMouseMove.bind(this));
 		this._stage = new Stage(this._timelineCanvas);
 		this._stage.enableMouseOver(30);
