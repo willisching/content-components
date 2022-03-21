@@ -13,6 +13,7 @@ import '@brightspace-ui-labs/media-player/media-player.js';
 import './src/d2l-video-producer-language-selector.js';
 import './src/d2l-video-producer-captions.js';
 import './src/d2l-video-producer-chapters.js';
+import './d2l-capture-producer-timeline.js';
 
 import { Container, Shape, Stage, Text } from '@createjs/easeljs';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
@@ -178,9 +179,12 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this.defaultLanguage = {};
 		this.selectedLanguage = {};
 		this._is_IOS = /iPad|iPhone|iPod/.test(navigator.platform);
+
+		this.addEventListener('timeline-first-updated', this.firstUpdatedHelper);
+		this.addEventListener('timeline-updated', this.updatedHelper);
 	}
 
-	firstUpdated() {
+	firstUpdatedHelper(e) {
 		super.firstUpdated();
 
 		this._mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
@@ -204,10 +208,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	render() {
-		const zoomMultiplierStyleMap = {
-			opacity: this._zoomMultiplierDisplayOpacity
-		};
-
 		return html`
 			<div class="d2l-video-producer-editor">
 				<div class="d2l-video-producer-video-controls">
@@ -277,58 +277,20 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 					</d2l-tabs>
 				</div>
 				${(this.enableCutsAndChapters ? html`
-					<div class="d2l-video-producer-timeline" style="visibility: ${this.timelineVisible ? 'visible' : 'hidden'};">
-						<div id="canvas-container">
-							<canvas height="${constants.CANVAS_HEIGHT}px" width="${this.canvasWidth}px" id="timeline-canvas"></canvas>
-							<div id="zoom-multiplier" style=${styleMap(zoomMultiplierStyleMap)}>
-								${this._getZoomMultiplierDisplay()}
-							</div>
-						</div>
-						<div class="d2l-video-producer-timeline-controls">
-							<div class="d2l-video-producer-timeline-mode-button">
-								<input
-									type="radio"
-									name="d2l-video-producer-timeline-mode"
-									id="d2l-video-producer-seek-button"
-									?checked="${this._controlMode === constants.CONTROL_MODES.SEEK}"
-									/>
-								<label for="d2l-video-producer-seek-button" @click="${this._changeToSeekMode}" id="d2l-video-producer-seek-button-label">
-									<d2l-icon id="d2l-video-producer-seek-button-icon" icon="tier1:arrow-thin-up"></d2l-icon>
-									<d2l-tooltip for="d2l-video-producer-seek-button-label" delay="500">${this.localize(constants.CONTROL_MODES.SEEK)}</d2l-tooltip>
-								</label>
-							</div>
-							<div class="d2l-video-producer-timeline-mode-button">
-								<input
-									type="radio"
-									name="d2l-video-producer-timeline-mode"
-									id="d2l-video-producer-mark-button"
-									?checked="${this._controlMode === constants.CONTROL_MODES.MARK}"
-									/>
-								<label for="d2l-video-producer-mark-button" @click="${this._changeToMarkMode}" id="d2l-video-producer-mark-button-label">
-									<d2l-icon id="d2l-video-producer-mark-button-icon" icon="tier1:divider-solid"></d2l-icon>
-									<d2l-tooltip for="d2l-video-producer-mark-button-label" delay="500">${this.localize(constants.CONTROL_MODES.MARK)}</d2l-tooltip>
-								</label>
-							</div>
-							<div class="d2l-video-producer-timeline-mode-button">
-								<input
-									type="radio"
-									name="d2l-video-producer-timeline-mode"
-									id="d2l-video-producer-cut-button"
-									?checked="${this._controlMode === constants.CONTROL_MODES.CUT}"
-									/>
-								<label for="d2l-video-producer-cut-button" @click="${this._changeToCutMode}" id="d2l-video-producer-cut-button-label">
-									<d2l-icon id="d2l-video-producer-cut-button-icon" icon="html-editor:cut"></d2l-icon>
-									<d2l-tooltip for="d2l-video-producer-cut-button-label" delay="500">${this.localize(constants.CONTROL_MODES.CUT)}</d2l-tooltip>
-								</label>
-							</div>
-						</div>
-					</div>
+					<d2l-capture-producer-timeline
+						width=${this.canvasWidth}
+						timelineVisible=${this.timelineVisible}
+						_zoomMultiplier=${this._zoomMultiplier}
+						metadata=${this.metadata}
+						enableCutsAndChapters=${this.enableCutsAndChapters}
+					/>
 				` : '')}
 			</div>
 		`;
 	}
 
-	updated(changedProperties) {
+	updatedHelper(e) {
+		const changedProperties = e.detail.changedProperties;
 		super.updated(changedProperties);
 		if (changedProperties.has('enableCutsAndChapters') && this.enableCutsAndChapters) {
 			this._chaptersComponent = this.shadowRoot.querySelector('d2l-video-producer-chapters');
@@ -511,7 +473,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 	//#region Timeline management
 	_configureStage() {
-		this._timelineCanvas = this.shadowRoot.querySelector('#timeline-canvas');
+		this._timelineCanvas = this.shadowRoot.querySelector('d2l-capture-producer-timeline').shadowRoot.querySelector('#timeline-canvas'); 
 		this._timelineCanvas.addEventListener('mousemove', this._onCanvasMouseMove.bind(this));
 		this._stage = new Stage(this._timelineCanvas);
 		this._stage.enableMouseOver(30);
