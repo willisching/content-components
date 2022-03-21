@@ -7,6 +7,7 @@ import '@brightspace-ui/core/components/dropdown/dropdown-button-subtle.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-menu.js';
 import '@brightspace-ui/core/components/icons/icon.js';
 import './src/d2l-video-producer-language-selector.js';
+import './d2l-capture-producer-editor.js';
 
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { autorun } from 'mobx';
@@ -18,7 +19,6 @@ import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';
 import UserBrightspaceClient from './src/user-brightspace-client.js';
 import { convertVttCueArrayToVttText } from './src/captions-utils.js';
-import constants from './src/constants.js';
 
 class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
