@@ -72,41 +72,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 				margin: 10px 0px 10px 0px;
 			}
 
-			.d2l-video-producer-timeline {
-				display: flex;
-				margin-top: 15px;
-			}
-
-			.d2l-video-producer-timeline-controls {
-				display: inline-flex;
-				height: 90px;
-				justify-content: center;
-				margin-top: 8px;
-				position: relative;
-				vertical-align: top;
-				width: 160px;
-				min-width: 160px;
-			}
-
-			.d2l-video-producer-timeline-mode-button input[type="radio"] {
-				display: none;
-			}
-
-			.d2l-video-producer-timeline-mode-button label {
-				border-radius: 8px;
-				margin: 0 5px 0 5px;
-				padding: 12px;
-			}
-
-			.d2l-video-producer-timeline-mode-button input[type="radio"]:hover + label {
-				background-color: var(--d2l-color-gypsum);
-				cursor: pointer;
-			}
-
-			.d2l-video-producer-timeline-mode-button input[type="radio"]:checked + label {
-				background-color: var(--d2l-color-gypsum);
-			}
-
 			#zoom-handle {
 				height: ${constants.ZOOM_HANDLE_HEIGHT}px;
 				pointer-events: none;
