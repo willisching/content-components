@@ -790,12 +790,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		return this._zoomHandle.y - constants.ZOOM_HANDLE_OFFSET_Y;
 	}
 
-	_getZoomMultiplierDisplay() {
-		if (this._zoomMultiplier <= 10) return `${Math.round(this._zoomMultiplier * 100)}%`;
-
-		return `${Math.round(this._zoomMultiplier)}x`;
-	}
-
 	_handleActiveChapterUpdated({ detail: { chapterTime } }) {
 		if (chapterTime !== null) {
 			this._activeChapterTime = chapterTime;
