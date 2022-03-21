@@ -74,10 +74,6 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		`];
 	}
 
-	get canvasContainerWidth() {
-		return this.width + constants.CANVAS_BORDER_WIDTH * 2;
-	}
-
 	firstUpdated() {
 		super.firstUpdated();
 
@@ -159,6 +155,10 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 				detail: { changedProperties }
 			}
 		));
+	}
+
+	get canvasContainerWidth() {
+		return this.width + constants.CANVAS_BORDER_WIDTH * 2;
 	}
 
 	_changeToCutMode() {

@@ -233,7 +233,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		`;
 	}
 
-
 	firstUpdatedHelper() {
 		super.firstUpdated();
 
