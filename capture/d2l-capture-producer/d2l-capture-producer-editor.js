@@ -160,12 +160,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this.defaultLanguage = {};
 		this.selectedLanguage = {};
 		this._is_IOS = /iPad|iPhone|iPod/.test(navigator.platform);
-
-		this.addEventListener('timeline-first-updated', this.firstUpdatedHelper);
-		this.addEventListener('timeline-updated', this.updatedHelper);
-		this.addEventListener('change-to-cut-mode', this._changeToCutMode);
-		this.addEventListener('change-to-mark-mode', this._changeToMarkMode);
-		this.addEventListener('change-to-seek-mode', this._changeToSeekMode);
 	}
 
 	render() {
@@ -239,9 +233,14 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 				</div>
 				${(this.enableCutsAndChapters ? html`
 					<d2l-capture-producer-timeline
+						@change-to-cut-mode=${this._changeToCutMode}
+						@change-to-mark-mode=${this._changeToMarkMode}
+						@change-to-seek-mode=${this._changeToSeekMode}
 						?enableCutsAndChapters=${this.enableCutsAndChapters}
 						.metadata=${this.metadata}
 						?timelineVisible=${this.timelineVisible}
+						@timeline-first-updated=${this.firstUpdatedHelper}
+						@timeline-updated=${this.updatedHelper}
 						width=${this.canvasWidth}
 						_zoomMultiplier=${this._zoomMultiplier}
 						
