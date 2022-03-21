@@ -31,7 +31,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			captions: { type: Array },
 			captionsLoading: { type: Boolean, attribute: 'captions-loading' },
 			captionsUrl: { type: String },
-			canvasWidth: { type: Number, attribute: 'canvas-width'},
+			canvasWidth: { type: Number },
 			defaultLanguage: { type: Object },
 			enableCutsAndChapters: { type: Boolean },
 			finishing: { type: Boolean },
@@ -118,6 +118,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 		this.enableCutsAndChapters = false;
 
+		this.canvasWidth = constants.CANVAS_WIDTH;
 		this._activeCue = null;
 		this.captions = [];
 		this.captionsUrl = '';
@@ -226,16 +227,12 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 						@timeline-updated=${this.updatedHelper}
 						width=${this.canvasWidth}
 						_zoomMultiplier=${this._zoomMultiplier}
-						
 					></d2l-capture-producer-timeline>
 				` : '')}
 			</div>
 		`;
 	}
 
-	get canvasContainerWidth() {
-		return this.canvasWidth + constants.CANVAS_BORDER_WIDTH * 2;
-	}
 
 	firstUpdatedHelper() {
 		super.firstUpdated();
@@ -251,13 +248,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			this._videoLoaded = true;
 			this.dispatchEvent(new CustomEvent('media-loaded', { composed: false }));
 		});
-
-		this.style.setProperty(
-			'--canvas-container-width',
-			this.canvasWidth
-				? `${(this.canvasWidth + constants.CANVAS_BORDER_WIDTH * 2)}px`
-				: 'unset'
-		);
 	}
 
 	get mediaPlayer() {
@@ -441,7 +431,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	//#region Timeline management
 	_configureStage() {
 		this._timelineCanvas = this.shadowRoot.querySelector('d2l-capture-producer-timeline').shadowRoot.querySelector('#timeline-canvas');
-		console.log(this._timelineWidth);
 		this._timelineCanvas.addEventListener('mousemove', this._onCanvasMouseMove.bind(this));
 		this._stage = new Stage(this._timelineCanvas);
 		this._stage.enableMouseOver(30);

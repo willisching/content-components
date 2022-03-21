@@ -7,7 +7,6 @@ import '@brightspace-ui/core/components/dropdown/dropdown-button-subtle.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-menu.js';
 import '@brightspace-ui/core/components/icons/icon.js';
 import './src/d2l-video-producer-language-selector.js';
-import './d2l-capture-producer-editor.js';
 
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { autorun } from 'mobx';
@@ -216,7 +215,6 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				${isProcessingFailed ? html`${this._renderProcessingFailedMessage()}` : html``}
 				${isReadyForEdit ? html `
 				<d2l-capture-producer-editor
-					canvasWidth=${constants.CANVAS_WIDTH}
 					.captions="${this._captions}"
 					@captions-auto-generation-started="${this._handleCaptionsAutoGenerationStarted}"
 					@captions-changed="${this._handleCaptionsChanged}"
