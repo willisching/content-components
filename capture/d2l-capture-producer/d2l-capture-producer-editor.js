@@ -239,11 +239,12 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 				</div>
 				${(this.enableCutsAndChapters ? html`
 					<d2l-capture-producer-timeline
-						width=${this.canvasWidth}
-						?timelineVisible=${this.timelineVisible}
-						_zoomMultiplier=${this._zoomMultiplier}
-						.metadata=${this.metadata}
 						?enableCutsAndChapters=${this.enableCutsAndChapters}
+						.metadata=${this.metadata}
+						?timelineVisible=${this.timelineVisible}
+						width=${this.canvasWidth}
+						_zoomMultiplier=${this._zoomMultiplier}
+						
 					></d2l-capture-producer-timeline>
 				` : '')}
 			</div>

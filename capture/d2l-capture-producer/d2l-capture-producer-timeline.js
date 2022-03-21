@@ -9,11 +9,11 @@ import { styleMap } from 'lit-html/directives/style-map.js';
 class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
-			width: { type: Number },
-			timelineVisible: { type: Boolean },
-			_zoomMultiplier: { type: Number },
 			enableCutsAndChapters: { type: Boolean },
 			metadata: { type: Object },
+			timelineVisible: { type: Boolean },
+			width: { type: Number },
+			_zoomMultiplier: { type: Number },
 		};
 	}
 
