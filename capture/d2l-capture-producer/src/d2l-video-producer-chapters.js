@@ -5,6 +5,7 @@ import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
 import { bodySmallStyles, bodyStandardStyles, heading3Styles } from '@brightspace-ui/core/components/typography/styles.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { InternalLocalizeMixin } from './internal-localize-mixin.js';
+import constants from './constants.js';
 
 class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
@@ -27,7 +28,7 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 			.d2l-video-producer-chapters {
 				border: 1px solid var(--d2l-color-mica);
 				box-sizing: border-box;
-				height: 532px;
+				height: ${constants.TABS_BODY_HEIGHT}px;
 				position: relative;
 				width: 360px;
 			}
@@ -44,7 +45,7 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 			.d2l-video-producer-chapters-container {
 				display: flex;
 				flex-direction: column;
-				height: 423px;
+				height: ${constants.TABS_CONTAINER_HEIGHT}px;
 				overflow-y: scroll;
 				padding: 10px;
 				position: relative;

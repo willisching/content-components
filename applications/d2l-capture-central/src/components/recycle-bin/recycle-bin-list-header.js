@@ -24,7 +24,7 @@ class RecycleBinListHeader extends InternalLocalizeMixin(LitElement) {
 				width: 42px;
 				padding-left: 42px; /* total width of checkbox column */
 			}
-			
+
 			d2l-list [slot=actions] {
 				height: 0;
 				width: 90px;

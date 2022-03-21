@@ -33,12 +33,15 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			captionsUrl: { type: String },
 			defaultLanguage: { type: Object },
 			enableCutsAndChapters: { type: Boolean },
+			finishing: { type: Boolean },
 			format: { type: String },
 			languages: { type: Array },
 			mediaType: { type: String },
 			metadata: { type: Object },
 			metadataLoading: { type: Boolean, attribute: 'metadata-loading' },
+			saving: { type: Boolean },
 			selectedLanguage: { type: Object },
+			selectedRevisionIsProcessing: { type: Boolean },
 			src: { type: String },
 			timelineVisible: { type: Boolean, attribute: 'timeline-visible' },
 
@@ -69,6 +72,10 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 			.d2l-video-producer-captions-header {
 				margin: 10px 0px 10px 0px;
+			}
+
+			.d2l-video-producer-language-selector {
+				float: right;
 			}
 
 			.d2l-video-producer-timeline {
@@ -223,51 +230,62 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 						<source src="${this.src}" label="${this.format}">
 						${this.captionsUrl ? html`<track default-ignore-preferences src="${this.captionsUrl}" srclang="${this._formatCaptionsSrcLang()}" label="${this.selectedLanguage.name}" kind="subtitles">` : ''}
 					</d2l-labs-media-player>
-					<d2l-tabs>
-						${ (this.enableCutsAndChapters ? html`
-							<d2l-tab-panel
-								selected
-								no-padding
-								text=${this.localize('tableOfContents')}
-							>
-								<d2l-video-producer-chapters
-									.chapters="${this.metadata && this.metadata.chapters}"
-									.defaultLanguage="${this.defaultLanguage}"
-									.selectedLanguage="${this.selectedLanguage}"
-									?loading="${this.metadataLoading}"
-									@add-new-chapter="${this._addNewChapter}"
-									@chapters-changed="${this._handleChaptersChanged}"
-									@set-chapter-to-current-time="${this._setChapterToCurrentTime}"
-								></d2l-video-producer-chapters>
-							</d2l-tab-panel>
-						` : '')}
-						<d2l-tab-panel
-							no-padding
-							text=${this.localize('closedCaptions')}
-						>
-							<!-- d2l-tabs hides the tab header if there is only 1 tab panel -->
-							${(this.enableCutsAndChapters ? '' : html`
-								<div class="d2l-video-producer-captions-header d2l-body-compact">
-									${this.localize('closedCaptions')}
-								</div>
-							`)}
-							<d2l-video-producer-captions
-								.activeCue="${this._activeCue}"
-								.captions="${this.captions}"
-								.mediaPlayerDuration="${this._mediaPlayer?.duration ?? 0}"
-								@captions-cue-added="${this._handleCaptionsCueAdded}"
-								@captions-cue-deleted="${this._handleCaptionsCueDeleted}"
-								@captions-cue-end-timestamp-edited="${this._handleChangeCaptionsCueEndTime}"
-								@captions-cue-start-timestamp-edited="${this._handleChangeCaptionsCueStartTime}"
-								@captions-vtt-replaced=${this._handleCaptionsVttReplaced}
-								.defaultLanguage="${this.defaultLanguage}"
+					<div class="d2l-video-producer-tabs-and-language-selection">
+						${this.languages && this.selectedLanguage ? html`
+							<d2l-video-producer-language-selector
+								class="d2l-video-producer-language-selector"
+								?disabled="${this.saving || this.finishing || this.selectedRevisionIsProcessing}"
 								.languages="${this.languages}"
-								?loading="${this.captionsLoading}"
-								@media-player-time-jumped="${this._handleMediaPlayerTimeJumped}"
 								.selectedLanguage="${this.selectedLanguage}"
-							></d2l-video-producer-captions>
-						</d2l-tab-panel>
-					</d2l-tabs>
+								@selected-language-changed="${this._handleSelectedLanguageChanged}"
+							></d2l-video-producer-language-selector>
+						` : null}
+						<d2l-tabs>
+							${ (this.enableCutsAndChapters ? html`
+								<d2l-tab-panel
+									selected
+									no-padding
+									text=${this.localize('tableOfContents')}
+								>
+									<d2l-video-producer-chapters
+										.chapters="${this.metadata && this.metadata.chapters}"
+										.defaultLanguage="${this.defaultLanguage}"
+										.selectedLanguage="${this.selectedLanguage}"
+										?loading="${this.metadataLoading}"
+										@add-new-chapter="${this._addNewChapter}"
+										@chapters-changed="${this._handleChaptersChanged}"
+										@set-chapter-to-current-time="${this._setChapterToCurrentTime}"
+									></d2l-video-producer-chapters>
+								</d2l-tab-panel>
+							` : '')}
+							<d2l-tab-panel
+								no-padding
+								text=${this.localize('closedCaptions')}
+							>
+								<!-- d2l-tabs hides the tab header if there is only 1 tab panel -->
+								${(this.enableCutsAndChapters ? '' : html`
+									<div class="d2l-video-producer-captions-header d2l-body-compact">
+										${this.localize('closedCaptions')}
+									</div>
+								`)}
+								<d2l-video-producer-captions
+									.activeCue="${this._activeCue}"
+									.captions="${this.captions}"
+									.mediaPlayerDuration="${this._mediaPlayer?.duration ?? 0}"
+									@captions-cue-added="${this._handleCaptionsCueAdded}"
+									@captions-cue-deleted="${this._handleCaptionsCueDeleted}"
+									@captions-cue-end-timestamp-edited="${this._handleChangeCaptionsCueEndTime}"
+									@captions-cue-start-timestamp-edited="${this._handleChangeCaptionsCueStartTime}"
+									@captions-vtt-replaced=${this._handleCaptionsVttReplaced}
+									.defaultLanguage="${this.defaultLanguage}"
+									.languages="${this.languages}"
+									?loading="${this.captionsLoading}"
+									@media-player-time-jumped="${this._handleMediaPlayerTimeJumped}"
+									.selectedLanguage="${this.selectedLanguage}"
+								></d2l-video-producer-captions>
+							</d2l-tab-panel>
+						</d2l-tabs>
+					</div>
 				</div>
 				${(this.enableCutsAndChapters ? html`
 					<div class="d2l-video-producer-timeline" style="visibility: ${this.timelineVisible ? 'visible' : 'hidden'};">
@@ -989,6 +1007,13 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 	_handleSelectedLanguageChanged(e) {
 		this.selectedLanguage = e.detail.selectedLanguage;
+		this.dispatchEvent(new CustomEvent(
+			'selected-language-change',
+			{
+				composed: false,
+				detail: { selectedLanguage: e.detail.selectedLanguage }
+			}
+		));
 	}
 
 	async _handleTrackLoaded() {

@@ -432,7 +432,7 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 				box-sizing: border-box;
 				display: flex;
 				flex-direction: column;
-				height: 532px;
+				height: ${constants.TABS_BODY_HEIGHT}px;
 				justify-content: center;
 				position: relative;
 				width: 360px;
@@ -461,7 +461,7 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 			.d2l-video-producer-captions-cues-list {
 				display: flex;
 				flex-direction: column;
-				height: 481px;
+				height: ${constants.TABS_CONTAINER_HEIGHT}px;
 				margin-top: 43px;
 				overflow-x: hidden;
 				overflow-y: scroll;
@@ -474,7 +474,7 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 				background-color: rgba(255, 255, 255, 0.8);
 				display: flex;
 				flex-direction: column;
-				height: 481px;
+				height: ${constants.TABS_CONTAINER_HEIGHT}px;
 				justify-content: center;
 				left: 0;
 				position: absolute;
