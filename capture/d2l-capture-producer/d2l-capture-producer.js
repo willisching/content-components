@@ -19,6 +19,7 @@ import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';
 import UserBrightspaceClient from './src/user-brightspace-client.js';
 import { convertVttCueArrayToVttText } from './src/captions-utils.js';
+import constants from './src/constants.js';
 
 class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
@@ -215,6 +216,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				${isProcessingFailed ? html`${this._renderProcessingFailedMessage()}` : html``}
 				${isReadyForEdit ? html `
 				<d2l-capture-producer-editor
+					canvasWidth=${constants.CANVAS_WIDTH}
 					.captions="${this._captions}"
 					@captions-auto-generation-started="${this._handleCaptionsAutoGenerationStarted}"
 					@captions-changed="${this._handleCaptionsChanged}"
