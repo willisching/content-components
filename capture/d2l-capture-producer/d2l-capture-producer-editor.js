@@ -163,6 +163,9 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 		this.addEventListener('timeline-first-updated', this.firstUpdatedHelper);
 		this.addEventListener('timeline-updated', this.updatedHelper);
+		this.addEventListener('change-to-cut-mode', this._changeToCutMode);
+		this.addEventListener('change-to-mark-mode', this._changeToMarkMode);
+		this.addEventListener('change-to-seek-mode', this._changeToSeekMode);
 	}
 
 	firstUpdatedHelper() {

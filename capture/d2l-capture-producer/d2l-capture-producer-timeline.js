@@ -161,6 +161,33 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		));
 	}
 
+	_changeToCutMode() {
+		this.dispatchEvent(new CustomEvent(
+			'change-to-cut-mode',
+			{
+				composed: true,
+			}
+		));
+	}
+
+	_changeToMarkMode() {
+		this.dispatchEvent(new CustomEvent(
+			'change-to-mark-mode',
+			{
+				composed: true,
+			}
+		));
+	}
+
+	_changeToSeekMode() {
+		this.dispatchEvent(new CustomEvent(
+			'change-to-seek-mode',
+			{
+				composed: true,
+			}
+		));
+	}
+
 	_getZoomMultiplierDisplay() {
 		if (this._zoomMultiplier <= 10) return `${Math.round(this._zoomMultiplier * 100)}%`;
 
