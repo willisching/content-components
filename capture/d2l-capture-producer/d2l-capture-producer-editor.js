@@ -31,7 +31,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			captions: { type: Array },
 			captionsLoading: { type: Boolean, attribute: 'captions-loading' },
 			captionsUrl: { type: String },
-			canvasWidth: { type: Number },
 			defaultLanguage: { type: Object },
 			enableCutsAndChapters: { type: Boolean },
 			finishing: { type: Boolean },
