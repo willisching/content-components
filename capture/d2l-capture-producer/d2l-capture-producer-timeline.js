@@ -12,7 +12,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 	static get properties() {
 		return {
 			enableCutsAndChapters: { type: Boolean },
-			mediaPlayerDuration: { type: Number },
+			_mediaPlayer: { type: Object },
 			metadata: { type: Object },
 			timelineVisible: { type: Boolean },
 			width: { type: Number },
@@ -170,7 +170,10 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			'timeline-updated',
 			{
 				composed: true,
-				detail: { changedProperties }
+				detail: {
+					changedProperties,
+					_handleActiveChapterUpdated: this._handleActiveChapterUpdated.bind(this),
+				}
 			}
 		));
 	}
@@ -344,8 +347,149 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		return constants.MARK_HEIGHT_MIN + this._getZoomHandleValue();
 	}
 
+	_getCutModeHandlers() {
+		const highlightCut = (event) => {
+			const pixelsAlongTimeline = this._getPixelsAlongTimelineFromStageX(event.stageX);
+
+			const { leftBoundPixels, rightBoundPixels } = this._timeline.getPixelBoundsAtPoint(pixelsAlongTimeline);
+
+			const lowerStageXBound = CaptureProducerEditor._getStageXFromPixelsAlongTimeline(leftBoundPixels);
+			const upperStageXBound = CaptureProducerEditor._getStageXFromPixelsAlongTimeline(rightBoundPixels);
+
+			this._cutHighlight.setTransform(lowerStageXBound, constants.TIMELINE_OFFSET_Y);
+			this._cutHighlight.graphics.clear().beginFill(constants.COLOURS.CUT_HIGHLIGHTED).drawRect(0, 0, upperStageXBound - lowerStageXBound, this._getTimelineHeight());
+			this._cutHighlight.visible = true;
+			this._stage.update();
+		};
+
+		const hideCut = () => {
+			this._cutHighlight.visible = false;
+			this._stage.update();
+		};
+
+		return {
+			timelineMouseDown: () => {},
+			timelineMouseUp: (event) => {
+				const pixelsAlongTimeline = this._getPixelsAlongTimelineFromStageX(event.stageX);
+
+				const cut = this._timeline.addCutAtPoint(pixelsAlongTimeline);
+
+				if (cut) {
+					this._addCutToStage(cut);
+					this._fireMetadataChangedEvent();
+				}
+			},
+			timelinePressMove: () => {},
+			timelinePressUp: () => {},
+			stageMouseMove: (event) => {
+				if (this._isMouseOverTimeline(false)) {
+					highlightCut(event);
+				} else {
+					hideCut();
+					this._timeContainer.visible = false;
+				}
+			}
+		};
+	}
+
+	_getMarkModeHandlers() {
+		return {
+			timelineMouseDown: event => {
+				if (this._currentMark) {
+					this._mouseDownStageX = event.stageX;
+				}
+			},
+			timelineMouseUp: event => {
+				this._clearCurrentMark();
+
+				const pixelsAlongTimeline = this._getPixelsAlongTimelineFromStageX(event.stageX);
+
+				const returnValue = this._timeline.addMarkAtPoint(pixelsAlongTimeline);
+
+				if (!returnValue) {
+					this._currentMark = null;
+					return;
+				}
+
+				const { mark, cut } = returnValue;
+
+				this._addMarkToStage(mark);
+
+				if (cut) {
+					this._updateCutOnStage(cut);
+					this._fireMetadataChangedEvent();
+				}
+			},
+			timelinePressMove: () => {},
+			timelinePressUp: () => {
+				// If mark was just removed (=== null), a cut may have changed
+				if ((this._draggingMark || this._currentMark === null) && this._cutTimeChanged) {
+					this._fireMetadataChangedEvent();
+				}
+				this._cutTimeChanged = false;
+				this._draggingMark = false;
+			},
+			stageMouseMove: () => {
+				if (this._isMouseOverTimeline(false)) {
+					this._setCursorOrCurrentMark(this._stage.mouseX);
+				} else {
+					this._hideCursor();
+					this._draggingMark = false;
+				}
+			}
+		};
+	}
+
 	_getHitBoxHeight() {
 		return constants.HITBOX_HEIGHT_MIN + this._getZoomHandleValue();
+	}
+
+	_getSeekModeHandlers() {
+		const me = this;
+		const seek = event => {
+			if (this._mediaPlayer.duration > 0) {
+				const { lowerTimeBound, upperTimeBound } = this._timeline.getTimeBoundsOfTimeline();
+				const progress = event.localX / me._timelineWidth;
+
+				this._mouseTime = (upperTimeBound - lowerTimeBound) * progress + lowerTimeBound;
+				this._mediaPlayer.currentTime = this._mouseTime;
+				this._updateVideoTime();
+			}
+		};
+
+		const seekMode = {
+			timelineMouseUp: () => {},
+			timelinePressMove: seek,
+			timelinePressUp: () => {
+				this._stage.mouseMoveOutside = false;
+
+				if (this._shouldResumePlaying) {
+					if (this._mediaPlayer.currentTime < this._mediaPlayer.duration) {
+						this._mediaPlayer.play();
+					}
+
+					this._shouldResumePlaying = false;
+				}
+			},
+			stageMouseMove: () => {
+				if (this._isMouseOverContentMarker() && this._activeChapterTime) {
+					this._showAndMoveTimeContainer(this._activeChapterTime);
+				} else {
+					this._timeContainer.visible = false;
+					this._stage.update();
+				}
+			}
+		};
+		seekMode.timelineMouseDown = event => {
+			this._stage.mouseMoveOutside = true;
+
+			this._shouldResumePlaying = !this._mediaPlayer.paused && !this._mediaPlayer.ended;
+			this._mediaPlayer.pause();
+
+			seekMode.timelinePressMove(event);
+		};
+
+		return seekMode;
 	}
 
 	_getZoomMultiplierDisplay() {
@@ -354,10 +498,47 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		return `${Math.round(this._zoomMultiplier)}x`;
 	}
 
+	_handleActiveChapterUpdated({ detail: { chapterTime } }) {
+		if (chapterTime !== null) {
+			this._activeChapterTime = chapterTime;
+			this._contentMarker.visible = true;
+			this._contentMarker.mouseEnabled = true;
+			const stageX = this._getStageXFromTime(chapterTime);
+
+			if (stageX === null) {
+				this._contentMarker.visible = false;
+				this._contentMarker.mouseEnabled = false;
+				this._timeContainer.visible = false;
+			} else {
+				this._contentMarker.setTransform(stageX + constants.CURSOR_OFFSET_X, constants.CURSOR_OFFSET_Y);
+			}
+		} else {
+			this._contentMarker.visible = false;
+			this._contentMarker.mouseEnabled = false;
+			this._timeContainer.visible = false;
+		}
+		this._stage.update();
+	}
+
 	_hideCursor() {
 		this._cursor.displayObject.visible = false;
 		this._timeContainer.visible = false;
 		this._stage.update();
+	}
+
+	_isMouseOverContentMarker() {
+		const underMouse = this._stage.getObjectsUnderPoint(this._stage.mouseX, this._stage.mouseY, 1)[0];
+		return this._contentMarker === underMouse;
+	}
+
+	_isMouseOverTimeline(directlyOver) {
+		const objects = this._stage.getObjectsUnderPoint(this._stage.mouseX, this._stage.mouseY, 1);
+
+		if (directlyOver) {
+			return objects[0] === this._timelineRect;
+		} else {
+			return objects.includes(this._timelineRect);
+		}
 	}
 
 	_onCanvasMouseMove(event) {
@@ -412,7 +593,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		}
 
 		this._timeline = new Timeline({
-			durationSeconds: this.mediaPlayerDuration,
+			durationSeconds: this._mediaPlayer.duration,
 			widthPixels: this._timelineWidth,
 			cuts,
 			zoomMultiplier: this._zoomMultiplier,

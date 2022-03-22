@@ -221,7 +221,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 						@change-to-seek-mode=${this._changeToSeekMode}
 						?enableCutsAndChapters=${this.enableCutsAndChapters}
 						.metadata=${this.metadata}
-						.mediaPlayerDuration="${this._mediaPlayer?.duration ?? 0}"
+						._mediaPlayer=${this._mediaPlayer}
 						?timelineVisible=${this.timelineVisible}
 						@timeline-first-updated=${this.firstUpdatedHelper}
 						@timeline-updated=${this.updatedHelper}
@@ -258,14 +258,12 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	updatedHelper(e) {
 		console.log('updated');
 		const changedProperties = e.detail.changedProperties;
+		const _handleActiveChapterUpdated = e.detail._handleActiveChapterUpdated;
 		super.updated(changedProperties);
 		if (changedProperties.has('enableCutsAndChapters') && this.enableCutsAndChapters) {
 			this._chaptersComponent = this.shadowRoot.querySelector('d2l-video-producer-chapters');
 			this._chaptersComponent.addEventListener('active-chapter-updated',
-				this._handleActiveChapterUpdated.bind(this));
-		}
-		if (this.enableCutsAndChapters && changedProperties.has('metadata') && this.metadata && this._videoLoaded && this._cutsDifferInMetadataAndTimeline()) {
-			this._resetTimelineWithNewCuts(this.metadata.cuts);
+				_handleActiveChapterUpdated);
 		}
 	}
 
