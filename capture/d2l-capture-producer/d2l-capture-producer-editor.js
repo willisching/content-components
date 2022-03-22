@@ -235,7 +235,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	firstUpdatedHelper(e) {
-		console.log('firstUpdated');
 		super.firstUpdated();
 
 		this._mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
@@ -256,7 +255,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	updatedHelper(e) {
-		console.log('updated');
 		const changedProperties = e.detail.changedProperties;
 		const _handleActiveChapterUpdated = e.detail._handleActiveChapterUpdated;
 		super.updated(changedProperties);
