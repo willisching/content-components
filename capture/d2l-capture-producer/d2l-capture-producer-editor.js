@@ -221,9 +221,11 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 						@change-to-seek-mode=${this._changeToSeekMode}
 						?enableCutsAndChapters=${this.enableCutsAndChapters}
 						.metadata=${this.metadata}
+						.mediaPlayerDuration="${this._mediaPlayer?.duration ?? 0}"
 						?timelineVisible=${this.timelineVisible}
 						@timeline-first-updated=${this.firstUpdatedHelper}
 						@timeline-updated=${this.updatedHelper}
+						?_videoLoaded=${this._videoLoaded}
 						width=${this.canvasWidth}
 						_zoomMultiplier=${this._zoomMultiplier}
 					></d2l-capture-producer-timeline>
@@ -232,7 +234,8 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		`;
 	}
 
-	firstUpdatedHelper() {
+	firstUpdatedHelper(e) {
+		console.log('firstUpdated');
 		super.firstUpdated();
 
 		this._mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
@@ -240,8 +243,8 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		// Wait for video to be loaded
 		this._mediaPlayer.addEventListener('loadeddata', () => {
 			if (this.enableCutsAndChapters && this.metadata) {
-				this._resetTimelineWithNewCuts(this.metadata.cuts);
-				this._changeToSeekMode();
+				e.detail.resetTimelineWithNewCuts(this.metadata.cuts);
+				e.detail.changeToSeekMode();
 			}
 			this._videoLoaded = true;
 			this.dispatchEvent(new CustomEvent('media-loaded', { composed: false }));
@@ -253,14 +256,13 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	updatedHelper(e) {
+		console.log('updated');
 		const changedProperties = e.detail.changedProperties;
 		super.updated(changedProperties);
 		if (changedProperties.has('enableCutsAndChapters') && this.enableCutsAndChapters) {
 			this._chaptersComponent = this.shadowRoot.querySelector('d2l-video-producer-chapters');
 			this._chaptersComponent.addEventListener('active-chapter-updated',
 				this._handleActiveChapterUpdated.bind(this));
-			this._configureStage();
-			this._configureModes();
 		}
 		if (this.enableCutsAndChapters && changedProperties.has('metadata') && this.metadata && this._videoLoaded && this._cutsDifferInMetadataAndTimeline()) {
 			this._resetTimelineWithNewCuts(this.metadata.cuts);
@@ -369,31 +371,14 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 	//#region Control mode management
 	_changeToCutMode() {
-		this._controlMode = constants.CONTROL_MODES.CUT;
 		this._mediaPlayer.pause();
-		this._updateMouseEnabledForCuts();
-		this._updateMouseEnabledForMarks();
-		this._contentMarker.mouseEnabled = false;
-		this._hideCursor();
 	}
 
 	_changeToMarkMode() {
-		this._controlMode = constants.CONTROL_MODES.MARK;
 		this._mediaPlayer.pause();
-		this._updateMouseEnabledForCuts();
-		this._updateMouseEnabledForMarks();
-		this._contentMarker.mouseEnabled = false;
-		this._cutHighlight.visible = false;
-		this._stage.update();
 	}
 
 	_changeToSeekMode() {
-		this._controlMode = constants.CONTROL_MODES.SEEK;
-		this._contentMarker.mouseEnabled = true;
-		this._updateMouseEnabledForCuts();
-		this._updateMouseEnabledForMarks();
-		this._cutHighlight.visible = false;
-		this._hideCursor();
 	}
 
 	static _clampNumBetweenMinAndMax(num, min, max) {
