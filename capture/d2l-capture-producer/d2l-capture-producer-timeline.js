@@ -79,6 +79,11 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		`];
 	}
 
+	constructor() {
+		super();
+		this._zoomHandleDragOffsetY = null;
+	}
+
 	firstUpdated() {
 		super.firstUpdated();
 
@@ -246,8 +251,6 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this._zoomHandle.on('pressmove', this._onZoomHandlePressMove.bind(this));
 		this._zoomHandle.on('pressup', this._onZoomHandlePressUp.bind(this));
 		this._stage.addChild(this._zoomHandle);
-
-		console.log(this._zoomHandle);
 
 		this._timelineRect = new Shape();
 		this._timelineRect.setTransform(constants.TIMELINE_OFFSET_X, constants.TIMELINE_OFFSET_Y);
