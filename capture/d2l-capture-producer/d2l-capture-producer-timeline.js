@@ -85,10 +85,6 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			'timeline-first-updated',
 			{
 				composed: false,
-				detail: {
-					resetTimelineWithNewCuts: this._resetTimelineWithNewCuts.bind(this),
-					changeToSeekMode: this._changeToSeekMode.bind(this),
-				}
 			}
 		));
 
@@ -172,7 +168,6 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 				composed: true,
 				detail: {
 					changedProperties,
-					_handleActiveChapterUpdated: this._handleActiveChapterUpdated.bind(this),
 				}
 			}
 		));
@@ -840,6 +835,10 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this._updateVideoTime();
 	}
 
+	get _timelineWidth() {
+		return this.canvasWidth - constants.TIMELINE_OFFSET_X * 2;
+	}
+
 	_updateMarkOnStage(mark) {
 		const pixelsAlongTimeline = mark.getPixelsAlongTimeline();
 
@@ -904,6 +903,35 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		for (const cut of this._timeline.getCutsOnTimeline()) this._addCutToStage(cut);
 
 		this._updateMouseEnabledForCuts();
+	}
+	
+	_updateVideoTime() {
+		// If the timeline is disabled for the current file format, do nothing.
+		if (!this.enableCutsAndChapters) {
+			return;
+		}
+
+		// Clear the seeked time once the video has caught up
+		if (this._mouseTime && Math.abs(this._mouseTime - this._mediaPlayer.currentTime) < 1) {
+			this._mouseTime = null;
+		}
+
+		const { lowerTimeBound, upperTimeBound } = this._timeline.getTimeBoundsOfTimeline();
+
+		const time = this._mouseTime || this._mediaPlayer.currentTime;
+
+		let width;
+
+		if (time < lowerTimeBound) width = 0;
+		else if (time > upperTimeBound) width = this._timelineWidth;
+		else {
+			const progress = (time - lowerTimeBound) / (upperTimeBound - lowerTimeBound);
+
+			width = this._timelineWidth * progress;
+		}
+
+		this._playedRect.graphics.clear().beginFill(constants.COLOURS.TIMELINE_PLAYED).drawRect(0, 0, width, this._getTimelineHeight());
+		this._stage.update();
 	}
 }
 

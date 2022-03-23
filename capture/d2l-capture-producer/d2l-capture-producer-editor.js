@@ -541,37 +541,8 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this._fireCaptionsChangedEvent(textTrackCueListToArray(this._mediaPlayer.textTracks[0].cues));
 	}
 
-	get _timelineWidth() {
-		return this.canvasWidth - constants.TIMELINE_OFFSET_X * 2;
-	}
-
 	_updateVideoTime() {
-		// If the timeline is disabled for the current file format, do nothing.
-		if (!this.enableCutsAndChapters) {
-			return;
-		}
-
-		// Clear the seeked time once the video has caught up
-		if (this._mouseTime && Math.abs(this._mouseTime - this._mediaPlayer.currentTime) < 1) {
-			this._mouseTime = null;
-		}
-
-		const { lowerTimeBound, upperTimeBound } = this._timeline.getTimeBoundsOfTimeline();
-
-		const time = this._mouseTime || this._mediaPlayer.currentTime;
-
-		let width;
-
-		if (time < lowerTimeBound) width = 0;
-		else if (time > upperTimeBound) width = this._timelineWidth;
-		else {
-			const progress = (time - lowerTimeBound) / (upperTimeBound - lowerTimeBound);
-
-			width = this._timelineWidth * progress;
-		}
-
-		this._playedRect.graphics.clear().beginFill(constants.COLOURS.TIMELINE_PLAYED).drawRect(0, 0, width, this._getTimelineHeight());
-		this._stage.update();
+		this._timelineElement._updateVideoTime();
 	}
 }
 customElements.define('d2l-capture-producer-editor', CaptureProducerEditor);
