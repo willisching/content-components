@@ -52,6 +52,7 @@
     "enum": "^3.0.4",
     "file-drop-element": "^1.0.1",
     "ismobilejs": "^1.1.1",
+    "lit": "^2",
     "lit-element": "^3",
     "lit-html": "^2",
     "mobx": "^5.15.6",
