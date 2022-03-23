@@ -756,7 +756,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			this._showAndMoveTimeContainer(this._activeChapterTime);
 		}
 	}
-	
+
 	_onCanvasMouseMove(event) {
 		if (this._zoomHandleDragOffsetY !== null) return;
 
