@@ -34,10 +34,10 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 			disabled: { type: Boolean },
 			dropdownBoundary: { type: Object, attribute: false },
 			id: { type: String },
+			poster: { type: String },
 			revisionId: { type: String, attribute: 'revision-id' },
 			selectable: { type: Boolean },
 			title: { type: String },
-			thumbnail: { type: String },
 			ownerId: { type: String, attribute: 'owner-id' },
 			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
 		};
@@ -96,8 +96,8 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 	}
 
 	render() {
-		const illustration = (this.thumbnail && this.thumbnail !== '') ? html`
-			<img class="d2l-capture-central-video-poster-image" src="${this.thumbnail}" slot="illustration">
+		const illustration = (this.poster && this.poster !== '') ? html`
+			<img class="d2l-capture-central-video-poster-image" src="${this.poster}" slot="illustration">
 		` : html`
 			<d2l-icon icon="tier1:file-video" slot="illustration"></d2l-icon>
 		`;

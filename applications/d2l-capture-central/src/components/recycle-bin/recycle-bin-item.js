@@ -28,9 +28,9 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 			disabled: { type: Boolean },
 			dropdownBoundary: { type: Object, attribute: false },
 			id: { type: String },
+			poster: { type: String },
 			revisionId: { type: String, attribute: 'revision-id' },
 			selectable: { type: Boolean },
-			thumbnail: { type: String },
 			title: { type: String },
 			deleted: {type: Boolean},
 		};
@@ -80,8 +80,8 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 	}
 
 	render() {
-		const illustration = (this.thumbnail && this.thumbnail !== '') ? html`
-			<img class="d2l-capture-central-deleted-poster-image" src="${this.thumbnail}" slot="illustration">
+		const illustration = (this.poster && this.poster !== '') ? html`
+			<img class="d2l-capture-central-deleted-poster-image" src="${this.poster}" slot="illustration">
 		` : html`
 			<d2l-icon icon="tier1:file-video" slot="illustration"></d2l-icon>
 		`;
