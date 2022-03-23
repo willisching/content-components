@@ -11,14 +11,15 @@ import { Timeline } from './src/timeline';
 class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
-			_chaptersComponent: { type: Object },
+			chaptersComponent: { type: Object },
 			enableCutsAndChapters: { type: Boolean },
-			_mediaPlayer: { type: Object },
+			mediaPlayer: { type: Object },
 			metadata: { type: Object },
 			timelineVisible: { type: Boolean },
 			width: { type: Number },
-			_videoLoaded: { type: Boolean },
-			_zoomMultiplier: { type: Number },
+			videoLoaded: { type: Boolean },
+			zoomMultiplier: { type: Number },
+
 			_zoomMultiplierDisplayOpacity: { type: Number, attribute: false },
 		};
 	}
@@ -180,7 +181,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			this._configureModes();
 		}
 
-		if (this.enableCutsAndChapters && changedProperties.has('metadata') && this.metadata && this._videoLoaded && this._cutsDifferInMetadataAndTimeline()) {
+		if (this.enableCutsAndChapters && changedProperties.has('metadata') && this.metadata && this.videoLoaded && this._cutsDifferInMetadataAndTimeline()) {
 			this._resetTimelineWithNewCuts(this.metadata.cuts);
 		}
 
@@ -622,7 +623,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			setMarkStyleHighlighted(markUnderMouse.displayObject);
 			this._showAndMoveTimeContainer(markUnderMouse.seconds);
 		} else if (this._isMouseOverTimeline(false)
-			&& (roundedTime >= 0 && roundedTime < this._mediaPlayer.duration)) {
+			&& (roundedTime >= 0 && roundedTime < this.mediaPlayer.duration)) {
 			this._cursor.time = roundedTime;
 			this._cursor.displayObject.visible = true;
 			this._cursor.displayObject.setTransform(this._getRoundedPosition(stageXPosition) + constants.CURSOR_OFFSET_X, constants.CURSOR_OFFSET_Y);
@@ -639,12 +640,12 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 	_getSeekModeHandlers() {
 		const me = this;
 		const seek = event => {
-			if (this._mediaPlayer.duration > 0) {
+			if (this.mediaPlayer.duration > 0) {
 				const { lowerTimeBound, upperTimeBound } = this._timeline.getTimeBoundsOfTimeline();
 				const progress = event.localX / me._timelineWidth;
 
 				this._mouseTime = (upperTimeBound - lowerTimeBound) * progress + lowerTimeBound;
-				this._mediaPlayer.currentTime = this._mouseTime;
+				this.mediaPlayer.currentTime = this._mouseTime;
 				this._updateVideoTime();
 			}
 		};
@@ -656,8 +657,8 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 				this._stage.mouseMoveOutside = false;
 
 				if (this._shouldResumePlaying) {
-					if (this._mediaPlayer.currentTime < this._mediaPlayer.duration) {
-						this._mediaPlayer.play();
+					if (this.mediaPlayer.currentTime < this.mediaPlayer.duration) {
+						this.mediaPlayer.play();
 					}
 
 					this._shouldResumePlaying = false;
@@ -675,8 +676,8 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		seekMode.timelineMouseDown = event => {
 			this._stage.mouseMoveOutside = true;
 
-			this._shouldResumePlaying = !this._mediaPlayer.paused && !this._mediaPlayer.ended;
-			this._mediaPlayer.pause();
+			this._shouldResumePlaying = !this.mediaPlayer.paused && !this.mediaPlayer.ended;
+			this.mediaPlayer.pause();
 
 			seekMode.timelinePressMove(event);
 		};
@@ -724,7 +725,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 	}
 
 	_getRoundedTime(time) {
-		return Math.min(Math.round(time), Math.floor(this._mediaPlayer.duration));
+		return Math.min(Math.round(time), Math.floor(this.mediaPlayer.duration));
 	}
 
 	_getTimeFromStageX(stageX) {
@@ -747,9 +748,9 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 
 	_getZoomMultiplierDisplay() {
-		if (this._zoomMultiplier <= 10) return `${Math.round(this._zoomMultiplier * 100)}%`;
+		if (this.zoomMultiplier <= 10) return `${Math.round(this.zoomMultiplier * 100)}%`;
 
-		return `${Math.round(this._zoomMultiplier)}x`;
+		return `${Math.round(this.zoomMultiplier)}x`;
 	}
 
 	_handleActiveChapterUpdated({ detail: { chapterTime } }) {
@@ -797,7 +798,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 	_moveContentMarker(event) {
 		if (this._controlMode === constants.CONTROL_MODES.SEEK) {
-			this._chaptersComponent.setChapterToTime(this._getTimeFromStageX(event.stageX));
+			this.chaptersComponent.setChapterToTime(this._getTimeFromStageX(event.stageX));
 			this._showAndMoveTimeContainer(this._activeChapterTime);
 		}
 	}
@@ -867,8 +868,8 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this._contentMarker.graphics.clear().beginFill(constants.COLOURS.CONTENT).drawRect(0, 0, constants.MARK_WIDTH, this._getMarkHeight());
 		this._contentMarkerHitBox.graphics.clear().beginFill(constants.COLOURS.CONTENT_HIT_BOX).drawRect(constants.HITBOX_OFFSET, constants.HITBOX_OFFSET, constants.HITBOX_WIDTH, this._getHitBoxHeight());
 
-		if (this._chaptersComponent.activeChapter !== null) {
-			const time = this._chaptersComponent.activeChapter.time;
+		if (this.chaptersComponent.activeChapter !== null) {
+			const time = this.chaptersComponent.activeChapter.time;
 			const pixelsAlongTimeline = this._timeline.getPixelsAlongTimelineFromTime(time);
 
 			if (pixelsAlongTimeline !== null) {
@@ -894,8 +895,8 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 		// Restart video if paused at end cut.
 		Object.values(this._timeline.getCuts()).reverse().forEach(cut => {
-			if ((!cut.out || (cut.out >= this._mediaPlayer.duration)) && this._mediaPlayer.currentTime === cut.in) {
-				this._mediaPlayer.currentTime = 0;
+			if ((!cut.out || (cut.out >= this.mediaPlayer.duration)) && this.mediaPlayer.currentTime === cut.in) {
+				this.mediaPlayer.currentTime = 0;
 			}
 
 			// Only interested in the last cut, break the loop.
@@ -904,13 +905,13 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 		this._updateTimelineInterval = setInterval(() => {
 			// Skip cuts
-			const cut = this._timeline.getCutOverTime(this._mediaPlayer.currentTime);
+			const cut = this._timeline.getCutOverTime(this.mediaPlayer.currentTime);
 			if (cut) {
-				if (!cut.out || (cut.out >= this._mediaPlayer.duration)) {
-					this._mediaPlayer.currentTime = cut.in;
-					this._mediaPlayer.pause();
+				if (!cut.out || (cut.out >= this.mediaPlayer.duration)) {
+					this.mediaPlayer.currentTime = cut.in;
+					this.mediaPlayer.pause();
 				} else {
-					this._mediaPlayer.currentTime = cut.out;
+					this.mediaPlayer.currentTime = cut.out;
 				}
 			}
 
@@ -952,14 +953,14 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 	}
 
 	_updateZoomMultiplierFromZoomHandle() {
-		if (!this._mediaPlayer) return 1;
+		if (!this.mediaPlayer) return 1;
 
 		const zoomHandleValue = this._getZoomHandleValue();
 
 		// See US130745 for details on this calculation
-		this._zoomMultiplier = Math.max(Math.pow(Math.pow((2 * this._mediaPlayer.duration * constants.MARK_WIDTH / this._timelineWidth), 1 / constants.ZOOM_HANDLE_MAX_DEPTH), zoomHandleValue), 1);
+		this.zoomMultiplier = Math.max(Math.pow(Math.pow((2 * this.mediaPlayer.duration * constants.MARK_WIDTH / this._timelineWidth), 1 / constants.ZOOM_HANDLE_MAX_DEPTH), zoomHandleValue), 1);
 
-		this._timeline.zoomMultiplier = this._zoomMultiplier;
+		this._timeline.zoomMultiplier = this.zoomMultiplier;
 	}
 
 	_resetTimelineWithNewCuts(cuts) {
@@ -972,10 +973,10 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		}
 
 		this._timeline = new Timeline({
-			durationSeconds: this._mediaPlayer.duration,
+			durationSeconds: this.mediaPlayer.duration,
 			widthPixels: this._timelineWidth,
 			cuts,
-			zoomMultiplier: this._zoomMultiplier,
+			zoomMultiplier: this.zoomMultiplier,
 			pixelsAlongTimelineToZoomAround: this._timeline?.pixelsAlongTimelineToZoomAround
 		});
 
@@ -995,13 +996,13 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		}
 
 		// Clear the seeked time once the video has caught up
-		if (this._mouseTime && Math.abs(this._mouseTime - this._mediaPlayer.currentTime) < 1) {
+		if (this._mouseTime && Math.abs(this._mouseTime - this.mediaPlayer.currentTime) < 1) {
 			this._mouseTime = null;
 		}
 
 		const { lowerTimeBound, upperTimeBound } = this._timeline.getTimeBoundsOfTimeline();
 
-		const time = this._mouseTime || this._mediaPlayer.currentTime;
+		const time = this._mouseTime || this.mediaPlayer.currentTime;
 
 		let width;
 

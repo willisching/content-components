@@ -15,7 +15,6 @@ import './src/d2l-video-producer-captions.js';
 import './src/d2l-video-producer-chapters.js';
 import './d2l-capture-producer-timeline.js';
 
-import { Container, Shape, Stage, Text } from '@createjs/easeljs';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import constants from './src/constants.js';
 import { InternalLocalizeMixin } from './src/internal-localize-mixin.js';
@@ -48,7 +47,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			_activeCue: { type: Object, attribute: false },
 			_chaptersComponent: { type: Object, attribute: false},
 			_zoomMultiplier: { type: Number, attribute: false },
-			_zoomMultiplierDisplayOpacity: { type: Number, attribute: false },
 		};
 	}
 
@@ -200,19 +198,19 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 				</div>
 				${(this.enableCutsAndChapters ? html`
 					<d2l-capture-producer-timeline
-						._chaptersComponent=${this._chaptersComponent}
+						.chaptersComponent=${this._chaptersComponent}
 						@change-to-cut-mode=${this._changeToCutMode}
 						@change-to-mark-mode=${this._changeToMarkMode}
 						@change-to-seek-mode=${this._changeToSeekMode}
 						?enableCutsAndChapters=${this.enableCutsAndChapters}
 						.metadata=${this.metadata}
-						._mediaPlayer=${this._mediaPlayer}
+						.mediaPlayer=${this._mediaPlayer}
 						?timelineVisible=${this.timelineVisible}
 						@timeline-first-updated=${this.firstUpdatedHelper}
 						@timeline-updated=${this.updatedHelper}
-						?_videoLoaded=${this._videoLoaded}
+						?videoLoaded=${this._videoLoaded}
 						width=${this.canvasWidth}
-						_zoomMultiplier=${this._zoomMultiplier}
+						zoomMultiplier=${this._zoomMultiplier}
 					></d2l-capture-producer-timeline>
 				` : '')}
 			</div>
