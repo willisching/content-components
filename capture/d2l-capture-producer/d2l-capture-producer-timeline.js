@@ -300,9 +300,9 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this._contentMarker.mouseEnabled = false;
 		this._hideCursor();
 		this.dispatchEvent(new CustomEvent(
-			'change-to-cut-mode',
+			'pause-media-player',
 			{
-				composed: true,
+				composed: false,
 			}
 		));
 	}
@@ -315,9 +315,9 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this._cutHighlight.visible = false;
 		this._stage.update();
 		this.dispatchEvent(new CustomEvent(
-			'change-to-mark-mode',
+			'pause-media-player',
 			{
-				composed: true,
+				composed: false,
 			}
 		));
 	}

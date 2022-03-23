@@ -198,9 +198,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 				${(this.enableCutsAndChapters ? html`
 					<d2l-capture-producer-timeline
 						.chaptersComponent=${this._chaptersComponent}
-						@change-to-cut-mode=${this._changeToCutMode}
-						@change-to-mark-mode=${this._changeToMarkMode}
-						@change-to-seek-mode=${this._changeToSeekMode}
+						@pause-media-player=${this._pauseMediaPlayer}
 						?enableCutsAndChapters=${this.enableCutsAndChapters}
 						.metadata=${this.metadata}
 						.mediaPlayer=${this._mediaPlayer}
@@ -250,18 +248,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	//#region Chapter management
 	_addNewChapter() {
 		this._chaptersComponent.addNewChapter(this._mediaPlayer.currentTime);
-	}
-
-	//#region Control mode management
-	_changeToCutMode() {
-		this._mediaPlayer.pause();
-	}
-
-	_changeToMarkMode() {
-		this._mediaPlayer.pause();
-	}
-
-	_changeToSeekMode() {
 	}
 
 	//#endregion
@@ -432,6 +418,10 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 				composed: true,
 			}));
 		}
+	}
+
+	_pauseMediaPlayer() {
+		this._mediaPlayer.pause();
 	}
 
 	//#region Video time management
