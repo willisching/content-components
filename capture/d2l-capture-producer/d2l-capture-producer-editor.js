@@ -46,6 +46,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			timelineVisible: { type: Boolean, attribute: 'timeline-visible' },
 
 			_activeCue: { type: Object, attribute: false },
+			_chaptersComponent: { type: Object, attribute: false},
 			_zoomMultiplier: { type: Number, attribute: false },
 			_zoomMultiplierDisplayOpacity: { type: Number, attribute: false },
 		};
@@ -216,6 +217,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 				</div>
 				${(this.enableCutsAndChapters ? html`
 					<d2l-capture-producer-timeline
+						._chaptersComponent=${this._chaptersComponent}
 						@change-to-cut-mode=${this._changeToCutMode}
 						@change-to-mark-mode=${this._changeToMarkMode}
 						@change-to-seek-mode=${this._changeToSeekMode}

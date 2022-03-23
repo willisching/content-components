@@ -11,6 +11,7 @@ import { Timeline } from './src/timeline';
 class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
+			_chaptersComponent: { type: Object },
 			enableCutsAndChapters: { type: Boolean },
 			_mediaPlayer: { type: Object },
 			metadata: { type: Object },
