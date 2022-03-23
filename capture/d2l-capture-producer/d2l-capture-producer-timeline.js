@@ -19,6 +19,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			width: { type: Number },
 			_videoLoaded: { type: Boolean },
 			_zoomMultiplier: { type: Number },
+			_zoomMultiplierDisplayOpacity: { type: Number, attribute: false },
 		};
 	}
 
