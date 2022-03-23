@@ -179,7 +179,7 @@ class ContentList extends CaptureCentralList {
 			revision-id=${item.revisionId}
 			owner-id=${item.ownerId}
 			title=${item.title}
-			thumbnail=${ifDefined(item.thumbnail)}
+			poster=${ifDefined(item.poster)}
 			description=${item.description}
 			?can-transfer-ownership=${this.canTransferOwnership}
 			@content-list-item-renamed=${this.contentListItemRenamedHandler}

@@ -108,7 +108,7 @@ class RecycleBinList extends CaptureCentralList {
 		<recycle-bin-item
 			id=${item.id}
 			revision-id=${item.revisionId}
-			thumbnail=${ifDefined(item.thumbnail)}
+			poster=${ifDefined(item.poster)}
 			title=${item.title}
 			description=${item.description}
 			@recycle-bin-item-restored=${this.recycleBinItemRestoredHandler}

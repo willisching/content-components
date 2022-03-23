@@ -192,13 +192,13 @@ export class Uploader {
 				}
 
 				if (ready && upload.progress === 100) {
-					let thumbnail;
+					let poster;
 					try {
-						thumbnail = (await this.apiClient.getPoster({ contentId: content.id, revisionId: revision.id })).value;
+						poster = (await this.apiClient.getPoster({ contentId: content.id, revisionId: revision.id })).value;
 					} catch (error) {
-						// Ignore if the thumbnail can't be retrieved. An icon will be shown instead of the thumbnail image.
+						// Ignore if the poster can't be retrieved. An icon will be shown instead of the poster image.
 					}
-					this.successfulUpload = { upload, content, revision, thumbnail };
+					this.successfulUpload = { upload, content, revision, poster };
 				}
 			});
 		} catch (error) {
