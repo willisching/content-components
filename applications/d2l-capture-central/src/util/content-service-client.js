@@ -88,6 +88,12 @@ export default class ContentServiceClient {
 		});
 	}
 
+	getPoster({ contentId, revisionId }) {
+		return this._fetch({
+			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/resources/poster/signed-url`
+		});
+	}
+
 	getPreviewUrl({
 		contentId,
 		revisionId

@@ -61,7 +61,7 @@ export const contentSearchMixin = superClass => class extends superClass {
 			contentType: 'video',
 			clientApps: clientApps.join(','),
 			createdAt: createdAt,
-			includeThumbnails: false,
+			includeThumbnails: true,
 			query: query,
 			sort: sort,
 			start: this._start,

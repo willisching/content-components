@@ -37,6 +37,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 			revisionId: { type: String, attribute: 'revision-id' },
 			selectable: { type: Boolean },
 			title: { type: String },
+			thumbnail: { type: String },
 			ownerId: { type: String, attribute: 'owner-id' },
 			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
 		};
@@ -56,6 +57,20 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 
 			.d2l-body-compact {
 				position: relative;
+			}
+
+			.d2l-capture-central-video-item-illustration {
+				align-items: center;
+				display: flex;
+				height: 64px;
+				justify-content: center;
+				width: 64px;
+			}
+
+			.d2l-capture-central-video-poster-image {
+				height: 100%;
+				object-fit: cover;
+				width: 100%;
 			}
 		`];
 	}
@@ -81,17 +96,24 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 	}
 
 	render() {
+		const illustration = (this.thumbnail && this.thumbnail !== '') ? html`
+			<img class="d2l-capture-central-video-poster-image" src="${this.thumbnail}" slot="illustration">
+		` : html`
+			<d2l-icon icon="tier1:file-video" slot="illustration"></d2l-icon>
+		`;
+
 		return html`
 			<d2l-list-item class="d2l-body-compact"
 				?disabled=${this.disabled}
 				@click=${this.dispatchPreviewEvent}
 				href="#"
 				label="${this.title}"
+				padding-type='slim'
 				?selectable=${this.selectable}
 				key=${this.id}
 			>
-				<div slot="illustration">
-					<slot name="icon"></slot>
+				<div class="d2l-capture-central-video-item-illustration" slot="illustration">
+					${illustration}
 				</div>
 
 				<content-list-columns>

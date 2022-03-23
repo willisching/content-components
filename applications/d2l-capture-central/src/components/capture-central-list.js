@@ -85,10 +85,11 @@ export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixi
 		const { id: revisionId, type } = item.revision;
 		const { id } = item.content;
 		const { ownerDisplayName } = item;
+		const { thumbnail } = item;
 		const updatedAt = (new Date()).toISOString();
 
 		await this.insertIntoContentItemsBasedOnSort({
-			id, revisionId, type, title, ownerDisplayName, updatedAt
+			id, revisionId, type, title, ownerDisplayName, updatedAt, thumbnail
 		});
 	}
 

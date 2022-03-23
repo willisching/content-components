@@ -1,7 +1,6 @@
 import '@brightspace-ui/core/components/alert/alert-toast.js';
 import '@brightspace-ui/core/components/button/button-icon.js';
 import '@brightspace-ui/core/components/colors/colors.js';
-import '@brightspace-ui/core/components/icons/icon.js';
 import '@brightspace-ui/core/components/list/list-item.js';
 import '@brightspace-ui/core/components/list/list.js';
 import '../relative-date.js';
@@ -11,6 +10,7 @@ import './recycle-bin-item.js';
 import { CaptureCentralList, recycleBinPage  } from '../capture-central-list.js';
 
 import { html } from 'lit-element/lit-element.js';
+import { ifDefined } from 'lit-html/directives/if-defined.js';
 
 class RecycleBinList extends CaptureCentralList {
 	constructor() {
@@ -108,12 +108,12 @@ class RecycleBinList extends CaptureCentralList {
 		<recycle-bin-item
 			id=${item.id}
 			revision-id=${item.revisionId}
+			thumbnail=${ifDefined(item.thumbnail)}
 			title=${item.title}
 			description=${item.description}
 			@recycle-bin-item-restored=${this.recycleBinItemRestoredHandler}
 			@recycle-bin-item-destroyed=${this.recycleBinItemDestroyHandler}
 		>
-			<d2l-icon icon="tier1:file-video" slot="icon"></d2l-icon>
 			<div slot="title" class="title">${item.title}</div>
 			<div slot="description">${item.description}</div>
 			<relative-date slot="date" value=${item[this.dateField]}></relative-date>

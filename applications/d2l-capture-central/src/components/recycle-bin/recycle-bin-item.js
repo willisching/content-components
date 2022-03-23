@@ -30,6 +30,7 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 			id: { type: String },
 			revisionId: { type: String, attribute: 'revision-id' },
 			selectable: { type: Boolean },
+			thumbnail: { type: String },
 			title: { type: String },
 			deleted: {type: Boolean},
 		};
@@ -42,6 +43,18 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 			}
 			recycle-bin-list-columns div {
 				margin-right: 5px;
+			}
+			.d2l-capture-central-deleted-item-illustration {
+				align-items: center;
+				display: flex;
+				height: 64px;
+				justify-content: center;
+				width: 64px;
+			}
+			.d2l-capture-central-deleted-poster-image {
+				height: 100%;
+				object-fit: cover;
+				width: 100%;
 			}
 		`];
 	}
@@ -67,15 +80,22 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 	}
 
 	render() {
+		const illustration = (this.thumbnail && this.thumbnail !== '') ? html`
+			<img class="d2l-capture-central-deleted-poster-image" src="${this.thumbnail}" slot="illustration">
+		` : html`
+			<d2l-icon icon="tier1:file-video" slot="illustration"></d2l-icon>
+		`;
+
 		return html`
 			<d2l-list-item class="d2l-body-compact"
 				?disabled=${this.disabled}
 				label="${this.title}"
+				padding-type='slim'
 				?selectable=${this.selectable}
 				key=${this.id}
 			>
-				<div slot="illustration">
-					<slot name="icon"></slot>
+				<div class="d2l-capture-central-deleted-item-illustration" slot="illustration">
+					${illustration}
 				</div>
 
 				<recycle-bin-list-columns>
