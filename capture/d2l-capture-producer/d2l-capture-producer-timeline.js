@@ -335,6 +335,29 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		return timelineCutsString !== metadataCutsString;
 	}
 
+	_displayZoomMultiplier() {
+		clearInterval(this._zoomMultiplierFadeIntervalId);
+
+		this._zoomMultiplierDisplayTimestamp = Date.now();
+		this._zoomMultiplierDisplayOpacity = 1;
+
+		this._zoomMultiplierFadeIntervalId = setInterval(() => {
+			const millisecondsSinceDisplay = Date.now() - this._zoomMultiplierDisplayTimestamp;
+
+			if (millisecondsSinceDisplay <= constants.ZOOM_MULTIPLIER_DISPLAY.TIME_BEFORE_FADE) return;
+			else if (millisecondsSinceDisplay >= constants.ZOOM_MULTIPLIER_DISPLAY.TOTAL_TIME) {
+				this._zoomMultiplierDisplayOpacity = 0;
+
+				clearInterval(this._zoomMultiplierFadeIntervalId);
+				this._zoomMultiplierFadeIntervalId = null;
+				return;
+			} else {
+				const millisecondsSinceStartedFading = millisecondsSinceDisplay - constants.ZOOM_MULTIPLIER_DISPLAY.TIME_BEFORE_FADE;
+				this._zoomMultiplierDisplayOpacity = 1 - millisecondsSinceStartedFading / constants.ZOOM_MULTIPLIER_DISPLAY.FADE_TIME;
+			}
+		}, constants.ZOOM_MULTIPLIER_DISPLAY.FADE_INTERVAL);
+	}
+
 	_getTimelineHeight() {
 		return constants.TIMELINE_HEIGHT_MIN + this._getZoomHandleValue();
 	}
@@ -347,14 +370,44 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		return constants.MARK_HEIGHT_MIN + this._getZoomHandleValue();
 	}
 
+	_getMarkUnderMouse() {
+		const pixelsAlongTimeline = this._getPixelsAlongTimelineFromStageX(this._stage.mouseX);
+
+		let minDiff = null;
+		let closestMark = null;
+
+		for (const mark of this._timeline.getMarksOnTimeline()) {
+			const pixelsAlongTimelineOfMark = mark.getPixelsAlongTimeline();
+
+			const diff = Math.abs(pixelsAlongTimeline - pixelsAlongTimelineOfMark);
+
+			if (diff > constants.HITBOX_WIDTH / 2) continue;
+
+			if (minDiff === null) minDiff = diff;
+
+			if (diff <= minDiff) {
+				minDiff = diff;
+				closestMark = mark;
+			}
+		}
+
+		return closestMark;
+	}
+
+	_getRoundedPosition(stageXPosition) {
+		const time = this._getTimeFromStageX(stageXPosition);
+		const roundedTime = this._getRoundedTime(time);
+		return this._getStageXFromTime(roundedTime);
+	}
+
 	_getCutModeHandlers() {
 		const highlightCut = (event) => {
 			const pixelsAlongTimeline = this._getPixelsAlongTimelineFromStageX(event.stageX);
 
 			const { leftBoundPixels, rightBoundPixels } = this._timeline.getPixelBoundsAtPoint(pixelsAlongTimeline);
 
-			const lowerStageXBound = CaptureProducerEditor._getStageXFromPixelsAlongTimeline(leftBoundPixels);
-			const upperStageXBound = CaptureProducerEditor._getStageXFromPixelsAlongTimeline(rightBoundPixels);
+			const lowerStageXBound = this._getStageXFromPixelsAlongTimeline(leftBoundPixels);
+			const upperStageXBound = this._getStageXFromPixelsAlongTimeline(rightBoundPixels);
 
 			this._cutHighlight.setTransform(lowerStageXBound, constants.TIMELINE_OFFSET_Y);
 			this._cutHighlight.graphics.clear().beginFill(constants.COLOURS.CUT_HIGHLIGHTED).drawRect(0, 0, upperStageXBound - lowerStageXBound, this._getTimelineHeight());
@@ -390,6 +443,12 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 				}
 			}
 		};
+	}
+
+	_getStageXFromTime(time) {
+		const pixelsAlongTimeline = this._timeline.getPixelsAlongTimelineFromTime(time);
+
+		return this._getStageXFromPixelsAlongTimeline(pixelsAlongTimeline);
 	}
 
 	_getMarkModeHandlers() {
@@ -438,6 +497,107 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 				}
 			}
 		};
+	}
+
+	_addMarkToStage(mark) {
+		const pixelsAlongTimeline = mark.getPixelsAlongTimeline();
+
+		const displayObject = new Shape();
+		const stageX = this._getStageXFromPixelsAlongTimeline(pixelsAlongTimeline);
+
+		displayObject.setTransform(stageX + constants.CURSOR_OFFSET_X, constants.CURSOR_OFFSET_Y);
+		displayObject.graphics.beginFill(constants.COLOURS.MARK_HIGHLIGHTED).drawRect(0, 0, constants.MARK_WIDTH, this._getMarkHeight());
+
+		displayObject.on('click', () => {
+			if (this._draggingMark) return;
+
+			const { cutEndingAtMark, cutStartingAtMark } = mark.removeFromTimeline();
+
+			this._stage.removeChild(mark.displayObject);
+
+			if (cutStartingAtMark) this._stage.removeChild(cutStartingAtMark.displayObject);
+
+			if (cutEndingAtMark) this._updateCutOnStage(cutEndingAtMark);
+
+			if (cutStartingAtMark || cutEndingAtMark) {
+				this._fireMetadataChangedEvent();
+			}
+
+			this._stage.update();
+		});
+
+		displayObject.on('pressup', () => {
+			this._draggingMark = false;
+		});
+
+		displayObject.on('pressmove', event => {
+			const pixelsAlongTimelineToMoveTo = this._getPixelsAlongTimelineFromStageX(event.stageX);
+
+			const returnValue = mark.move(pixelsAlongTimelineToMoveTo);
+
+			if (returnValue) {
+				this._updateMarkOnStage(mark);
+
+				const { cutEndingAtMark, cutStartingAtMark } = returnValue;
+
+				if (cutEndingAtMark) this._updateCutOnStage(cutEndingAtMark);
+
+				if (cutStartingAtMark) this._updateCutOnStage(cutStartingAtMark);
+
+				if (cutStartingAtMark || cutEndingAtMark) {
+					this._fireMetadataChangedEvent();
+				}
+			}
+			this._draggingMark = true;
+		});
+
+		mark.displayObject = displayObject;
+
+		const hitArea = new Shape();
+		hitArea.graphics.beginFill(constants.COLOURS.CONTENT_HIT_BOX).drawRect(constants.HITBOX_OFFSET, constants.HITBOX_OFFSET, constants.HITBOX_WIDTH, this._getHitBoxHeight());
+		displayObject.hitArea = hitArea;
+
+		this._stage.addChildAt(displayObject, this._stage.numChildren - 1);
+
+		this._clearCurrentMark();
+
+		this._currentMark = mark;
+
+		this._setMarkStyleNormal(this._currentMark);
+
+		this._stage.update();
+	}
+
+	_setCursorOrCurrentMark(stageXPosition) {
+		if (this._zoomHandleDragOffsetY !== null) return;
+
+		const roundedTime = this._getRoundedTime(this._getTimeFromStageX(stageXPosition));
+
+		// Always start with no mark selected/no cursor shown
+		this._cursor.displayObject.visible = false;
+		this._timeContainer.visible = false;
+
+		this._clearCurrentMark();
+
+		const setMarkStyleHighlighted = (mark) => {
+			mark.graphics.clear().beginFill(constants.COLOURS.MARK_HIGHLIGHTED).drawRect(0, 0, constants.MARK_WIDTH, this._getMarkHeight());
+		};
+
+		// Check for mousing over a mark first. This takes precidence over the timeline.
+		const markUnderMouse = this._getMarkUnderMouse();
+		if (markUnderMouse) {
+			this._currentMark = markUnderMouse;
+			setMarkStyleHighlighted(markUnderMouse.displayObject);
+			this._showAndMoveTimeContainer(markUnderMouse.seconds);
+		} else if (this._isMouseOverTimeline(false)
+			&& (roundedTime >= 0 && roundedTime < this._mediaPlayer.duration)) {
+			this._cursor.time = roundedTime;
+			this._cursor.displayObject.visible = true;
+			this._cursor.displayObject.setTransform(this._getRoundedPosition(stageXPosition) + constants.CURSOR_OFFSET_X, constants.CURSOR_OFFSET_Y);
+			this._showAndMoveTimeContainer(this._cursor.time);
+		}
+
+		this._stage.update();
 	}
 
 	_getHitBoxHeight() {
@@ -492,6 +652,51 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		return seekMode;
 	}
 
+	_addCutToStage(cut) {
+		const { inPixels, outPixels } = cut.getPixelsAlongTimeline();
+
+		const displayObject = new Shape();
+		const stageX = this._getStageXFromPixelsAlongTimeline(inPixels);
+		const width = outPixels - inPixels + 1;
+
+		displayObject.setTransform(stageX, constants.TIMELINE_OFFSET_Y);
+		displayObject.graphics.beginFill(constants.COLOURS.CUT).drawRect(0, 0, width, this._getTimelineHeight());
+		displayObject.alpha = 0.5;
+
+		displayObject.on('click', () => {
+			cut.removeFromTimeline();
+			this._stage.removeChild(cut.displayObject);
+			this._stage.update();
+
+			this._fireMetadataChangedEvent();
+		});
+
+		cut.displayObject = displayObject;
+
+		this._stage.addChildAt(displayObject, this._stage.numChildren - this._timeline.getMarksOnTimeline().length - 1);
+
+		this._stage.update();
+	}
+
+	_getTimeFromStageX(stageX) {
+		const clampedTimelineStageX = CaptureProducerEditor._clampNumBetweenMinAndMax(stageX, constants.TIMELINE_OFFSET_X, constants.TIMELINE_OFFSET_X + this._timelineWidth);
+
+		const pixelsAlongTimeline = this._getPixelsAlongTimelineFromStageX(clampedTimelineStageX);
+
+		return this._timeline.getTimeFromPixelsAlongTimeline(pixelsAlongTimeline);
+	}
+
+	_getPixelsAlongTimelineFromStageX(stageX) {
+		return CaptureProducerEditor._clampNumBetweenMinAndMax(stageX - constants.TIMELINE_OFFSET_X, 0, this._timelineWidth);
+	}
+
+	_getStageXFromPixelsAlongTimeline(pixelsAlongTimeline) {
+		return pixelsAlongTimeline === null
+			? null
+			: pixelsAlongTimeline + constants.TIMELINE_OFFSET_X;
+	}
+
+
 	_getZoomMultiplierDisplay() {
 		if (this._zoomMultiplier <= 10) return `${Math.round(this._zoomMultiplier * 100)}%`;
 
@@ -541,6 +746,13 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		}
 	}
 
+	_moveContentMarker(event) {
+		if (this._controlMode === constants.CONTROL_MODES.SEEK) {
+			this._chaptersComponent.setChapterToTime(this._getTimeFromStageX(event.stageX));
+			this._showAndMoveTimeContainer(this._activeChapterTime);
+		}
+	}
+
 	_onCanvasMouseMove(event) {
 		if (this._zoomHandleDragOffsetY !== null) return;
 
@@ -575,12 +787,97 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this._zoomHandleDragOffsetY = null;
 	}
 
+	_showAndMoveTimeContainer(time) {
+		if (time) {
+			this._timeText.text = new Date(time * 1000).toISOString().substr(11, 8);
+			this._timeContainer.visible = true;
+
+			const stageX = this._getStageXFromTime(time);
+			this._timeContainer.x = Math.min(
+				Math.max(stageX + constants.TIME_CONTAINER_OFFSET_X, constants.TIMELINE_OFFSET_X),
+				constants.TIMELINE_OFFSET_X + this._timelineWidth - constants.TIME_TEXT_BORDER_WIDTH
+			);
+			this._timeContainer.y = constants.TIME_CONTAINER_OFFSET_Y + this._getZoomHandleValue();
+			this._stage.update();
+		}
+	}
+
+	_recalculateDisplayObjectsAfterZoomChange() {
+		for (const mark of this._timeline.getMarks()) this._stage.removeChild(mark.displayObject);
+
+		for (const cut of this._timeline.getCuts()) this._stage.removeChild(cut.displayObject);
+
+		for (const mark of this._timeline.getMarksOnTimeline()) this._addMarkToStage(mark);
+
+		this._updateMouseEnabledForMarks();
+
+		for (const cut of this._timeline.getCutsOnTimeline()) this._addCutToStage(cut);
+
+		this._updateMouseEnabledForCuts();
+
+		this._contentMarker.graphics.clear().beginFill(constants.COLOURS.CONTENT).drawRect(0, 0, constants.MARK_WIDTH, this._getMarkHeight());
+		this._contentMarkerHitBox.graphics.clear().beginFill(constants.COLOURS.CONTENT_HIT_BOX).drawRect(constants.HITBOX_OFFSET, constants.HITBOX_OFFSET, constants.HITBOX_WIDTH, this._getHitBoxHeight());
+
+		if (this._chaptersComponent.activeChapter !== null) {
+			const time = this._chaptersComponent.activeChapter.time;
+			const pixelsAlongTimeline = this._timeline.getPixelsAlongTimelineFromTime(time);
+
+			if (pixelsAlongTimeline !== null) {
+				const stageX = this._getStageXFromPixelsAlongTimeline(pixelsAlongTimeline);
+
+				this._contentMarker.visible = true;
+				this._contentMarker.setTransform(stageX + constants.CURSOR_OFFSET_X, constants.CURSOR_OFFSET_Y);
+			} else this._contentMarker.visible = false;
+		}
+
+		this._cursor.displayObject.graphics.clear().beginFill(constants.COLOURS.MARK).drawRect(0, 0, constants.MARK_WIDTH, this._getMarkHeight());
+
+		this._timelineRect.graphics.clear().beginFill(constants.COLOURS.TIMELINE).drawRect(0, 0, this._timelineWidth, this._getTimelineHeight());
+
+		const newZoomHandleColour = this._getZoomHandleValue() === 0 ? constants.COLOURS.ZOOM_HANDLE_UNSET : constants.COLOURS.ZOOM_HANDLE_SET;
+		this._zoomHandle.graphics.clear().beginFill(newZoomHandleColour).drawRect(0, 0, constants.ZOOM_HANDLE_WIDTH, constants.ZOOM_HANDLE_HEIGHT);
+
+		this._updateVideoTime();
+	}
+
+	_updateMarkOnStage(mark) {
+		const pixelsAlongTimeline = mark.getPixelsAlongTimeline();
+
+		const stageX = this._getStageXFromPixelsAlongTimeline(pixelsAlongTimeline);
+
+		mark.displayObject.setTransform(stageX + constants.CURSOR_OFFSET_X, constants.CURSOR_OFFSET_Y);
+
+		this._stage.update();
+	}
+
 	_updateMouseEnabledForCuts() {
 		this._timeline.getCutsOnTimeline().forEach(cut => cut.displayObject.mouseEnabled = (this._controlMode === constants.CONTROL_MODES.CUT));
 	}
 
 	_updateMouseEnabledForMarks() {
 		this._timeline.getMarksOnTimeline().forEach(mark => mark.displayObject.mouseEnabled = this._controlMode === constants.CONTROL_MODES.MARK);
+	}
+
+	_updateCutOnStage(cut) {
+		const { inPixels, outPixels } = cut.getPixelsAlongTimeline();
+		const width = outPixels - inPixels + 1;
+		const stageX = this._getStageXFromPixelsAlongTimeline(inPixels);
+
+		cut.displayObject.setTransform(stageX, constants.TIMELINE_OFFSET_Y);
+		cut.displayObject.graphics.clear().beginFill(constants.COLOURS.CUT).drawRect(0, 0, width, this._getTimelineHeight());
+
+		this._stage.update();
+	}
+
+	_updateZoomMultiplierFromZoomHandle() {
+		if (!this._mediaPlayer) return 1;
+
+		const zoomHandleValue = this._getZoomHandleValue();
+
+		// See US130745 for details on this calculation
+		this._zoomMultiplier = Math.max(Math.pow(Math.pow((2 * this._mediaPlayer.duration * constants.MARK_WIDTH / this._timelineWidth), 1 / constants.ZOOM_HANDLE_MAX_DEPTH), zoomHandleValue), 1);
+
+		this._timeline.zoomMultiplier = this._zoomMultiplier;
 	}
 
 	_resetTimelineWithNewCuts(cuts) {
