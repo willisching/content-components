@@ -234,16 +234,17 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		`;
 	}
 
-	firstUpdatedHelper(e) {
+	firstUpdatedHelper() {
 		super.firstUpdated();
 
 		this._mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
+		this._timelineElement = this.shadowRoot.querySelector('d2l-capture-producer-timeline');
 
 		// Wait for video to be loaded
 		this._mediaPlayer.addEventListener('loadeddata', () => {
 			if (this.enableCutsAndChapters && this.metadata) {
-				e.detail.resetTimelineWithNewCuts(this.metadata.cuts);
-				e.detail.changeToSeekMode();
+				this._timelineElement._resetTimelineWithNewCuts(this.metadata.cuts);
+				this._timelineElement._changeToSeekMode();
 			}
 			this._videoLoaded = true;
 			this.dispatchEvent(new CustomEvent('media-loaded', { composed: false }));
@@ -256,12 +257,11 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 	updatedHelper(e) {
 		const changedProperties = e.detail.changedProperties;
-		const _handleActiveChapterUpdated = e.detail._handleActiveChapterUpdated;
 		super.updated(changedProperties);
 		if (changedProperties.has('enableCutsAndChapters') && this.enableCutsAndChapters) {
 			this._chaptersComponent = this.shadowRoot.querySelector('d2l-video-producer-chapters');
 			this._chaptersComponent.addEventListener('active-chapter-updated',
-				_handleActiveChapterUpdated);
+				this._timelineElement._handleActiveChapterUpdated.bind(this._timelineElement));
 		}
 	}
 
