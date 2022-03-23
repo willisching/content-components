@@ -352,7 +352,10 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 	}
 
 	openEditDescriptionDialog() {
-		this.description = this.description === 'undefined' ? '' : this.description;
+		if (this.description === 'undefined') {
+			this.description = '';
+			this.confirmEditDescriptionDisabled = true;
+		}
 		return async() => {
 			const action = await this.shadowRoot.querySelector('#edit-description-dialog').open();
 			const descriptionInputElement = this.shadowRoot.querySelector('#edit-description-input');
