@@ -454,16 +454,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		}
 	}
 
-	_isMouseOverTimeline(directlyOver) {
-		const objects = this._stage.getObjectsUnderPoint(this._stage.mouseX, this._stage.mouseY, 1);
-
-		if (directlyOver) {
-			return objects[0] === this._timelineRect;
-		} else {
-			return objects.includes(this._timelineRect);
-		}
-	}
-
 	//#region Video time management
 	_pauseUpdatingVideoTime() {
 		clearInterval(this._updateTimelineInterval);
