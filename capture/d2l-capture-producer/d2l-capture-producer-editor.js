@@ -286,13 +286,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		return Math.max(Math.min(num, max), min);
 	}
 
-	_clearCurrentMark() {
-		if (this._currentMark) {
-			this._setMarkStyleNormal(this._currentMark);
-			this._currentMark = null;
-		}
-	}
-
 
 	//#endregion
 
@@ -329,24 +322,8 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		return this.selectedLanguage.code;
 	}
 
-	_getHitBoxHeight() {
-		return constants.HITBOX_HEIGHT_MIN + this._getZoomHandleValue();
-	}
-
-	_getMarkHeight() {
-		return constants.MARK_HEIGHT_MIN + this._getZoomHandleValue();
-	}
-
 	_getRoundedTime(time) {
 		return Math.min(Math.round(time), Math.floor(this._mediaPlayer.duration));
-	}
-
-	_getTimelineHeight() {
-		return constants.TIMELINE_HEIGHT_MIN + this._getZoomHandleValue();
-	}
-
-	_getZoomHandleValue() {
-		return this._zoomHandle.y - constants.ZOOM_HANDLE_OFFSET_Y;
 	}
 
 	//#endregion
@@ -502,10 +479,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	//#endregion
 	_setChapterToCurrentTime() {
 		this._chaptersComponent.setChapterToTime(this._mediaPlayer.currentTime);
-	}
-
-	_setMarkStyleNormal(mark) {
-		mark.displayObject.graphics.clear().beginFill(constants.COLOURS.MARK).drawRect(0, 0, constants.MARK_WIDTH, this._getMarkHeight());
 	}
 
 	_startUpdatingVideoTime() {

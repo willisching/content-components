@@ -221,6 +221,13 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		));
 	}
 
+	_clearCurrentMark() {
+		if (this._currentMark) {
+			this._setMarkStyleNormal(this._currentMark);
+			this._currentMark = null;
+		}
+	}
+
 	_configureStage() {
 		this._timelineCanvas = this.shadowRoot.querySelector('#timeline-canvas');
 		this._timelineCanvas.addEventListener('mousemove', this._onCanvasMouseMove.bind(this));
@@ -234,6 +241,8 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this._zoomHandle.on('pressmove', this._onZoomHandlePressMove.bind(this));
 		this._zoomHandle.on('pressup', this._onZoomHandlePressUp.bind(this));
 		this._stage.addChild(this._zoomHandle);
+
+		console.log(this._zoomHandle);
 
 		this._timelineRect = new Shape();
 		this._timelineRect.setTransform(constants.TIMELINE_OFFSET_X, constants.TIMELINE_OFFSET_Y);
@@ -359,6 +368,10 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 	_getZoomHandleValue() {
 		return this._zoomHandle.y - constants.ZOOM_HANDLE_OFFSET_Y;
+	}
+
+	_setMarkStyleNormal(mark) {
+		mark.displayObject.graphics.clear().beginFill(constants.COLOURS.MARK).drawRect(0, 0, constants.MARK_WIDTH, this._getMarkHeight());
 	}
 
 	_getMarkHeight() {
@@ -836,7 +849,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 	}
 
 	get _timelineWidth() {
-		return this.canvasWidth - constants.TIMELINE_OFFSET_X * 2;
+		return this.width - constants.TIMELINE_OFFSET_X * 2;
 	}
 
 	_updateMarkOnStage(mark) {
@@ -904,7 +917,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 		this._updateMouseEnabledForCuts();
 	}
-	
+
 	_updateVideoTime() {
 		// If the timeline is disabled for the current file format, do nothing.
 		if (!this.enableCutsAndChapters) {
