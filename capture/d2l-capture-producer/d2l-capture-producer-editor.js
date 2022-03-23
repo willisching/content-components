@@ -21,7 +21,6 @@ import { InternalLocalizeMixin } from './src/internal-localize-mixin.js';
 import { bodyCompactStyles, labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';
-import { Timeline } from './src/timeline';
 import { convertVttCueArrayToVttText, textTrackCueListToArray } from './src/captions-utils.js';
 
 class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) {
