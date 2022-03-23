@@ -282,11 +282,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	_changeToSeekMode() {
 	}
 
-	static _clampNumBetweenMinAndMax(num, min, max) {
-		return Math.max(Math.min(num, max), min);
-	}
-
-
 	//#endregion
 
 	_fireCaptionsChangedEvent(captions) {
@@ -482,32 +477,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	_startUpdatingVideoTime() {
-		if (!this._timeline) return;
-
-		// Restart video if paused at end cut.
-		Object.values(this._timeline.getCuts()).reverse().forEach(cut => {
-			if ((!cut.out || (cut.out >= this._mediaPlayer.duration)) && this._mediaPlayer.currentTime === cut.in) {
-				this._mediaPlayer.currentTime = 0;
-			}
-
-			// Only interested in the last cut, break the loop.
-			return false;
-		});
-
-		this._updateTimelineInterval = setInterval(() => {
-			// Skip cuts
-			const cut = this._timeline.getCutOverTime(this._mediaPlayer.currentTime);
-			if (cut) {
-				if (!cut.out || (cut.out >= this._mediaPlayer.duration)) {
-					this._mediaPlayer.currentTime = cut.in;
-					this._mediaPlayer.pause();
-				} else {
-					this._mediaPlayer.currentTime = cut.out;
-				}
-			}
-
-			this._updateVideoTime();
-		}, 50);
+		this._timelineElement._startUpdatingVideoTime();
 	}
 
 	_syncCaptionsWithMediaPlayer() {

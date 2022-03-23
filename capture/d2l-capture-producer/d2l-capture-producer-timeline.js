@@ -221,6 +221,10 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		));
 	}
 
+	_clampNumBetweenMinAndMax(num, min, max) {
+		return Math.max(Math.min(num, max), min);
+	}
+
 	_clearCurrentMark() {
 		if (this._currentMark) {
 			this._setMarkStyleNormal(this._currentMark);
@@ -686,8 +690,21 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this._stage.update();
 	}
 
+	_fireMetadataChangedEvent({ cuts = this._timeline.getCuts(), chapters = this.metadata.chapters } = {}) {
+		// Remove object references to prevent 'cyclic object value' errors when saving metadata.
+		// eslint-disable-next-line no-unused-vars
+		cuts = cuts.map(({timeline, displayObject, ...cut}) => cut);
+		this.dispatchEvent(new CustomEvent(
+			'metadata-changed',
+			{
+				composed: true,
+				detail: { cuts, chapters }
+			}
+		));
+	}
+
 	_getTimeFromStageX(stageX) {
-		const clampedTimelineStageX = CaptureProducerEditor._clampNumBetweenMinAndMax(stageX, constants.TIMELINE_OFFSET_X, constants.TIMELINE_OFFSET_X + this._timelineWidth);
+		const clampedTimelineStageX = this._clampNumBetweenMinAndMax(stageX, constants.TIMELINE_OFFSET_X, constants.TIMELINE_OFFSET_X + this._timelineWidth);
 
 		const pixelsAlongTimeline = this._getPixelsAlongTimelineFromStageX(clampedTimelineStageX);
 
@@ -695,7 +712,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 	}
 
 	_getPixelsAlongTimelineFromStageX(stageX) {
-		return CaptureProducerEditor._clampNumBetweenMinAndMax(stageX - constants.TIMELINE_OFFSET_X, 0, this._timelineWidth);
+		return this._clampNumBetweenMinAndMax(stageX - constants.TIMELINE_OFFSET_X, 0, this._timelineWidth);
 	}
 
 	_getStageXFromPixelsAlongTimeline(pixelsAlongTimeline) {
@@ -766,7 +783,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 		const rect = this._timelineCanvas.getBoundingClientRect();
 
-		const x = CaptureProducerEditor._clampNumBetweenMinAndMax(event.clientX - rect.left - constants.TIMELINE_OFFSET_X, 0, this._timelineWidth);
+		const x = this._clampNumBetweenMinAndMax(event.clientX - rect.left - constants.TIMELINE_OFFSET_X, 0, this._timelineWidth);
 
 		this._zoomHandle.x = x;
 
@@ -778,7 +795,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 	}
 
 	_onZoomHandlePressMove(event) {
-		const newZoomHandleY = CaptureProducerEditor._clampNumBetweenMinAndMax(event.stageY - this._zoomHandleDragOffsetY, constants.ZOOM_HANDLE_OFFSET_Y, constants.ZOOM_HANDLE_OFFSET_Y + constants.ZOOM_HANDLE_MAX_DEPTH);
+		const newZoomHandleY = this._clampNumBetweenMinAndMax(event.stageY - this._zoomHandleDragOffsetY, constants.ZOOM_HANDLE_OFFSET_Y, constants.ZOOM_HANDLE_OFFSET_Y + constants.ZOOM_HANDLE_MAX_DEPTH);
 
 		if (this._zoomHandle.y === constants.ZOOM_HANDLE_OFFSET_Y) this._timeline.pixelsAlongTimelineToZoomAround = this._getPixelsAlongTimelineFromStageX(event.stageX);
 
@@ -846,6 +863,35 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this._zoomHandle.graphics.clear().beginFill(newZoomHandleColour).drawRect(0, 0, constants.ZOOM_HANDLE_WIDTH, constants.ZOOM_HANDLE_HEIGHT);
 
 		this._updateVideoTime();
+	}
+
+	_startUpdatingVideoTime() {
+		if (!this._timeline) return;
+
+		// Restart video if paused at end cut.
+		Object.values(this._timeline.getCuts()).reverse().forEach(cut => {
+			if ((!cut.out || (cut.out >= this._mediaPlayer.duration)) && this._mediaPlayer.currentTime === cut.in) {
+				this._mediaPlayer.currentTime = 0;
+			}
+
+			// Only interested in the last cut, break the loop.
+			return false;
+		});
+
+		this._updateTimelineInterval = setInterval(() => {
+			// Skip cuts
+			const cut = this._timeline.getCutOverTime(this._mediaPlayer.currentTime);
+			if (cut) {
+				if (!cut.out || (cut.out >= this._mediaPlayer.duration)) {
+					this._mediaPlayer.currentTime = cut.in;
+					this._mediaPlayer.pause();
+				} else {
+					this._mediaPlayer.currentTime = cut.out;
+				}
+			}
+
+			this._updateVideoTime();
+		}, 50);
 	}
 
 	get _timelineWidth() {
