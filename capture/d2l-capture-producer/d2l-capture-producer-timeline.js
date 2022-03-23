@@ -704,6 +704,10 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		));
 	}
 
+	_getRoundedTime(time) {
+		return Math.min(Math.round(time), Math.floor(this._mediaPlayer.duration));
+	}
+
 	_getTimeFromStageX(stageX) {
 		const clampedTimelineStageX = this._clampNumBetweenMinAndMax(stageX, constants.TIMELINE_OFFSET_X, constants.TIMELINE_OFFSET_X + this._timelineWidth);
 

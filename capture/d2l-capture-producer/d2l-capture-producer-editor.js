@@ -319,10 +319,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		return this.selectedLanguage.code;
 	}
 
-	_getRoundedTime(time) {
-		return Math.min(Math.round(time), Math.floor(this._mediaPlayer.duration));
-	}
-
 	//#endregion
 	_handleCaptionsCueAdded(event) {
 		const newCue = new VTTCue(
