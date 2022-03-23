@@ -81,7 +81,22 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 	constructor() {
 		super();
+		this._controlMode = constants.CONTROL_MODES.SEEK;
+		this._shouldResumePlaying = false;
+		this._updateTimelineInterval = null;
+		this._mouseTime = null;
+		this._mouseDownStageX = null;
+		this._stage = null;
+		this._timelineCanvas = null;
+
+		this._timeline = null;
+
+		this._zoomMultiplierDisplayOpacity = 0;
+		this._zoomMultiplierFadeIntervalId = null;
 		this._zoomHandleDragOffsetY = null;
+
+		this._draggingMark = false;
+		this._currentMark = null;
 	}
 
 	firstUpdated() {

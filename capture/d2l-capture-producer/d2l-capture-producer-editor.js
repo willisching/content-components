@@ -95,26 +95,9 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	constructor() {
 		super();
 
-		this._controlMode = constants.CONTROL_MODES.SEEK;
-		this._shouldResumePlaying = false;
-		this._updateTimelineInterval = null;
-		this._mouseTime = null;
-		this._mouseDownStageX = null;
-		this._stage = null;
-		this._timelineCanvas = null;
-
-		this._timeline = null;
-
 		this._zoomMultiplier = 1;
-		this._zoomMultiplierDisplayOpacity = 0;
-		this._zoomMultiplierDisplayTimestampMilliseconds = null;
-		this._zoomMultiplierFadeIntervalId = null;
-		this._zoomHandleDragOffsetY = null;
 
 		this._chaptersComponent = null;
-
-		this._draggingMark = false;
-		this._currentMark = null;
 
 		this.enableCutsAndChapters = false;
 
@@ -296,7 +279,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		));
 	}
 
-	_fireMetadataChangedEvent({ cuts = this._timeline.getCuts(), chapters = this.metadata.chapters } = {}) {
+	_fireMetadataChangedEvent({ cuts = this._timelineElement._timeline.getCuts(), chapters = this.metadata.chapters } = {}) {
 		// Remove object references to prevent 'cyclic object value' errors when saving metadata.
 		// eslint-disable-next-line no-unused-vars
 		cuts = cuts.map(({timeline, displayObject, ...cut}) => cut);
@@ -456,7 +439,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 	//#region Video time management
 	_pauseUpdatingVideoTime() {
-		clearInterval(this._updateTimelineInterval);
+		clearInterval(this._timelineElement._updateTimelineInterval);
 	}
 
 	//#endregion
