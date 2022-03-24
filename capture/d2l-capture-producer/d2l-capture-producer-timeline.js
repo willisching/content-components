@@ -11,7 +11,6 @@ import { Timeline } from './src/timeline';
 class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
-			chaptersComponent: { type: Object },
 			enableCutsAndChapters: { type: Boolean },
 			mediaPlayer: { type: Object },
 			metadata: { type: Object },
@@ -753,9 +752,21 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 	}
 	_moveContentMarker(event) {
 		if (this._controlMode === constants.CONTROL_MODES.SEEK) {
-			this.chaptersComponent.setChapterToTime(this._getTimeFromStageX(event.stageX));
+			this._setChapterTimeEvent(this._getTimeFromStageX(event.stageX));
 			this._showAndMoveTimeContainer(this._activeChapterTime);
 		}
+	}
+
+	_setChapterTimeEvent(time) {
+		this.dispatchEvent(new CustomEvent(
+			'update-chapter-time',
+			{
+				composed: false,
+				detail: {
+					time
+				}
+			}
+		));
 	}
 
 	_onCanvasMouseMove(event) {
@@ -807,8 +818,8 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this._contentMarker.graphics.clear().beginFill(constants.COLOURS.CONTENT).drawRect(0, 0, constants.MARK_WIDTH, this._getMarkHeight());
 		this._contentMarkerHitBox.graphics.clear().beginFill(constants.COLOURS.CONTENT_HIT_BOX).drawRect(constants.HITBOX_OFFSET, constants.HITBOX_OFFSET, constants.HITBOX_WIDTH, this._getHitBoxHeight());
 
-		if (this.chaptersComponent.activeChapter !== null) {
-			const time = this.chaptersComponent.activeChapter.time;
+		if (this._activeChapterTime !== null) {
+			const time = this._activeChapterTime;
 			const pixelsAlongTimeline = this._timeline.getPixelsAlongTimelineFromTime(time);
 
 			if (pixelsAlongTimeline !== null) {
