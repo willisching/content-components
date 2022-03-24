@@ -44,7 +44,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			timelineVisible: { type: Boolean, attribute: 'timeline-visible' },
 
 			_activeCue: { type: Object, attribute: false },
-			_chaptersComponent: { type: Object, attribute: false},
 		};
 	}
 
@@ -212,8 +211,8 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		// Wait for video to be loaded
 		this._mediaPlayer.addEventListener('loadeddata', () => {
 			if (this.enableCutsAndChapters && this.metadata) {
-				this._timelineElement._resetTimelineWithNewCuts(this.metadata.cuts);
-				this._timelineElement._changeToSeekMode();
+				this._timelineElement.resetTimelineWithNewCuts(this.metadata.cuts);
+				this._timelineElement.changeToSeekMode();
 			}
 			this._videoLoaded = true;
 			this.dispatchEvent(new CustomEvent('media-loaded', { composed: false }));
@@ -230,7 +229,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		if (changedProperties.has('enableCutsAndChapters') && this.enableCutsAndChapters) {
 			this._chaptersComponent = this.shadowRoot.querySelector('d2l-video-producer-chapters');
 			this._chaptersComponent.addEventListener('active-chapter-updated',
-				this._timelineElement._handleActiveChapterUpdated.bind(this._timelineElement));
+				this._timelineElement.handleActiveChapterUpdated.bind(this._timelineElement));
 		}
 	}
 
@@ -251,7 +250,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		));
 	}
 
-	_fireMetadataChangedEvent({ cuts = this._timelineElement._timeline.getCuts(), chapters = this.metadata.chapters } = {}) {
+	_fireMetadataChangedEvent({ cuts = this._timelineElement.timeline.getCuts(), chapters = this.metadata.chapters } = {}) {
 		// Remove object references to prevent 'cyclic object value' errors when saving metadata.
 		// eslint-disable-next-line no-unused-vars
 		cuts = cuts.map(({timeline, displayObject, ...cut}) => cut);
@@ -415,7 +414,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 	//#region Video time management
 	_pauseUpdatingVideoTime() {
-		clearInterval(this._timelineElement._updateTimelineInterval);
+		clearInterval(this._timelineElement.updateTimelineInterval);
 	}
 
 	//#endregion
@@ -428,14 +427,14 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	_startUpdatingVideoTime() {
-		this._timelineElement._startUpdatingVideoTime();
+		this._timelineElement.startUpdatingVideoTime();
 	}
 
 	_syncCaptionsWithMediaPlayer() {
 		this._fireCaptionsChangedEvent(textTrackCueListToArray(this._mediaPlayer.textTracks[0].cues));
 	}
 
-	_updateVideoTime() {
+	updateVideoTime() {
 		this._timelineElement._updateVideoTime();
 	}
 }
