@@ -186,14 +186,14 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 				</div>
 				${(this.enableCutsAndChapters ? html`
 					<d2l-capture-producer-timeline
-						@pause-media-player=${this._pauseMediaPlayer}
+						@pause-media-player=${this._pauseMediaPlayerHandler}
 						?enableCutsAndChapters=${this.enableCutsAndChapters}
 						.metadata=${this.metadata}
 						.mediaPlayer=${this._mediaPlayer}
 						?timelineVisible=${this.timelineVisible}
 						@timeline-first-updated=${this.timelineFirstUpdatedHandler}
 						@timeline-updated=${this.timelineUpdatedHandler}
-						@update-chapter-time=${this._setChapterToTime}
+						@update-chapter-time=${this._setChapterToTimeHandler}
 						?videoLoaded=${this._videoLoaded}
 						width=${this.canvasWidth}
 					></d2l-capture-producer-timeline>
@@ -408,7 +408,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		}
 	}
 
-	_pauseMediaPlayer() {
+	_pauseMediaPlayerHandler() {
 		this._mediaPlayer.pause();
 	}
 
@@ -422,7 +422,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this._chaptersComponent.setChapterToTime(this._mediaPlayer.currentTime);
 	}
 
-	_setChapterToTime({ detail: {time} }) {
+	_setChapterToTimeHandler({ detail: {time} }) {
 		this._chaptersComponent.setChapterToTime(time);
 	}
 
