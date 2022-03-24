@@ -202,6 +202,9 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		`;
 	}
 
+	get mediaPlayer() {
+		return this._mediaPlayer || null;
+	}
 	timelineFirstUpdatedHandler() {
 		super.firstUpdated();
 
@@ -219,10 +222,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		});
 	}
 
-	get mediaPlayer() {
-		return this._mediaPlayer || null;
-	}
-
 	timelineUpdatedHandler(e) {
 		const changedProperties = e.detail.changedProperties;
 		super.updated(changedProperties);
@@ -233,6 +232,9 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		}
 	}
 
+	updateVideoTime() {
+		this._timelineElement._updateVideoTime();
+	}
 	//#region Chapter management
 	_addNewChapter() {
 		this._chaptersComponent.addNewChapter(this._mediaPlayer.currentTime);
@@ -434,8 +436,5 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this._fireCaptionsChangedEvent(textTrackCueListToArray(this._mediaPlayer.textTracks[0].cues));
 	}
 
-	updateVideoTime() {
-		this._timelineElement._updateVideoTime();
-	}
 }
 customElements.define('d2l-capture-producer-editor', CaptureProducerEditor);

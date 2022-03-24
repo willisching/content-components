@@ -200,6 +200,122 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		return this.width + constants.CANVAS_BORDER_WIDTH * 2;
 	}
 
+	changeToSeekMode() {
+		this._controlMode = constants.CONTROL_MODES.SEEK;
+		this._contentMarker.mouseEnabled = true;
+		this._updateMouseEnabledForCuts();
+		this._updateMouseEnabledForMarks();
+		this._cutHighlight.visible = false;
+		this._hideCursor();
+		this.dispatchEvent(new CustomEvent(
+			'change-to-seek-mode',
+			{
+				composed: true,
+			}
+		));
+	}
+	handleActiveChapterUpdated({ detail: { chapterTime } }) {
+		if (chapterTime !== null) {
+			this._activeChapterTime = chapterTime;
+			this._contentMarker.visible = true;
+			this._contentMarker.mouseEnabled = true;
+			const stageX = this._getStageXFromTime(chapterTime);
+
+			if (stageX === null) {
+				this._contentMarker.visible = false;
+				this._contentMarker.mouseEnabled = false;
+				this._timeContainer.visible = false;
+			} else {
+				this._contentMarker.setTransform(stageX + constants.CURSOR_OFFSET_X, constants.CURSOR_OFFSET_Y);
+			}
+		} else {
+			this._contentMarker.visible = false;
+			this._contentMarker.mouseEnabled = false;
+			this._timeContainer.visible = false;
+		}
+		this._stage.update();
+	}
+	resetTimelineWithNewCuts(cuts) {
+		this._currentMark = null;
+
+		if (this.timeline) {
+			for (const cut of this.timeline.getCuts()) this._stage.removeChild(cut.displayObject);
+
+			for (const mark of this.timeline.getMarks()) this._stage.removeChild(mark.displayObject);
+		}
+
+		this.timeline = new Timeline({
+			durationSeconds: this.mediaPlayer.duration,
+			widthPixels: this._timelineWidth,
+			cuts,
+			zoomMultiplier: this._zoomMultiplier,
+			pixelsAlongTimelineToZoomAround: this.timeline?.pixelsAlongTimelineToZoomAround
+		});
+
+		for (const mark of this.timeline.getMarksOnTimeline()) this._addMarkToStage(mark);
+
+		this._updateMouseEnabledForMarks();
+
+		for (const cut of this.timeline.getCutsOnTimeline()) this._addCutToStage(cut);
+
+		this._updateMouseEnabledForCuts();
+	}
+	startUpdatingVideoTime() {
+		if (!this.timeline) return;
+
+		// Restart video if paused at end cut.
+		Object.values(this.timeline.getCuts()).reverse().forEach(cut => {
+			if ((!cut.out || (cut.out >= this.mediaPlayer.duration)) && this.mediaPlayer.currentTime === cut.in) {
+				this.mediaPlayer.currentTime = 0;
+			}
+
+			// Only interested in the last cut, break the loop.
+			return false;
+		});
+
+		this.updateTimelineInterval = setInterval(() => {
+			// Skip cuts
+			const cut = this.timeline.getCutOverTime(this.mediaPlayer.currentTime);
+			if (cut) {
+				if (!cut.out || (cut.out >= this.mediaPlayer.duration)) {
+					this.mediaPlayer.currentTime = cut.in;
+					this.mediaPlayer.pause();
+				} else {
+					this.mediaPlayer.currentTime = cut.out;
+				}
+			}
+
+			this.updateVideoTime();
+		}, 50);
+	}
+	updateVideoTime() {
+		// If the timeline is disabled for the current file format, do nothing.
+		if (!this.enableCutsAndChapters) {
+			return;
+		}
+
+		// Clear the seeked time once the video has caught up
+		if (this._mouseTime && Math.abs(this._mouseTime - this.mediaPlayer.currentTime) < 1) {
+			this._mouseTime = null;
+		}
+
+		const { lowerTimeBound, upperTimeBound } = this.timeline.getTimeBoundsOfTimeline();
+
+		const time = this._mouseTime || this.mediaPlayer.currentTime;
+
+		let width;
+
+		if (time < lowerTimeBound) width = 0;
+		else if (time > upperTimeBound) width = this._timelineWidth;
+		else {
+			const progress = (time - lowerTimeBound) / (upperTimeBound - lowerTimeBound);
+
+			width = this._timelineWidth * progress;
+		}
+
+		this._playedRect.graphics.clear().beginFill(constants.COLOURS.TIMELINE_PLAYED).drawRect(0, 0, width, this._getTimelineHeight());
+		this._stage.update();
+	}
 	_addCutToStage(cut) {
 		const { inPixels, outPixels } = cut.getPixelsAlongTimeline();
 
@@ -225,6 +341,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 		this._stage.update();
 	}
+
 	_addMarkToStage(mark) {
 		const pixelsAlongTimeline = mark.getPixelsAlongTimeline();
 
@@ -293,6 +410,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 		this._stage.update();
 	}
+
 	_changeToCutMode() {
 		this._controlMode = constants.CONTROL_MODES.CUT;
 		this._updateMouseEnabledForCuts();
@@ -318,21 +436,6 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			'pause-media-player',
 			{
 				composed: false,
-			}
-		));
-	}
-
-	changeToSeekMode() {
-		this._controlMode = constants.CONTROL_MODES.SEEK;
-		this._contentMarker.mouseEnabled = true;
-		this._updateMouseEnabledForCuts();
-		this._updateMouseEnabledForMarks();
-		this._cutHighlight.visible = false;
-		this._hideCursor();
-		this.dispatchEvent(new CustomEvent(
-			'change-to-seek-mode',
-			{
-				composed: true,
 			}
 		));
 	}
@@ -711,36 +814,18 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 		return `${Math.round(this._zoomMultiplier)}x`;
 	}
-	handleActiveChapterUpdated({ detail: { chapterTime } }) {
-		if (chapterTime !== null) {
-			this._activeChapterTime = chapterTime;
-			this._contentMarker.visible = true;
-			this._contentMarker.mouseEnabled = true;
-			const stageX = this._getStageXFromTime(chapterTime);
 
-			if (stageX === null) {
-				this._contentMarker.visible = false;
-				this._contentMarker.mouseEnabled = false;
-				this._timeContainer.visible = false;
-			} else {
-				this._contentMarker.setTransform(stageX + constants.CURSOR_OFFSET_X, constants.CURSOR_OFFSET_Y);
-			}
-		} else {
-			this._contentMarker.visible = false;
-			this._contentMarker.mouseEnabled = false;
-			this._timeContainer.visible = false;
-		}
-		this._stage.update();
-	}
 	_hideCursor() {
 		this._cursor.displayObject.visible = false;
 		this._timeContainer.visible = false;
 		this._stage.update();
 	}
+
 	_isMouseOverContentMarker() {
 		const underMouse = this._stage.getObjectsUnderPoint(this._stage.mouseX, this._stage.mouseY, 1)[0];
 		return this._contentMarker === underMouse;
 	}
+
 	_isMouseOverTimeline(directlyOver) {
 		const objects = this._stage.getObjectsUnderPoint(this._stage.mouseX, this._stage.mouseY, 1);
 
@@ -828,32 +913,6 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this.updateVideoTime();
 	}
 
-	resetTimelineWithNewCuts(cuts) {
-		this._currentMark = null;
-
-		if (this.timeline) {
-			for (const cut of this.timeline.getCuts()) this._stage.removeChild(cut.displayObject);
-
-			for (const mark of this.timeline.getMarks()) this._stage.removeChild(mark.displayObject);
-		}
-
-		this.timeline = new Timeline({
-			durationSeconds: this.mediaPlayer.duration,
-			widthPixels: this._timelineWidth,
-			cuts,
-			zoomMultiplier: this._zoomMultiplier,
-			pixelsAlongTimelineToZoomAround: this.timeline?.pixelsAlongTimelineToZoomAround
-		});
-
-		for (const mark of this.timeline.getMarksOnTimeline()) this._addMarkToStage(mark);
-
-		this._updateMouseEnabledForMarks();
-
-		for (const cut of this.timeline.getCutsOnTimeline()) this._addCutToStage(cut);
-
-		this._updateMouseEnabledForCuts();
-	}
-
 	_setChapterTimeEvent(time) {
 		this.dispatchEvent(new CustomEvent(
 			'update-chapter-time',
@@ -916,35 +975,6 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		}
 	}
 
-	startUpdatingVideoTime() {
-		if (!this.timeline) return;
-
-		// Restart video if paused at end cut.
-		Object.values(this.timeline.getCuts()).reverse().forEach(cut => {
-			if ((!cut.out || (cut.out >= this.mediaPlayer.duration)) && this.mediaPlayer.currentTime === cut.in) {
-				this.mediaPlayer.currentTime = 0;
-			}
-
-			// Only interested in the last cut, break the loop.
-			return false;
-		});
-
-		this.updateTimelineInterval = setInterval(() => {
-			// Skip cuts
-			const cut = this.timeline.getCutOverTime(this.mediaPlayer.currentTime);
-			if (cut) {
-				if (!cut.out || (cut.out >= this.mediaPlayer.duration)) {
-					this.mediaPlayer.currentTime = cut.in;
-					this.mediaPlayer.pause();
-				} else {
-					this.mediaPlayer.currentTime = cut.out;
-				}
-			}
-
-			this.updateVideoTime();
-		}, 50);
-	}
-
 	get _timelineWidth() {
 		return this.width - constants.TIMELINE_OFFSET_X * 2;
 	}
@@ -977,34 +1007,6 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this.timeline.getMarksOnTimeline().forEach(mark => mark.displayObject.mouseEnabled = this._controlMode === constants.CONTROL_MODES.MARK);
 	}
 
-	updateVideoTime() {
-		// If the timeline is disabled for the current file format, do nothing.
-		if (!this.enableCutsAndChapters) {
-			return;
-		}
-
-		// Clear the seeked time once the video has caught up
-		if (this._mouseTime && Math.abs(this._mouseTime - this.mediaPlayer.currentTime) < 1) {
-			this._mouseTime = null;
-		}
-
-		const { lowerTimeBound, upperTimeBound } = this.timeline.getTimeBoundsOfTimeline();
-
-		const time = this._mouseTime || this.mediaPlayer.currentTime;
-
-		let width;
-
-		if (time < lowerTimeBound) width = 0;
-		else if (time > upperTimeBound) width = this._timelineWidth;
-		else {
-			const progress = (time - lowerTimeBound) / (upperTimeBound - lowerTimeBound);
-
-			width = this._timelineWidth * progress;
-		}
-
-		this._playedRect.graphics.clear().beginFill(constants.COLOURS.TIMELINE_PLAYED).drawRect(0, 0, width, this._getTimelineHeight());
-		this._stage.update();
-	}
 	_updateZoomMultiplierFromZoomHandle() {
 		if (!this.mediaPlayer) return 1;
 
