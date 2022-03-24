@@ -757,18 +757,6 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		}
 	}
 
-	_setChapterTimeEvent(time) {
-		this.dispatchEvent(new CustomEvent(
-			'update-chapter-time',
-			{
-				composed: false,
-				detail: {
-					time
-				}
-			}
-		));
-	}
-
 	_onCanvasMouseMove(event) {
 		if (this._zoomHandleDragOffsetY !== null) return;
 
@@ -865,6 +853,19 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 		this._updateMouseEnabledForCuts();
 	}
+
+	_setChapterTimeEvent(time) {
+		this.dispatchEvent(new CustomEvent(
+			'update-chapter-time',
+			{
+				composed: false,
+				detail: {
+					time
+				}
+			}
+		));
+	}
+
 	_setCursorOrCurrentMark(stageXPosition) {
 		if (this._zoomHandleDragOffsetY !== null) return;
 
