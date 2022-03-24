@@ -191,8 +191,8 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 						.metadata=${this.metadata}
 						.mediaPlayer=${this._mediaPlayer}
 						?timelineVisible=${this.timelineVisible}
-						@timeline-first-updated=${this.firstUpdatedHelper}
-						@timeline-updated=${this.updatedHelper}
+						@timeline-first-updated=${this.timelineFirstUpdatedHandler}
+						@timeline-updated=${this.timelineUpdatedHandler}
 						@update-chapter-time=${this._setChapterToTime}
 						?videoLoaded=${this._videoLoaded}
 						width=${this.canvasWidth}
@@ -202,7 +202,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		`;
 	}
 
-	firstUpdatedHelper() {
+	timelineFirstUpdatedHandler() {
 		super.firstUpdated();
 
 		this._mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
@@ -223,7 +223,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		return this._mediaPlayer || null;
 	}
 
-	updatedHelper(e) {
+	timelineUpdatedHandler(e) {
 		const changedProperties = e.detail.changedProperties;
 		super.updated(changedProperties);
 		if (changedProperties.has('enableCutsAndChapters') && this.enableCutsAndChapters) {
