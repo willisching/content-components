@@ -45,7 +45,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 			_activeCue: { type: Object, attribute: false },
 			_chaptersComponent: { type: Object, attribute: false},
-			_zoomMultiplier: { type: Number, attribute: false },
 		};
 	}
 
@@ -75,13 +74,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			.d2l-video-producer-language-selector {
 				float: right;
 			}
-
-			#zoom-handle {
-				height: ${constants.ZOOM_HANDLE_HEIGHT}px;
-				pointer-events: none;
-				position: absolute;
-				width: ${constants.ZOOM_HANDLE_WIDTH}px;
-			}
 		`];
 	}
 
@@ -91,8 +83,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 	constructor() {
 		super();
-
-		this._zoomMultiplier = 1;
 
 		this._chaptersComponent = null;
 
@@ -207,7 +197,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 						@timeline-updated=${this.updatedHelper}
 						?videoLoaded=${this._videoLoaded}
 						width=${this.canvasWidth}
-						zoomMultiplier=${this._zoomMultiplier}
 					></d2l-capture-producer-timeline>
 				` : '')}
 			</div>

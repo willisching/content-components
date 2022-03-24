@@ -18,8 +18,8 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			timelineVisible: { type: Boolean },
 			width: { type: Number },
 			videoLoaded: { type: Boolean },
-			zoomMultiplier: { type: Number },
 
+			_zoomMultiplier: { type: Number, attribute: false },
 			_zoomMultiplierDisplayOpacity: { type: Number, attribute: false },
 		};
 	}
@@ -93,6 +93,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 		this._timeline = null;
 
+		this._zoomMultiplier = 1;
 		this._zoomMultiplierDisplayOpacity = 0;
 		this._zoomMultiplierFadeIntervalId = null;
 		this._zoomHandleDragOffsetY = null;
@@ -707,9 +708,9 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 	}
 
 	_getZoomMultiplierDisplay() {
-		if (this.zoomMultiplier <= 10) return `${Math.round(this.zoomMultiplier * 100)}%`;
+		if (this._zoomMultiplier <= 10) return `${Math.round(this._zoomMultiplier * 100)}%`;
 
-		return `${Math.round(this.zoomMultiplier)}x`;
+		return `${Math.round(this._zoomMultiplier)}x`;
 	}
 	_handleActiveChapterUpdated({ detail: { chapterTime } }) {
 		if (chapterTime !== null) {
@@ -841,7 +842,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			durationSeconds: this.mediaPlayer.duration,
 			widthPixels: this._timelineWidth,
 			cuts,
-			zoomMultiplier: this.zoomMultiplier,
+			zoomMultiplier: this._zoomMultiplier,
 			pixelsAlongTimelineToZoomAround: this._timeline?.pixelsAlongTimelineToZoomAround
 		});
 
@@ -998,9 +999,9 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		const zoomHandleValue = this._getZoomHandleValue();
 
 		// See US130745 for details on this calculation
-		this.zoomMultiplier = Math.max(Math.pow(Math.pow((2 * this.mediaPlayer.duration * constants.MARK_WIDTH / this._timelineWidth), 1 / constants.ZOOM_HANDLE_MAX_DEPTH), zoomHandleValue), 1);
+		this._zoomMultiplier = Math.max(Math.pow(Math.pow((2 * this.mediaPlayer.duration * constants.MARK_WIDTH / this._timelineWidth), 1 / constants.ZOOM_HANDLE_MAX_DEPTH), zoomHandleValue), 1);
 
-		this._timeline.zoomMultiplier = this.zoomMultiplier;
+		this._timeline.zoomMultiplier = this._zoomMultiplier;
 	}
 
 }
