@@ -12,7 +12,6 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 	static get properties() {
 		return {
 			enableCutsAndChapters: { type: Boolean },
-			mediaPlayer: { type: Object },
 			mediaPlayerDuration: { type: Number },
 			mediaPlayerCurrentTime: { type: Number },
 			mediaPlayerPaused: { type: Boolean },
@@ -1030,7 +1029,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 	}
 
 	_updateZoomMultiplierFromZoomHandle() {
-		if (!this.mediaPlayer) return 1;
+		if (!this.mediaPlayerDuration === 0) return 1;
 
 		const zoomHandleValue = this._getZoomHandleValue();
 

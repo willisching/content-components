@@ -199,7 +199,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 						@play-media-player=${this._playMediaPlayerHandler}
 						?enableCutsAndChapters=${this.enableCutsAndChapters}
 						.metadata=${this.metadata}
-						.mediaPlayer=${this._mediaPlayer}
 						.mediaPlayerDuration=${this.mediaPlayerDuration}
 						.mediaPlayerCurrentTime=${this.mediaPlayerCurrentTime}
 						.mediaPlayerPaused=${this.mediaPlayerPaused}
