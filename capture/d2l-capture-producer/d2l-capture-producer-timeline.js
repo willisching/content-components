@@ -216,12 +216,6 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this._updateMouseEnabledForMarks();
 		this._cutHighlight.visible = false;
 		this._hideCursor();
-		this.dispatchEvent(new CustomEvent(
-			'change-to-seek-mode',
-			{
-				composed: true,
-			}
-		));
 	}
 	handleActiveChapterUpdated({ detail: { chapterTime } }) {
 		if (chapterTime !== null) {
