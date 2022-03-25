@@ -93,6 +93,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this._mouseDownStageX = null;
 		this._stage = null;
 		this._timelineCanvas = null;
+		this._activeChapterTime = null;
 
 		this.timeline = null;
 
