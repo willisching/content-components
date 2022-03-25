@@ -1,6 +1,6 @@
 import '@brightspace-ui/core/components/button/button-icon.js';
 import '@brightspace-ui/core/components/icons/icon.js';
-import '@brightspace-ui/core/components/list/list-item.js';
+import '@brightspace-ui/core/components/list/list-item-button.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-more.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-menu.js';
 import '@brightspace-ui/core/components/menu/menu.js';
@@ -103,10 +103,9 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 		`;
 
 		return html`
-			<d2l-list-item class="d2l-body-compact"
+			<d2l-list-item-button class="d2l-body-compact"
 				?disabled=${this.disabled}
-				@click=${this.dispatchPreviewEvent}
-				href="#"
+				@d2l-list-item-button-click=${this.dispatchPreviewEvent}
 				label="${this.title}"
 				padding-type='slim'
 				?selectable=${this.selectable}
@@ -147,11 +146,11 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 				</div>
 
 				<d2l-dialog-confirm
-				id="d2l-capture-central-confirm-delete"
-				class="d2l-capture-central-confirm-delete"
-				title-text="${this.localize('confirmDelete')}"
-				text="${this.localize('confirmDeleteMessage', {fileName: this.title})}"
-			>
+					id="d2l-capture-central-confirm-delete"
+					class="d2l-capture-central-confirm-delete"
+					title-text="${this.localize('confirmDelete')}"
+					text="${this.localize('confirmDeleteMessage', {fileName: this.title})}"
+				>
 				<d2l-button
 					@click="${this.delete()}"
 					data-dialog-action="yes"
@@ -167,7 +166,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 				${this.localize('cancel')}
 				</d2l-button>
 				</d2l-dialog-confirm>
-			</d2l-list-item>
+			</d2l-list-item-button>
 
 			<d2l-dialog id="edit-description-dialog" title-text="${this.localize('description')}">
 				<d2l-input-text
