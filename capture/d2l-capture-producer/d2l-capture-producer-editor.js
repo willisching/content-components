@@ -223,17 +223,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this.mediaPlayerCurrentTime = time;
 	}
 
-	_handleMediaPlayerUpdate() {
-		this.mediaPlayerDuration = this.mediaPlayer.duration;
-		this.mediaPlayerCurrentTime = this.mediaPlayer.currentTime;
-		this.mediaPlayerPaused = this.mediaPlayer.paused;
-		this.mediaPlayerEnded = this.mediaPlayer.ended;
-	}
-
-	_playMediaPlayerHandler() {
-		this.mediaPlayer.play();
-	}
-
 	get mediaPlayer() {
 		return this._mediaPlayer || null;
 	}
@@ -249,11 +238,11 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 				this._timelineElement.resetTimelineWithNewCuts(this.metadata.cuts);
 				this._timelineElement.changeToSeekMode();
 			}
+			this._handleMediaPlayerUpdate();
 			this._videoLoaded = true;
 			this.dispatchEvent(new CustomEvent('media-loaded', { composed: false }));
 		});
 	}
-
 	timelineUpdatedHandler(e) {
 		const changedProperties = e.detail.changedProperties;
 		super.updated(changedProperties);
@@ -263,7 +252,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 				this._timelineElement.handleActiveChapterUpdated.bind(this._timelineElement));
 		}
 	}
-
 	updateVideoTime() {
 		this._timelineElement._updateVideoTime();
 	}
@@ -271,9 +259,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	_addNewChapter() {
 		this._chaptersComponent.addNewChapter(this._mediaPlayer.currentTime);
 	}
-
 	//#endregion
-
 	_fireCaptionsChangedEvent(captions) {
 		this.dispatchEvent(new CustomEvent(
 			'captions-changed',
@@ -283,7 +269,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			}
 		));
 	}
-
 	_fireMetadataChangedEvent({ cuts = this._timelineElement.timeline.getCuts(), chapters = this.metadata.chapters } = {}) {
 		// Remove object references to prevent 'cyclic object value' errors when saving metadata.
 		// eslint-disable-next-line no-unused-vars
@@ -296,7 +281,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			}
 		));
 	}
-
 	_formatCaptionsSrcLang() {
 		// Some of the 5-character language codes we receive from the D2L locales endpoint are all lowercase, e.g. "en-us".
 		// We need to convert them to mixed case ("en-US") in order to match the spec for <track> element's "srclang" attribute.
@@ -306,7 +290,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		}
 		return this.selectedLanguage.code;
 	}
-
 	//#endregion
 	_handleCaptionsCueAdded(event) {
 		const newCue = new VTTCue(
@@ -332,14 +315,12 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			this._mediaPlayer.currentTime = newCue.startTime + 0.001;
 		}, 100); // Give the new cue element time to be drawn.
 	}
-
 	_handleCaptionsCueDeleted(event) {
 		const cueToDelete = event.detail.cue;
 		this._mediaPlayer.textTracks[0].removeCue(cueToDelete);
 		this._syncCaptionsWithMediaPlayer();
 		this._mediaPlayer.currentTime = this._mediaPlayer.currentTime + 0.001; // Make the Media Player update to stop showing the deleted cue.
 	}
-
 	_handleCaptionsVttReplaced(e) {
 		const localVttUrl = window.URL.createObjectURL(new Blob([e.detail.vttString], { type: 'text/vtt' }));
 		this.dispatchEvent(new CustomEvent('captions-url-changed', {
@@ -347,7 +328,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			composed: false
 		}));
 	}
-
 	_handleChangeCaptionsCueEndTime(event) {
 		const originalCue = event.detail.cue;
 		const cueDuration = originalCue.endTime - originalCue.startTime;
@@ -370,7 +350,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this._mediaPlayer.textTracks[0].removeCue(originalCue);
 		this._syncCaptionsWithMediaPlayer();
 	}
-
 	_handleChangeCaptionsCueStartTime(event) {
 		const originalCue = event.detail.cue;
 		const cueDuration = originalCue.endTime - originalCue.startTime;
@@ -386,23 +365,25 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this._mediaPlayer.textTracks[0].removeCue(originalCue);
 		this._syncCaptionsWithMediaPlayer();
 	}
-
 	_handleChaptersChanged(e) {
 		this.metadata = { ...this.metadata, chapters: e.detail.chapters };
 		this._fireMetadataChangedEvent();
 	}
-
 	_handleCueChange() {
 		this._activeCue = this._mediaPlayer.activeCue;
 	}
-
 	_handleMediaError() {
 		this.dispatchEvent(new CustomEvent('media-error', { composed: false }));
 	}
-
 	_handleMediaPlayerTimeJumped(event) {
 		this._mediaPlayer.currentTime = event.detail.time;
 		this._updateVideoTime();
+	}
+	_handleMediaPlayerUpdate() {
+		this.mediaPlayerDuration = this.mediaPlayer.duration;
+		this.mediaPlayerCurrentTime = this.mediaPlayer.currentTime;
+		this.mediaPlayerPaused = this.mediaPlayer.paused;
+		this.mediaPlayerEnded = this.mediaPlayer.ended;
 	}
 
 	_handleSelectedLanguageChanged(e) {
@@ -415,7 +396,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			}
 		));
 	}
-
 	async _handleTrackLoaded() {
 		// After loading the track, there might be a slight delay before the Media Player's <track> element loads all of its cues.
 		// This happens occasionally for large files.
@@ -441,14 +421,15 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			}));
 		}
 	}
-
 	_pauseMediaPlayerHandler() {
 		this._mediaPlayer.pause();
 	}
-
 	//#region Video time management
 	_pauseUpdatingVideoTime() {
 		clearInterval(this._timelineElement.updateTimelineInterval);
+	}
+	_playMediaPlayerHandler() {
+		this.mediaPlayer.play();
 	}
 
 	//#endregion

@@ -189,7 +189,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			this.resetTimelineWithNewCuts(this.metadata.cuts);
 		}
 
-		if (changedProperties.has('mediaPlayerDuration')){
+		if (changedProperties.has('mediaPlayerDuration')) {
 			this._configureStage();
 		}
 
@@ -237,6 +237,22 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		}
 		this._stage.update();
 	}
+	pauseMediaPlayer() {
+		this.dispatchEvent(new CustomEvent(
+			'pause-media-player',
+			{
+				composed: false,
+			}
+		));
+	}
+	playMediaPlayer() {
+		this.dispatchEvent(new CustomEvent(
+			'play-media-player',
+			{
+				composed: false,
+			}
+		));
+	}
 	resetTimelineWithNewCuts(cuts) {
 		this._currentMark = null;
 
@@ -262,6 +278,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 		this._updateMouseEnabledForCuts();
 	}
+
 	startUpdatingVideoTime() {
 		if (!this.timeline) return;
 
@@ -294,22 +311,6 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		}, 50);
 	}
 
-	pauseMediaPlayer() {
-		this.dispatchEvent(new CustomEvent(
-			'pause-media-player',
-			{
-				composed: false,
-			}
-		));
-	}
-	playMediaPlayer() {
-		this.dispatchEvent(new CustomEvent(
-			'play-media-player',
-			{
-				composed: false,
-			}
-		));
-	}
 	updateMediaPlayerCurrentTime(time) {
 		this.dispatchEvent(new CustomEvent(
 			'update-media-player-current-time',
