@@ -238,7 +238,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 				this._timelineElement.resetTimelineWithNewCuts(this.metadata.cuts);
 				this._timelineElement.changeToSeekMode();
 			}
-			this._handleMediaPlayerUpdate();
 			this._videoLoaded = true;
 			this.dispatchEvent(new CustomEvent('media-loaded', { composed: false }));
 		});
