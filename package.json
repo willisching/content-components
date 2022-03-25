@@ -40,7 +40,7 @@
     "@adobe/lit-mobx": "0.0.4",
     "@brightspace-ui-labs/accordion": "^2",
     "@brightspace-ui-labs/file-uploader": "^2",
-    "@brightspace-ui-labs/media-player": "^2",
+    "@brightspace-ui-labs/media-player": "^3",
     "@brightspace-ui-labs/pagination": "^1",
     "@brightspace-ui/core": "^1",
     "@brightspace-ui/intl": "^3",
