@@ -1,7 +1,6 @@
 import '@brightspace-ui/core/components/alert/alert-toast.js';
 import '@brightspace-ui/core/components/button/button-icon.js';
 import '@brightspace-ui/core/components/colors/colors.js';
-import '@brightspace-ui/core/components/icons/icon.js';
 import '@brightspace-ui/core/components/list/list-item.js';
 import '@brightspace-ui/core/components/list/list.js';
 import '../content-file-drop.js';
@@ -12,6 +11,7 @@ import './content-list-item.js';
 import { CaptureCentralList, videosPage } from '../capture-central-list.js';
 
 import { html } from 'lit-element/lit-element.js';
+import { ifDefined } from 'lit-html/directives/if-defined.js';
 import { observe, toJS } from 'mobx';
 
 import { rootStore } from '../../state/root-store.js';
@@ -179,6 +179,7 @@ class ContentList extends CaptureCentralList {
 			revision-id=${item.revisionId}
 			owner-id=${item.ownerId}
 			title=${item.title}
+			poster=${ifDefined(item.poster)}
 			description=${item.description}
 			?can-transfer-ownership=${this.canTransferOwnership}
 			@content-list-item-renamed=${this.contentListItemRenamedHandler}
@@ -186,7 +187,6 @@ class ContentList extends CaptureCentralList {
 			@content-list-item-deleted=${this.contentListItemDeletedHandler}
 			@content-list-item-owner-changed=${this.contentListItemOwnerHandler}
 		>
-			<d2l-icon icon="tier1:file-video" slot="icon"></d2l-icon>
 			<div slot="title" class="title">${item.title}</div>
 			<div slot="description">${item.description}</div>
 			<div slot="owner">${item.ownerDisplayName}</div>

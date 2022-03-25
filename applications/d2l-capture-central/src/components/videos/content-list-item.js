@@ -1,6 +1,6 @@
 import '@brightspace-ui/core/components/button/button-icon.js';
 import '@brightspace-ui/core/components/icons/icon.js';
-import '@brightspace-ui/core/components/list/list-item.js';
+import '@brightspace-ui/core/components/list/list-item-button.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-more.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-menu.js';
 import '@brightspace-ui/core/components/menu/menu.js';
@@ -34,6 +34,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 			disabled: { type: Boolean },
 			dropdownBoundary: { type: Object, attribute: false },
 			id: { type: String },
+			poster: { type: String },
 			revisionId: { type: String, attribute: 'revision-id' },
 			selectable: { type: Boolean },
 			title: { type: String },
@@ -56,6 +57,20 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 
 			.d2l-body-compact {
 				position: relative;
+			}
+
+			.d2l-capture-central-video-item-illustration {
+				align-items: center;
+				display: flex;
+				height: 64px;
+				justify-content: center;
+				width: 64px;
+			}
+
+			.d2l-capture-central-video-poster-image {
+				height: 100%;
+				object-fit: cover;
+				width: 100%;
 			}
 		`];
 	}
@@ -81,17 +96,23 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 	}
 
 	render() {
+		const illustration = (this.poster && this.poster !== '') ? html`
+			<img class="d2l-capture-central-video-poster-image" src="${this.poster}" slot="illustration">
+		` : html`
+			<d2l-icon icon="tier1:file-video" slot="illustration"></d2l-icon>
+		`;
+
 		return html`
-			<d2l-list-item class="d2l-body-compact"
+			<d2l-list-item-button class="d2l-body-compact"
 				?disabled=${this.disabled}
-				@click=${this.dispatchPreviewEvent}
-				href="#"
+				@d2l-list-item-button-click=${this.dispatchPreviewEvent}
 				label="${this.title}"
+				padding-type='slim'
 				?selectable=${this.selectable}
 				key=${this.id}
 			>
-				<div slot="illustration">
-					<slot name="icon"></slot>
+				<div class="d2l-capture-central-video-item-illustration" slot="illustration">
+					${illustration}
 				</div>
 
 				<content-list-columns>
@@ -125,11 +146,11 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 				</div>
 
 				<d2l-dialog-confirm
-				id="d2l-capture-central-confirm-delete"
-				class="d2l-capture-central-confirm-delete"
-				title-text="${this.localize('confirmDelete')}"
-				text="${this.localize('confirmDeleteMessage', {fileName: this.title})}"
-			>
+					id="d2l-capture-central-confirm-delete"
+					class="d2l-capture-central-confirm-delete"
+					title-text="${this.localize('confirmDelete')}"
+					text="${this.localize('confirmDeleteMessage', {fileName: this.title})}"
+				>
 				<d2l-button
 					@click="${this.delete()}"
 					data-dialog-action="yes"
@@ -145,7 +166,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 				${this.localize('cancel')}
 				</d2l-button>
 				</d2l-dialog-confirm>
-			</d2l-list-item>
+			</d2l-list-item-button>
 
 			<d2l-dialog id="edit-description-dialog" title-text="${this.localize('description')}">
 				<d2l-input-text
@@ -330,7 +351,10 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 	}
 
 	openEditDescriptionDialog() {
-		this.description = this.description === 'undefined' ? '' : this.description;
+		if (this.description === 'undefined') {
+			this.description = '';
+			this.confirmEditDescriptionDisabled = true;
+		}
 		return async() => {
 			const action = await this.shadowRoot.querySelector('#edit-description-dialog').open();
 			const descriptionInputElement = this.shadowRoot.querySelector('#edit-description-input');

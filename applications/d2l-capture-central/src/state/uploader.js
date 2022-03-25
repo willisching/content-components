@@ -182,7 +182,7 @@ export class Uploader {
 				contentId: content.id,
 				revisionId: revision.id
 			});
-			await this._monitorProgressAsync(content, revision, ({ percentComplete = 0, ready, error }) => {
+			await this._monitorProgressAsync(content, revision, async({ percentComplete = 0, ready, error }) => {
 				const upload = this.uploads.find(
 					upload => upload.file === file
 				);
@@ -192,7 +192,13 @@ export class Uploader {
 				}
 
 				if (ready && upload.progress === 100) {
-					this.successfulUpload = { upload, content, revision };
+					let poster;
+					try {
+						poster = (await this.apiClient.getPoster({ contentId: content.id, revisionId: revision.id })).value;
+					} catch (error) {
+						// Ignore if the poster can't be retrieved. An icon will be shown instead of the poster image.
+					}
+					this.successfulUpload = { upload, content, revision, poster };
 				}
 			});
 		} catch (error) {

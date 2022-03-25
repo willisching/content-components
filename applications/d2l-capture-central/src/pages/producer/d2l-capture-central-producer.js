@@ -78,7 +78,7 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 				<d2l-breadcrumb
 					@click=${this._goTo(`/${pageNames.videos}`)}
 					href=""
-					text="${this.localize('captureCentral')}"
+					text="${this.localize('mediaLibrary')}"
 				></d2l-breadcrumb>
 				${this._currentPageTitle ? html`
 					<d2l-breadcrumb-current-page
