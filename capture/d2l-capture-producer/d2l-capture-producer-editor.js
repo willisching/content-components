@@ -246,10 +246,10 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		// Wait for video to be loaded
 		this._mediaPlayer.addEventListener('loadeddata', () => {
 			if (this.enableCutsAndChapters && this.metadata) {
-				this._handleMediaPlayerUpdate();
 				this._timelineElement.resetTimelineWithNewCuts(this.metadata.cuts);
 				this._timelineElement.changeToSeekMode();
 			}
+			this._handleMediaPlayerUpdate();
 			this._videoLoaded = true;
 			this.dispatchEvent(new CustomEvent('media-loaded', { composed: false }));
 		});
