@@ -98,7 +98,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this.captionsLoading = false;
 
 		this.mediaPlayerDuration = 0;
-		this.mediaPlayerCurrentTime = 1;
+		this.mediaPlayerCurrentTime = 0;
 		this.mediaPlayerPaused = false;
 		this.mediaPlayerEnded = false;
 
@@ -123,6 +123,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 						?autoplay="${this._is_IOS}"
 						crossorigin="anonymous"
 						@cuechange="${this._handleCueChange}"
+						@durationchange="${this._handleMediaPlayerUpdate}"
 						@error="${this._handleMediaError}"
 						hide-captions-selection
 						?hide-seek-bar="${this.enableCutsAndChapters}"
@@ -248,7 +249,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 				this._timelineElement.resetTimelineWithNewCuts(this.metadata.cuts);
 				this._timelineElement.changeToSeekMode();
 			}
-			this._handleMediaPlayerUpdate();
 			this._videoLoaded = true;
 			this.dispatchEvent(new CustomEvent('media-loaded', { composed: false }));
 		});
