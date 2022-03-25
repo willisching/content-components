@@ -43,6 +43,10 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			src: { type: String },
 			timelineVisible: { type: Boolean, attribute: 'timeline-visible' },
 
+			mediaPlayerDuration: { type: Number, attribute: false},
+			mediaPlayerCurrentTime: { type: Number, attribute: false},
+			mediaPlayerPaused: { type: Boolean, attribute: false},
+			mediaPlayerEnded: { type: Boolean, attribute: false},
 			_activeCue: { type: Object, attribute: false },
 		};
 	}
@@ -92,6 +96,11 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this.captions = [];
 		this.captionsUrl = '';
 		this.captionsLoading = false;
+
+		this.mediaPlayerDuration = 0;
+		this.mediaPlayerCurrentTime = 1;
+		this.mediaPlayerPaused = false;
+		this.mediaPlayerEnded = false;
 
 		this.metadata = { cuts: [], chapters: [] };
 		this.metadataLoading = false;
@@ -187,19 +196,42 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 				${(this.enableCutsAndChapters ? html`
 					<d2l-capture-producer-timeline
 						@pause-media-player=${this._pauseMediaPlayerHandler}
+						@play-media-player=${this._playMediaPlayerHandler}
 						?enableCutsAndChapters=${this.enableCutsAndChapters}
 						.metadata=${this.metadata}
 						.mediaPlayer=${this._mediaPlayer}
+						.mediaPlayerDuration=${this.mediaPlayerDuration}
+						.mediaPlayerCurrentTime=${this.mediaPlayerCurrentTime}
+						.mediaPlayerPaused=${this.mediaPlayerPaused}
+						.mediaPlayerEnded=${this.mediaPlayerEnded}
 						?timelineVisible=${this.timelineVisible}
 						@timeline-first-updated=${this.timelineFirstUpdatedHandler}
 						@timeline-updated=${this.timelineUpdatedHandler}
+						@media-player-update=${this._handleMediaPlayerUpdate}
 						@update-chapter-time=${this._setChapterToTimeHandler}
+						@update-media-player-current-time=${this.handleMediaPlayerCurrentTimeUpdate}
 						?videoLoaded=${this._videoLoaded}
 						width=${this.canvasWidth}
 					></d2l-capture-producer-timeline>
 				` : '')}
 			</div>
 		`;
+	}
+
+	handleMediaPlayerCurrentTimeUpdate({detail:{time}}) {
+		this._mediaPlayer.currentTime = time;
+		this.mediaPlayerCurrentTime = time;
+	}
+
+	_handleMediaPlayerUpdate() {
+		this.mediaPlayerDuration = this.mediaPlayer.duration;
+		this.mediaPlayerCurrentTime = this.mediaPlayer.currentTime;
+		this.mediaPlayerPaused = this.mediaPlayer.paused;
+		this.mediaPlayerEnded = this.mediaPlayer.ended;
+	}
+
+	_playMediaPlayerHandler() {
+		this.mediaPlayer.play();
 	}
 
 	get mediaPlayer() {
@@ -214,6 +246,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		// Wait for video to be loaded
 		this._mediaPlayer.addEventListener('loadeddata', () => {
 			if (this.enableCutsAndChapters && this.metadata) {
+				this._handleMediaPlayerUpdate();
 				this._timelineElement.resetTimelineWithNewCuts(this.metadata.cuts);
 				this._timelineElement.changeToSeekMode();
 			}

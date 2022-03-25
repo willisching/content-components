@@ -13,6 +13,10 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		return {
 			enableCutsAndChapters: { type: Boolean },
 			mediaPlayer: { type: Object },
+			mediaPlayerDuration: { type: Number },
+			mediaPlayerCurrentTime: { type: Number },
+			mediaPlayerPaused: { type: Boolean },
+			mediaPlayerEnded: { type: Boolean },
 			metadata: { type: Object },
 			timelineVisible: { type: Boolean },
 			width: { type: Number },
@@ -185,6 +189,10 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			this.resetTimelineWithNewCuts(this.metadata.cuts);
 		}
 
+		if (changedProperties.has('mediaPlayerDuration')){
+			this._configureStage();
+		}
+
 		this.dispatchEvent(new CustomEvent(
 			'timeline-updated',
 			{
@@ -245,7 +253,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		}
 
 		this.timeline = new Timeline({
-			durationSeconds: this.mediaPlayer.duration,
+			durationSeconds: this.mediaPlayerDuration,
 			widthPixels: this._timelineWidth,
 			cuts,
 			zoomMultiplier: this._zoomMultiplier,
@@ -265,8 +273,8 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 		// Restart video if paused at end cut.
 		Object.values(this.timeline.getCuts()).reverse().forEach(cut => {
-			if ((!cut.out || (cut.out >= this.mediaPlayer.duration)) && this.mediaPlayer.currentTime === cut.in) {
-				this.mediaPlayer.currentTime = 0;
+			if ((!cut.out || (cut.out >= this.mediaPlayerDuration)) && this.mediaPlayerCurrentTime === cut.in) {
+				this.updateMediaPlayerCurrentTime(0);
 			}
 
 			// Only interested in the last cut, break the loop.
@@ -274,19 +282,48 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		});
 
 		this.updateTimelineInterval = setInterval(() => {
+			// update the media player data
+			this.dispatchEvent(new CustomEvent('media-player-update'));
+
 			// Skip cuts
-			const cut = this.timeline.getCutOverTime(this.mediaPlayer.currentTime);
+			const cut = this.timeline.getCutOverTime(this.mediaPlayerCurrentTime);
 			if (cut) {
-				if (!cut.out || (cut.out >= this.mediaPlayer.duration)) {
-					this.mediaPlayer.currentTime = cut.in;
-					this.mediaPlayer.pause();
+				if (!cut.out || (cut.out >= this.mediaPlayerDuration)) {
+					this.updateMediaPlayerCurrentTime(cut.in);
+					this.mediaPlayerPaused;
 				} else {
-					this.mediaPlayer.currentTime = cut.out;
+					this.updateMediaPlayerCurrentTime(cut.out);
 				}
 			}
 
 			this.updateVideoTime();
 		}, 50);
+	}
+
+	pauseMediaPlayer() {
+		this.dispatchEvent(new CustomEvent(
+			'pause-media-player',
+			{
+				composed: false,
+			}
+		));
+	}
+	playMediaPlayer() {
+		this.dispatchEvent(new CustomEvent(
+			'play-media-player',
+			{
+				composed: false,
+			}
+		));
+	}
+	updateMediaPlayerCurrentTime(time) {
+		this.dispatchEvent(new CustomEvent(
+			'update-media-player-current-time',
+			{
+				composed: false,
+				detail: {time},
+			}
+		));
 	}
 	updateVideoTime() {
 		// If the timeline is disabled for the current file format, do nothing.
@@ -295,13 +332,13 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		}
 
 		// Clear the seeked time once the video has caught up
-		if (this._mouseTime && Math.abs(this._mouseTime - this.mediaPlayer.currentTime) < 1) {
+		if (this._mouseTime && Math.abs(this._mouseTime - this.mediaPlayerCurrentTime) < 1) {
 			this._mouseTime = null;
 		}
 
 		const { lowerTimeBound, upperTimeBound } = this.timeline.getTimeBoundsOfTimeline();
 
-		const time = this._mouseTime || this.mediaPlayer.currentTime;
+		const time = this._mouseTime || this.mediaPlayerCurrentTime;
 
 		let width;
 
@@ -417,12 +454,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this._updateMouseEnabledForMarks();
 		this._contentMarker.mouseEnabled = false;
 		this._hideCursor();
-		this.dispatchEvent(new CustomEvent(
-			'pause-media-player',
-			{
-				composed: false,
-			}
-		));
+		this.pauseMediaPlayer();
 	}
 
 	_changeToMarkMode() {
@@ -432,12 +464,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this._contentMarker.mouseEnabled = false;
 		this._cutHighlight.visible = false;
 		this._stage.update();
-		this.dispatchEvent(new CustomEvent(
-			'pause-media-player',
-			{
-				composed: false,
-			}
-		));
+		this.pauseMediaPlayer();
 	}
 
 	_clampNumBetweenMinAndMax(num, min, max) {
@@ -731,18 +758,18 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 	}
 
 	_getRoundedTime(time) {
-		return Math.min(Math.round(time), Math.floor(this.mediaPlayer.duration));
+		return Math.min(Math.round(time), Math.floor(this.mediaPlayerDuration));
 	}
 
 	_getSeekModeHandlers() {
 		const me = this;
 		const seek = event => {
-			if (this.mediaPlayer.duration > 0) {
+			if (this.mediaPlayerDuration > 0) {
 				const { lowerTimeBound, upperTimeBound } = this.timeline.getTimeBoundsOfTimeline();
 				const progress = event.localX / me._timelineWidth;
 
 				this._mouseTime = (upperTimeBound - lowerTimeBound) * progress + lowerTimeBound;
-				this.mediaPlayer.currentTime = this._mouseTime;
+				this.updateMediaPlayerCurrentTime(this._mouseTime);
 				this.updateVideoTime();
 			}
 		};
@@ -754,8 +781,8 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 				this._stage.mouseMoveOutside = false;
 
 				if (this._shouldResumePlaying) {
-					if (this.mediaPlayer.currentTime < this.mediaPlayer.duration) {
-						this.mediaPlayer.play();
+					if (this.mediaPlayerCurrentTime < this.mediaPlayerDuration) {
+						this.playMediaPlayer();
 					}
 
 					this._shouldResumePlaying = false;
@@ -773,8 +800,8 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		seekMode.timelineMouseDown = event => {
 			this._stage.mouseMoveOutside = true;
 
-			this._shouldResumePlaying = !this.mediaPlayer.paused && !this.mediaPlayer.ended;
-			this.mediaPlayer.pause();
+			this._shouldResumePlaying = !this.mediaPlayerPaused && !this.mediaPlayerEnded;
+			this.pauseMediaPlayer();
 
 			seekMode.timelinePressMove(event);
 		};
@@ -947,7 +974,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			setMarkStyleHighlighted(markUnderMouse.displayObject);
 			this._showAndMoveTimeContainer(markUnderMouse.seconds);
 		} else if (this._isMouseOverTimeline(false)
-			&& (roundedTime >= 0 && roundedTime < this.mediaPlayer.duration)) {
+			&& (roundedTime >= 0 && roundedTime < this.mediaPlayerDuration)) {
 			this._cursor.time = roundedTime;
 			this._cursor.displayObject.visible = true;
 			this._cursor.displayObject.setTransform(this._getRoundedPosition(stageXPosition) + constants.CURSOR_OFFSET_X, constants.CURSOR_OFFSET_Y);
@@ -1013,7 +1040,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		const zoomHandleValue = this._getZoomHandleValue();
 
 		// See US130745 for details on this calculation
-		this._zoomMultiplier = Math.max(Math.pow(Math.pow((2 * this.mediaPlayer.duration * constants.MARK_WIDTH / this._timelineWidth), 1 / constants.ZOOM_HANDLE_MAX_DEPTH), zoomHandleValue), 1);
+		this._zoomMultiplier = Math.max(Math.pow(Math.pow((2 * this.mediaPlayerDuration * constants.MARK_WIDTH / this._timelineWidth), 1 / constants.ZOOM_HANDLE_MAX_DEPTH), zoomHandleValue), 1);
 
 		this.timeline.zoomMultiplier = this._zoomMultiplier;
 	}
