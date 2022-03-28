@@ -2,11 +2,11 @@ import { Container, Shape, Stage, Text } from '@createjs/easeljs';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { bodyCompactStyles, labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';
-import { InternalLocalizeMixin } from './src/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from './internal-localize-mixin.js';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
-import constants from './src/constants.js';
+import constants from './constants.js';
 import { styleMap } from 'lit-html/directives/style-map.js';
-import { Timeline } from './src/timeline';
+import { Timeline } from './timeline';
 
 class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
@@ -216,6 +216,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this._cutHighlight.visible = false;
 		this._hideCursor();
 	}
+
 	handleActiveChapterUpdated({ detail: { chapterTime } }) {
 		if (chapterTime !== null) {
 			this._activeChapterTime = chapterTime;
@@ -237,6 +238,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		}
 		this._stage.update();
 	}
+
 	pauseMediaPlayer() {
 		this.dispatchEvent(new CustomEvent(
 			'pause-media-player',
@@ -253,6 +255,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			}
 		));
 	}
+
 	resetTimelineWithNewCuts(cuts) {
 		this._currentMark = null;
 
@@ -320,6 +323,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			}
 		));
 	}
+
 	updateVideoTime() {
 		// If the timeline is disabled for the current file format, do nothing.
 		if (!this.enableCutsAndChapters) {
@@ -348,6 +352,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this._playedRect.graphics.clear().beginFill(constants.COLOURS.TIMELINE_PLAYED).drawRect(0, 0, width, this._getTimelineHeight());
 		this._stage.update();
 	}
+
 	_addCutToStage(cut) {
 		const { inPixels, outPixels } = cut.getPixelsAlongTimeline();
 
