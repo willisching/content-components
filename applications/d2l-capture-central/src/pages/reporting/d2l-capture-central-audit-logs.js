@@ -23,6 +23,7 @@ class D2LCaptureAuditLogs extends DependencyRequester(PageViewElement) {
 			_auditLogs: { type: Array }
 		};
 	}
+
 	static get styles() {
 		return [inputStyles, heading2Styles, labelStyles, sharedManageStyles, sharedTableStyles, tableStyles, css`
 			.d2l-capture-central-manage-header {

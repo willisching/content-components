@@ -22,6 +22,7 @@ class D2lCaptureFolders extends DependencyRequester(PageViewElement) {
 			_folders: { type: Array }
 		};
 	}
+
 	static get styles() {
 		return [ tableStyles, heading2Styles, sharedManageStyles, sharedTableStyles, css`
 		`];

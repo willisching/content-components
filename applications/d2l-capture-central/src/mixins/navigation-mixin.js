@@ -22,6 +22,7 @@ export const navigationMixin = superClass => class extends (superClass) {
 	_goTo(route, queryParams) {
 		return () => this._navigate(route, queryParams);
 	}
+
 	_navigate(path, queryStringCollection) {
 		rootStore.routingStore.setPreviousPage();
 		const pathWithQs = `/${rootStore.routingStore.orgUnitId}${path}${this.__stringifyQueryStringCollection(queryStringCollection)}`;

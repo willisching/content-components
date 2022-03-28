@@ -82,6 +82,7 @@ export default class ContentServiceClient {
 		const reversedCopyOfRevisions = content.revisions.slice().reverse();
 		return reversedCopyOfRevisions.find(revision => !revision.draft);
 	}
+
 	getMetadata({ contentId, revisionId }) {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/resources/metadata/file-content`

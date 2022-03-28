@@ -9,6 +9,7 @@ class RelativeDate extends LitElement {
 			relative: { type: String, attribute: false }
 		};
 	}
+
 	static get styles() {
 		return css`
 			.relative-date {
@@ -28,6 +29,7 @@ class RelativeDate extends LitElement {
 			${this.relative}
 		</div>`;
 	}
+
 	updated(changedProperties) {
 		if (this.value !== changedProperties.value) {
 			this.setupFormatRelativeDate();

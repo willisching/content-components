@@ -6,6 +6,7 @@ class D2lCaptureCentral404 extends PageViewElement {
 	static get styles() {
 		return [navigationSharedStyle];
 	}
+
 	render() {
 		return html`
 			<div class="d2l-navigation-gutters">

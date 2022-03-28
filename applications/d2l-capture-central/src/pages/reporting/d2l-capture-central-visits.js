@@ -16,6 +16,7 @@ class D2LCaptureVisits extends DependencyRequester(PageViewElement) {
 			_visitLogs: { type: Array }
 		};
 	}
+
 	static get styles() {
 		return [inputStyles, heading2Styles, labelStyles, sharedManageStyles, sharedTableStyles, tableStyles, css`
 			.d2l-capture-central-manage-header {

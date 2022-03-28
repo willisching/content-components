@@ -149,6 +149,7 @@ class ColumnHeaderChoice extends LitElement {
 			this.removeAttribute(name);
 		}
 	}
+
 	get sortQuery() {
 		return `${this.sortKey}:${this.currentSortDesc ? 'desc' : 'asc'}`;
 	}

@@ -21,6 +21,7 @@ class D2lCaptureAddVideosDialog extends contentSearchMixin(DependencyRequester(I
 			_selectedVideos: { type: Array },
 		};
 	}
+
 	static get styles() {
 		return [ bodyCompactStyles, heading3Styles, sharedManageStyles, css`
 			.d2l-capture-central-video-list {

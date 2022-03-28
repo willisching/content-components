@@ -13,6 +13,7 @@ class D2LCaptureLiveEvents extends DependencyRequester(PageViewElement) {
 			_loading: { type: Boolean, attribute: false },
 		};
 	}
+
 	static get styles() {
 		return [css`
 			capture-central-live-events {

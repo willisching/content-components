@@ -20,6 +20,7 @@ export class S3Uploader {
 			this.httprequest.abort();
 		}
 	}
+
 	createRequest(method, url, opts = {}) {
 		const xhr = new XMLHttpRequest();
 		xhr.open(method, url, true);
