@@ -83,6 +83,7 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 			</d2l-dropdown-button-subtle>
 		`;
 	}
+
 	clearFilters() {
 		this.numSelectedFilters = 0;
 		this.filterOptions.forEach(option => {

@@ -247,6 +247,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			}
 		));
 	}
+
 	playMediaPlayer() {
 		this.dispatchEvent(new CustomEvent(
 			'play-media-player',
@@ -667,6 +668,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			}
 		};
 	}
+
 	_getHitBoxHeight() {
 		return constants.HITBOX_HEIGHT_MIN + this._getZoomHandleValue();
 	}
@@ -828,6 +830,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 		return this.timeline.getTimeFromPixelsAlongTimeline(pixelsAlongTimeline);
 	}
+
 	_getTimelineHeight() {
 		return constants.TIMELINE_HEIGHT_MIN + this._getZoomHandleValue();
 	}
@@ -862,6 +865,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			return objects.includes(this._timelineRect);
 		}
 	}
+
 	_moveContentMarker(event) {
 		if (this._controlMode === constants.CONTROL_MODES.SEEK) {
 			this._setChapterTimeEvent(this._getTimeFromStageX(event.stageX));
@@ -880,6 +884,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 		this._stage.update();
 	}
+
 	_onZoomHandleMouseDown(event) {
 		this._zoomHandleDragOffsetY = event.stageY - this._zoomHandle.y;
 	}
@@ -983,6 +988,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 		this._stage.update();
 	}
+
 	_setMarkStyleNormal(mark) {
 		mark.displayObject.graphics.clear().beginFill(constants.COLOURS.MARK).drawRect(0, 0, constants.MARK_WIDTH, this._getMarkHeight());
 	}
@@ -1016,6 +1022,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 		this._stage.update();
 	}
+
 	_updateMarkOnStage(mark) {
 		const pixelsAlongTimeline = mark.getPixelsAlongTimeline();
 

@@ -20,6 +20,7 @@ class D2LCaptureLiveEventsReporting extends DependencyRequester(PageViewElement)
 			_liveEventLogs: { type: Array }
 		};
 	}
+
 	static get styles() {
 		return [inputStyles, heading2Styles, labelStyles, sharedManageStyles, sharedTableStyles, tableStyles, css`
 			.d2l-capture-central-manage-header {

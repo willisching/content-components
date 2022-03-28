@@ -31,6 +31,7 @@ class LiveEventForm extends MobxReactionUpdate(NavigationMixin(RtlMixin(Internal
 			_alertMessage: { type: String, attribute: false }
 		};
 	}
+
 	static get styles() {
 		return [inputStyles,
 			heading2Styles,

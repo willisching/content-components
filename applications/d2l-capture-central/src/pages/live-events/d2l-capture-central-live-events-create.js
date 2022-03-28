@@ -26,6 +26,7 @@ class D2LCaptureLiveEventsCreate extends DependencyRequester(PageViewElement) {
 		return {
 		};
 	}
+
 	static get styles() {
 		return [inputStyles, heading2Styles, labelStyles, sharedEditStyles, css`
 		`];
@@ -57,6 +58,7 @@ class D2LCaptureLiveEventsCreate extends DependencyRequester(PageViewElement) {
 			<live-event-form id="create-live-event-form"></live-event-form>
 		`;
 	}
+
 	async handleCreateEvent(event) {
 		if (event && event.detail) {
 			const {

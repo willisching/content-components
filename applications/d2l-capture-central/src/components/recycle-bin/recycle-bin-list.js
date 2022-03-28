@@ -54,6 +54,7 @@ class RecycleBinList extends CaptureCentralList {
 		const numDays = (datePermDeleted.getTime() - today.getTime()) / millisInDay;
 		return Math.round(numDays);
 	}
+
 	onWindowScroll() {
 		const contentListElem = this.shadowRoot.querySelector('#d2l-content-store-list');
 		if (contentListElem) {

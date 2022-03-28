@@ -13,6 +13,7 @@ class ContentRenderer extends InternalLocalizeMixin(LitElement) {
 			d2lrn: { type: String, attribute: 'd2lrn' },
 		};
 	}
+
 	static get styles() {
 		return css`
 			:host {

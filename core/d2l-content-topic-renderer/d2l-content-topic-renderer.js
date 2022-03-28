@@ -13,6 +13,7 @@ class ContentTopicRenderer extends LitElement {
 			topicId: { type: Number, attribute: 'topic-id' },
 		};
 	}
+
 	static get styles() {
 		return css`
 			:host {

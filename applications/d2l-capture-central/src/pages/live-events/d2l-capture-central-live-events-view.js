@@ -26,6 +26,7 @@ class D2LCaptureLiveEventsView extends DependencyRequester(PageViewElement) {
 			_loading: { type: Boolean, attribute: false },
 		};
 	}
+
 	static get styles() {
 		return [inputStyles, heading2Styles, labelStyles, sharedEditStyles, css`
 			d2l-loading-spinner {

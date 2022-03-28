@@ -191,6 +191,7 @@ class D2lContentStoreManage extends DependencyRequester(PageViewElement) {
 			});
 		};
 	}
+
 	renderPrimary() {
 		return html`
 			<content-page class="page" ?active=${this.page === 'content'}></content-page>
