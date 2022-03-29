@@ -189,10 +189,6 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			this.resetTimelineWithNewCuts(this.metadata.cuts);
 		}
 
-		if (changedProperties.has('mediaPlayerDuration')) {
-			this._configureStage();
-		}
-
 		this.dispatchEvent(new CustomEvent(
 			'timeline-updated',
 			{
