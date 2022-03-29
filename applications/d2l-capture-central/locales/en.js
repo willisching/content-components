@@ -11,7 +11,7 @@ export const val = {
 	cameraAndScreen: 'Camera and screen',
 	cancel: 'Cancel',
 	captureCentral: 'Capture Central',
-	captureEncoder: 'Capture Encoder',
+	captureEncoder: 'Create Presentation',
 	captureEncoderDescription: 'Capture Encoder is a tool used for recording camera and screen presentations, and publishing them to Brightspace.',
 	captureEncoderDesktopOnly: 'Capture Encoder is only available for desktop Windows and Mac.',
 	captureEncoderLaunchInstructions: 'If this is your first time, please make sure you download and install Capture Encoder to your computer before attempting to launch it from this screen.',
