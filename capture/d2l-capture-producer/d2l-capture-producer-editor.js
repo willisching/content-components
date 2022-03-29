@@ -113,6 +113,11 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this._is_IOS = /iPad|iPhone|iPod/.test(navigator.platform);
 	}
 
+	firstUpdated() {
+		super.firstUpdated();
+		this._mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
+	}
+
 	render() {
 		return html`
 			<div class="d2l-video-producer-editor">
@@ -228,9 +233,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	timelineFirstUpdatedHandler() {
-		super.firstUpdated();
-
-		this._mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
 		this._timelineElement = this.shadowRoot.querySelector('d2l-capture-producer-timeline');
 
 		// Wait for video to be loaded
