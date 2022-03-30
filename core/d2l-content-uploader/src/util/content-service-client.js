@@ -52,7 +52,7 @@ export default class ContentServiceClient {
 		const { tenantId, contentId, revisionId } = parse(d2lrn);
 		return this._fetch({
 			path: `/api/${tenantId}/content/${contentId}/revisions/${revisionId}/signed-url`,
-			query: { format }
+			query: { ...format && {format} }
 		});
 	}
 

@@ -32,7 +32,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			defaultLanguage: { type: Object },
 			enableCutsAndChapters: { type: Boolean },
 			finishing: { type: Boolean },
-			format: { type: String },
 			languages: { type: Array },
 			mediaType: { type: String },
 			metadata: { type: Object },
@@ -105,12 +104,16 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this.metadata = { cuts: [], chapters: [] };
 		this.metadataLoading = false;
 		this.timelineVisible = false;
-		this.format = '';
 		this.src = '';
 		this.languages = [];
 		this.defaultLanguage = {};
 		this.selectedLanguage = {};
 		this._is_IOS = /iPad|iPhone|iPod/.test(navigator.platform);
+	}
+
+	firstUpdated() {
+		super.firstUpdated();
+		this._mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
 	}
 
 	render() {
@@ -134,7 +137,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 						@seeking="${this._updateVideoTime}"
 						@trackloaded="${this._handleTrackLoaded}"
 					>
-						<source src="${this.src}" label="${this.format}">
+						<source src="${this.src}" label="${this.localize('closedCaptions')}">
 						${this.captionsUrl ? html`<track default-ignore-preferences src="${this.captionsUrl}" srclang="${this._formatCaptionsSrcLang()}" label="${this.selectedLanguage.name}" kind="subtitles">` : ''}
 					</d2l-labs-media-player>
 					<div class="d2l-video-producer-tabs-and-language-selection">
@@ -228,9 +231,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	timelineFirstUpdatedHandler() {
-		super.firstUpdated();
-
-		this._mediaPlayer = this.shadowRoot.querySelector('d2l-labs-media-player');
 		this._timelineElement = this.shadowRoot.querySelector('d2l-capture-producer-timeline');
 
 		// Wait for video to be loaded
@@ -397,6 +397,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 	_handleMediaPlayerUpdate() {
 		this.mediaPlayerDuration = this.mediaPlayer.duration;
+		console.log(this.mediaPlayerDuration);
 		this.mediaPlayerCurrentTime = this.mediaPlayer.currentTime;
 		this.mediaPlayerPaused = this.mediaPlayer.paused;
 		this.mediaPlayerEnded = this.mediaPlayer.ended;

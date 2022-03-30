@@ -200,7 +200,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 	async _loadMedia() {
 		if (this.activity) {
 			this._mediaSources = await this.hmClient.getMedia(this._resourceEntity);
-		} else if (this.href) {
+		} else if (this.href || !this._revision.formats || this._revision.formats.length === 0) {
 			this._mediaSources = [await this._getMediaSource()];
 		} else {
 			this._mediaSources = await Promise.all(this._revision.formats.map(format => this._getMediaSource(format)));
