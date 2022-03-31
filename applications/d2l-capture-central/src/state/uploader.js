@@ -156,7 +156,6 @@ export class Uploader {
 				contentId: content.id,
 				body: {
 					extension,
-					formats: ['hd', 'sd'],
 				}
 			});
 			const uploader = new S3Uploader({

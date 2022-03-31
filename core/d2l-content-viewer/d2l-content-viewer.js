@@ -11,6 +11,7 @@ import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
 const TRACK_ERROR_FETCH_WAIT_MILLISECONDS = 5000;
 const REVISION_POLL_WAIT_MILLISECONDS = 10000;
 const VALID_CONTENT_TYPES = [ContentType.Video, ContentType.Audio];
+const VIDEO_FORMATS_BEST_FIRST = [VideoFormat.HD, VideoFormat.SD, VideoFormat.LD, VideoFormat.MP3];
 
 class ContentViewer extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
@@ -21,6 +22,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 			_poster: { type: String, attribute: false },
 			_revision: { type: Object, attribute: false },
 			_thumbnails: { type: String, attribute: false },
+			_bestFormat: { type: String, attribute: false },
 			activity: { type: String, attribute: 'activity' },
 			allowDownload: { type: Boolean, attribute: 'allow-download'},
 			allowDownloadOnError: { type: Boolean, attribute: 'allow-download-on-error' },
@@ -69,6 +71,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 		this._metadata = null;
 		this._poster = null;
 		this._attemptedReloadOnError = false;
+		this._bestFormat = '';
 		this.noMediaFound = false;
 	}
 
@@ -205,6 +208,10 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 		} else {
 			this._mediaSources = await Promise.all(this._revision.formats.map(format => this._getMediaSource(format)));
 		}
+
+		this._bestFormat = this._mediaSources.length > 1 ? VIDEO_FORMATS_BEST_FIRST.find(format =>
+			this._mediaSources.some(mediaSource => mediaSource.format && mediaSource.format === format)
+		) : '';
 	}
 
 	async _loadMetadata() {
@@ -285,7 +292,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_renderMediaSource(source) {
-		return html`<source src=${source.src} label=${source.format} ?default=${source.format === VideoFormat.HD}>`;
+		return html`<source src=${source.src} label=${this.localize(`format${source.format || 'Source'}`)} ?default=${source.format === this._bestFormat}>`;
 	}
 
 	async _setup() {
