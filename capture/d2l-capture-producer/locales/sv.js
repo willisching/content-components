@@ -36,6 +36,8 @@ export const val = {
 	getProcessingProgressError: 'Det gick inte att läsa in bearbetningsstatus för den här mediefilen.',
 	hideExpandedCaptionsCueControls: 'Dölj utökade kontroller för den här undertexten',
 	insertNewCaptionsAtCurrentTime: 'Infoga nya undertexter vid den aktuella tidpunkten',
+	invalidFormat: 'Tiden måste ha följande format: HH:MM:SS.sss',
+	invalidTime: 'Tiden måste vara mindre än: {formattedTime}',
 	languages: 'Språk',
 	loadMetadataError: 'Ett fel inträffade vid inläsning av kapitel och klippning av tidslinjer',
 	loadCaptionsError: 'Ett fel inträffade vid inläsning av undertexter för {language}',

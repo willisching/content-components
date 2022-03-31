@@ -36,6 +36,8 @@ export const val = {
 	getProcessingProgressError: 'No se pudo cargar el estado de procesamiento de este archivo multimedia.',
 	hideExpandedCaptionsCueControls: 'Ocultar los controles ampliados para esta indicación de subtítulos',
 	insertNewCaptionsAtCurrentTime: 'Inserte nuevos subtítulos en el momento actual',
+	invalidFormat: 'El tiempo debe tener el siguiente formato: HH:MM:SS.sss',
+	invalidTime: 'El tiempo debe ser inferior a {formattedTime}',
 	languages: 'Idiomas',
 	loadMetadataError: 'Se produjo un error durante la carga de capítulos y cortes en la línea de tiempo',
 	loadCaptionsError: 'Se produjo un error durante la carga de los subtítulos para {language}',

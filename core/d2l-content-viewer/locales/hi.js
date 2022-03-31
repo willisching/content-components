@@ -1,5 +1,5 @@
 export const val = {
-	deletedMedia: 'यह मीडिया फ़ाइल हटा दी गई है',
+	deletedMedia: 'यह मीडिया फ़ाइल हटा दी गई है',
 	download: 'डाउनलोड करें',
 	formatHD: 'HD',
 	formatLD: 'LD',

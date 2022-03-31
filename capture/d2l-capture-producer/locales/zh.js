@@ -36,6 +36,8 @@ export const val = {
 	getProcessingProgressError: '无法加载此媒体文件的处理状态。',
 	hideExpandedCaptionsCueControls: '隐藏此字幕提示的扩展控件',
 	insertNewCaptionsAtCurrentTime: '在当前时间插入新字幕',
+	invalidFormat: '时间必须采用以下格式：HH:MM:SS.sss',
+	invalidTime: '时间必须小于：{formatedTime}',
 	languages: '语言',
 	loadMetadataError: '加载章节和时间线剪切时出错',
 	loadCaptionsError: '加载 ｛ language ｝ 的字幕时出错',

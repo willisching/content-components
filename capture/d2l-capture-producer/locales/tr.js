@@ -36,6 +36,8 @@ export const val = {
 	getProcessingProgressError: 'Bu ortam dosyasının işlem durumu yüklenemedi.',
 	hideExpandedCaptionsCueControls: 'Bu alt yazı işareti için genişletilmiş kontrolleri gizle',
 	insertNewCaptionsAtCurrentTime: 'Geçerli zamana yeni altyazı yerleştir',
+	invalidFormat: 'Süre şu biçimde olmalıdır: SS:DD:SS.sss',
+	invalidTime: 'Süre, {formattedTime} değerinden az olmalıdır',
 	languages: 'Diller',
 	loadMetadataError: 'Bölümler ve zaman çizelgesi kesimleri yüklenirken bir hata oluştu',
 	loadCaptionsError: '{language} için altyazılar yüklenirken bir hata oluştu',

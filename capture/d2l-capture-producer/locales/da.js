@@ -36,6 +36,8 @@ export const val = {
 	getProcessingProgressError: 'Kunne ikke indlæse behandlingsstatus for denne mediefil.',
 	hideExpandedCaptionsCueControls: 'Skjul udvidede kontrolelementer for dette undertekstsignal',
 	insertNewCaptionsAtCurrentTime: 'Indsæt nye billedtekster på nuværende tidspunkt',
+	invalidFormat: 'Tiden skal være i følgende format: TT:MM:SS.sss',
+	invalidTime: 'Tiden skal være mindre end:{formattedTime}',
 	languages: 'Sprog',
 	loadMetadataError: 'Der opstod en fejl under indlæsning af kapitler og tidslinjeskæringer',
 	loadCaptionsError: 'Der opstod en fejl under indlæsning af billedtekster for {language}',
