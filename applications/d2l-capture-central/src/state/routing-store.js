@@ -47,14 +47,12 @@ export class RoutingStore {
 		const pathNameWithoutBase = stripBasePath(routeCtx.pathname);
 		let page = pathNameWithoutBase;
 		let subView = '';
-		let orgUnitId;
-
 		if (pathNameWithoutBase.includes('/')) {
-			[orgUnitId, page, subView] = pathNameWithoutBase.split('/');
+			[page, subView] = pathNameWithoutBase.split('/');
 		}
 		const queryParams = querystring.parse(routeCtx.querystring);
 
-		this.orgUnitId = orgUnitId;
+		this.orgUnitId = queryParams.ou;
 		this.page = page;
 		this.params = routeCtx.params;
 		this.subView = subView;

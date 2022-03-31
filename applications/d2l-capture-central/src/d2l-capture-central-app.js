@@ -364,26 +364,25 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 		page.base(BASE_PATH);
 
 		const routes = [
-			`/:orgUnitId/${pageNames.page404}`,
-			`/:orgUnitId/${pageNames.auditLogs}`,
-			`/:orgUnitId/${pageNames.clips}`,
-			`/:orgUnitId/${pageNames.folders}`,
+			`/${pageNames.page404}`,
+			`/${pageNames.auditLogs}`,
+			`/${pageNames.clips}`,
+			`/${pageNames.folders}`,
 			/*
 			Live Events will be hidden for now. See: US134918
-			`/:orgUnitId/${pageNames.viewLiveEvent}`,
-			`/:orgUnitId/${pageNames.manageLiveEvents}`,
-			`/:orgUnitId/${pageNames.manageLiveEvents}/create`,
-			`/:orgUnitId/${pageNames.manageLiveEvents}/edit`,
-			`/:orgUnitId/${pageNames.liveEventsReporting}`,
+			`/${pageNames.viewLiveEvent}`,
+			`/${pageNames.manageLiveEvents}`,
+			`/${pageNames.manageLiveEvents}/create`,
+			`/${pageNames.manageLiveEvents}/edit`,
+			`/${pageNames.liveEventsReporting}`,
 			*/
-			`/:orgUnitId/${pageNames.videos}`,
-			`/:orgUnitId/${pageNames.encoder}`,
-			`/:orgUnitId/${pageNames.recycleBin}`,
-			`/:orgUnitId/${pageNames.producer}/:id`,
-			`/:orgUnitId/${pageNames.preview}/:id`,
-			`/:orgUnitId/${pageNames.settings}`,
-			`/:orgUnitId/${pageNames.visits}`,
-			'/:orgUnitId/',
+			`/${pageNames.videos}`,
+			`/${pageNames.encoder}`,
+			`/${pageNames.recycleBin}`,
+			`/${pageNames.producer}/:id`,
+			`/${pageNames.preview}/:id`,
+			`/${pageNames.settings}`,
+			`/${pageNames.visits}`,
 			'/*',
 		];
 		routes.forEach(route => page(route, this.setupPage.bind(this)));
