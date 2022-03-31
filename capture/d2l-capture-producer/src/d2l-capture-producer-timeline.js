@@ -18,9 +18,10 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			mediaPlayerEnded: { type: Boolean },
 			metadata: { type: Object },
 			timelineVisible: { type: Boolean },
-			width: { type: Number },
+			width: { type: String },
 			videoLoaded: { type: Boolean },
 
+			_widthPixels: { type: Number, attribute: false },
 			_zoomMultiplier: { type: Number, attribute: false },
 			_zoomMultiplierDisplayOpacity: { type: Number, attribute: false },
 		};
@@ -107,6 +108,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 	firstUpdated() {
 		super.firstUpdated();
+		this._addWidthEventHandler();
 
 		this.dispatchEvent(new CustomEvent(
 			'timeline-first-updated',
@@ -117,7 +119,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 		this.style.setProperty(
 			'--canvas-container-width',
-			this.width
+			this._widthPixels
 				? `${this.canvasContainerWidth}px`
 				: 'unset'
 		);
@@ -131,7 +133,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		return html`
 			<div class="d2l-video-producer-timeline" style="visibility: ${this.timelineVisible ? 'visible' : 'hidden'};">
 				<div id="canvas-container">
-					<canvas height="${constants.CANVAS_HEIGHT}px" width="${this.width}px" id="timeline-canvas"></canvas>
+					<canvas height="${constants.CANVAS_HEIGHT}px" width="${this._widthPixels}px" id="timeline-canvas"></canvas>
 					<div id="zoom-multiplier" style=${styleMap(zoomMultiplierStyleMap)}>
 						${this._getZoomMultiplierDisplay()}
 					</div>
@@ -189,6 +191,10 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			this.resetTimelineWithNewCuts(this.metadata.cuts);
 		}
 
+		if (changedProperties.has('_widthPixels')) {
+			this._redrawTimeline();
+		}
+
 		this.dispatchEvent(new CustomEvent(
 			'timeline-updated',
 			{
@@ -201,7 +207,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 	}
 
 	get canvasContainerWidth() {
-		return this.width + constants.CANVAS_BORDER_WIDTH * 2;
+		return this._widthPixels + constants.CANVAS_BORDER_WIDTH * 2;
 	}
 
 	changeToSeekMode() {
@@ -323,7 +329,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 	updateVideoTime() {
 		// If the timeline is disabled for the current file format, do nothing.
-		if (!this.enableCutsAndChapters) {
+		if (!this.enableCutsAndChapters || !this.timeline) {
 			return;
 		}
 
@@ -443,6 +449,18 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this._setMarkStyleNormal(this._currentMark);
 
 		this._stage.update();
+	}
+
+	_addWidthEventHandler() {
+		const { value, isPercentage } = this._parseWidth(this.width);
+		if (isPercentage) {
+			this._updateRelativeWidth(value);
+			window.addEventListener('resize', () => {
+				this._updateRelativeWidth(value);
+			});
+		} else {
+			this._widthPixels = value;
+		}
 	}
 
 	_changeToCutMode() {
@@ -903,6 +921,12 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this._zoomHandleDragOffsetY = null;
 	}
 
+	_parseWidth(str) {
+		const value = parseInt(str);
+		const isPercentage = str.substr(-1) === '%';
+		return { value, isPercentage };
+	}
+
 	_recalculateDisplayObjectsAfterZoomChange() {
 		for (const mark of this.timeline.getMarks()) this._stage.removeChild(mark.displayObject);
 
@@ -939,6 +963,27 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this._zoomHandle.graphics.clear().beginFill(newZoomHandleColour).drawRect(0, 0, constants.ZOOM_HANDLE_WIDTH, constants.ZOOM_HANDLE_HEIGHT);
 
 		this.updateVideoTime();
+	}
+
+	_redrawTimeline() {
+		const newZoomHandleColour = this._getZoomHandleValue() === 0 ? constants.COLOURS.ZOOM_HANDLE_UNSET : constants.COLOURS.ZOOM_HANDLE_SET;
+		this._zoomHandle.graphics.clear().beginFill(newZoomHandleColour).drawRect(0, 0, constants.ZOOM_HANDLE_WIDTH, constants.ZOOM_HANDLE_HEIGHT);
+		this._timelineRect.graphics.clear().beginFill(constants.COLOURS.TIMELINE).drawRect(0, 0, this._timelineWidth, this._getTimelineHeight());
+		this.updateVideoTime();
+		this._cursor.displayObject.graphics.clear().beginFill(constants.COLOURS.MARK).drawRect(0, 0, constants.MARK_WIDTH, this._getMarkHeight());
+		if (this._activeChapterTime !== null) {
+			const stageX = this._getStageXFromTime(this._activeChapterTime);
+			this._contentMarker.setTransform(stageX + constants.CURSOR_OFFSET_X, constants.CURSOR_OFFSET_Y);
+		}
+		this._contentMarker.graphics.clear().beginFill(constants.COLOURS.CONTENT).drawRect(0, 0, constants.MARK_WIDTH, this._getMarkHeight());
+		this._contentMarkerHitBox.graphics.clear().beginFill(constants.COLOURS.CONTENT_HIT_BOX).drawRect(constants.HITBOX_OFFSET, constants.HITBOX_OFFSET, constants.HITBOX_WIDTH, this._getHitBoxHeight());
+
+		if (this.timeline) {
+			for (const mark of this.timeline.getMarks()) this._updateMarkOnStage(mark);
+			for (const cut of this.timeline.getCuts()) this._updateCutOnStage(cut);
+		}
+
+		this._stage.update();
 	}
 
 	_setChapterTimeEvent(time) {
@@ -1005,11 +1050,16 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 	}
 
 	get _timelineWidth() {
-		return this.width - constants.TIMELINE_OFFSET_X * 2;
+		return this._widthPixels - constants.TIMELINE_OFFSET_X * 2;
 	}
 
 	_updateCutOnStage(cut) {
-		const { inPixels, outPixels } = cut.getPixelsAlongTimeline();
+		const pixels = cut.getPixelsAlongTimeline();
+		if (!pixels) {
+			cut.displayObject.graphics.clear();
+			return;
+		}
+		const { inPixels, outPixels } = pixels;
 		const width = outPixels - inPixels + 1;
 		const stageX = this._getStageXFromPixelsAlongTimeline(inPixels);
 
@@ -1035,6 +1085,24 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 	_updateMouseEnabledForMarks() {
 		this.timeline.getMarksOnTimeline().forEach(mark => mark.displayObject.mouseEnabled = this._controlMode === constants.CONTROL_MODES.MARK);
+	}
+
+	_updateRelativeWidth(percentage) {
+		const rootContainer = this.shadowRoot.querySelector('.d2l-video-producer-timeline');
+		const controlButtonsContainer = this.shadowRoot.querySelector('.d2l-video-producer-timeline-controls');
+		const {value: rootWidth} = this._parseWidth(getComputedStyle(rootContainer).getPropertyValue('width'));
+		const {value: controlButtonWidth} = this._parseWidth(getComputedStyle(controlButtonsContainer).getPropertyValue('width'));
+		this._widthPixels = (rootWidth * percentage / 100) - controlButtonWidth ;
+		if (this.timeline) {
+			this.timeline.widthPixels = this._timelineWidth;
+		}
+
+		this.style.setProperty(
+			'--canvas-container-width',
+			this._widthPixels
+				? `${this.canvasContainerWidth}px`
+				: 'unset'
+		);
 	}
 
 	_updateZoomMultiplierFromZoomHandle() {
