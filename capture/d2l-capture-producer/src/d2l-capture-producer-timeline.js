@@ -454,10 +454,13 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 	_addWidthEventHandler() {
 		const { value, isPercentage } = this._parseWidth(this.width);
 		if (isPercentage) {
-			this._updateRelativeWidth(value);
-			window.addEventListener('resize', () => {
-				this._updateRelativeWidth(value);
+			const observer = new ResizeObserver((mutations) => {
+				mutations.forEach(() => {
+					this._updateRelativeWidth.bind(this)(value);
+				});
 			});
+			const target = this.shadowRoot.querySelector('.d2l-video-producer-timeline');
+			observer.observe(target, { attributes : true, attributeFilter : ['style'] });
 		} else {
 			this._widthPixels = value;
 		}
