@@ -142,7 +142,7 @@ class D2LCaptureCentralPreview extends DependencyRequester(PageViewElement) {
 	}
 
 	renderSources(source) {
-		return html`<source src=${source.value} label=${source.format?.toUpperCase() || 'Source'}>`;
+		return html`<source src=${source.value} label=${this.localize(source.format?.toLowerCase() ?? 'source')}>`;
 	}
 
 }

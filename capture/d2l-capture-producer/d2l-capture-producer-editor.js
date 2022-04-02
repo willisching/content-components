@@ -397,7 +397,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 	_handleMediaPlayerUpdate() {
 		this.mediaPlayerDuration = this.mediaPlayer.duration;
-		console.log(this.mediaPlayerDuration);
 		this.mediaPlayerCurrentTime = this.mediaPlayer.currentTime;
 		this.mediaPlayerPaused = this.mediaPlayer.paused;
 		this.mediaPlayerEnded = this.mediaPlayer.ended;

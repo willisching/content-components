@@ -156,6 +156,7 @@ export const val = {
 	sharing: 'Sharing',
 	show: 'Show',
 	showAdvancedSearch: 'Show Advanced Search',
+	source: 'Source',
 	startEndDates: 'Start/End times',
 	startTime: 'Start Time',
 	status: 'Status',
