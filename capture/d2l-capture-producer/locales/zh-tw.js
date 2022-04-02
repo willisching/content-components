@@ -36,6 +36,8 @@ export const val = {
 	getProcessingProgressError: '無法載入此媒體檔案的處理狀態。',
 	hideExpandedCaptionsCueControls: '隱藏此字幕提示的展開控制項',
 	insertNewCaptionsAtCurrentTime: '在目前時間插入新字幕',
+	invalidFormat: '時間必須使用下列格式：時時:分分:秒秒.秒秒秒 (秒數到小數點後第三位)',
+	invalidTime: '時間必須小於: {formattedTime}',
 	languages: '語言',
 	loadMetadataError: '載入章節和時間軸剪切時發生錯誤',
 	loadCaptionsError: '載入 {language} 的字幕時發生錯誤',

@@ -90,7 +90,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 		this.enableCutsAndChapters = false;
 
-		this.canvasWidth = constants.CANVAS_WIDTH;
+		this.canvasWidth = `${constants.CANVAS_WIDTH}px`;
 		this._activeCue = null;
 		this.captions = [];
 		this.captionsUrl = '';

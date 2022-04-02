@@ -36,6 +36,8 @@ export const val = {
 	getProcessingProgressError: 'Falha ao carregar o status de processamento deste arquivo de mídia.',
 	hideExpandedCaptionsCueControls: 'Ocultar controles expandidos para esta indicação de legendas',
 	insertNewCaptionsAtCurrentTime: 'Inserir novas legendas na hora atual',
+	invalidFormat: 'A hora deve estar no seguinte formato: HH:MM:SS.sss',
+	invalidTime: 'O tempo deve ser menor que: {formattedTime}',
 	languages: 'Idiomas',
 	loadMetadataError: 'Ocorreu um erro ao carregar capítulos e cortes na linha do tempo',
 	loadCaptionsError: 'Ocorreu um erro ao carregar legendas para {language}',

@@ -36,6 +36,8 @@ export const val = {
 	getProcessingProgressError: 'Der Verarbeitungsstatus für diese Mediendatei konnte nicht geladen werden.',
 	hideExpandedCaptionsCueControls: 'Erweiterte Bedienelemente für diesen Untertitel-Cue ausblenden',
 	insertNewCaptionsAtCurrentTime: 'Zum aktuellen Zeitpunkt neue Untertitel einfügen',
+	invalidFormat: 'Die Uhrzeit muss das folgende Format aufweisen: HH:MM:SS.sss',
+	invalidTime: 'Der Zeitwert muss kleiner sein als: {formattedTime}',
 	languages: 'Sprachen',
 	loadMetadataError: 'Beim Laden von Kapiteln und Timeline-Schnitten ist ein Fehler aufgetreten.',
 	loadCaptionsError: 'Beim Laden von Untertiteln für {language} ist ein Fehler aufgetreten',

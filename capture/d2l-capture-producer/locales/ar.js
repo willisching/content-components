@@ -36,6 +36,8 @@ export const val = {
 	getProcessingProgressError: 'فشل تحميل حالة المعالجة لملف الوسائط هذا.',
 	hideExpandedCaptionsCueControls: 'إخفاء عناصر التحكم الموسعة لرمز التسميات التوضيحية هذا',
 	insertNewCaptionsAtCurrentTime: 'إدخال تسميات توضيحية جديدة في الوقت الحالي',
+	invalidFormat: 'يجب أن يكون الوقت بالتنسيق الآتي: HH:MM:SS.sss',
+	invalidTime: 'يجب أن يكون الوقت أقل من: {formattedTime}',
 	languages: 'اللغات',
 	loadMetadataError: 'حدث خطأ أثناء تحميل الفصول وأجزاء المخطط الزمني',
 	loadCaptionsError: 'حدث خطأ أثناء تحميل التسميات التوضيحية لـ {language}',

@@ -36,6 +36,8 @@ export const val = {
 	getProcessingProgressError: '이 미디어 파일의 처리 상태를 가져오지 못했습니다.',
 	hideExpandedCaptionsCueControls: '이 캡션 큐에 대해 확장된 컨트롤 숨기기',
 	insertNewCaptionsAtCurrentTime: '현재 시간에 새 캡션을 삽입하십시오.',
+	invalidFormat: '시간은 HH:MM:SS.sss 형식이어야 합니다.',
+	invalidTime: '시간은 {formattedTime}보다 작아야 합니다.',
 	languages: '언어',
 	loadMetadataError: '챕터 및 타임라인 컷을 로드하는 중 오류가 발생했습니다.',
 	loadCaptionsError: '{language}에 대한 캡션을 로드하는 중 오류가 발생했습니다.',

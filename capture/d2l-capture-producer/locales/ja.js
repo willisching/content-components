@@ -36,6 +36,8 @@ export const val = {
 	getProcessingProgressError: 'このメディアファイルの処理ステータスを読み込めませんでした。',
 	hideExpandedCaptionsCueControls: 'このキャプションキューの拡張コントロールを非表示にします',
 	insertNewCaptionsAtCurrentTime: '現在の時刻に新しいキャプションを挿入',
+	invalidFormat: '時間は HH:MM:SS.sss の形式である必要があります',
+	invalidTime: '時間は {formattedTime} より短くする必要があります',
 	languages: '言語',
 	loadMetadataError: '章とタイムラインカットの読み込み中にエラーが発生しました',
 	loadCaptionsError: '{language} のキャプションの読み込み中にエラーが発生しました',
