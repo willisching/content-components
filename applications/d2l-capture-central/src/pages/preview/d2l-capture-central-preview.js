@@ -68,6 +68,9 @@ class D2LCaptureCentralPreview extends DependencyRequester(PageViewElement) {
 		this.revision = await this.apiClient.getLatestRevision(this.contentId);
 
 		this.urls = await this.apiClient.getSignedUrls({ contentId: this.contentId, revisionId: this.revision.id });
+		if ((this.urls?.length ?? 0) === 0) {
+			this.urls = [await this.apiClient.getSignedUrlForRevision({ contentId: this.contentId, revisionId: this.revision.id })];
+		}
 
 		const metadata = await this.apiClient.getMetadata({ contentId: this.contentId, revisionId: this.revision.id });
 		this.metadata = metadata ? JSON.stringify(metadata) : undefined;
@@ -139,7 +142,7 @@ class D2LCaptureCentralPreview extends DependencyRequester(PageViewElement) {
 	}
 
 	renderSources(source) {
-		return html`<source src=${source.value} label=${source.format.toUpperCase()}>`;
+		return html`<source src=${source.value} label=${source.format?.toUpperCase() || 'Source'}>`;
 	}
 
 }
