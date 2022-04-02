@@ -5,6 +5,6 @@ export const val = {
 	formatLD: 'LD',
 	formatMP3: 'MP3',
 	formatSD: 'SD',
-	mediaFileIsProcessing: 'This media file is currently being processed. Please come back later.',
-	formatSource: 'Source'
+	formatSource: 'Source',
+	mediaFileIsProcessing: 'This media file is currently being processed. Please come back later.'
 };
