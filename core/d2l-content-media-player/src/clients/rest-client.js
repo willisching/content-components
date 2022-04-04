@@ -64,7 +64,11 @@ export default class ContentServiceClient {
 
 	async getRevision() {
 		const revision = await this._fetch({
-			path: `/api/${this.tenantId}/content/${this.contentId}/revisions/${this.revisionId}`
+			path: `/api/${this.tenantId}/content/${this.contentId}/revisions/${this.revisionId}`,
+			query: {
+				includeTitle: true,
+				includeDescription: true
+			}
 		});
 		return revision ? this._formatRevision(revision) : null;
 	}
@@ -121,7 +125,7 @@ export default class ContentServiceClient {
 
 	_formatRevision(revision) {
 		revision.type = ContentType.get(revision.type);
-		revision.formats = revision.formats.map(format => VideoFormat.get(format));
+		revision.formats = revision.formats.map(format => VideoFormat.get(format.toUpperCase()).key.toLowerCase());
 		return revision;
 	}
 

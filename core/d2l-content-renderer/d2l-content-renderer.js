@@ -29,11 +29,21 @@ class ContentRenderer extends InternalLocalizeMixin(LitElement) {
 		return this.renderPlayer();
 	}
 
+	renderErrorMessage() {
+		return html`<h1>${this.localize('errorRenderingContent')}</h1>`;
+	}
+
 	renderPlayer() {
-		if (!this.d2lrn) {
-			return;
+		if (!this.d2lrn || !this.contextId) {
+			return this.renderErrorMessage();
 		}
+
 		// d2l:brightspace:content:<region>:<tenantId>:<type>:<id>/<revisionId>
+		const d2lrnSplit = this.d2lrn.split(':');
+		if (d2lrnSplit.length < 6) {
+			return this.renderErrorMessage();
+		}
+
 		const type = this.d2lrn.split(':')[5];
 		if (type === 'video' || type === 'audio') {
 			return html`
@@ -49,6 +59,5 @@ class ContentRenderer extends InternalLocalizeMixin(LitElement) {
 		}
 		return html`<h1>${this.localize('unsupportedType')}</h1>`;
 	}
-
 }
 customElements.define('d2l-content-renderer', ContentRenderer);
