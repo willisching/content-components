@@ -66,8 +66,7 @@ export default class ContentServiceClient {
 		const revision = await this._fetch({
 			path: `/api/${this.tenantId}/content/${this.contentId}/revisions/${this.revisionId}`,
 			query: {
-				includeTitle: true,
-				includeDescription: true
+				includeTitleAndDescription: true
 			}
 		});
 		return revision ? this._formatRevision(revision) : null;
