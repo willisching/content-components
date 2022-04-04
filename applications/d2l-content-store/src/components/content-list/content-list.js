@@ -64,6 +64,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 		this.undoDeleteObject = {};
 
 		const {
+			ou,
 			searchQuery = '',
 			sortQuery = 'updatedAt:desc',
 			contentType = '',
@@ -71,7 +72,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 			dateModified = ''
 		} = rootStore.routingStore.getQueryParams();
 
-		this.queryParams = { searchQuery, sortQuery, contentType, dateCreated, dateModified };
+		this.queryParams = { ou, searchQuery, sortQuery, contentType, dateCreated, dateModified };
 
 		window.addEventListener('scroll', this.onWindowScroll.bind(this));
 		this.observeQueryParams();
@@ -257,7 +258,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 					dateModified: updatedDateModified = ''
 				} = toJS(change.newValue);
 
-				const { searchQuery, sortQuery, contentType, dateCreated, dateModified } =
+				const { ou, searchQuery, sortQuery, contentType, dateCreated, dateModified } =
 					this.queryParams;
 
 				if (updatedSearchQuery === searchQuery && updatedSortQuery === sortQuery &&
@@ -268,6 +269,7 @@ class ContentList extends DependencyRequester(InternalLocalizeMixin(NavigationMi
 				}
 
 				this.queryParams = {
+					ou: ou,
 					searchQuery: updatedSearchQuery,
 					sortQuery: updatedSortQuery,
 					contentType: updatedContentType,

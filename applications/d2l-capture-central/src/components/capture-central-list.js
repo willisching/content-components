@@ -64,13 +64,14 @@ export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixi
 		this.alertToastButtonText = '';
 
 		const {
+			ou = '',
 			searchQuery = '',
 			sortQuery = 'updatedAt:desc',
 			dateCreated = '',
 			dateModified = '',
 		} = rootStore.routingStore.getQueryParams();
 
-		this.queryParams = { searchQuery, sortQuery, dateCreated, dateModified};
+		this.queryParams = { ou, searchQuery, sortQuery, dateCreated, dateModified};
 
 		window.addEventListener('scroll', this.onWindowScroll.bind(this));
 		this.observeQueryParams();
@@ -185,7 +186,7 @@ export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixi
 					dateModified: updatedDateModified = '',
 				} = toJS(change.newValue);
 
-				const { searchQuery, sortQuery, dateCreated, dateModified } =
+				const { ou, searchQuery, sortQuery, dateCreated, dateModified } =
 					this.queryParams;
 
 				if (updatedSearchQuery === searchQuery && updatedSortQuery === sortQuery &&
@@ -196,6 +197,7 @@ export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixi
 				}
 
 				this.queryParams = {
+					ou,
 					searchQuery: updatedSearchQuery,
 					sortQuery: updatedSortQuery,
 					dateCreated: updatedDateCreated,
