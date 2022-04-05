@@ -14,6 +14,7 @@ import './src/d2l-video-producer-language-selector.js';
 import './src/d2l-video-producer-captions.js';
 import './src/d2l-video-producer-chapters.js';
 import './src/d2l-capture-producer-timeline.js';
+import './src/d2l-video-producer-timeline-controls.js';
 
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import constants from './src/constants.js';
@@ -43,16 +44,26 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			src: { type: String },
 			timelineVisible: { type: Boolean, attribute: 'timeline-visible' },
 
-			mediaPlayerDuration: { type: Number, attribute: false},
-			mediaPlayerCurrentTime: { type: Number, attribute: false},
-			mediaPlayerPaused: { type: Boolean, attribute: false},
-			mediaPlayerEnded: { type: Boolean, attribute: false},
+			_controlMode: { type: String, attribute: false},
+			mediaPlayerDuration: { type: Number, attribute: false },
+			mediaPlayerCurrentTime: { type: Number, attribute: false },
+			mediaPlayerPaused: { type: Boolean, attribute: false },
+			mediaPlayerEnded: { type: Boolean, attribute: false },
 			_activeCue: { type: Object, attribute: false },
 		};
 	}
 
 	static get styles() {
 		return [bodyCompactStyles, labelStyles, selectStyles, css`
+			.d2l-video-producer-timeline-container {
+				display: flex;
+				margin-top: 15px;
+			}
+
+			.d2l-capture-producer-timeline {
+				width: ${constants.CANVAS_WIDTH}px;
+			}
+
 			.d2l-video-producer-editor {
 				display: flex;
 				flex-direction: column;
@@ -91,7 +102,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 		this.enableCutsAndChapters = false;
 
-		this.canvasWidth = `${constants.CANVAS_WIDTH}px`;
+		this._controlMode = constants.CONTROL_MODES.SEEK;
 		this._activeCue = null;
 		this.captions = [];
 		this.captionsUrl = '';
@@ -138,6 +149,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 						@play="${this._startUpdatingVideoTime}"
 						@seeking="${this._updateVideoTime}"
 						@trackloaded="${this._handleTrackLoaded}"
+						@loadeddata="${this._handleLoadedData}"
 					>
 						<source src="${this.src}" label="${this.format}">
 						${this.captionsUrl ? html`<track default-ignore-preferences src="${this.captionsUrl}" srclang="${this._formatCaptionsSrcLang()}" label="${this.selectedLanguage.name}" kind="subtitles">` : ''}
@@ -200,32 +212,54 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 					</div>
 				</div>
 				${(this.enableCutsAndChapters ? html`
-					<d2l-capture-producer-timeline
-						@pause-media-player=${this._pauseMediaPlayerHandler}
-						@play-media-player=${this._playMediaPlayerHandler}
-						?enableCutsAndChapters=${this.enableCutsAndChapters}
-						.metadata=${this.metadata}
-						.mediaPlayerDuration=${this.mediaPlayerDuration}
-						.mediaPlayerCurrentTime=${this.mediaPlayerCurrentTime}
-						.mediaPlayerPaused=${this.mediaPlayerPaused}
-						.mediaPlayerEnded=${this.mediaPlayerEnded}
-						?timelineVisible=${this.timelineVisible}
-						@timeline-first-updated=${this.timelineFirstUpdatedHandler}
-						@timeline-updated=${this.timelineUpdatedHandler}
-						@media-player-update=${this._handleMediaPlayerUpdate}
-						@update-chapter-time=${this._setChapterToTimeHandler}
-						@update-media-player-current-time=${this.handleMediaPlayerCurrentTimeUpdate}
-						?videoLoaded=${this._videoLoaded}
-						width=${this.canvasWidth}
-					></d2l-capture-producer-timeline>
+					<div class="d2l-video-producer-timeline-container" style="visibility: ${this.timelineVisible ? 'visible' : 'hidden'};">
+						<d2l-capture-producer-timeline
+							class="d2l-capture-producer-timeline"
+							.controlMode=${this._controlMode}
+							@pause-media-player=${this._pauseMediaPlayerHandler}
+							@play-media-player=${this._playMediaPlayerHandler}
+							?enableCutsAndChapters=${this.enableCutsAndChapters}
+							.metadata=${this.metadata}
+							.mediaPlayerDuration=${this.mediaPlayerDuration}
+							.mediaPlayerCurrentTime=${this.mediaPlayerCurrentTime}
+							.mediaPlayerPaused=${this.mediaPlayerPaused}
+							.mediaPlayerEnded=${this.mediaPlayerEnded}
+							?timelineVisible=${this.timelineVisible}
+							@timeline-first-updated=${this.timelineFirstUpdatedHandler}
+							@timeline-updated=${this.timelineUpdatedHandler}
+							@media-player-update=${this._handleMediaPlayerUpdate}
+							@update-chapter-time=${this._setChapterToTimeHandler}
+							@update-media-player-current-time=${this.handleMediaPlayerCurrentTimeUpdate}
+							?videoLoaded=${this._videoLoaded}
+						></d2l-capture-producer-timeline>
+						<d2l-video-producer-timeline-controls
+							class="d2l-video-producer-timeline-controls"
+							@change-to-cut-mode=${this.handleCutMode}
+							@change-to-mark-mode=${this.handleMarkMode}
+							@change-to-seek-mode=${this.handleSeekMode}
+						>
+						</d2l-video-producer-timeline-controls>
+					</div>
 				` : '')}
 			</div>
 		`;
 	}
 
+	handleCutMode() {
+		this._controlMode = constants.CONTROL_MODES.CUT;
+	}
+
+	handleMarkMode() {
+		this._controlMode = constants.CONTROL_MODES.MARK;
+	}
+
 	handleMediaPlayerCurrentTimeUpdate({detail:{time}}) {
 		this._mediaPlayer.currentTime = time;
 		this.mediaPlayerCurrentTime = time;
+	}
+
+	handleSeekMode() {
+		this._controlMode = constants.CONTROL_MODES.SEEK;
 	}
 
 	get mediaPlayer() {
@@ -238,11 +272,10 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		// Wait for video to be loaded
 		this._mediaPlayer.addEventListener('loadeddata', () => {
 			if (this.enableCutsAndChapters && this.metadata) {
-				this._timelineElement.resetTimelineWithNewCuts(this.metadata.cuts);
-				this._timelineElement.changeToSeekMode();
+				this._timelineElement.handleLoadedData();
+				this._controlMode = constants.CONTROL_MODES.SEEK;
 			}
 			this._videoLoaded = true;
-			this.dispatchEvent(new CustomEvent('media-loaded', { composed: false }));
 		});
 	}
 
@@ -386,6 +419,10 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 	_handleCueChange() {
 		this._activeCue = this._mediaPlayer.activeCue;
+	}
+
+	_handleLoadedData() {
+		this.dispatchEvent(new CustomEvent('media-loaded', { composed: false }));
 	}
 
 	_handleMediaError() {
