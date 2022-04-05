@@ -7,10 +7,12 @@ import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import constants from './constants.js';
 import { styleMap } from 'lit-html/directives/style-map.js';
 import { Timeline } from './timeline';
+import './d2l-video-producer-timeline-controls.js';
 
 class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
+			controlMode: { type: String },
 			enableCutsAndChapters: { type: Boolean },
 			mediaPlayerDuration: { type: Number },
 			mediaPlayerCurrentTime: { type: Number },
@@ -18,7 +20,6 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			mediaPlayerEnded: { type: Boolean },
 			metadata: { type: Object },
 			timelineVisible: { type: Boolean },
-			width: { type: String },
 			videoLoaded: { type: Boolean },
 
 			_widthPixels: { type: Number, attribute: false },
@@ -29,10 +30,6 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 	static get styles() {
 		return [bodyCompactStyles, labelStyles, selectStyles, css`
-			.d2l-video-producer-timeline {
-				display: flex;
-				margin-top: 15px;
-			}
 
 			.d2l-video-producer-timeline-controls {
 				display: inline-flex;
@@ -86,7 +83,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 	constructor() {
 		super();
-		this._controlMode = constants.CONTROL_MODES.SEEK;
+		this.controlMode = constants.CONTROL_MODES.SEEK;
 		this._shouldResumePlaying = false;
 		this.updateTimelineInterval = null;
 		this._mouseTime = null;
@@ -94,6 +91,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this._stage = null;
 		this._timelineCanvas = null;
 		this._activeChapterTime = null;
+		this._widthPixels = 300;
 
 		this.timeline = null;
 
@@ -108,8 +106,6 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 	firstUpdated() {
 		super.firstUpdated();
-		this._addWidthEventHandler();
-
 		this.dispatchEvent(new CustomEvent(
 			'timeline-first-updated',
 			{
@@ -123,6 +119,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 				? `${this.canvasContainerWidth}px`
 				: 'unset'
 		);
+		this._addWidthEventHandler();
 	}
 
 	render() {
@@ -138,45 +135,8 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 						${this._getZoomMultiplierDisplay()}
 					</div>
 				</div>
-				<div class="d2l-video-producer-timeline-controls">
-					<div class="d2l-video-producer-timeline-mode-button">
-						<input
-							type="radio"
-							name="d2l-video-producer-timeline-mode"
-							id="d2l-video-producer-seek-button"
-							?checked="${this._controlMode === constants.CONTROL_MODES.SEEK}"
-							/>
-						<label for="d2l-video-producer-seek-button" @click="${this.changeToSeekMode}" id="d2l-video-producer-seek-button-label">
-							<d2l-icon id="d2l-video-producer-seek-button-icon" icon="tier1:arrow-thin-up"></d2l-icon>
-							<d2l-tooltip for="d2l-video-producer-seek-button-label" delay="500">${this.localize(constants.CONTROL_MODES.SEEK)}</d2l-tooltip>
-						</label>
-					</div>
-					<div class="d2l-video-producer-timeline-mode-button">
-						<input
-							type="radio"
-							name="d2l-video-producer-timeline-mode"
-							id="d2l-video-producer-mark-button"
-							?checked="${this._controlMode === constants.CONTROL_MODES.MARK}"
-							/>
-						<label for="d2l-video-producer-mark-button" @click="${this._changeToMarkMode}" id="d2l-video-producer-mark-button-label">
-							<d2l-icon id="d2l-video-producer-mark-button-icon" icon="tier1:divider-solid"></d2l-icon>
-							<d2l-tooltip for="d2l-video-producer-mark-button-label" delay="500">${this.localize(constants.CONTROL_MODES.MARK)}</d2l-tooltip>
-						</label>
-					</div>
-					<div class="d2l-video-producer-timeline-mode-button">
-						<input
-							type="radio"
-							name="d2l-video-producer-timeline-mode"
-							id="d2l-video-producer-cut-button"
-							?checked="${this._controlMode === constants.CONTROL_MODES.CUT}"
-							/>
-						<label for="d2l-video-producer-cut-button" @click="${this._changeToCutMode}" id="d2l-video-producer-cut-button-label">
-							<d2l-icon id="d2l-video-producer-cut-button-icon" icon="html-editor:cut"></d2l-icon>
-							<d2l-tooltip for="d2l-video-producer-cut-button-label" delay="500">${this.localize(constants.CONTROL_MODES.CUT)}</d2l-tooltip>
-						</label>
-					</div>
-				</div>
-			</div>`;
+			</div>
+			`;
 	}
 
 	updated(changedProperties) {
@@ -195,6 +155,34 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			this._redrawTimeline();
 		}
 
+		if (changedProperties.has('controlMode')) {
+			switch (this.controlMode) {
+				case constants.CONTROL_MODES.CUT:
+					this._updateMouseEnabledForCuts();
+					this._updateMouseEnabledForMarks();
+					this._contentMarker.mouseEnabled = false;
+					this._hideCursor();
+					this.pauseMediaPlayer();
+					break;
+				case constants.CONTROL_MODES.MARK:
+					this._updateMouseEnabledForCuts();
+					this._updateMouseEnabledForMarks();
+					this._contentMarker.mouseEnabled = false;
+					this._cutHighlight.visible = false;
+					this._stage.update();
+					this.pauseMediaPlayer();
+					break;
+				case constants.CONTROL_MODES.SEEK:
+					this._contentMarker.mouseEnabled = true;
+					this._updateMouseEnabledForCuts();
+					this._updateMouseEnabledForMarks();
+					this._cutHighlight.visible = false;
+					this._hideCursor();
+					break;
+				default:
+			}
+		}
+
 		this.dispatchEvent(new CustomEvent(
 			'timeline-updated',
 			{
@@ -208,15 +196,6 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 	get canvasContainerWidth() {
 		return this._widthPixels + constants.CANVAS_BORDER_WIDTH * 2;
-	}
-
-	changeToSeekMode() {
-		this._controlMode = constants.CONTROL_MODES.SEEK;
-		this._contentMarker.mouseEnabled = true;
-		this._updateMouseEnabledForCuts();
-		this._updateMouseEnabledForMarks();
-		this._cutHighlight.visible = false;
-		this._hideCursor();
 	}
 
 	handleActiveChapterUpdated({ detail: { chapterTime } }) {
@@ -239,6 +218,10 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			this._timeContainer.visible = false;
 		}
 		this._stage.update();
+	}
+
+	handleLoadedData() {
+		this.resetTimelineWithNewCuts(this.metadata.cuts);
 	}
 
 	pauseMediaPlayer() {
@@ -452,37 +435,14 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 	}
 
 	_addWidthEventHandler() {
-		const { value, isPercentage } = this._parseWidth(this.width);
-		if (isPercentage) {
-			const observer = new ResizeObserver((mutations) => {
-				mutations.forEach(() => {
-					this._updateRelativeWidth.bind(this)(value);
-				});
+		this._updateRelativeWidth();
+		const observer = new ResizeObserver((mutations) => {
+			mutations.forEach(() => {
+				this._updateRelativeWidth.bind(this)();
 			});
-			const target = this.shadowRoot.querySelector('.d2l-video-producer-timeline');
-			observer.observe(target, { attributes : true, attributeFilter : ['style'] });
-		} else {
-			this._widthPixels = value;
-		}
-	}
-
-	_changeToCutMode() {
-		this._controlMode = constants.CONTROL_MODES.CUT;
-		this._updateMouseEnabledForCuts();
-		this._updateMouseEnabledForMarks();
-		this._contentMarker.mouseEnabled = false;
-		this._hideCursor();
-		this.pauseMediaPlayer();
-	}
-
-	_changeToMarkMode() {
-		this._controlMode = constants.CONTROL_MODES.MARK;
-		this._updateMouseEnabledForCuts();
-		this._updateMouseEnabledForMarks();
-		this._contentMarker.mouseEnabled = false;
-		this._cutHighlight.visible = false;
-		this._stage.update();
-		this.pauseMediaPlayer();
+		});
+		const target = this.shadowRoot.querySelector('.d2l-video-producer-timeline');
+		observer.observe(target, { attributes : true, attributeFilter : ['style'] });
 	}
 
 	_clampNumBetweenMinAndMax(num, min, max) {
@@ -498,7 +458,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 	_configureModes() {
 		const CurrentControlMode = () => {
-			switch (this._controlMode) {
+			switch (this.controlMode) {
 				case constants.CONTROL_MODES.SEEK:
 					return this._getSeekModeHandlers();
 				case constants.CONTROL_MODES.MARK:
@@ -884,7 +844,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 	}
 
 	_moveContentMarker(event) {
-		if (this._controlMode === constants.CONTROL_MODES.SEEK) {
+		if (this.controlMode === constants.CONTROL_MODES.SEEK) {
 			this._setChapterTimeEvent(this._getTimeFromStageX(event.stageX));
 			this._showAndMoveTimeContainer(this._activeChapterTime);
 		}
@@ -1083,19 +1043,19 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 	}
 
 	_updateMouseEnabledForCuts() {
-		this.timeline.getCutsOnTimeline().forEach(cut => cut.displayObject.mouseEnabled = (this._controlMode === constants.CONTROL_MODES.CUT));
+		if (this.timeline)
+			this.timeline.getCutsOnTimeline().forEach(cut => cut.displayObject.mouseEnabled = (this.controlMode === constants.CONTROL_MODES.CUT));
 	}
 
 	_updateMouseEnabledForMarks() {
-		this.timeline.getMarksOnTimeline().forEach(mark => mark.displayObject.mouseEnabled = this._controlMode === constants.CONTROL_MODES.MARK);
+		if (this.timeline)
+			this.timeline.getMarksOnTimeline().forEach(mark => mark.displayObject.mouseEnabled = this.controlMode === constants.CONTROL_MODES.MARK);
 	}
 
-	_updateRelativeWidth(percentage) {
+	_updateRelativeWidth() {
 		const rootContainer = this.shadowRoot.querySelector('.d2l-video-producer-timeline');
-		const controlButtonsContainer = this.shadowRoot.querySelector('.d2l-video-producer-timeline-controls');
 		const {value: rootWidth} = this._parseWidth(getComputedStyle(rootContainer).getPropertyValue('width'));
-		const {value: controlButtonWidth} = this._parseWidth(getComputedStyle(controlButtonsContainer).getPropertyValue('width'));
-		this._widthPixels = (rootWidth * percentage / 100) - controlButtonWidth ;
+		this._widthPixels = rootWidth;
 		if (this.timeline) {
 			this.timeline.widthPixels = this._timelineWidth;
 		}
