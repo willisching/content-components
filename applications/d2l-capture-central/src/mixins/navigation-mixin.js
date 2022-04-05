@@ -25,7 +25,9 @@ export const navigationMixin = superClass => class extends (superClass) {
 
 	_navigate(path, queryStringCollection) {
 		rootStore.routingStore.setPreviousPage();
-		const pathWithQs = `/${rootStore.routingStore.orgUnitId}${path}${this.__stringifyQueryStringCollection(queryStringCollection)}`;
+		if (!queryStringCollection) queryStringCollection = {};
+		queryStringCollection['ou'] = rootStore.routingStore.orgUnitId;
+		const pathWithQs = `${path}${this.__stringifyQueryStringCollection(queryStringCollection)}`;
 		page(pathWithQs);
 		window.scrollTo(0, 0);
 	}
