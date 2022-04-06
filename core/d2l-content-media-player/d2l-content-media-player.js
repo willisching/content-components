@@ -221,6 +221,11 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 		this._mediaSources = hasFormats ?
 			await Promise.all(this._revision.formats.map(format => this._getMediaSource(format))) :
 			[await this._getMediaSource()];
+
+		this._bestFormat = this._mediaSources.length > 1 ?
+			VIDEO_FORMATS_BEST_FIRST.find(format =>
+				this._mediaSources.some(mediaSource => mediaSource.format && mediaSource.format === format)
+			) : null;
 	}
 
 	async _loadMetadata() {
