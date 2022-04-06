@@ -11,10 +11,12 @@ import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
 const TRACK_ERROR_FETCH_WAIT_MILLISECONDS = 5000;
 const REVISION_POLL_WAIT_MILLISECONDS = 10000;
 const VALID_CONTENT_TYPES = [ContentType.Video, ContentType.Audio];
+const VIDEO_FORMATS_BEST_FIRST = [VideoFormat.HD, VideoFormat.SD, VideoFormat.LD, VideoFormat.MP3];
 
 class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
+			_bestFormat: { type: String, attribute: false },
 			_captionSignedUrls: { type: Array, attribute: false },
 			_mediaSources: { type: Array, attribute: false },
 			_metadata: { type: String, attribute: false },
@@ -71,6 +73,7 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 		this._noMediaFound = false;
 		this._error = false;
 		this._playbackSupported = false;
+		this._bestFormat = null;
 	}
 
 	async firstUpdated() {
@@ -214,7 +217,15 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	async _loadMedia() {
-		this._mediaSources = await Promise.all(this._revision.formats.map(format => this._getMediaSource(format)));
+		const hasFormats = this._revision.formats && this._revision.formats.length > 0;
+		this._mediaSources = hasFormats ?
+			await Promise.all(this._revision.formats.map(format => this._getMediaSource(format))) :
+			[await this._getMediaSource()];
+
+		this._bestFormat = this._mediaSources.length > 1 ?
+			VIDEO_FORMATS_BEST_FIRST.find(format =>
+				this._mediaSources.some(mediaSource => mediaSource.format && mediaSource.format === format)
+			) : null;
 	}
 
 	async _loadMetadata() {
@@ -297,7 +308,7 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_renderMediaSource(source) {
-		return html`<source src=${source.src} label=${source.format} ?default=${source.format === VideoFormat.HD}>`;
+		return html`<source src=${source.src} label=${this.localize(`format${source.format || 'Source'}`)} ?default=${source.format === this._bestFormat}>`;
 	}
 
 	async _setup() {
