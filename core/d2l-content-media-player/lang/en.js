@@ -5,6 +5,7 @@ export default {
 	formatLD: 'LD',
 	formatMP3: 'MP3',
 	formatSD: 'SD',
+	formatSource: 'Source',
 	generalErrorMessage: 'An error occured while trying to load this resource.',
 	mediaFileIsProcessing: 'This media file is currently being processed. Please come back later.',
 	revisionProcessingFailedMessage: 'An error occured while processing the video. Please try again. Ensure that uploaded files are in a supported format.',
