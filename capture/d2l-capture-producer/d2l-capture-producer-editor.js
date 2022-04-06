@@ -33,7 +33,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			defaultLanguage: { type: Object },
 			enableCutsAndChapters: { type: Boolean },
 			finishing: { type: Boolean },
-			format: { type: String },
 			languages: { type: Array },
 			mediaType: { type: String },
 			metadata: { type: Object },
@@ -116,7 +115,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this.metadata = { cuts: [], chapters: [] };
 		this.metadataLoading = false;
 		this.timelineVisible = false;
-		this.format = '';
 		this.src = '';
 		this.languages = [];
 		this.defaultLanguage = {};
@@ -151,7 +149,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 						@trackloaded="${this._handleTrackLoaded}"
 						@loadeddata="${this._handleLoadedData}"
 					>
-						<source src="${this.src}" label="${this.format}">
+						<source src="${this.src}" label="${this.localize('closedCaptions')}">
 						${this.captionsUrl ? html`<track default-ignore-preferences src="${this.captionsUrl}" srclang="${this._formatCaptionsSrcLang()}" label="${this.selectedLanguage.name}" kind="subtitles">` : ''}
 					</d2l-labs-media-player>
 					<div class="d2l-video-producer-tabs-and-language-selection">

@@ -34,14 +34,22 @@ export default class HypermediaClient {
 		const getMediaAction = resourceEntity.getActionByName('get-media');
 		const formatField = getMediaAction.getFieldByName('format');
 		const supportedFormats = formatField.value;
-		return Promise.all(supportedFormats.map(async format => {
-			const result = await this._fetch({ url: `${getMediaAction.href}?format=${format.value}&attachment=false` });
-			return {
-				format: VideoFormat.get(format.value.toUpperCase()),
-				src: result.properties.src,
-				expires: result.properties.expires * 1000
-			};
-		}));
+		if (supportedFormats.length > 0) {
+			return Promise.all(supportedFormats.map(async format => {
+				const result = await this._fetch({ url: `${getMediaAction.href}?format=${format.value}&attachment=false` });
+				return {
+					format: VideoFormat.get(format.value.toUpperCase()),
+					src: result.properties.src,
+					expires: result.properties.expires * 1000
+				};
+			}));
+		}
+
+		const result = await this._fetch({ url: `${getMediaAction.href}?attachment=false` });
+		return [{
+			src: result.properties.src,
+			expires: result.properties.expires * 1000
+		}];
 	}
 
 	async getMediaWithBestFormat({ resourceEntity, attachment = false }) {

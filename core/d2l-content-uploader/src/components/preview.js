@@ -13,7 +13,7 @@ import '../../../d2l-content-viewer.js';
 import { isAudioType } from '../util/media-type-util';
 
 const REVISION_POLL_WAIT_MILLISECONDS = 10000;
-
+const FORMATS_BEST_FIRST = ['HD', 'SD', 'LD', 'MP3'];
 export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
 		return {
@@ -25,6 +25,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 			orgUnitId: { type: String, attribute: 'org-unit-id' },
 			resource: { type: String, attribute: true },
 			topicId: { type: String, attribute: 'topic-id' },
+			_bestFormat: { type: String, attribute: false },
 			_mediaSources: { type: Array, attribute: false },
 		};
 	}
@@ -80,6 +81,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 		this.contentTitle = '';
 		this.fileName = '';
 		this._mediaSources = null;
+		this._bestFormat = '';
 		this._contentId = null;
 		this._attemptedReloadOnError = false;
 		this.noMediaFound = false;
@@ -158,13 +160,22 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 	}
 
 	async _loadMediaPlayerSources() {
+		const client = this.requestInstance('content-service-client');
 		if (!this.resource) {
 			return null;
 		}
 
-		const formats = this._isAudio() ? ['mp3'] : ['hd', 'sd'];
-		this._mediaSources = (await Promise.all(formats.map(format => this._getSource(this.resource, format))))
+		const revision = await client.getRevisionByName(this.resource);
+		const formats = revision.formats || [];
+
+		this._mediaSources = (formats.length > 0
+			? (await Promise.all(formats.map(format => this._getSource(this.resource, format))))
+			: [await this._getSource(this.resource)])
 			.filter(mediaSource => mediaSource !== null);
+
+		this._bestFormat = FORMATS_BEST_FIRST.find(format =>
+			this._mediaSources.some(mediaSource => mediaSource.format && mediaSource.format.toUpperCase() === format)
+		);
 	}
 
 	async _loadNonTopicVideo() {
@@ -282,7 +293,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 	}
 
 	_renderSource(source) {
-		return html`<source src=${source.src} label=${this.localize(`format${source.format.toUpperCase()}`)} ?default=${source.format === 'hd'}>`;
+		return html`<source src=${source.src} label=${this.localize(`format${source.format?.toUpperCase() ?? 'Source'}`)} ?default=${source.format && this._bestFormat === source.format}>`;
 	}
 
 	async _updateNoMediaFound() {

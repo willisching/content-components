@@ -2,7 +2,7 @@ import { action, decorate, flow, observable } from 'mobx';
 import resolveWorkerError from '../util/resolve-worker-error';
 import { S3Uploader } from '../util/s3-uploader';
 import { randomizeDelay, sleep } from '../util/delay';
-import { getExtension, isAudioType } from '../util/media-type-util';
+import { getExtension } from '../util/media-type-util';
 
 const UPLOAD_FAILED_ERROR = 'workerErrorUploadFailed';
 
@@ -75,7 +75,6 @@ export class Uploader {
 
 	async _uploadWorkflowAsync(file, title) {
 		try {
-			const isAudio = isAudioType(file.name);
 			const extension = getExtension(file.name);
 			this.content = await this.apiClient.createContent({
 				title,
@@ -84,7 +83,6 @@ export class Uploader {
 				this.content.id,
 				{
 					extension,
-					formats: isAudio ? ['mp3'] : ['hd', 'sd'],
 				}
 			);
 

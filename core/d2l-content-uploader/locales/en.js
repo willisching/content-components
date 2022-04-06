@@ -15,6 +15,7 @@ export const val = {
 	formatLD: 'LD',
 	formatMP3: 'MP3',
 	formatSD: 'SD',
+	formatSource: 'Source',
 	invalidFileType: 'Invalid file type.',
 	mayOnlyUpload1File: 'You may only upload 1 file.',
 	mediaFileFailedProcessing: 'This media file failed to be processed',
