@@ -15,10 +15,14 @@ export class Uploader {
 
 		this.uploadProgress = 0;
 
-		this.uploadFile = flow((function * (file, title) {
-			/* eslint-disable no-invalid-this */
-			yield this._uploadWorkflowAsync(file, title);
+		/* eslint-disable no-unused-vars */
+		/* eslint-disable no-invalid-this */
+		// type is unused here, but some references pass it in
+		this.uploadFile = flow((function * (file, title, type = '', loadingBar = this.defaultLoadingBar, loadingBarProcessingWait  = this.defaultLoadingBarProcessingWait) {
+
+			yield this._uploadWorkflowAsync(file, title, loadingBar, loadingBarProcessingWait);
 			/* eslint-enable no-invalid-this */
+			/* eslint-disable no-unused-vars */
 		}));
 	}
 
@@ -29,6 +33,14 @@ export class Uploader {
 		}
 	}
 
+	defaultLoadingBar(progress) {
+		this.uploadProgress =  progress / (this.waitForProcessing ? 2 : 1);
+	}
+
+	defaultLoadingBarProcessingWait(progress) {
+		this.uploadProgress =  50 + ((progress.percentComplete || 0) / 2);
+	}
+
 	reset() {
 		this.uploadProgress = 0;
 		this.content = undefined;
@@ -36,7 +48,7 @@ export class Uploader {
 		this.s3Uploader = undefined;
 	}
 
-	async _monitorProgressAsync() {
+	async _monitorProgressAsync(loadingBarFunction) {
 		// Stop monitoring if the upload was cancelled.
 		if (!this.content || !this.revision) {
 			return;
@@ -47,9 +59,7 @@ export class Uploader {
 				contentId: this.content.id,
 				revisionId: this.revision.id
 			});
-
-			this.uploadProgress = 50 + ((progress.percentComplete || 0) / 2);
-
+			loadingBarFunction.call(this, progress);
 			if (progress.ready) {
 				this.onSuccess(this.revision.d2lrn);
 				this.s3Uploader = undefined;
@@ -70,10 +80,10 @@ export class Uploader {
 		}
 
 		await sleep(randomizeDelay(5000, 1000));
-		await this._monitorProgressAsync(this.content, this.revision);
+		await this._monitorProgressAsync(loadingBarFunction, this.content, this.revision);
 	}
 
-	async _uploadWorkflowAsync(file, title) {
+	async _uploadWorkflowAsync(file, title, loadingBar, loadingBarProcessingWait) {
 		try {
 			const extension = getExtension(file.name);
 			this.content = await this.apiClient.createContent({
@@ -85,7 +95,6 @@ export class Uploader {
 					extension,
 				}
 			);
-
 			this.s3Uploader = new S3Uploader({
 				file,
 				key: this.revision.s3Key,
@@ -96,7 +105,7 @@ export class Uploader {
 						contentDisposition: 'auto'
 					}),
 				onProgress: progress => {
-					this.uploadProgress = progress / (this.waitForProcessing ? 2 : 1);
+					loadingBar.call(this, progress);
 				}
 			});
 
@@ -108,7 +117,7 @@ export class Uploader {
 			});
 
 			if (this.waitForProcessing) {
-				await this._monitorProgressAsync();
+				await this._monitorProgressAsync(loadingBarProcessingWait);
 			} else {
 				this.onSuccess(this.revision.d2lrn);
 				this.s3Uploader = undefined;

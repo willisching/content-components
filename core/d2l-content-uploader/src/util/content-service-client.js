@@ -3,8 +3,6 @@ import auth from 'd2l-fetch-auth/src/unframed/index.js';
 import { d2lfetch } from 'd2l-fetch/src/index.js';
 import { parse } from './d2lrn';
 
-d2lfetch.use({ name: 'auth', fn: auth });
-
 export default class ContentServiceClient {
 	constructor({
 		endpoint,
@@ -12,6 +10,7 @@ export default class ContentServiceClient {
 	}) {
 		this.endpoint = endpoint;
 		this.tenantId = tenantId;
+		d2lfetch.use({ name: 'auth', fn: auth });
 	}
 
 	createContent(body) {
