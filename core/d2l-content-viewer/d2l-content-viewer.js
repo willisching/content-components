@@ -168,6 +168,10 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 		}
 	}
 
+	_getLabel(format) {
+		return this.localize(`format${format}`) || format;
+	}
+
 	async _getMediaSource(format) {
 		return this.client.getDownloadUrl({format, href: this.href});
 	}
@@ -292,7 +296,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_renderMediaSource(source) {
-		return html`<source src=${source.src} label=${this.localize(`format${source.format || 'Source'}`)} ?default=${source.format === this._bestFormat}>`;
+		return html`<source src=${source.src} label=${this._getLabel(source.format || 'Source')} ?default=${source.format === this._bestFormat}>`;
 	}
 
 	async _setup() {
