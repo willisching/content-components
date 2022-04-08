@@ -18,6 +18,7 @@ const constants = {
 		return constants.TIMELINE_OFFSET_Y + constants.TIMELINE_HEIGHT_MIN + constants.ZOOM_HANDLE_HEIGHT + constants.TIME_TEXT_BORDER_HEIGHT + constants.ZOOM_HANDLE_MAX_DEPTH + constants.TIMELINE_OFFSET_Y;
 	},
 	CANVAS_WIDTH: 958,
+	CANVAS_CONTAINER_BORDER_OFFSET: 2,
 
 	// Captions
 	ADD_NEW_CUE_KEY_CODE: 13, // 13 is the "Enter" key in Javascript

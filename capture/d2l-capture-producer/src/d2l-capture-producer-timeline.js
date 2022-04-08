@@ -1054,8 +1054,12 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 	_updateRelativeWidth() {
 		const rootContainer = this.shadowRoot.querySelector('.d2l-video-producer-timeline');
-		const {value: rootWidth} = this._parseWidth(getComputedStyle(rootContainer).getPropertyValue('width'));
-		this._widthPixels = rootWidth;
+		const {value: rootOuterWidth} = this._parseWidth(getComputedStyle(rootContainer).getPropertyValue('width'));
+
+		// we need the inner width of this container rather than the outer width. Setting the _widthPixels to the outer width will
+		// cause the width of the container to expand slightly, which triggers the observer to update the width again.
+		const rootInnerWidth = rootOuterWidth - constants.CANVAS_CONTAINER_BORDER_OFFSET;
+		this._widthPixels = rootInnerWidth;
 		if (this.timeline) {
 			this.timeline.widthPixels = this._timelineWidth;
 		}
