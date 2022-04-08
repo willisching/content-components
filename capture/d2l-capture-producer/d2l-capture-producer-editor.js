@@ -145,7 +145,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 						disable-set-preferences
 						@pause="${this._pauseUpdatingVideoTime}"
 						@play="${this._startUpdatingVideoTime}"
-						@seeking="${this._updateVideoTime}"
+						@seeking="${this.updateVideoTime}"
 						@trackloaded="${this._handleTrackLoaded}"
 						@loadeddata="${this._handleLoadedData}"
 					>
@@ -222,7 +222,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 							.mediaPlayerCurrentTime=${this.mediaPlayerCurrentTime}
 							.mediaPlayerPaused=${this.mediaPlayerPaused}
 							.mediaPlayerEnded=${this.mediaPlayerEnded}
-							?timelineVisible=${this.timelineVisible}
 							@timeline-first-updated=${this.timelineFirstUpdatedHandler}
 							@timeline-updated=${this.timelineUpdatedHandler}
 							@media-player-update=${this._handleMediaPlayerUpdate}
@@ -288,7 +287,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	updateVideoTime() {
-		this._timelineElement._updateVideoTime();
+		this._timelineElement.updateVideoTime();
 	}
 
 	//#region Chapter management
@@ -429,7 +428,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 
 	_handleMediaPlayerTimeJumped(event) {
 		this._mediaPlayer.currentTime = event.detail.time;
-		this._updateVideoTime();
+		this.updateVideoTime();
 	}
 
 	_handleMediaPlayerUpdate() {

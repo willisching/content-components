@@ -19,7 +19,6 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			mediaPlayerPaused: { type: Boolean },
 			mediaPlayerEnded: { type: Boolean },
 			metadata: { type: Object },
-			timelineVisible: { type: Boolean },
 			videoLoaded: { type: Boolean },
 
 			_widthPixels: { type: Number, attribute: false },
@@ -128,7 +127,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		};
 
 		return html`
-			<div class="d2l-video-producer-timeline" style="visibility: ${this.timelineVisible ? 'visible' : 'hidden'};">
+			<div class="d2l-video-producer-timeline">
 				<div id="canvas-container">
 					<canvas height="${constants.CANVAS_HEIGHT}px" width="${this._widthPixels}px" id="timeline-canvas"></canvas>
 					<div id="zoom-multiplier" style=${styleMap(zoomMultiplierStyleMap)}>
@@ -266,6 +265,8 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 		for (const cut of this.timeline.getCutsOnTimeline()) this._addCutToStage(cut);
 
 		this._updateMouseEnabledForCuts();
+
+		this._stage.update();
 	}
 
 	startUpdatingVideoTime() {
