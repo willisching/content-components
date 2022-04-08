@@ -3,8 +3,8 @@ const SUPPORTED_VIDEO_EXTENSIONS = ['.avi', '.f4v', '.flv', '.m4v', '.mov', '.mp
 
 export function getExtension(filePath) {
 	const pathParts = filePath.split('.');
-	// ensure that does not mistake an extensionless name for a type
-	return pathParts.length > 1 ? pathParts.pop().toLowerCase() : 'missingExtension';
+	// Ensure that does not mistake an extensionless name for a type
+	return pathParts.length > 1 ? `.${pathParts.pop().toLowerCase()}` : null;
 }
 
 export function getSupportedExtensions() {
@@ -12,9 +12,9 @@ export function getSupportedExtensions() {
 }
 
 export function isSupported(filePath) {
-	return getSupportedExtensions().includes(`.${getExtension(filePath)}`);
+	return getSupportedExtensions().includes(getExtension(filePath));
 }
 
 export function isAudioType(filePath) {
-	return SUPPORTED_AUDIO_EXTENSIONS.includes(`.${getExtension(filePath)}`);
+	return SUPPORTED_AUDIO_EXTENSIONS.includes(getExtension(filePath));
 }

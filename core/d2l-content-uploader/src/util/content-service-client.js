@@ -10,7 +10,7 @@ export default class ContentServiceClient {
 	}) {
 		this.endpoint = endpoint;
 		this.tenantId = tenantId;
-		d2lfetch.use({ name: 'auth', fn: auth });
+		this.d2lfetch = d2lfetch.addTemp({ name: 'auth', fn: auth });
 	}
 
 	createContent(body) {
@@ -131,7 +131,7 @@ export default class ContentServiceClient {
 		};
 		const request = new Request(this._url(path, query), requestInit);
 
-		const response = await d2lfetch.fetch(request);
+		const response = await this.d2lfetch.fetch(request);
 		if (!response.ok) {
 			throw new Error(response.statusText, { cause: response.status });
 		}
