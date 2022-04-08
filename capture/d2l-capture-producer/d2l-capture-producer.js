@@ -369,18 +369,16 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		}
 
 		if (optimizeForStreaming) {
-			const revision = {...draftToPublish};
-			if (revision.revisionReference) {
-				delete revision.revisionReference.transcodes;
-				delete revision.d2lrn;
-				delete revision.s3Key;
+			const revisionReference = {...draftToPublish.revisionReference};
+			if (revisionReference) {
+				delete revisionReference.transcodes;
 			}
 			await this.apiClient.updateRevision({
 				contentId: this._content.id,
 				revisionId: draftToPublish.id,
 				revision: {
-					...revision,
 					formats: this._getFormatsFromClientApp(this._content.clientApp),
+					...draftToPublish.revisionReference && {revisionReference}
 				}
 			});
 		}
