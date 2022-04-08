@@ -1,12 +1,12 @@
 import * as querystring from '@chaitin/querystring';
 import auth from 'd2l-fetch-auth/src/unframed/index.js';
 import { d2lfetch } from 'd2l-fetch/src/index.js';
-import { parse } from './d2lrn';
+import { parse } from './d2lrn.js';
 
 export default class ContentServiceClient {
 	constructor({
 		endpoint,
-		tenantId
+		tenantId,
 	}) {
 		this.endpoint = endpoint;
 		this.tenantId = tenantId;
@@ -20,7 +20,7 @@ export default class ContentServiceClient {
 			body: {
 				...body,
 				clientApp: 'LmsContent',
-			}
+			},
 		});
 	}
 
@@ -28,7 +28,7 @@ export default class ContentServiceClient {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions`,
 			method: 'POST',
-			body
+			body,
 		});
 	}
 
@@ -36,7 +36,7 @@ export default class ContentServiceClient {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}`,
 			method: 'DELETE',
-			extractJsonBody: false
+			extractJsonBody: false,
 		});
 	}
 
@@ -51,13 +51,13 @@ export default class ContentServiceClient {
 		const { tenantId, contentId, revisionId } = parse(d2lrn);
 		return this._fetch({
 			path: `/api/${tenantId}/content/${contentId}/revisions/${revisionId}/signed-url`,
-			query: { ...format && {format} }
+			query: { ...format && { format } },
 		});
 	}
 
 	getWorkflowProgress({
 		contentId,
-		revisionId
+		revisionId,
 	}) {
 		const headers = new Headers();
 
@@ -74,7 +74,7 @@ export default class ContentServiceClient {
 
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/progress`,
-			headers
+			headers,
 		});
 	}
 
@@ -86,22 +86,22 @@ export default class ContentServiceClient {
 		return this._fetch({
 			path: `/api/${this.tenantId}/content/${contentId}/revisions/${revisionId}/process`,
 			method: 'POST',
-			...(captionLanguages && { body: { captionLanguages } })
+			...(captionLanguages && { body: { captionLanguages } }),
 		});
 	}
 
 	signUploadRequest({
 		fileName,
 		contentType,
-		contentDisposition
+		contentDisposition,
 	}) {
 		return this._fetch({
 			path: '/api/s3/sign',
 			query: {
 				fileName,
 				contentType,
-				contentDisposition
-			}
+				contentDisposition,
+			},
 		});
 	}
 
@@ -111,7 +111,7 @@ export default class ContentServiceClient {
 		query,
 		body,
 		extractJsonBody = true,
-		headers = new Headers()
+		headers = new Headers(),
 	}) {
 		if (body) {
 			headers.append('Content-Type', 'application/json');
@@ -125,9 +125,9 @@ export default class ContentServiceClient {
 		const requestInit = {
 			method,
 			...body && {
-				body: JSON.stringify(body)
+				body: JSON.stringify(body),
 			},
-			headers
+			headers,
 		};
 		const request = new Request(this._url(path, query), requestInit);
 

@@ -70,7 +70,7 @@ class D2LCaptureLiveEventsCreate extends DependencyRequester(PageViewElement) {
 				status,
 				enableChat,
 				layoutName
-			}  = event.detail;
+			} = event.detail;
 
 			try {
 				await this.captureApiClient.createEvent({

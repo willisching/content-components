@@ -96,7 +96,7 @@ class D2LCaptureLiveEventsEdit extends DependencyRequester(PageViewElement) {
 				status,
 				enableChat,
 				layoutName
-			}  = event.detail;
+			} = event.detail;
 
 			try {
 				await this.captureApiClient.updateEvent({

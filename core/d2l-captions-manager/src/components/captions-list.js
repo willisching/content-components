@@ -111,7 +111,7 @@ class CaptionsList extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	_renderCaption(caption) {
-		const languageCode = caption.LanguageCode + (caption.LanguageCulture ? `-${  caption.LanguageCulture}` : '');
+		const languageCode = caption.LanguageCode + (caption.LanguageCulture ? `-${ caption.LanguageCulture}` : '');
 		const buttonAccessibilityText = this.localize('removeCaptionsForLanguage', { langName: caption.LanguageName });
 		const deleteCaptionsHandler = () => this._onDeleteCaptionsButtonClick(caption);
 

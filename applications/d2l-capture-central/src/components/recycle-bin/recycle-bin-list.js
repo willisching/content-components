@@ -7,7 +7,7 @@ import '../relative-date.js';
 import './recycle-bin-list-header.js';
 import './recycle-bin-item-ghost.js';
 import './recycle-bin-item.js';
-import { CaptureCentralList, recycleBinPage  } from '../capture-central-list.js';
+import { CaptureCentralList, recycleBinPage } from '../capture-central-list.js';
 
 import { html } from 'lit-element/lit-element.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js';

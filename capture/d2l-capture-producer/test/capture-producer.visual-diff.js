@@ -21,7 +21,7 @@ describe('d2l-capture-producer', () => {
 	after(async() => await browser.close());
 
 	it('passes visual-diff comparison', async function() {
-		await page.$eval('#default d2l-capture-producer', (elem)  => {
+		await page.$eval('#default d2l-capture-producer', (elem) => {
 			return new Promise((resolve) => {
 				elem._video.addEventListener('loadeddata', resolve);
 				elem.setAttribute('src', 'sample.webm');

@@ -18,7 +18,7 @@ export class Uploader {
 		/* eslint-disable no-unused-vars */
 		/* eslint-disable no-invalid-this */
 		// type is unused here, but some references pass it in
-		this.uploadFile = flow((function * (file, title, type = '', loadingBar = this.defaultLoadingBar, loadingBarProcessingWait  = this.defaultLoadingBarProcessingWait) {
+		this.uploadFile = flow((function * (file, title, type = '', loadingBar = this.defaultLoadingBar, loadingBarProcessingWait = this.defaultLoadingBarProcessingWait) {
 
 			yield this._uploadWorkflowAsync(file, title, loadingBar, loadingBarProcessingWait);
 			/* eslint-enable no-invalid-this */
@@ -34,11 +34,11 @@ export class Uploader {
 	}
 
 	defaultLoadingBar(progress) {
-		this.uploadProgress =  progress / (this.waitForProcessing ? 2 : 1);
+		this.uploadProgress = progress / (this.waitForProcessing ? 2 : 1);
 	}
 
 	defaultLoadingBarProcessingWait(progress) {
-		this.uploadProgress =  50 + ((progress.percentComplete || 0) / 2);
+		this.uploadProgress = 50 + ((progress.percentComplete || 0) / 2);
 	}
 
 	reset() {
