@@ -18,9 +18,9 @@ export class Uploader {
 		/* eslint-disable no-unused-vars */
 		/* eslint-disable no-invalid-this */
 		// type is unused here, but some references pass it in
-		this.uploadFile = flow((function * (file, title, type = '', loadingBar = this.defaultLoadingBar, loadingBarProcessingWait = this.defaultLoadingBarProcessingWait) {
+		this.uploadFile = flow((function * (file, title, type = '', loadingBarFunction = this.defaultLoadingBarFunction) {
 
-			yield this._uploadWorkflowAsync(file, title, loadingBar, loadingBarProcessingWait);
+			yield this._uploadWorkflowAsync(file, title, loadingBarFunction);
 			/* eslint-enable no-invalid-this */
 			/* eslint-disable no-unused-vars */
 		}));
@@ -33,12 +33,8 @@ export class Uploader {
 		}
 	}
 
-	defaultLoadingBar(progress) {
-		this.uploadProgress = progress / (this.waitForProcessing ? 2 : 1);
-	}
-
-	defaultLoadingBarProcessingWait(progress) {
-		this.uploadProgress = 50 + ((progress.percentComplete || 0) / 2);
+	defaultLoadingBarFunction(progress){
+		this.uploadProgress = progress;
 	}
 
 	reset() {
@@ -59,7 +55,8 @@ export class Uploader {
 				contentId: this.content.id,
 				revisionId: this.revision.id
 			});
-			loadingBarFunction.call(this, progress);
+			const progressPercent = 50 + ((progress.percentComplete || 0) / 2);
+			loadingBarFunction.call(this, progressPercent);
 			if (progress.ready) {
 				this.onSuccess(this.revision.d2lrn);
 				this.s3Uploader = undefined;
@@ -83,7 +80,7 @@ export class Uploader {
 		await this._monitorProgressAsync(loadingBarFunction, this.content, this.revision);
 	}
 
-	async _uploadWorkflowAsync(file, title, loadingBar, loadingBarProcessingWait) {
+	async _uploadWorkflowAsync(file, title, loadingBarFunction) {
 		try {
 			const extension = getExtension(file.name);
 			this.content = await this.apiClient.createContent({
@@ -105,7 +102,8 @@ export class Uploader {
 						contentDisposition: 'auto'
 					}),
 				onProgress: progress => {
-					loadingBar.call(this, progress);
+					progress = progress / (this.waitForProcessing ? 2 : 1)
+					loadingBarFunction.call(this, progress);
 				}
 			});
 
@@ -117,7 +115,7 @@ export class Uploader {
 			});
 
 			if (this.waitForProcessing) {
-				await this._monitorProgressAsync(loadingBarProcessingWait);
+				await this._monitorProgressAsync(loadingBarFunction);
 			} else {
 				this.onSuccess(this.revision.d2lrn);
 				this.s3Uploader = undefined;
