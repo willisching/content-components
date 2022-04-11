@@ -33,7 +33,7 @@ export class Uploader {
 		}
 	}
 
-	defaultLoadingBarFunction(progress){
+	defaultLoadingBarFunction(progress) {
 		this.uploadProgress = progress;
 	}
 
@@ -102,7 +102,7 @@ export class Uploader {
 						contentDisposition: 'auto'
 					}),
 				onProgress: progress => {
-					progress = progress / (this.waitForProcessing ? 2 : 1)
+					progress = progress / (this.waitForProcessing ? 2 : 1);
 					loadingBarFunction.call(this, progress);
 				}
 			});
