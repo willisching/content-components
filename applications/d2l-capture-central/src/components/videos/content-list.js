@@ -173,6 +173,7 @@ class ContentList extends CaptureCentralList {
 	}
 
 	renderContentItem(item) {
+		const processing = item.processingStatus === 'created';
 		return html`
 		<content-list-item
 			id=${item.id}
@@ -182,6 +183,7 @@ class ContentList extends CaptureCentralList {
 			poster=${ifDefined(item.poster)}
 			description=${item.description}
 			?can-transfer-ownership=${this.canTransferOwnership}
+			processing-status=${item.processingStatus}
 			@content-list-item-renamed=${this.contentListItemRenamedHandler}
 			@content-list-item-edit-description=${this.contentListItemEditDescriptionHandler}
 			@content-list-item-deleted=${this.contentListItemDeletedHandler}
@@ -190,7 +192,9 @@ class ContentList extends CaptureCentralList {
 			<div slot="title" class="title">${item.title}</div>
 			<div slot="description">${item.description}</div>
 			<div slot="owner">${item.ownerDisplayName}</div>
-			<relative-date slot="date" value=${item[this.dateField]}></relative-date>
+			${processing ?
+		html`<div slot="date">${this.localize('processing')}</div>` :
+		html`<relative-date slot="date" value=${item[this.dateField]}></relative-date>`}
 		</content-list-item>
 		`;
 	}

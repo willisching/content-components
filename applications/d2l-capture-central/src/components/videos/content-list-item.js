@@ -40,6 +40,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 			title: { type: String },
 			ownerId: { type: String, attribute: 'owner-id' },
 			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
+			processingStatus: { type: String, attribute: 'processing-status' }
 		};
 	}
 
@@ -96,7 +97,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 	}
 
 	render() {
-		const illustration = (this.poster && this.poster !== '') ? html`
+		const illustration = (this.poster && this.poster !== '' && this.processingStatus !== 'created') ? html`
 			<img class="d2l-capture-central-video-poster-image" src="${this.poster}" slot="illustration">
 		` : html`
 			<d2l-icon icon="tier1:file-video" slot="illustration"></d2l-icon>

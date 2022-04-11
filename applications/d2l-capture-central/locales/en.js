@@ -122,6 +122,7 @@ export const val = {
 	presentationLayout: 'Presentation Layout',
 	presenter: 'Presenter',
 	preview: 'Preview',
+	processing: 'Media file is still processing',
 	publish: 'Publish',
 	publishError: 'An error occurred during publishing.',
 	publishSuccess: 'Published successfully.',
