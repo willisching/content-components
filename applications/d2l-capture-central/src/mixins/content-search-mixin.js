@@ -133,6 +133,7 @@ export const contentSearchMixin = superClass => class extends superClass {
 				ownerId: result.ownerId,
 				ownerDisplayName: result.ownerDisplayName,
 				poster: result.thumbnail,
+				processingStatus: result.processingStatus,
 				title: result.title || result.lastRevTitle,
 				type: result.lastRevType,
 				updatedAt: result.updatedAt,

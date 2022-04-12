@@ -206,7 +206,8 @@ export default class ContentServiceClient {
 				updatedAt: dateFilterToSearchQuery(updatedAt),
 				createdAt: dateFilterToSearchQuery(createdAt),
 				timeZone: this.timeZone,
-				includeThumbnails
+				includeThumbnails,
+				includeProcessing: true
 			},
 			headers
 		});
@@ -240,7 +241,8 @@ export default class ContentServiceClient {
 				createdAt: dateFilterToSearchQuery(createdAt),
 				timeZone: this.timeZone,
 				filter: 'DELETED',
-				includeThumbnails
+				includeThumbnails,
+				includeProcessing: true
 			},
 			headers
 		});
