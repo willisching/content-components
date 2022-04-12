@@ -1,8 +1,8 @@
 import { action, decorate, flow, observable } from 'mobx';
-import resolveWorkerError from '../util/resolve-worker-error';
-import { S3Uploader } from '../util/s3-uploader';
-import { randomizeDelay, sleep } from '../util/delay';
-import { getExtension } from '../util/media-type-util';
+import resolveWorkerError from '../util/resolve-worker-error.js';
+import { S3Uploader } from '../util/s3-uploader.js';
+import { randomizeDelay, sleep } from '../util/delay.js';
+import { getExtension } from '../util/media-type-util.js';
 
 const UPLOAD_FAILED_ERROR = 'workerErrorUploadFailed';
 
@@ -15,15 +15,14 @@ export class Uploader {
 
 		this.uploadProgress = 0;
 
-		/* eslint-disable no-unused-vars */
 		/* eslint-disable no-invalid-this */
-		// type is unused here, but some references pass it in
-		this.uploadFile = flow((function * (file, title, type = '', loadingBarFunction = this.defaultLoadingBarFunction) {
-
-			yield this._uploadWorkflowAsync(file, title, loadingBarFunction);
-			/* eslint-enable no-invalid-this */
-			/* eslint-disable no-unused-vars */
+		this.uploadFile = flow((function * (file, title) {
+			yield this._ulpoadWorkflowAsync(file, title);
+		/* eslint-enable no-invalid-this */
 		}));
+
+		// allow a way to set special progress handlers such as for smart-curriculum
+		this.progressHandler = function() {};
 	}
 
 	async cancelUpload() {
@@ -33,10 +32,6 @@ export class Uploader {
 		}
 	}
 
-	defaultLoadingBarFunction(progress) {
-		this.uploadProgress = progress;
-	}
-
 	reset() {
 		this.uploadProgress = 0;
 		this.content = undefined;
@@ -44,7 +39,7 @@ export class Uploader {
 		this.s3Uploader = undefined;
 	}
 
-	async _monitorProgressAsync(loadingBarFunction) {
+	async _monitorProgressAsync() {
 		// Stop monitoring if the upload was cancelled.
 		if (!this.content || !this.revision) {
 			return;
@@ -53,10 +48,10 @@ export class Uploader {
 		try {
 			const progress = await this.apiClient.getWorkflowProgress({
 				contentId: this.content.id,
-				revisionId: this.revision.id
+				revisionId: this.revision.id,
 			});
-			const progressPercent = 50 + ((progress.percentComplete || 0) / 2);
-			loadingBarFunction.call(this, progressPercent);
+			this.uploadProgress = 50 + ((progress.percentComplete || 0) / 2);
+			this.progressHandler();
 			if (progress.ready) {
 				this.onSuccess(this.revision.d2lrn);
 				this.s3Uploader = undefined;
@@ -77,10 +72,10 @@ export class Uploader {
 		}
 
 		await sleep(randomizeDelay(5000, 1000));
-		await this._monitorProgressAsync(loadingBarFunction, this.content, this.revision);
+		await this._monitorProgressAsync(this.content, this.revision);
 	}
 
-	async _uploadWorkflowAsync(file, title, loadingBarFunction) {
+	async _uploadWorkflowAsync(file, title) {
 		try {
 			const extension = getExtension(file.name);
 			this.content = await this.apiClient.createContent({
@@ -90,7 +85,7 @@ export class Uploader {
 				this.content.id,
 				{
 					extension,
-				}
+				},
 			);
 			this.s3Uploader = new S3Uploader({
 				file,
@@ -99,12 +94,12 @@ export class Uploader {
 					this.apiClient.signUploadRequest({
 						fileName: key,
 						contentType: file.type,
-						contentDisposition: 'auto'
+						contentDisposition: 'auto',
 					}),
 				onProgress: progress => {
-					progress = progress / (this.waitForProcessing ? 2 : 1);
-					loadingBarFunction.call(this, progress);
-				}
+					this.uploadProgress = progress / (this.waitForProcessing ? 2 : 1);
+					this.progressHandler();
+				},
 			});
 
 			await this.s3Uploader.upload();
@@ -115,7 +110,7 @@ export class Uploader {
 			});
 
 			if (this.waitForProcessing) {
-				await this._monitorProgressAsync(loadingBarFunction);
+				await this._monitorProgressAsync();
 			} else {
 				this.onSuccess(this.revision.d2lrn);
 				this.s3Uploader = undefined;
@@ -129,5 +124,5 @@ export class Uploader {
 decorate(Uploader, {
 	uploadProgress: observable,
 	uploadFile: action,
-	reset: action
+	reset: action,
 });
