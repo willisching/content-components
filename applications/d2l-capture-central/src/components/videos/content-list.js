@@ -184,6 +184,7 @@ class ContentList extends CaptureCentralList {
 			description=${item.description}
 			?can-transfer-ownership=${this.canTransferOwnership}
 			processing-status=${item.processingStatus}
+			?disabled=${item.processingStatus === 'created'}
 			@content-list-item-renamed=${this.contentListItemRenamedHandler}
 			@content-list-item-edit-description=${this.contentListItemEditDescriptionHandler}
 			@content-list-item-deleted=${this.contentListItemDeletedHandler}

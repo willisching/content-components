@@ -106,7 +106,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 		return html`
 			<d2l-list-item-button class="d2l-body-compact"
 				?disabled=${this.disabled}
-				@d2l-list-item-button-click=${this.dispatchPreviewEvent}
+				@d2l-list-item-button-click=${!this.disabled && this.dispatchPreviewEvent}
 				label="${this.title}"
 				padding-type='slim'
 				?selectable=${this.selectable}
