@@ -854,7 +854,7 @@ ${ showOptimizeForStreamingButton ?
 		<d2l-button
 			class="d2l-video-producer-controls-optimize-for-streaming-button"
 			@click="${this._handleOptimizeForStreaming}"
-			?disabled="${this._saving || this._finishing}"
+			?disabled="${this._saving || this._finishing || this._selectedRevisionIsProcessing}"
 			primary
 		>
 		${this.localize('optimizeForStreaming')}
