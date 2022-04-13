@@ -50,6 +50,7 @@ export const val = {
 	noCaptions: 'There are currently no captions for {language}.',
 	noChapters: 'There are no chapters added.',
 	openExpandedCaptionsCueControls: 'Open expanded controls for this captions cue',
+	optimizeForStreaming: 'Optimize for Streaming',
 	preparingCaptions: 'Preparing captions…',
 	publishWarning: 'If you proceed, all references to this media file throughout the LMS will receive your changes.',
 	revisionNumber: 'Revision {number}',

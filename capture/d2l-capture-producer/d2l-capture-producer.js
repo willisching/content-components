@@ -93,6 +93,10 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				margin-right: 15px;
 			}
 
+			.d2l-video-producer-controls-optimize-for-streaming-button {
+				margin-right: auto;
+			}
+
 			.d2l-video-producer-saved-unsaved-indicator-icon {
 				margin-left: 5px;
 			}
@@ -346,7 +350,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		);
 	}
 
-	async _finishRevision(autoGenerateCaptionsLanguage) {
+	async _finishRevision(autoGenerateCaptionsLanguage = null, optimizeForStreaming = false) {
 		this._finishing = true;
 
 		let draftToPublish;
@@ -362,6 +366,21 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			}
 		} else {
 			draftToPublish = this._latestDraftRevision;
+		}
+
+		if (optimizeForStreaming) {
+			const revisionReference = {...draftToPublish.revisionReference};
+			if (revisionReference) {
+				delete revisionReference.transcodes;
+			}
+			await this.apiClient.updateRevision({
+				contentId: this._content.id,
+				revisionId: draftToPublish.id,
+				revision: {
+					formats: this._getFormatsFromClientApp(this._content.clientApp),
+					...draftToPublish.revisionReference && {revisionReference}
+				}
+			});
 		}
 
 		try {
@@ -412,6 +431,20 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			return `${this._selectedLanguage.code.slice(0, 2)}-${this._selectedLanguage.code.slice(3).toUpperCase()}`;
 		}
 		return this._selectedLanguage.code;
+	}
+
+	_getFormatsFromClientApp(clientApp) {
+		switch (clientApp) {
+			case 'VideoNote':
+				return ['ld'];
+			case 'LmsContent':
+			case 'LmsCourseImport':
+			case 'Capture':
+			case 'LmsCapture':
+				return ['hd', 'sd'];
+			default:
+				return ['hd'];
+		}
 	}
 
 	_getLabelForRevision(revisionIndex) {
@@ -513,6 +546,10 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			this._metadataChanged = true;
 		}
 		this._metadataLoading = false;
+	}
+
+	_handleOptimizeForStreaming() {
+		this._finishRevision(null, true);
 	}
 
 	async _handleSave() {
@@ -809,8 +846,20 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	_renderTopBar() {
+		const showOptimizeForStreamingButton = JSON.stringify(this._selectedRevision?.formats) !== JSON.stringify(this._getFormatsFromClientApp(this._content?.clientApp));
 		return html`
 			<div class="d2l-video-producer-top-bar-controls">
+${ showOptimizeForStreamingButton ?
+		html`
+		<d2l-button
+			class="d2l-video-producer-controls-optimize-for-streaming-button"
+			@click="${this._handleOptimizeForStreaming}"
+			?disabled="${this._saving || this._finishing || this._selectedRevisionIsProcessing}"
+			primary
+		>
+		${this.localize('optimizeForStreaming')}
+		</d2l-button>` : null
+}
 				${this._renderSavedUnsavedIndicator()}
 				<d2l-dropdown-button-subtle
 					class="d2l-video-producer-controls-revision-dropdown"
