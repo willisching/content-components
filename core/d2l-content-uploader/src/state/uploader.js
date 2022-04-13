@@ -17,12 +17,14 @@ export class Uploader {
 
 		/* eslint-disable no-invalid-this */
 		this.uploadFile = flow((function * (file, title) {
-			yield this._ulpoadWorkflowAsync(file, title);
-		/* eslint-enable no-invalid-this */
+			yield this._uploadWorkflowAsync(file, title);
+			/* eslint-enable no-invalid-this */
 		}));
 
+		/* eslint-disable no-unused-vars */
 		// allow a way to set special progress handlers such as for smart-curriculum
-		this.progressHandler = function() {};
+		this.progressHandler = function(progress = this.uploadProgress) {};
+		/* eslint-wnsable no-unused-vars */
 	}
 
 	async cancelUpload() {
@@ -51,7 +53,7 @@ export class Uploader {
 				revisionId: this.revision.id,
 			});
 			this.uploadProgress = 50 + ((progress.percentComplete || 0) / 2);
-			this.progressHandler();
+			this.progressHandler(this.uploadProgress);
 			if (progress.ready) {
 				this.onSuccess(this.revision.d2lrn);
 				this.s3Uploader = undefined;
@@ -98,7 +100,7 @@ export class Uploader {
 					}),
 				onProgress: progress => {
 					this.uploadProgress = progress / (this.waitForProcessing ? 2 : 1);
-					this.progressHandler();
+					this.progressHandler(this.uploadProgress);
 				},
 			});
 
