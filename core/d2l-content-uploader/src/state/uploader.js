@@ -6,13 +6,15 @@ import { getExtension } from '../util/media-type-util.js';
 
 const UPLOAD_FAILED_ERROR = 'workerErrorUploadFailed';
 
+/* eslint-disable no-unused-vars */
 export class Uploader {
-	constructor({ apiClient, onSuccess, onError, waitForProcessing }) {
+	constructor({ apiClient, onSuccess, onError, waitForProcessing, onProgress = (progress) => {}}) {
+		/* eslint-enable no-unused-vars */
 		this.apiClient = apiClient;
 		this.onSuccess = onSuccess;
 		this.onError = onError;
 		this.waitForProcessing = waitForProcessing;
-
+		this.progressHandler = onProgress;
 		this.uploadProgress = 0;
 
 		/* eslint-disable no-invalid-this */
@@ -20,11 +22,6 @@ export class Uploader {
 			yield this._uploadWorkflowAsync(file, title);
 			/* eslint-enable no-invalid-this */
 		}));
-
-		/* eslint-disable no-unused-vars */
-		// allow a way to set special progress handlers such as for smart-curriculum
-		this.progressHandler = function(progress = this.uploadProgress) {};
-		/* eslint-wnsable no-unused-vars */
 	}
 
 	async cancelUpload() {
