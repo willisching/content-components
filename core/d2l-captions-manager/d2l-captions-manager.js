@@ -210,7 +210,7 @@ class CaptionsManager extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 		try {
 			const getCaptionsResponse = await this.userBrightspaceClient.getCaptions(this.orgUnitId, this.topicId, Object.keys(captionsLanguageCodesToNames).length);
-			this._captionsList =  getCaptionsResponse.body.Objects.sort(this._compareCaptions);
+			this._captionsList = getCaptionsResponse.body.Objects.sort(this._compareCaptions);
 
 			// Filter the list of uncaptioned languages to remove any languages
 			// that appear in the loaded list of captions.

@@ -20,7 +20,7 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 	}
 
 	static get styles() {
-		return [  bodySmallStyles, bodyStandardStyles, heading3Styles, css`
+		return [ bodySmallStyles, bodyStandardStyles, heading3Styles, css`
 			d2l-loading-spinner {
 				margin: auto;
 			}

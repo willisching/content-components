@@ -10,7 +10,7 @@ import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { inputStyles } from '@brightspace-ui/core/components/inputs/input-styles.js';
 import { InternalLocalizeMixin } from './internal-localize-mixin.js';
 import { labelStyles, bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
-import { formatTimestampText, convertSrtTextToVttText, validTimestampFormat, unformatTimestampText }  from './captions-utils.js';
+import { formatTimestampText, convertSrtTextToVttText, validTimestampFormat, unformatTimestampText } from './captions-utils.js';
 import { getUniqueId } from '@brightspace-ui/core/helpers/uniqueId';
 import constants from './constants.js';
 import './d2l-video-producer-auto-generate-captions-dialog';
@@ -708,7 +708,7 @@ class VideoProducerCaptions extends InternalLocalizeMixin(LitElement) {
 		} else {
 			return html`
 				${this._renderTopButtons()}
-				${this.captions?.length > 0 ?  this._renderCuesList() : this._renderEmptyCaptionsMessage()}
+				${this.captions?.length > 0 ? this._renderCuesList() : this._renderEmptyCaptionsMessage()}
 				${this._renderBottomBar()}
 				<input
 					accept=".srt,.vtt"

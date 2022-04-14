@@ -289,7 +289,7 @@ class LiveEventForm extends MobxReactionUpdate(NavigationMixin(RtlMixin(Internal
 
 		const enableChatElement = this.shadowRoot.querySelector('#enable-chat-checkbox');
 		if (enableChatElement) {
-			enableChatElement.checked  = liveEvent.enableChat;
+			enableChatElement.checked = liveEvent.enableChat;
 		}
 
 		this.setPresentationLayoutSelection({ layoutName: liveEvent.layoutName });

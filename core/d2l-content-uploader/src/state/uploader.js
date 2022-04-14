@@ -1,22 +1,24 @@
 import { action, decorate, flow, observable } from 'mobx';
-import resolveWorkerError from '../util/resolve-worker-error';
-import { S3Uploader } from '../util/s3-uploader';
-import { randomizeDelay, sleep } from '../util/delay';
-import { getExtension } from '../util/media-type-util';
+import resolveWorkerError from '../util/resolve-worker-error.js';
+import { S3Uploader } from '../util/s3-uploader.js';
+import { randomizeDelay, sleep } from '../util/delay.js';
+import { getExtension } from '../util/media-type-util.js';
 
 const UPLOAD_FAILED_ERROR = 'workerErrorUploadFailed';
 
+/* eslint-disable no-unused-vars */
 export class Uploader {
-	constructor({ apiClient, onSuccess, onError, waitForProcessing }) {
+	constructor({ apiClient, onSuccess, onError, waitForProcessing, onProgress = (progress) => {}}) {
+		/* eslint-enable no-unused-vars */
 		this.apiClient = apiClient;
 		this.onSuccess = onSuccess;
 		this.onError = onError;
 		this.waitForProcessing = waitForProcessing;
-
+		this.onProgress = onProgress;
 		this.uploadProgress = 0;
 
+		/* eslint-disable no-invalid-this */
 		this.uploadFile = flow((function * (file, title) {
-			/* eslint-disable no-invalid-this */
 			yield this._uploadWorkflowAsync(file, title);
 			/* eslint-enable no-invalid-this */
 		}));
@@ -45,11 +47,10 @@ export class Uploader {
 		try {
 			const progress = await this.apiClient.getWorkflowProgress({
 				contentId: this.content.id,
-				revisionId: this.revision.id
+				revisionId: this.revision.id,
 			});
-
 			this.uploadProgress = 50 + ((progress.percentComplete || 0) / 2);
-
+			this.onProgress(this.uploadProgress);
 			if (progress.ready) {
 				this.onSuccess(this.revision.d2lrn);
 				this.s3Uploader = undefined;
@@ -83,9 +84,8 @@ export class Uploader {
 				this.content.id,
 				{
 					extension,
-				}
+				},
 			);
-
 			this.s3Uploader = new S3Uploader({
 				file,
 				key: this.revision.s3Key,
@@ -93,11 +93,12 @@ export class Uploader {
 					this.apiClient.signUploadRequest({
 						fileName: key,
 						contentType: file.type,
-						contentDisposition: 'auto'
+						contentDisposition: 'auto',
 					}),
 				onProgress: progress => {
 					this.uploadProgress = progress / (this.waitForProcessing ? 2 : 1);
-				}
+					this.onProgress(this.uploadProgress);
+				},
 			});
 
 			await this.s3Uploader.upload();
@@ -122,5 +123,5 @@ export class Uploader {
 decorate(Uploader, {
 	uploadProgress: observable,
 	uploadFile: action,
-	reset: action
+	reset: action,
 });

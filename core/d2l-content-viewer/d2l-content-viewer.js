@@ -235,7 +235,7 @@ class ContentViewer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	async _loadRevisionData() {
-		const revision = this.activity ? await this.hmClient.getRevision(this._resourceEntity) :  await this.client.getRevision();
+		const revision = this.activity ? await this.hmClient.getRevision(this._resourceEntity) : await this.client.getRevision();
 		if (!revision) {
 			this.noMediaFound = true;
 			return;
