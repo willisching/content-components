@@ -14,7 +14,7 @@ export class Uploader {
 		this.onSuccess = onSuccess;
 		this.onError = onError;
 		this.waitForProcessing = waitForProcessing;
-		this.progressHandler = onProgress;
+		this.onProgress = onProgress;
 		this.uploadProgress = 0;
 
 		/* eslint-disable no-invalid-this */
@@ -50,7 +50,7 @@ export class Uploader {
 				revisionId: this.revision.id,
 			});
 			this.uploadProgress = 50 + ((progress.percentComplete || 0) / 2);
-			this.progressHandler(this.uploadProgress);
+			this.onProgress(this.uploadProgress);
 			if (progress.ready) {
 				this.onSuccess(this.revision.d2lrn);
 				this.s3Uploader = undefined;
@@ -97,7 +97,7 @@ export class Uploader {
 					}),
 				onProgress: progress => {
 					this.uploadProgress = progress / (this.waitForProcessing ? 2 : 1);
-					this.progressHandler(this.uploadProgress);
+					this.onProgress(this.uploadProgress);
 				},
 			});
 
