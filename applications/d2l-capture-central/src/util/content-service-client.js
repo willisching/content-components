@@ -201,7 +201,7 @@ export default class ContentServiceClient {
 				size,
 				sort,
 				query,
-				contentType: contentFilterToSearchQuery(contentType),
+				contentType: contentType.split(',').map(t => contentFilterToSearchQuery(t)).join(','),
 				clientApps,
 				updatedAt: dateFilterToSearchQuery(updatedAt),
 				createdAt: dateFilterToSearchQuery(createdAt),

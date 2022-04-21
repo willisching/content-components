@@ -306,7 +306,7 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 
 	_renderSidebar() {
 		const sidebarItems = [ {
-			langterm: rootStore.permissionStore.getCanManageAllVideos() ? 'everyonesVideos' : 'myVideos',
+			langterm: rootStore.permissionStore.getCanManageAllVideos() ? 'everyonesMedia' : 'myMedia',
 			location: `/${pageNames.videos}`,
 			icon: rootStore.permissionStore.getCanManageAllVideos() ? 'tier2:browser' : 'tier2:folder',
 		},

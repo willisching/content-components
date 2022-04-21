@@ -40,7 +40,8 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 			title: { type: String },
 			ownerId: { type: String, attribute: 'owner-id' },
 			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
-			processingStatus: { type: String, attribute: 'processing-status' }
+			processingStatus: { type: String, attribute: 'processing-status' },
+			type: { type: String }
 		};
 	}
 
@@ -97,10 +98,11 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 	}
 
 	render() {
+		const icon = !this.type || this.type === 'Video' ? 'tier1:file-video' : 'tier1:file-audio';
 		const illustration = (this.poster && this.poster !== '' && this.processingStatus !== 'created') ? html`
 			<img class="d2l-capture-central-video-poster-image" src="${this.poster}" slot="illustration">
 		` : html`
-			<d2l-icon icon="tier1:file-video" slot="illustration"></d2l-icon>
+			<d2l-icon icon="${icon}" slot="illustration"></d2l-icon>
 		`;
 
 		return html`

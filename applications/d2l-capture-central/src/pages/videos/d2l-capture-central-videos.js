@@ -99,7 +99,7 @@ class D2LCaptureCentralVideos extends contentSearchMixin(DependencyRequester(Pag
 	}
 
 	render() {
-		const heading = rootStore.permissionStore.getCanManageAllVideos() ? this.localize('everyonesVideos') : this.localize('myVideos');
+		const heading = rootStore.permissionStore.getCanManageAllVideos() ? this.localize('everyonesMedia') : this.localize('myMedia');
 		return html`
 			<div class="d2l-capture-central-manage-container">
 				<h2 class="d2l-capture-central-videos-heading d2l-heading-2">${heading}</h2>

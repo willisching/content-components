@@ -66,14 +66,17 @@ class D2LCaptureCentralPreview extends DependencyRequester(PageViewElement) {
 		}
 		this.apiClient = this.requestDependency('content-service-client');
 		this.revision = await this.apiClient.getLatestRevision(this.contentId);
+		this.mediaType = this.revision.type === 'Video' ? 'video' : 'audio';
 
 		this.urls = await this.apiClient.getSignedUrls({ contentId: this.contentId, revisionId: this.revision.id });
 		if ((this.urls?.length ?? 0) === 0) {
 			this.urls = [await this.apiClient.getSignedUrlForRevision({ contentId: this.contentId, revisionId: this.revision.id })];
 		}
 
-		const metadata = await this.apiClient.getMetadata({ contentId: this.contentId, revisionId: this.revision.id });
-		this.metadata = metadata ? JSON.stringify(metadata) : undefined;
+		if (this.mediaType === 'video') {
+			const metadata = await this.apiClient.getMetadata({ contentId: this.contentId, revisionId: this.revision.id });
+			this.metadata = metadata ? JSON.stringify(metadata) : undefined;
+		}
 
 		await this.loadAllCaptions();
 
@@ -97,7 +100,7 @@ class D2LCaptureCentralPreview extends DependencyRequester(PageViewElement) {
 		<d2l-labs-media-player
 			id="d2l-capture-central-mp"
 			crossorigin="anonymous"
-			media-type="video"
+			media-type="${ifDefined(this.mediaType)}"
 			metadata=${ifDefined(this.metadata ? this.metadata : undefined)}
 			style="width:100%"
 			>

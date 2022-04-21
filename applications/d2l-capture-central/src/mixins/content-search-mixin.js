@@ -61,7 +61,7 @@ export const contentSearchMixin = superClass => class extends superClass {
 			contentType: 'video',
 			clientApps: clientApps.join(','),
 			createdAt: createdAt,
-			includeThumbnails: true,
+			includeThumbnails:  true,
 			query: query,
 			sort: sort,
 			start: this._start,
@@ -99,7 +99,7 @@ export const contentSearchMixin = superClass => class extends superClass {
 		}
 
 		const { hits: { hits, total } } = await this.apiClient.searchContent({
-			contentType: 'video',
+			contentType: 'video,audio',
 			clientApps: clientApps.join(','),
 			createdAt,
 			includeThumbnails: true,
