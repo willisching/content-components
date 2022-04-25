@@ -15,6 +15,7 @@ export const val = {
 	formatLD: 'LD',
 	formatMP3: 'MP3',
 	formatSD: 'SD',
+	formatSource: 'Ffynhonnell',
 	invalidFileType: 'Math ffeil annilys.',
 	mayOnlyUpload1File: 'Dim ond 1 ffeil y gallwch ei huwchlwytho.',
 	mediaFileFailedProcessing: 'Methodd prosesu\'r ffeil gyfryngau hon.',

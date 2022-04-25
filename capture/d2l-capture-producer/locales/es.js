@@ -50,6 +50,7 @@ export const val = {
 	noCaptions: 'Actualmente no hay subtítulos para {language}.',
 	noChapters: 'No hay capítulos agregados.',
 	openExpandedCaptionsCueControls: 'Abrir los controles ampliados para esta indicación de subtítulos',
+	optimizeForStreaming: 'Optimizar para la transmisión en vivo',
 	preparingCaptions: 'Preparando subtítulos…',
 	publishWarning: 'Si continúa, todas las referencias a este archivo de medios en todo el LMS recibirán sus cambios.',
 	revisionNumber: 'Revisión {number}',

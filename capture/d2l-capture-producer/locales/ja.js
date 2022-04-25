@@ -50,6 +50,7 @@ export const val = {
 	noCaptions: '現在、{language} のキャプションはありません。',
 	noChapters: '章が追加されていません。',
 	openExpandedCaptionsCueControls: 'このキャプションキューの拡張コントロールを開きます',
+	optimizeForStreaming: 'ストリーミング用に最適化',
 	preparingCaptions: 'キャプションを準備中',
 	publishWarning: '続行すると、LMS 全体でこのメディアファイルへのすべての参照に変更が反映されます。',
 	revisionNumber: 'リビジョン {number}',

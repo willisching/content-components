@@ -15,6 +15,7 @@ export const val = {
 	formatLD: 'LD',
 	formatMP3: 'MP3',
 	formatSD: 'SD',
+	formatSource: '源',
 	invalidFileType: '无效的文件类型。',
 	mayOnlyUpload1File: '只能上传 1 个文件。',
 	mediaFileFailedProcessing: '此媒体文件处理失败',

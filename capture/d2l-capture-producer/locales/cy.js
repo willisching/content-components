@@ -50,6 +50,7 @@ export const val = {
 	noCaptions: 'Ar hyn o bryd nid oes unrhyw gapsiynau ar gyfer {language}.',
 	noChapters: 'Nid oes unrhyw benodau wedi\'u hychwanegu.',
 	openExpandedCaptionsCueControls: 'Agor rheolyddion sydd wedi\'u hehangu ar gyfer y ciw capsiynau hwn',
+	optimizeForStreaming: 'Optimeiddio ar gyfer Ffrydio',
 	preparingCaptions: 'Wrthi\'n paratoi capsiynau…',
 	publishWarning: 'Os byddwch yn parhau, bydd pob cyfeiriad at y ffeil gyfryngau hon drwy\'r LMS yn cael eich newidiadau.',
 	revisionNumber: 'Adolygiad {rhif}',

@@ -5,5 +5,6 @@ export const val = {
 	formatLD: 'LD',
 	formatMP3: 'MP3',
 	formatSD: 'SD',
+	formatSource: 'Source',
 	mediaFileIsProcessing: 'Ce fichier multimédia est en cours de traitement. Veuillez revenir plus tard.'
 };

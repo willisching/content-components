@@ -50,6 +50,7 @@ export const val = {
 	noCaptions: '当前没有 {language} 的字幕。',
 	noChapters: '未添加章节。',
 	openExpandedCaptionsCueControls: '打开此字幕提示的扩展控件',
+	optimizeForStreaming: '优化以进行流式传输',
 	preparingCaptions: '正在准备字幕…',
 	publishWarning: '如果您继续，在 LMS 中对该媒体文件的所有引用都将获得您的更改。',
 	revisionNumber: '版本 {number}',

@@ -5,5 +5,6 @@ export const val = {
 	formatLD: 'LD',
 	formatMP3: 'MP3',
 	formatSD: 'SD',
+	formatSource: 'المصدر',
 	mediaFileIsProcessing: 'تتم حاليًا معالجة ملف الوسائط هذا. يرجى العودة لاحقًا.'
 };

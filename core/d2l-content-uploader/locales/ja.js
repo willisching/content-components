@@ -15,6 +15,7 @@ export const val = {
 	formatLD: 'LD',
 	formatMP3: 'MP3',
 	formatSD: 'SD',
+	formatSource: 'ソース',
 	invalidFileType: 'ファイルタイプが無効です。',
 	mayOnlyUpload1File: 'アップロードできるのは 1 ファイルのみです。',
 	mediaFileFailedProcessing: 'このメディアファイルの処理に失敗しました。',

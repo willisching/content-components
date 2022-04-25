@@ -15,6 +15,7 @@ export const val = {
 	formatLD: 'LD',
 	formatMP3: 'MP3',
 	formatSD: 'SD',
+	formatSource: 'Bron',
 	invalidFileType: 'Ongeldig bestandstype.',
 	mayOnlyUpload1File: 'U kunt maar 1 bestand uploaden.',
 	mediaFileFailedProcessing: 'Dit mediabestand kan niet worden verwerkt',
