@@ -57,7 +57,7 @@ export const val = {
 	editProperties: '속성 편집',
 	enableChat: '채팅 활성화',
 	enterAnItemName: '구성 이름을 입력하십시오.',
-	everyonesMedia: 'Everyone's Media',
+	everyonesMedia: 'Everyone\'s Media',
 	export: '내보내기',
 	exportAsCsv: '쉼표로 구분된 값의 목록으로 내보내기',
 	fileTooLarge: '파일 크기가 {localizedMaxFileSize}보다 큽니다.',
