@@ -377,7 +377,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				contentId: this._content.id,
 				revisionId: draftToPublish.id,
 				revision: {
-					formats: this._getFormatsFromClientApp(this._content.clientApp),
+					formats: this._getFormatsForContent(this._content, this._selectedRevision),
 					...draftToPublish.revisionReference && {revisionReference}
 				}
 			});
@@ -433,8 +433,11 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		return this._selectedLanguage.code;
 	}
 
-	_getFormatsFromClientApp(clientApp) {
-		switch (clientApp) {
+	_getFormatsForContent(content, revision) {
+		if (revision.type === 'Audio') {
+			return ['mp3'];
+		}
+		switch (content.clientApp) {
 			case 'VideoNote':
 				return ['ld'];
 			case 'LmsContent':
@@ -471,7 +474,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	_getMediaType() {
-		return ['Video'].includes(this._selectedRevision?.type) ? 'video' : 'audio';
+		return this._selectedRevision?.type === 'Video' ? 'video' : 'audio';
 	}
 
 	_handleCaptionsAutoGenerationStarted(event) {
@@ -846,7 +849,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	_renderTopBar() {
-		const showOptimizeForStreamingButton = JSON.stringify(this._selectedRevision?.formats) !== JSON.stringify(this._getFormatsFromClientApp(this._content?.clientApp));
+		const showOptimizeForStreamingButton = JSON.stringify(this._selectedRevision?.formats) !== JSON.stringify(this._getFormatsForContent(this._content, this._selectedRevision));
 		return html`
 			<div class="d2l-video-producer-top-bar-controls">
 ${ showOptimizeForStreamingButton ?
