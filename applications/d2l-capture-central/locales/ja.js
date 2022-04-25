@@ -57,7 +57,7 @@ export const val = {
 	editProperties: 'プロパティの編集',
 	enableChat: 'チャットの有効化',
 	enterAnItemName: '項目名を入力',
-	everyonesMedia: 'Everyone's Media',
+	everyonesMedia: 'Everyone\'s Media',
 	export: 'エクスポート',
 	exportAsCsv: 'カンマ区切り値のリストとしてエクスポートします。',
 	fileTooLarge: 'ファイルのサイズが {localizedMaxFileSize} を超えています。',
