@@ -57,7 +57,7 @@ export const val = {
 	editProperties: 'गुण संपादित करें',
 	enableChat: 'चैट सक्षम करें',
 	enterAnItemName: 'कोई आइटम नाम दर्ज करें',
-	everyonesMedia: 'Everyone's Media',
+	everyonesMedia: 'Everyone\'s Media',
 	export: 'निर्यात करें',
 	exportAsCsv: 'अल्पविराम से अलग किए गए मानों की सूची के रूप में निर्यात करें।',
 	fileTooLarge: 'फ़ाइल का आकार {localizedMaxFileSize} से बड़ा है।',
