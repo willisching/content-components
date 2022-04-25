@@ -57,7 +57,7 @@ export const val = {
 	editProperties: 'تحرير الخصائص',
 	enableChat: 'تمكين الدردشة',
 	enterAnItemName: 'أدخل اسم عنصر',
-	everyonesMedia: 'Everyone's Media',
+	everyonesMedia: 'Everyone\'s Media',
 	export: 'تصدير',
 	exportAsCsv: 'قم بالتصدير كقائمة بقيم مفصولة بفاصلة.',
 	fileTooLarge: 'حجم الملف أكبر من {localizedMaxFileSize}.',
