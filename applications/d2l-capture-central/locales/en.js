@@ -93,6 +93,7 @@ export const val = {
 	modified: 'Modified',
 	moreOptions: 'More options',
 	moveContents: 'Move Contents',
+	mp3: 'MP3',
 	myMedia: 'My Media',
 	name: 'Name',
 	newFolder: 'New Folder',
