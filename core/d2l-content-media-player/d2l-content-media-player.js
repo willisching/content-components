@@ -94,14 +94,11 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 		this.contentId = contentId;
 		this.revisionId = revisionId;
 
-		console.log({
-			contextType: this.contextType,
-			contextId: this.contextId});
 		const httpClient = new ContentServiceBrowserHttpClient({
 			serviceUrl: this.contentServiceEndpoint,
 			tenantId,
 			contextType: this.contextType,
-			contextId: '1234'
+			contextId: this.contextId
 		});
 		this.client = new ContentServiceApiClient({ httpClient });
 		await this._setup();
