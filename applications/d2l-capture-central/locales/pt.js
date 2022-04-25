@@ -57,7 +57,7 @@ export const val = {
 	editProperties: 'Editar propriedades',
 	enableChat: 'Ativar chat',
 	enterAnItemName: 'Insira o nome do item',
-	everyonesMedia: 'Everyone's Media',
+	everyonesMedia: 'Everyone\'s Media',
 	export: 'Exportar',
 	exportAsCsv: 'Exportar como lista de valores separados por vírgulas.',
 	fileTooLarge: 'O tamanho do arquivo é maior do que {localizedMaxFileSize}.',
