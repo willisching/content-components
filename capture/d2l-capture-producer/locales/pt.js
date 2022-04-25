@@ -50,6 +50,7 @@ export const val = {
 	noCaptions: 'Não há legendas para {language} no momento.',
 	noChapters: 'Nenhum capítulo adicionado.',
 	openExpandedCaptionsCueControls: 'Abrir controles expandidos para esta indicação de legendas',
+	optimizeForStreaming: 'Otimizar para transmissão',
 	preparingCaptions: 'Preparando legendas…',
 	publishWarning: 'Se você continuar, todas as referências a este arquivo de mídia em todo o Sistema de gestão de aprendizagem receberão as alterações.',
 	revisionNumber: 'Revisão {number}',

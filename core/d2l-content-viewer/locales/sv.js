@@ -5,5 +5,6 @@ export const val = {
 	formatLD: 'LD',
 	formatMP3: 'MP3',
 	formatSD: 'SD',
+	formatSource: 'Källa',
 	mediaFileIsProcessing: 'Den här mediefilen bearbetas för närvarande. Kom tillbaka senare.'
 };

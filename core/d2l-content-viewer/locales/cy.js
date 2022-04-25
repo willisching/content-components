@@ -5,5 +5,6 @@ export const val = {
 	formatLD: 'LD',
 	formatMP3: 'MP3',
 	formatSD: 'SD',
-	mediaFileIsProcessing: 'Mae\'r ffeil gyfryngau hon yn cael ei phrosesu ar hyn o bryd. Dewch yn ôl yn hwyrach.'
+	formatSource: 'Ffynhonnell',
+	mediaFileIsProcessing: 'Mae'r ffeil gyfryngau hon yn cael ei phrosesu ar hyn o bryd. Dewch yn ôl yn hwyrach.'
 };

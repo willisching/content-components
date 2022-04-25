@@ -15,6 +15,7 @@ export const val = {
 	formatLD: 'LD',
 	formatMP3: 'MP3',
 	formatSD: 'SD',
+	formatSource: 'Kaynak',
 	invalidFileType: 'Geçersiz dosya türü.',
 	mayOnlyUpload1File: 'Yalnızca 1 dosya yükleyebilirsiniz.',
 	mediaFileFailedProcessing: 'Bu ortam dosyası işlenemedi',
