@@ -57,7 +57,7 @@ export const val = {
 	editProperties: 'Rediger egenskaber',
 	enableChat: 'Aktivér chat',
 	enterAnItemName: 'Indtast et elementnavn',
-	everyonesMedia: 'Everyone's Media',
+	everyonesMedia: 'Everyone\'s Media',
 	export: 'Eksportér',
 	exportAsCsv: 'Eksportér som en liste med kommaseparerede værdier.',
 	fileTooLarge: 'Filstørrelsen er større end {localizedMaxFileSize}.',
