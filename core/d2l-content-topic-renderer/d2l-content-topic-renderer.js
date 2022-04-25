@@ -22,6 +22,9 @@ class ContentTopicRenderer extends LitElement {
 			:host([hidden]) {
 				display: none;
 			}
+			#renderer {
+				width: 100%;
+			}
 		`;
 	}
 
@@ -36,6 +39,7 @@ class ContentTopicRenderer extends LitElement {
 	render() {
 		return html`
 			<d2l-content-renderer
+				id="renderer"
 				?allow-download=${this.allowDownload}
 				?allow-download-on-error=${this.allowDownloadOnError}
 				content-service-endpoint=${this.contentServiceEndpoint}

@@ -4,14 +4,14 @@ import { getDocumentLocaleSettings } from '@brightspace-ui/intl/lib/common.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
 
-import ContentServiceClient from './src/clients/rest-client.js';
-import { VideoFormat, ContentType } from './src/clients/enums.js';
+import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
+import { ContentServiceApiClient } from '@d2l/content-service-api-client';
 import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
 
 const TRACK_ERROR_FETCH_WAIT_MILLISECONDS = 5000;
 const REVISION_POLL_WAIT_MILLISECONDS = 10000;
-const VALID_CONTENT_TYPES = [ContentType.Video, ContentType.Audio];
-const VIDEO_FORMATS_BEST_FIRST = [VideoFormat.HD, VideoFormat.SD, VideoFormat.LD, VideoFormat.MP3];
+const VALID_CONTENT_TYPES = ['Video', 'Audio'];
+const VIDEO_FORMATS_BEST_FIRST = ['hd', 'sd', 'ld', 'mp3'];
 
 class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
@@ -40,7 +40,6 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 		return css`
 			:host {
 				display: inline-block;
-				width: 100%;
 			}
 			:host([hidden]) {
 				display: none;
@@ -56,6 +55,9 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
  				position: relative;
 				text-align: center;
  				width: 100%;
+			}
+			#player {
+				width: 100%;
 			}
 		`;
 	}
@@ -74,6 +76,8 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 		this._error = false;
 		this._playbackSupported = false;
 		this._bestFormat = null;
+		this.contentId = null;
+		this.revisionId = null;
 	}
 
 	async firstUpdated() {
@@ -87,20 +91,28 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 
 		const tenantId = splitD2lrn[4];
 		const [contentId, revisionId = 'latest'] = splitD2lrn[6].split('/');
+		this.contentId = contentId;
+		this.revisionId = revisionId;
 
-		this.client = new ContentServiceClient({
-			contentId,
-			contextId: this.contextId,
+		console.log({
 			contextType: this.contextType,
-			endpoint: this.contentServiceEndpoint,
-			revisionId,
+			contextId: this.contextId});
+		const httpClient = new ContentServiceBrowserHttpClient({
+			serviceUrl: this.contentServiceEndpoint,
 			tenantId,
+			contextType: this.contextType,
+			contextId: '1234'
 		});
+		this.client = new ContentServiceApiClient({ httpClient });
 		await this._setup();
 
 		this.dispatchEvent(new CustomEvent('cs-content-loaded', {
 			bubbles: true,
 			composed: true,
+			detail: {
+				revision: this._revision,
+				supportsAdvancedEditing: true
+			}
 		}));
 	}
 
@@ -133,8 +145,9 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 			return html`
 			<d2l-offscreen>${this.localize('offscreenInfoMessage', { title: this._revision.title, description: this._revision.description })}</d2l-offscreen>
 			<d2l-labs-media-player
+				id="player"
 				crossorigin="anonymous"
-				media-type="${this._revision.type === ContentType.Video ? 'video' : 'audio'}"
+				media-type="${this._revision.type === 'Video' ? 'video' : 'audio'}"
 				metadata=${ifDefined(this._metadata ? this._metadata : undefined)}
 				poster=${ifDefined(this._poster ? this._poster : undefined)}
 				thumbnails=${ifDefined(this._thumbnails ? this._thumbnails : undefined)}
@@ -158,7 +171,7 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 		await this._loadMedia();
 		await this._loadCaptions();
 
-		if (!this._noMediaFound && this._revision.type === ContentType.Video) {
+		if (!this._noMediaFound && this._revision.type === 'Video') {
 			await this._loadMetadata();
 			await this._loadPoster();
 			await this._loadThumbnails();
@@ -174,8 +187,7 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	async _download() {
-		const downloadUrl = await this.client.getDownloadUrl({ attachment: true });
-
+		const downloadUrl = await this._getMediaSource();
 		if (downloadUrl) {
 			const anchor = document.createElement('a');
 			anchor.href = downloadUrl.src;
@@ -185,14 +197,37 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	async _getMediaSource(format) {
-		return this.client.getDownloadUrl({format});
+		const mediaSource = await this._getResource({
+			resource: 'transcodes',
+			query: {
+				disposition: 'attachment',
+				...(format ? {format} : {})
+			}
+		});
+		return {
+			src: mediaSource.value,
+			format
+		};
+	}
+
+	_getResource({resource, outputFormat = 'signed-url', query = {}}) {
+		return this.client.content.getResource({
+			id: this.contentId,
+			revisionTag: this.revisionId,
+			resource,
+			outputFormat,
+			query
+		});
 	}
 
 	async _loadCaptions() {
 		clearInterval(this._trackErrorFetchTimeoutId);
 		this._trackErrorFetchTimeoutId = null;
 
-		const captionSignedUrls = await this.client.getCaptions();
+		const captionSignedUrls = await this._getResource({
+			resource: 'captions',
+			outputFormat: 'signed-urls'
+		});
 
 		if (captionSignedUrls) {
 			// This forces a slot change event for the media player so it can render the new captions
@@ -229,43 +264,42 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	async _loadMetadata() {
-		const result = await this.client.getMetadata();
+		const result = await this._getResource({
+			resource: 'metadata',
+			outputFormat: 'file-content'
+		});
 		if (result) {
 			this._metadata = JSON.stringify(result);
 		}
 	}
 
 	async _loadPoster() {
-		const result = await this.client.getPoster();
+		const result = await this._getResource({ resource: 'poster' });
 		if (result) this._poster = result.value;
 	}
 
 	async _loadRevisionData() {
-		const revision = await this.client.getRevision();
+		const revision = await this.client.content.getRevision({ id: this.contentId, revisionTag: this.revisionId });
 
 		if (!revision) {
 			this._noMediaFound = true;
 			return;
 		}
-		this._revision = {
-			type: revision.type,
-			formats: revision.formats,
-			ready: revision.ready,
-			processingFailed: revision.processingFailed,
-			title: revision.title,
-			description: revision.description
-		};
+
+		this._revision = revision;
 		this._verifyContentType(this._revision.type);
 
 		// Determine whether the type has supported playback
-		const isVideo = this._revision.type === ContentType.Video;
+		const isVideo = this._revision.type === 'Video';
 		const playbackSupportTestElement = isVideo ? document.createElement('video') : document.createElement('audio');
 		const mimeType = isVideo ? 'video/mp4' : 'audio/mp3' ;
 		this._playbackSupported = playbackSupportTestElement.canPlayType && playbackSupportTestElement.canPlayType(mimeType).replace(/no/, '');
 	}
 
 	async _loadThumbnails() {
-		const result = await this.client.getThumbnails();
+		const result = await this._getResource({
+			resource: 'thumbnails'
+		});
 		if (result) this._thumbnails = result.value;
 	}
 
@@ -308,7 +342,7 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_renderMediaSource(source) {
-		return html`<source src=${source.src} label=${this.localize(`format${source.format || 'Source'}`)} ?default=${source.format === this._bestFormat}>`;
+		return html`<source src=${source.src} label=${this.localize(`format${!source.format ? 'Source' : source.format.toUpperCase()}`)} ?default=${source.format === this._bestFormat}>`;
 	}
 
 	async _setup() {
