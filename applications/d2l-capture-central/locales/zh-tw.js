@@ -57,7 +57,7 @@ export const val = {
 	editProperties: '編輯屬性',
 	enableChat: '啟用交談',
 	enterAnItemName: '輸入項目名稱',
-	everyonesMedia: 'Everyone's Media',
+	everyonesMedia: 'Everyone\'s Media',
 	export: '匯出',
 	exportAsCsv: '匯出為逗點分隔值列表。',
 	fileTooLarge: '檔案大小大於 {localizedMaxFileSize}。',
