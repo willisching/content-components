@@ -9,6 +9,7 @@
     "lint:eslint": "eslint . --ext .js,.html",
     "lint:lit": "lit-analyzer  \"{applications,core,capture,test,demo}/**/*.js\" --strict --rules.no-unknown-tag-name off --rules.no-unknown-attribute off",
     "start:d2l-capture-producer": "es-dev-server --app-index capture/d2l-capture-producer/demo/index.html --node-resolve --dedupe --open --watch",
+    "start:d2l-content-properties": "es-dev-server --config ./core/d2l-content-properties/es-dev-server.config.cjs --app-index core/d2l-content-properties/demo/index.html --node-resolve --dedupe --open --watch",
     "test": "npm run lint && npm run test:headless",
     "test:headless": "web-test-runner --group default",
     "test:headless:watch": "web-test-runner --group default --watch"
@@ -45,6 +46,8 @@
     "@chaitin/querystring": "^1.1.0",
     "@createjs/easeljs": "^2.0.0-beta.4",
     "@polymer/polymer": "^3",
+    "d2l-content-service-api-client": "^6.1.19",
+    "d2l-content-service-browser-http-client": "^6.1.19",
     "d2l-fetch": "github:Brightspace/d2l-fetch#semver:^2",
     "d2l-fetch-auth": "^1",
     "d2l-polymer-behaviors": "github:Brightspace/d2l-polymer-behaviors-ui#semver:^3",
