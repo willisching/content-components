@@ -7,6 +7,7 @@ import { ifDefined } from 'lit-html/directives/if-defined.js';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 import { ContentServiceApiClient } from '@d2l/content-service-api-client';
 import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
+import { parse } from '../../util/d2lrn.js';
 
 const TRACK_ERROR_FETCH_WAIT_MILLISECONDS = 5000;
 const REVISION_POLL_WAIT_MILLISECONDS = 10000;
@@ -82,15 +83,16 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 
 	async firstUpdated() {
 		super.firstUpdated();
-		// d2l:brightspace:content:<region>:<tenantId>:<type>:<id>/<revisionId>
-		const splitD2lrn = this.d2lrn.split(':');
-		if (splitD2lrn.length < 7) {
+
+		let splitD2lrn;
+		try {
+			splitD2lrn = parse(this.d2lrn);
+		} catch (error) {
 			this._error = true;
 			return;
 		}
 
-		const tenantId = splitD2lrn[4];
-		const [contentId, revisionId = 'latest'] = splitD2lrn[6].split('/');
+		const {tenantId, contentId, revisionId = 'latest'} = splitD2lrn;
 		this.contentId = contentId;
 		this.revisionId = revisionId;
 
