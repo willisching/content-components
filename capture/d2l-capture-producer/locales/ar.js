@@ -50,6 +50,7 @@ export const val = {
 	noCaptions: 'ما من تسميات توضيحية حاليًا لـ {language}.',
 	noChapters: 'لم تتم إضافة أي فصول.',
 	openExpandedCaptionsCueControls: 'فتح عناصر التحكم الموسعة لرمز التسميات التوضيحية هذا',
+	optimizeForStreaming: 'التحسين للتدفق',
 	preparingCaptions: 'جارٍ تحضير التسميات التوضيحية…',
 	publishWarning: 'إذا تابعت، فستتلقى كل المراجع لملف الوسائط هذا في نظام إدارة التعلّم (LMS) التغييرات التي أجريتها.',
 	revisionNumber: 'المراجعة {number}',

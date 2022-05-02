@@ -50,6 +50,7 @@ export const val = {
 	noCaptions: '{language}에 대한 캡션이 없습니다.',
 	noChapters: '추가된 장이 없습니다.',
 	openExpandedCaptionsCueControls: '이 캡션 큐에 대한 확장된 컨트롤 열기',
+	optimizeForStreaming: '스트리밍을 위해 최적화',
 	preparingCaptions: '캡션 준비 중…',
 	publishWarning: '계속 진행하면 이 미디어 파일에 대한 모든 참조를 LMS를 통해 변경할 수 있습니다.',
 	revisionNumber: '수정본 {number}',

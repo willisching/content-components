@@ -15,6 +15,7 @@ export const val = {
 	formatLD: 'LD',
 	formatMP3: 'MP3',
 	formatSD: 'SD',
+	formatSource: 'Källa',
 	invalidFileType: 'Ogiltig filtyp.',
 	mayOnlyUpload1File: 'Du kan bara överföra en fil.',
 	mediaFileFailedProcessing: 'Det gick inte att bearbeta den här mediefilen',

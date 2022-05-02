@@ -50,6 +50,7 @@ export const val = {
 	noCaptions: 'Der er i øjeblikket ingen billedtekster til {language}.',
 	noChapters: 'Der er ingen kapitler tilføjet.',
 	openExpandedCaptionsCueControls: 'Åbn udvidede kontrolelementer for dette undertekstsignal',
+	optimizeForStreaming: 'Optimer til streaming',
 	preparingCaptions: 'Forbereder billedtekster…',
 	publishWarning: 'Hvis du fortsætter, vil alle referencer til denne mediefil i hele LMS modtage dine ændringer.',
 	revisionNumber: 'Revision {number}',

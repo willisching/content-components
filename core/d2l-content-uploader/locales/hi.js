@@ -15,6 +15,7 @@ export const val = {
 	formatLD: 'LD',
 	formatMP3: 'MP3',
 	formatSD: 'SD',
+	formatSource: 'स्रोत',
 	invalidFileType: 'अमान्य फ़ाइल प्रकार।',
 	mayOnlyUpload1File: 'आप केवल 1 फ़ाइल अपलोड कर सकते हैं।',
 	mediaFileFailedProcessing: 'यह मीडिया फ़ाइल संसाधित होने में विफल रही',

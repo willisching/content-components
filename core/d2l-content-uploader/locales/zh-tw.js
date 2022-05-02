@@ -15,6 +15,7 @@ export const val = {
 	formatLD: 'LD',
 	formatMP3: 'MP3',
 	formatSD: 'SD',
+	formatSource: '來源',
 	invalidFileType: '檔案類型無效。',
 	mayOnlyUpload1File: '您只能上傳 1 個檔案。',
 	mediaFileFailedProcessing: '無法處理此媒體檔案',

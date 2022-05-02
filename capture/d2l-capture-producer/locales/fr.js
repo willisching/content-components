@@ -50,6 +50,7 @@ export const val = {
 	noCaptions: 'Il n\'y a actuellement aucun sous-titre pour la langue {language}.',
 	noChapters: 'Aucun chapitre n\'a été ajouté.',
 	openExpandedCaptionsCueControls: 'Ouvrir les commandes développées pour cette réplique de sous-titres',
+	optimizeForStreaming: 'Optimiser pour la transmission en continu',
 	preparingCaptions: 'Préparation des sous-titres…',
 	publishWarning: 'Si vous continuez, vos modifications seront appliquées à toutes les références à ce fichier multimédia dans le Système de gestion d\'apprentissage.',
 	revisionNumber: 'Révision {number}',

@@ -50,6 +50,7 @@ export const val = {
 	noCaptions: 'Er is momenteel geen ondertiteling voor {language}.',
 	noChapters: 'Er zijn geen hoofdstukken toegevoegd.',
 	openExpandedCaptionsCueControls: 'Uitgevouwen besturingselementen voor deze ondertitelingstijdcode openen',
+	optimizeForStreaming: 'Optimaliseren voor streamen',
 	preparingCaptions: 'Ondertiteling voorbereiden…',
 	publishWarning: 'Als u doorgaat, ontvangen alle verwijzingen naar dit mediabestand in het LMS uw wijzigingen.',
 	revisionNumber: 'Revisie {number}',

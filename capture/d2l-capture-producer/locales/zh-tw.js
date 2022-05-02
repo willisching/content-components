@@ -50,6 +50,7 @@ export const val = {
 	noCaptions: '目前沒有任何 {language} 字幕。',
 	noChapters: '沒有新增任何章節。',
 	openExpandedCaptionsCueControls: '開啟此字幕提示的展開控制項',
+	optimizeForStreaming: '針對串流進行最佳化',
 	preparingCaptions: '正在準備字幕…',
 	publishWarning: '若要繼續處理，LMS 中對此媒體檔案的所有參照都會收到您的變更。',
 	revisionNumber: '修訂版 {number}',

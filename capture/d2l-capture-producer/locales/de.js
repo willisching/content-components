@@ -50,6 +50,7 @@ export const val = {
 	noCaptions: 'Für {language} sind derzeit keine Untertitel vorhanden.',
 	noChapters: 'Es wurden keine Kapitel hinzugefügt.',
 	openExpandedCaptionsCueControls: 'Erweiterte Bedienelemente für diesen Untertitel-Cue öffnen',
+	optimizeForStreaming: 'Für Streaming optimieren',
 	preparingCaptions: 'Untertitel werden vorbereitet ...',
 	publishWarning: 'Wenn Sie fortfahren, erhalten alle Verweise auf diese Mediendatei im LMS Ihre Änderungen.',
 	revisionNumber: 'Revision {number}',

@@ -50,6 +50,7 @@ export const val = {
 	noCaptions: 'Det finns för närvarande inga undertexter på {language}.',
 	noChapters: 'Inga kapitel har lagts till.',
 	openExpandedCaptionsCueControls: 'Öppna utökade kontroller för den här undertexten',
+	optimizeForStreaming: 'Optimera för strömning',
 	preparingCaptions: 'Förbereder undertexter …',
 	publishWarning: 'Om du fortsätter kommer alla referenser till den här mediefilen i hela LMS att uppdateras med dina ändringar.',
 	revisionNumber: 'Revidering {number}',

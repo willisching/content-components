@@ -15,6 +15,7 @@ export const val = {
 	formatLD: 'LD',
 	formatMP3: 'MP3',
 	formatSD: 'SD',
+	formatSource: '소스',
 	invalidFileType: '파일 유형이 유효하지 않습니다.',
 	mayOnlyUpload1File: '하나의 파일만 업로드할 수 있습니다.',
 	mediaFileFailedProcessing: '이 미디어 파일을 처리하지 못했습니다.',

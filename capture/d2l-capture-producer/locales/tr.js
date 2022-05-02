@@ -50,6 +50,7 @@ export const val = {
 	noCaptions: '{language} için şu anda altyazı yok.',
 	noChapters: 'Eklenen bölüm yok.',
 	openExpandedCaptionsCueControls: 'Bu alt yazı işareti için genişletilmiş kontrolleri göster',
+	optimizeForStreaming: 'Akış için optimize et',
 	preparingCaptions: 'Altyazılar hazırlanıyor…',
 	publishWarning: 'Devam ederseniz Öğrenme Yönetim Sistemi kapsamındaki bu ortam dosyasına yapılan tüm referanslara değişiklikleriniz uygulanacaktır.',
 	revisionNumber: 'Revizyon {number}',
