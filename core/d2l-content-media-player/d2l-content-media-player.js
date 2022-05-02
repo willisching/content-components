@@ -4,8 +4,8 @@ import { getDocumentLocaleSettings } from '@brightspace-ui/intl/lib/common.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
 
-import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
-import { ContentServiceApiClient } from '@d2l/content-service-api-client';
+import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
+import { ContentServiceApiClient } from 'd2l-content-service-api-client';
 import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
 import { parse } from '../../util/d2lrn.js';
 
