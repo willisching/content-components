@@ -1,6 +1,7 @@
 import '../d2l-content-media-player.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
+import { ifDefined } from 'lit-html/directives/if-defined.js';
 
 class ContentRenderer extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
@@ -22,6 +23,9 @@ class ContentRenderer extends InternalLocalizeMixin(LitElement) {
 			:host([hidden]) {
 				display: none;
 			}
+			#player {
+				width: 100%;
+			}
 		`;
 	}
 
@@ -29,13 +33,21 @@ class ContentRenderer extends InternalLocalizeMixin(LitElement) {
 		return this.renderPlayer();
 	}
 
+	get player() {
+		return this.renderRoot.querySelector('#player');
+	}
+
+	reloadResources(reloadRevision = true) {
+		this.player.reloadResources(reloadRevision);
+	}
+
 	renderErrorMessage() {
 		return html`<h1>${this.localize('errorRenderingContent')}</h1>`;
 	}
 
 	renderPlayer() {
-		if (!this.d2lrn || !this.contextId) {
-			return this.renderErrorMessage();
+		if (!this.d2lrn) {
+			return;
 		}
 
 		// d2l:brightspace:content:<region>:<tenantId>:<type>:<id>/<revisionId>
@@ -48,11 +60,12 @@ class ContentRenderer extends InternalLocalizeMixin(LitElement) {
 		if (type === 'video' || type === 'audio') {
 			return html`
 			<d2l-content-media-player
+				id="player"
 				?allow-download=${this.allowDownload}
 				?allow-download-on-error=${this.allowDownloadOnError}
 				content-service-endpoint=${this.contentServiceEndpoint}
-				context-id=${this.contextId}
-				context-type=${this.contextType}
+				context-id=${ifDefined(this.contextId)}
+				context-type=${ifDefined(this.contextType)}
 				d2lrn=${this.d2lrn}
 			></d2l-content-media-player>
 		`;
