@@ -5,7 +5,7 @@ import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
 
 import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
-import { ContentServiceApiClient } from 'd2l-content-service-api-client';
+import { ContentServiceApiClient, BrightspaceApiClient } from 'd2l-content-service-api-client';
 import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
 import { parse } from '../../util/d2lrn.js';
 
@@ -77,6 +77,7 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 		this._error = false;
 		this._playbackSupported = false;
 		this._bestFormat = null;
+		this.tenantId = null;
 		this.contentId = null;
 		this.revisionId = null;
 	}
@@ -93,16 +94,10 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 		}
 
 		const {tenantId, contentId, revisionId = 'latest'} = splitD2lrn;
+		this.tenantId = tenantId;
 		this.contentId = contentId;
 		this.revisionId = revisionId;
 
-		const httpClient = new ContentServiceBrowserHttpClient({
-			serviceUrl: this.contentServiceEndpoint,
-			tenantId,
-			contextType: this.contextType,
-			contextId: this.contextId
-		});
-		this.client = new ContentServiceApiClient({ httpClient });
 		await this._setup();
 
 		this.dispatchEvent(new CustomEvent('cs-content-loaded', {
@@ -345,6 +340,23 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	async _setup() {
+		if (!this.contentServiceEndpoint) {
+			const brightspaceHttpClient = new ContentServiceBrowserHttpClient();
+			const brightspaceClient = new BrightspaceApiClient({ httpClient: brightspaceHttpClient });
+			const {Endpoint} = await brightspaceClient.getContentServiceEndpoint();
+			this.contentServiceEndpoint = Endpoint;
+		}
+
+		const httpClient = new ContentServiceBrowserHttpClient({
+			serviceUrl: this.contentServiceEndpoint
+		});
+		this.client = new ContentServiceApiClient({
+			httpClient,
+			tenantId: this.tenantId,
+			contextType: this.contextType,
+			contextId: this.contextId
+		});
+
 		await this._loadRevisionData();
 		if (!this._noMediaFound && this._revision && this._revision.ready) {
 			await this._setupAfterRevisionReady();

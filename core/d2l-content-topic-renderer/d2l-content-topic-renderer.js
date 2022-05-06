@@ -1,5 +1,6 @@
 import '../d2l-content-renderer.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
+import { ifDefined } from 'lit-html/directives/if-defined.js';
 
 import ContentServiceClient from './src/rest-client.js';
 
@@ -42,7 +43,7 @@ class ContentTopicRenderer extends LitElement {
 				id="renderer"
 				?allow-download=${this.allowDownload}
 				?allow-download-on-error=${this.allowDownloadOnError}
-				content-service-endpoint=${this.contentServiceEndpoint}
+				content-service-endpoint=${ifDefined(this.contentServiceEndpoint)}
 				context-id=${this.topicId}
 				context-type='topic'
 				d2lrn=${this._d2lrn}
