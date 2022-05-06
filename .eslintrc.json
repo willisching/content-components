@@ -19,6 +19,9 @@
     "no-multi-spaces": "error"
   },
   "env": {
-    "mocha": true
+    "mocha": true,
+	"browser": true,
+    "amd": true,
+	"node": true
   }
 }
