@@ -112,6 +112,7 @@ class RecycleBinList extends CaptureCentralList {
 			poster=${ifDefined(item.poster)}
 			title=${item.title}
 			description=${item.description}
+			type=${item.type}
 			@recycle-bin-item-restored=${this.recycleBinItemRestoredHandler}
 			@recycle-bin-item-destroyed=${this.recycleBinItemDestroyHandler}
 		>
