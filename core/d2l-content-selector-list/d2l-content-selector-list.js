@@ -127,8 +127,8 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 	async connectedCallback() {
 		super.connectedCallback();
 
-		const httpClient = new ContentServiceBrowserHttpClient({tenantId: this.tenantId, serviceUrl: this.serviceUrl});
-		this.client = new ContentServiceApiClient({ httpClient });
+		const httpClient = new ContentServiceBrowserHttpClient({ serviceUrl: this.serviceUrl });
+		this.client = new ContentServiceApiClient({ httpClient, tenantId: this.tenantId });
 	}
 
 	render() {

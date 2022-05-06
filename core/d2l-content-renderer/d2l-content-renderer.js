@@ -63,7 +63,7 @@ class ContentRenderer extends InternalLocalizeMixin(LitElement) {
 				id="player"
 				?allow-download=${this.allowDownload}
 				?allow-download-on-error=${this.allowDownloadOnError}
-				content-service-endpoint=${this.contentServiceEndpoint}
+				content-service-endpoint=${ifDefined(this.contentServiceEndpoint)}
 				context-id=${ifDefined(this.contextId)}
 				context-type=${ifDefined(this.contextType)}
 				d2lrn=${this.d2lrn}
