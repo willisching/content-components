@@ -9,11 +9,11 @@ class ContentActivityRenderer extends LitElement {
 		return {
 			_contentServiceEndpoint: { type: String, attribute: false },
 			_d2lrn: { type: String, attribute: false },
+			_topicId: { type: String, attribute: false },
 			activity: { type: String },
 			allowDownload: { type: Boolean, attribute: 'allow-download'},
 			allowDownloadOnError: { type: Boolean, attribute: 'allow-download-on-error' },
-			framed: { type: Boolean, value: false },
-			topicId: { type: Number, attribute: 'topic-id' }
+			framed: { type: Boolean, value: false }
 		};
 	}
 
@@ -25,6 +25,9 @@ class ContentActivityRenderer extends LitElement {
 			:host([hidden]) {
 				display: none;
 			}
+			#renderer {
+				width: 100%;
+			}
 		`;
 	}
 
@@ -32,6 +35,7 @@ class ContentActivityRenderer extends LitElement {
 		super();
 		this._d2lrn = '';
 		this._contentServiceEndpoint = '';
+		this._topicId = '';
 	}
 
 	async firstUpdated() {
@@ -44,16 +48,18 @@ class ContentActivityRenderer extends LitElement {
 		if (this.resourceEntity) {
 			this._d2lrn = this.resourceEntity.properties.d2lrn;
 			this._contentServiceEndpoint = this.resourceEntity.properties.contentServiceEndpoint;
+			this._topicId = this.resourceEntity.properties.topicId;
 		}
 	}
 
 	render() {
 		return html`
 			<d2l-content-renderer
+				id="renderer"
 				?allow-download=${this.allowDownload}
 				?allow-download-on-error=${this.allowDownloadOnError}
 				content-service-endpoint=${this._contentServiceEndpoint}
-				context-id=${this.topicId}
+				context-id=${this._topicId}
 				context-type='topic'
 				d2lrn=${this._d2lrn}
 			></d2l-content-renderer>
