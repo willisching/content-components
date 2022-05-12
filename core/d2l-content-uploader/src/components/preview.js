@@ -67,6 +67,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 					context-type=${ifDefined(this.topicId ? 'topic' : undefined)}
 					context-id=${ifDefined(this.topicId)}
 					@cs-content-loaded=${this._onContentLoaded}
+					inserting
 				></d2l-content-renderer>
 				<div id="staged-file">
 					<d2l-button-subtle

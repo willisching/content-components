@@ -33,7 +33,8 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 			contextId: { type: String, attribute: 'context-id' },
 			contextType: { type: String, attribute: 'context-type' },
 			d2lrn: { type: String, attribute: 'd2lrn' },
-			framed: { type: Boolean, value: false, attribute: 'framed' }
+			framed: { type: Boolean, value: false, attribute: 'framed' },
+			inserting: { type: Boolean }
 		};
 	}
 
@@ -128,7 +129,7 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 		}
 
 		if (!this._revision.ready) {
-			return this.renderStatusMessage(this.localize('mediaFileIsProcessing'));
+			return this.renderStatusMessage(this.localize(`mediaFileIsProcessing${this.inserting ? 'Inserting' : ''}`));
 		}
 
 		if (!this._playbackSupported) {

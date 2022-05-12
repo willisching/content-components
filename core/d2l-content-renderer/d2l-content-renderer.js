@@ -12,6 +12,7 @@ class ContentRenderer extends InternalLocalizeMixin(LitElement) {
 			contextId: { type: String, attribute: 'context-id' },
 			contextType: { type: String, attribute: 'context-type' },
 			d2lrn: { type: String, attribute: 'd2lrn' },
+			inserting: { type: Boolean }
 		};
 	}
 
@@ -67,6 +68,7 @@ class ContentRenderer extends InternalLocalizeMixin(LitElement) {
 				context-id=${ifDefined(this.contextId)}
 				context-type=${ifDefined(this.contextType)}
 				d2lrn=${this.d2lrn}
+				?inserting=${this.inserting}
 			></d2l-content-media-player>
 		`;
 		}
