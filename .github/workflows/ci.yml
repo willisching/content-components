@@ -11,6 +11,8 @@ jobs:
         uses: Brightspace/third-party-actions@actions/setup-node
         with:
           node-version-file: .nvmrc
+      - name: Overwrite git protocol to https
+        run: git config --global url."https://github.com".insteadOf git://github.com
       - name: Install dependencies
         run: |
           npm i
