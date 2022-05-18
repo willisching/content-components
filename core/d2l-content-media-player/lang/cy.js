@@ -1,4 +1,4 @@
-export const val = {
+export default {
 	deletedMedia: 'Dilëwyd y ffeil gyfryngau hon',
 	download: 'Lawrlwytho',
 	formatHD: 'HD',
@@ -7,5 +7,6 @@ export const val = {
 	formatSD: 'SD',
 	formatSource: 'Ffynhonnell',
 	mediaFileIsProcessing: 'Mae\'r ffeil gyfryngau hon yn cael ei phrosesu ar hyn o bryd. Dewch yn ôl yn hwyrach.',
-	mediaFileIsProcessingInserting: 'Mae eich ffeil gyfryngau wrthi\'n cael ei phrosesu ar hyn o bryd. Arhoswch neu gwasgwch gadw a dewch yn ôl yn nes ymlaen. Byddwch yn cael gwybod pan fydd y prosesu wedi gorffen.'
+	mediaFileIsProcessingInserting: 'Mae eich ffeil gyfryngau wrthi\'n cael ei phrosesu ar hyn o bryd. Arhoswch neu gwasgwch gadw a dewch yn ôl yn nes ymlaen. Byddwch yn cael gwybod pan fydd y prosesu wedi gorffen.',
+	revisionProcessingFailedMessage: 'Methodd prosesu\'r ffeil gyfryngau hon.'
 };
