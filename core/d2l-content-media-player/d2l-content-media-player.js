@@ -25,6 +25,7 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 			_revision: { type: Object, attribute: false },
 			_thumbnails: { type: String, attribute: false },
 			_noMediaFound: { type: Boolean, attribute: false },
+			_error: { type: Boolean, attribtue: false },
 			_playbackSupported: { type: Boolean, attribute: false },
 			allowDownload: { type: Boolean, attribute: 'allow-download'},
 			allowDownloadOnError: { type: Boolean, attribute: 'allow-download-on-error' },
@@ -33,6 +34,7 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 			contextType: { type: String, attribute: 'context-type' },
 			d2lrn: { type: String, attribute: 'd2lrn' },
 			framed: { type: Boolean, value: false, attribute: 'framed' },
+			inserting: { type: Boolean }
 		};
 	}
 
@@ -73,6 +75,7 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 		this._poster = null;
 		this._attemptedReloadOnError = false;
 		this._noMediaFound = false;
+		this._error = false;
 		this._playbackSupported = false;
 		this._bestFormat = null;
 		this.tenantId = null;
@@ -87,6 +90,7 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 		try {
 			splitD2lrn = parse(this.d2lrn);
 		} catch (error) {
+			this._error = true;
 			return;
 		}
 
@@ -108,6 +112,26 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	render() {
+		if (this._error) {
+			return this.renderStatusMessage(this.localize('generalErrorMessage'));
+		}
+
+		if (this._noMediaFound) {
+			return this.renderStatusMessage(this.localize('deletedMedia'));
+		}
+
+		if (!this._revision) {
+			return html``;
+		}
+
+		if (this._revision.processingFailed) {
+			return this.renderStatusMessage(this.localize('revisionProcessingFailedMessage'));
+		}
+
+		if (!this._revision.ready) {
+			return this.renderStatusMessage(this.localize(`mediaFileIsProcessing${this.inserting ? 'Inserting' : ''}`));
+		}
+
 		if (!this._playbackSupported) {
 			return this.renderStatusMessage(this.localize('unsupportedPlaybackMessage'));
 		}
