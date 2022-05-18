@@ -5,16 +5,15 @@ import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
 
 import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
-import { ContentServiceApiClient, BrightspaceApiClient } from 'd2l-content-service-api-client';
+import { ContentServiceApiClient } from 'd2l-content-service-api-client';
 import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
-import { parse } from '../../util/d2lrn.js';
+import { RevisionLoaderMixin } from '../mixins/revision-loader-mixin.js';
 
 const TRACK_ERROR_FETCH_WAIT_MILLISECONDS = 5000;
-const REVISION_POLL_WAIT_MILLISECONDS = 10000;
 const VALID_CONTENT_TYPES = ['Video', 'Audio'];
 const VIDEO_FORMATS_BEST_FIRST = ['hd', 'sd', 'ld', 'mp3'];
 
-class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
+class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
 			_bestFormat: { type: String, attribute: false },
@@ -22,16 +21,10 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 			_mediaSources: { type: Array, attribute: false },
 			_metadata: { type: String, attribute: false },
 			_poster: { type: String, attribute: false },
-			_revision: { type: Object, attribute: false },
 			_thumbnails: { type: String, attribute: false },
-			_noMediaFound: { type: Boolean, attribute: false },
 			_playbackSupported: { type: Boolean, attribute: false },
 			allowDownload: { type: Boolean, attribute: 'allow-download'},
 			allowDownloadOnError: { type: Boolean, attribute: 'allow-download-on-error' },
-			contentServiceEndpoint: { type: String, attribute: 'content-service-endpoint' },
-			contextId: { type: String, attribute: 'context-id' },
-			contextType: { type: String, attribute: 'context-type' },
-			d2lrn: { type: String, attribute: 'd2lrn' },
 			framed: { type: Boolean, value: false, attribute: 'framed' },
 		};
 	}
@@ -67,48 +60,16 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 		this._captionSignedUrls = [];
 		this._lastTrackLoadFailedTime = null;
 		this._trackErrorFetchTimeoutId = null;
-		this._revision = null;
 		this._thumbnails = null;
 		this._metadata = null;
 		this._poster = null;
 		this._attemptedReloadOnError = false;
-		this._noMediaFound = false;
 		this._playbackSupported = false;
 		this._bestFormat = null;
-		this.tenantId = null;
-		this.contentId = null;
-		this.revisionId = null;
-	}
-
-	async firstUpdated() {
-		super.firstUpdated();
-
-		let splitD2lrn;
-		try {
-			splitD2lrn = parse(this.d2lrn);
-		} catch (error) {
-			return;
-		}
-
-		const {tenantId, contentId, revisionId = 'latest'} = splitD2lrn;
-		this.tenantId = tenantId;
-		this.contentId = contentId;
-		this.revisionId = revisionId;
-
-		await this._setup();
-
-		this.dispatchEvent(new CustomEvent('cs-content-loaded', {
-			bubbles: true,
-			composed: true,
-			detail: {
-				revision: this._revision,
-				supportsAdvancedEditing: true
-			}
-		}));
 	}
 
 	render() {
-		if (!this._playbackSupported) {
+		if (this._revision && !this._playbackSupported) {
 			return this.renderStatusMessage(this.localize('unsupportedPlaybackMessage'));
 		}
 
@@ -135,14 +96,51 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 		}
 	}
 
+	async updated(changedProperties) {
+		super.updated(changedProperties);
+
+		if (changedProperties.has('_revision')) {
+			if (!changedProperties._revision && this._revision) {
+				const httpClient = new ContentServiceBrowserHttpClient({
+					serviceUrl: this.contentServiceEndpoint
+				});
+				this.client = new ContentServiceApiClient({
+					httpClient,
+					tenantId: this._tenantId,
+					contextType: this.contextType,
+					contextId: this.contextId
+				});
+
+				this.dispatchEvent(new CustomEvent('cs-content-loaded', {
+					bubbles: true,
+					composed: true,
+					detail: {
+						revision: this._revision,
+						supportsAdvancedEditing: true
+					}
+				}));
+
+				this._verifyContentType(this._revision.type);
+
+				// Determine whether the type has supported playback
+				const isVideo = this._revision.type === 'Video';
+				const playbackSupportTestElement = isVideo ? document.createElement('video') : document.createElement('audio');
+				const mimeType = isVideo ? 'video/mp4' : 'audio/mp3' ;
+				this._playbackSupported = playbackSupportTestElement.canPlayType && playbackSupportTestElement.canPlayType(mimeType).replace(/no/, '');
+
+				await this._setupAfterRevisionReady();
+			}
+		}
+	}
+
 	async reloadResources(reloadRevision = true) {
 		if (reloadRevision) {
-			await this._loadRevisionData();
+			await this._loadRevision();
 		}
 		await this._loadMedia();
 		await this._loadCaptions();
 
-		if (!this._noMediaFound && this._revision.type === 'Video') {
+		if (!this._noRevisionFound && this._revision.type === 'Video') {
 			await this._loadMetadata();
 			await this._loadPoster();
 			await this._loadThumbnails();
@@ -183,8 +181,8 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 
 	_getResource({resource, outputFormat = 'signed-url', query = {}}) {
 		return this.client.content.getResource({
-			id: this.contentId,
-			revisionTag: this.revisionId,
+			id: this._contentId,
+			revisionTag: this._revisionId,
 			resource,
 			outputFormat,
 			query
@@ -241,30 +239,13 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 		});
 		if (result) {
 			this._metadata = JSON.stringify(result);
+			console.log(this._metadata);
 		}
 	}
 
 	async _loadPoster() {
 		const result = await this._getResource({ resource: 'poster' });
 		if (result) this._poster = result.value;
-	}
-
-	async _loadRevisionData() {
-		const revision = await this.client.content.getRevision({ id: this.contentId, revisionTag: this.revisionId });
-
-		if (!revision) {
-			this._noMediaFound = true;
-			return;
-		}
-
-		this._revision = revision;
-		this._verifyContentType(this._revision.type);
-
-		// Determine whether the type has supported playback
-		const isVideo = this._revision.type === 'Video';
-		const playbackSupportTestElement = isVideo ? document.createElement('video') : document.createElement('audio');
-		const mimeType = isVideo ? 'video/mp4' : 'audio/mp3' ;
-		this._playbackSupported = playbackSupportTestElement.canPlayType && playbackSupportTestElement.canPlayType(mimeType).replace(/no/, '');
 	}
 
 	async _loadThumbnails() {
@@ -314,34 +295,6 @@ class ContentMediaPlayer extends InternalLocalizeMixin(LitElement) {
 
 	_renderMediaSource(source) {
 		return html`<source src=${source.src} label=${this.localize(`format${!source.format ? 'Source' : source.format.toUpperCase()}`)} ?default=${source.format === this._bestFormat}>`;
-	}
-
-	async _setup() {
-		if (!this.contentServiceEndpoint) {
-			const brightspaceHttpClient = new ContentServiceBrowserHttpClient();
-			const brightspaceClient = new BrightspaceApiClient({ httpClient: brightspaceHttpClient });
-			const {Endpoint} = await brightspaceClient.getContentServiceEndpoint();
-			this.contentServiceEndpoint = Endpoint;
-		}
-
-		const httpClient = new ContentServiceBrowserHttpClient({
-			serviceUrl: this.contentServiceEndpoint
-		});
-		this.client = new ContentServiceApiClient({
-			httpClient,
-			tenantId: this.tenantId,
-			contextType: this.contextType,
-			contextId: this.contextId
-		});
-
-		await this._loadRevisionData();
-		if (!this._noMediaFound && this._revision && this._revision.ready) {
-			await this._setupAfterRevisionReady();
-		} else if (!this._noMediaFound && this._revision && !this._revision.ready) {
-			setTimeout(() => {
-				this._setup();
-			}, REVISION_POLL_WAIT_MILLISECONDS);
-		}
 	}
 
 	async _setupAfterRevisionReady() {

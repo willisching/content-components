@@ -2,27 +2,16 @@ import '../d2l-content-media-player.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
-import { parse } from '../../util/d2lrn.js';
 import '../d2l-content-scorm-player.js';
-import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
-import { ContentServiceApiClient } from 'd2l-content-service-api-client';
+import { RevisionLoaderMixin } from '../mixins/revision-loader-mixin.js';
 
-class ContentRenderer extends InternalLocalizeMixin(LitElement) {
+class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
 			allowDownload: { type: Boolean, attribute: 'allow-download' },
 			allowDownloadOnError: { type: Boolean, attribute: 'allow-download-on-error' },
-			contentServiceEndpoint: { type: String, attribute: 'content-service-endpoint' },
-			contextId: { type: String, attribute: 'context-id' },
-			contextType: { type: String, attribute: 'context-type' },
-			d2lrn: { type: String, attribute: 'd2lrn' },
-
 			inserting: { type: Boolean },
-			preview: { type: Boolean },
-
-			_revision: { type: Object, attribute: false },
-			_noMediaFound: { type: Boolean, attribute: false },
-			_error: { type: Boolean, attribtue: false },
+			preview: { type: Boolean }
 		};
 	}
 
@@ -52,51 +41,8 @@ class ContentRenderer extends InternalLocalizeMixin(LitElement) {
 		`;
 	}
 
-	constructor() {
-		super();
-		this._error = false;
-		this._noMediaFound = false;
-		this._revision = null;
-	}
-
-	connectedCallback() {
-		super.connectedCallback();
-		try {
-			const { contentId, revisionId = 'latest', tenantId } = parse(this.d2lrn);
-			this.contentId = contentId;
-			this.revisionId = revisionId;
-			this.tenantId = tenantId;
-		} catch (e) {
-			this._error = true;
-			return;
-		}
-		const httpClient = new ContentServiceBrowserHttpClient({
-			serviceUrl: this.contentServiceEndpoint
-		});
-		this.client = new ContentServiceApiClient({
-			httpClient,
-			tenantId: this.tenantId,
-		});
-
-		this.checkMediaInterval = setInterval(this.checkMediaFound.bind(this), 10000);
-	}
-
 	render() {
 		return this.renderPlayer();
-	}
-
-	async checkMediaFound() {
-		const revision = await this.client.content.getRevision({ id: this.contentId, revisionTag: this.revisionId });
-		if (!revision) {
-			this._noMediaFound = true;
-			return;
-		}
-
-		this._revision = revision;
-
-		if (this._noMediaFound || !this._revision || this._revision.ready) {
-			clearInterval(this.checkMediaInterval);
-		}
 	}
 
 	get player() {
@@ -116,11 +62,11 @@ class ContentRenderer extends InternalLocalizeMixin(LitElement) {
 			return;
 		}
 
-		if (this._error) {
+		if (this._d2lrnParseError) {
 			return this.renderStatusMessage(this.localize('generalErrorMessage'));
 		}
 
-		if (this._noMediaFound) {
+		if (this._noRevisionFound) {
 			return this.renderStatusMessage(this.localize('deletedMedia'));
 		}
 
@@ -136,8 +82,8 @@ class ContentRenderer extends InternalLocalizeMixin(LitElement) {
 			return this.renderStatusMessage(this.localize('mediaFileIsProcessing'));
 		}
 
-		const type = parse(this.d2lrn).resourceType;
-		if (type === 'video' || type === 'audio') {
+		const type = this._revision.type;
+		if (type === 'Video' || type === 'Audio') {
 			return html`
 			<d2l-content-media-player
 				id="player"
@@ -152,7 +98,7 @@ class ContentRenderer extends InternalLocalizeMixin(LitElement) {
 		`;
 		}
 
-		if (type === 'scorm') {
+		if (type === 'Scorm') {
 			return html`
 			<d2l-content-scorm-player
 				id="player"
