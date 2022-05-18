@@ -10,7 +10,7 @@ import { compile as compileWebVTT } from './node-vtt-compiler.js';
 function _convertJsonSrtCuesToVttJsonCues(jsonSrtCues) {
 	return jsonSrtCues.map(jsonSrtCue => {
 		// parse-srt inserts <br /> for line breaks, but WebVTT uses \n.
-		const convertedText = jsonSrtCue.text.replace('<br />', '\n');
+		const convertedText = jsonSrtCue.text.replace(/<br \/>/g, '\n');
 		return {
 			start: jsonSrtCue.start,
 			end: jsonSrtCue.end,

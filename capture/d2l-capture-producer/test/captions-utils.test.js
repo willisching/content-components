@@ -136,7 +136,13 @@ Praesent sollicitudin ac urna sed porttitor.
 3
 00:00:02.000 --> 00:00:03.000
 Nulla massa ante, suscipit nec
-suscipit in, tincidunt et tellus.`;
+suscipit in, tincidunt et tellus.
+
+5
+00:01:02.600 --> 00:01:05.600
+Pellentesque non dictum purus,
+in tincidunt turpis. Quisque at
+ornare tellus.`;
 
 			const expected = `WEBVTT
 
@@ -154,6 +160,11 @@ ultricies non at lacus.
 
 00:01:02.321 --> 00:01:02.600
 Praesent sollicitudin ac urna sed porttitor.
+
+00:01:02.600 --> 00:01:05.600
+Pellentesque non dictum purus,
+in tincidunt turpis. Quisque at
+ornare tellus.
 `;
 
 			const actual = convertSrtTextToVttText(srtFileData);

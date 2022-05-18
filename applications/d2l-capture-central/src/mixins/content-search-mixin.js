@@ -59,7 +59,7 @@ export const contentSearchMixin = superClass => class extends superClass {
 		}
 
 		const { hits: { hits, total } } = await this.apiClient.searchDeletedContent({
-			contentType: contentTypes,
+			contentType: contentTypes.join(','),
 			clientApps: clientApps.join(','),
 			createdAt: createdAt,
 			includeThumbnails:  true,
@@ -100,7 +100,7 @@ export const contentSearchMixin = superClass => class extends superClass {
 		}
 
 		const { hits: { hits, total } } = await this.apiClient.searchContent({
-			contentType: contentTypes,
+			contentType: contentTypes.join(','),
 			clientApps: clientApps.join(','),
 			createdAt,
 			includeThumbnails: true,

@@ -1,6 +1,5 @@
 import * as querystring from '@chaitin/querystring';
 import auth from 'd2l-fetch-auth/src/unframed/index.js';
-import { contentFilterToSearchQuery } from './content-type.js';
 import { d2lfetch } from 'd2l-fetch/src/index.js';
 import { dateFilterToSearchQuery } from './date-filter.js';
 import { getTimeZoneOrTimeZoneOffset } from './date-time.js';
@@ -184,7 +183,7 @@ export default class ContentServiceClient {
 		size = 15,
 		sort = 'updatedAt:desc',
 		query = '',
-		contentType = [],
+		contentType = '',
 		clientApps = 'all',
 		updatedAt = '',
 		createdAt = '',
@@ -201,7 +200,7 @@ export default class ContentServiceClient {
 				size,
 				sort,
 				query,
-				contentType: contentType.map(t => contentFilterToSearchQuery(t)).join(','),
+				contentType,
 				clientApps,
 				updatedAt: dateFilterToSearchQuery(updatedAt),
 				createdAt: dateFilterToSearchQuery(createdAt),
@@ -218,7 +217,7 @@ export default class ContentServiceClient {
 		size = 15,
 		sort = 'updatedAt:desc',
 		query = '',
-		contentType = [],
+		contentType = '',
 		clientApps = 'all',
 		updatedAt = '',
 		createdAt = '',
@@ -235,7 +234,7 @@ export default class ContentServiceClient {
 				size,
 				sort,
 				query,
-				contentType: contentType.map(t => contentFilterToSearchQuery(t)).join(','),
+				contentType,
 				clientApps,
 				updatedAt: dateFilterToSearchQuery(updatedAt),
 				createdAt: dateFilterToSearchQuery(createdAt),
