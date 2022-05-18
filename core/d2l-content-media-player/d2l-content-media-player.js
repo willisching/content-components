@@ -239,7 +239,6 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 		});
 		if (result) {
 			this._metadata = JSON.stringify(result);
-			console.log(this._metadata);
 		}
 	}
 
