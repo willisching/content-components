@@ -61,11 +61,12 @@ export const RevisionLoaderMixin = (superClass) => class extends superClass {
 	}
 
 	async _loadRevision() {
+		const httpClient = new ContentServiceBrowserHttpClient({ serviceUrl: this.contentServiceEndpoint });
 		const client = new ContentServiceApiClient({
-			httpClient: new ContentServiceBrowserHttpClient({
-				serviceUrl: this.contentServiceEndpoint
-			}),
-			tenantId: this._tenantId,
+			contextId: this.contextId,
+			contextType: this.contextType,
+			httpClient,
+			tenantId: this._tenantId
 		});
 
 		let revision;
