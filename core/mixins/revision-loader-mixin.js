@@ -52,7 +52,7 @@ export const RevisionLoaderMixin = (superClass) => class extends superClass {
 				this._tenantId = tenantId;
 			} catch (e) {
 				this._d2lParseError = true;
-				console.error('Failed to parse d2lrn: ', this.d2lrn);
+				console.error('Failed to parse d2lrn - ', this.d2lrn);
 				return;
 			}
 
