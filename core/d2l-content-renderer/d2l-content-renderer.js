@@ -58,7 +58,7 @@ class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEleme
 	}
 
 	renderPlayer() {
-		if (!this.d2lrn) {
+		if (!this.d2lrn && !(this.tenantId && this.contentId)) {
 			return;
 		}
 
@@ -90,9 +90,12 @@ class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEleme
 				?allow-download=${this.allowDownload}
 				?allow-download-on-error=${this.allowDownloadOnError}
 				content-service-endpoint=${ifDefined(this.contentServiceEndpoint)}
+				content-id=${ifDefined(this._contentId)}
 				context-id=${ifDefined(this.contextId)}
 				context-type=${ifDefined(this.contextType)}
-				d2lrn=${this.d2lrn}
+				d2lrn=${ifDefined(this.d2lrn)}
+				revision-tag=${ifDefined(this._revisionTag)}
+				tenant-id=${ifDefined(this._tenantId)}
 				?inserting=${this.inserting}
 			></d2l-content-media-player>
 		`;

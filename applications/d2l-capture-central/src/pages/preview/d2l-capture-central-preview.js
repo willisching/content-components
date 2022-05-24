@@ -8,8 +8,7 @@ import { css, html } from 'lit-element/lit-element.js';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
 import { navigationSharedStyle } from '../../style/d2l-navigation-shared-styles.js';
 import { PageViewElement } from '../../components/page-view-element';
-import '../../../../../core/d2l-content-media-player.js';
-import { build as buildD2lrn } from '../../../../../util/d2lrn.js';
+import '../../../../../core/d2l-content-renderer.js';
 
 class D2LCaptureCentralPreview extends DependencyRequester(PageViewElement) {
 	static get properties() {
@@ -54,15 +53,12 @@ class D2LCaptureCentralPreview extends DependencyRequester(PageViewElement) {
 			return html`<d2l-loading-spinner size=150></d2l-loading-spinner>`;
 		}
 
-		const d2lrn = buildD2lrn({
-			tenantId: this.tenantId,
-			contentId: this.contentId
-		});
 		return html`
-		<d2l-content-media-player
+		<d2l-content-renderer
 			content-service-endpoint=${this.contentServiceEndpoint}
-			d2lrn=${d2lrn}
-		></d2l-content-media-player>`;
+			tenant-id=${this.tenantId}
+			content-id=${this.contentId}
+		></d2l-content-renderer>`;
 	}
 }
 customElements.define('d2l-capture-central-preview', D2LCaptureCentralPreview);
