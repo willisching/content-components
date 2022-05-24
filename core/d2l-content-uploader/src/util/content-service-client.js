@@ -19,7 +19,6 @@ export default class ContentServiceClient {
 			method: 'POST',
 			body: {
 				...body,
-				clientApp: 'LmsContent',
 			},
 		});
 	}
