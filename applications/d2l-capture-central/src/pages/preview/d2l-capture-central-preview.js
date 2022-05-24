@@ -3,13 +3,13 @@ import '@brightspace-ui/core/components/breadcrumbs/breadcrumb-current-page.js';
 import '@brightspace-ui/core/components/breadcrumbs/breadcrumbs.js';
 import '@brightspace-ui-labs/media-player/media-player.js';
 import '@brightspace-ui/core/components/alert/alert-toast.js';
-
-import { getDocumentLocaleSettings } from '@brightspace-ui/intl/lib/common.js';
 import { css, html } from 'lit-element/lit-element.js';
+
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
 import { navigationSharedStyle } from '../../style/d2l-navigation-shared-styles.js';
 import { PageViewElement } from '../../components/page-view-element';
-import { ifDefined } from 'lit-html/directives/if-defined.js';
+import '../../../../../core/d2l-content-media-player.js';
+import { build as buildD2lrn } from '../../../../../util/d2lrn.js';
 
 class D2LCaptureCentralPreview extends DependencyRequester(PageViewElement) {
 	static get properties() {
@@ -21,27 +21,9 @@ class D2LCaptureCentralPreview extends DependencyRequester(PageViewElement) {
 
 	static get styles() {
 		return [navigationSharedStyle, css`
-			.d2l-capture-central-preview {
-				width: 1170px;
-				overflow: hidden;
-			}
-
 			d2l-loading-spinner {
 				display: flex;
 				margin-top: 20%;
-			}
-
-			#status-container {
-				aspect-ratio: 16/9;
-				background-color: black;
-				color: white;
-				display: flex;
-				flex-direction: column;
-				justify-content: center;
- 				overflow: hidden;
- 				position: relative;
-				text-align: center;
- 				width: 100%;
 			}
 		`];
 	}
@@ -49,36 +31,20 @@ class D2LCaptureCentralPreview extends DependencyRequester(PageViewElement) {
 	constructor() {
 		super();
 		this.loading = true;
-		this.revision = null;
-		this.languages = null;
-		this.captionsUrls = [];
-		this.metadata = null;
-		this.urls = [];
 	}
 
 	async firstUpdated() {
 		super.firstUpdated();
 
 		this.loading = true;
+
 		if (!this.contentId) {
 			console.warn('Missing contentId', this);
 			return;
 		}
-		this.apiClient = this.requestDependency('content-service-client');
-		this.revision = await this.apiClient.getLatestRevision(this.contentId);
-		this.mediaType = this.revision.type === 'Video' ? 'video' : 'audio';
 
-		this.urls = await this.apiClient.getSignedUrls({ contentId: this.contentId, revisionId: this.revision.id });
-		if ((this.urls?.length ?? 0) === 0) {
-			this.urls = [await this.apiClient.getSignedUrlForRevision({ contentId: this.contentId, revisionId: this.revision.id })];
-		}
-
-		if (this.mediaType === 'video') {
-			const metadata = await this.apiClient.getMetadata({ contentId: this.contentId, revisionId: this.revision.id });
-			this.metadata = metadata ? JSON.stringify(metadata) : undefined;
-		}
-
-		await this.loadAllCaptions();
+		this.contentServiceEndpoint = this.requestDependency('content-service-endpoint');
+		this.tenantId = this.requestDependency('tenant-id');
 
 		this.loading = false;
 	}
@@ -88,65 +54,15 @@ class D2LCaptureCentralPreview extends DependencyRequester(PageViewElement) {
 			return html`<d2l-loading-spinner size=150></d2l-loading-spinner>`;
 		}
 
-		if (!this.revision.ready) {
-			return html`
-				<div id="status-container">
-					${this.localize('mediaFileIsProcessing')}
-				</div>
-			`;
-		}
-
-		return html`
-		<d2l-labs-media-player
-			id="d2l-capture-central-mp"
-			crossorigin="anonymous"
-			media-type="${ifDefined(this.mediaType)}"
-			metadata=${ifDefined(this.metadata ? this.metadata : undefined)}
-			style="width:100%"
-			>
-			${this.urls.map(source => this.renderSources(source))}
-			${this.captionsUrls.map(captionSignedUrl => this.renderCaptionsTrack(captionSignedUrl))}
-		</d2l-labs-media-player>`;
-	}
-
-	updated() {
-		this.loadLocale();
-	}
-
-	async loadAllCaptions() {
-		this.captionsUrls = [];
-		if (!this.revision?.captions) {
-			return;
-		}
-		for (const track of this.revision?.captions) {
-			await this.loadCaptions(track.locale);
-		}
-	}
-
-	async loadCaptions(locale) {
-		const res = await this.apiClient.getCaptionsUrl({
-			contentId: this.contentId,
-			revisionId: this.revision.id,
-			locale: locale
+		const d2lrn = buildD2lrn({
+			tenantId: this.tenantId,
+			contentId: this.contentId
 		});
-		res.locale = locale;
-		this.captionsUrls.push(res);
+		return html`
+		<d2l-content-media-player
+			content-service-endpoint=${this.contentServiceEndpoint}
+			d2lrn=${d2lrn}
+		></d2l-content-media-player>`;
 	}
-
-	loadLocale() {
-		const defaultLocale = getDocumentLocaleSettings()._language || getDocumentLocaleSettings()._fallbackLanguage;
-		if (!defaultLocale) return;
-		const mediaPlayer = this.shadowRoot?.querySelector('d2l-labs-media-player');
-		if (mediaPlayer) mediaPlayer.locale = defaultLocale.toLowerCase();
-	}
-
-	renderCaptionsTrack(captionsUrl) {
-		return html`<track src="${captionsUrl.value}" kind="captions" label=${captionsUrl.locale} srclang=${captionsUrl.locale}>`;
-	}
-
-	renderSources(source) {
-		return html`<source src=${source.value} label=${this.localize(source.format?.toLowerCase() ?? 'source')}>`;
-	}
-
 }
 customElements.define('d2l-capture-central-preview', D2LCaptureCentralPreview);

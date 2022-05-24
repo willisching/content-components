@@ -40,3 +40,15 @@ export function toString({company, product, service, region, tenantId, resourceT
 		resource
 	].join(':');
 }
+
+export function build({region = 'unknown', tenantId, resourceType, contentId, revisionTag}) {
+	return toString({
+		company: 'd2l',
+		product: 'brightspace',
+		service: 'content',
+		region,
+		tenantId,
+		resourceType,
+		resource: `${contentId}${revisionTag ? `/${revisionTag}` : '/latest'}`
+	});
+}
