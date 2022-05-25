@@ -182,7 +182,7 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 	_getResource({resource, outputFormat = 'signed-url', query = {}}) {
 		return this.client.content.getResource({
 			id: this._contentId,
-			revisionTag: this._revisionId,
+			revisionTag: this._revisionTag,
 			resource,
 			outputFormat,
 			query
