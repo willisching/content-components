@@ -1,7 +1,7 @@
 import { action, decorate, flow, observable } from 'mobx';
 import resolveWorkerError from '../util/resolve-worker-error.js';
-import { S3Uploader } from '../util/s3-uploader.js';
-import { randomizeDelay, sleep } from '../util/delay.js';
+import { S3Uploader } from '../../../../util/s3-uploader.js';
+import { randomizeDelay, sleep } from '../../../../util/delay.js';
 import { getExtension } from '../util/media-type-util.js';
 
 const UPLOAD_FAILED_ERROR = 'workerErrorUploadFailed';
