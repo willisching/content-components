@@ -40,6 +40,10 @@ class D2lCaptureCentral extends DependencyProvider(LitElement) {
 
 	firstUpdated() {
 		super.firstUpdated();
+
+		this.provideDependency('content-service-endpoint', this.contentServiceEndpoint);
+		this.provideDependency('tenant-id', this.tenantId);
+
 		const apiClient = new ContentServiceClient({
 			endpoint: this.contentServiceEndpoint,
 			tenantId: this.tenantId

@@ -11,13 +11,14 @@ import './d2l-capture-producer-editor.js';
 
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { autorun } from 'mobx';
-import ContentServiceClient from './src/content-service-client.js';
+import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
+import { ContentServiceApiClient, BrightspaceApiClient } from 'd2l-content-service-api-client';
+
 import { formatDateTimeFromTimestamp } from '@brightspace-ui/intl/lib/dateTime.js';
 import { InternalLocalizeMixin } from './src/internal-localize-mixin.js';
 import { bodyStandardStyles, labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';
-import UserBrightspaceClient from './src/user-brightspace-client.js';
 import { convertVttCueArrayToVttText } from './src/captions-utils.js';
 
 class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
@@ -163,11 +164,15 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	async connectedCallback() {
 		super.connectedCallback();
 
-		this.apiClient = new ContentServiceClient({
-			endpoint: this.endpoint,
+		const httpClient = new ContentServiceBrowserHttpClient({ serviceUrl: this.endpoint });
+		this.client = new ContentServiceApiClient({
+			httpClient,
 			tenantId: this.tenantId
 		});
-		this.userBrightspaceClient = new UserBrightspaceClient();
+
+		this.brightspaceClient = new BrightspaceApiClient({
+			httpClient: new ContentServiceBrowserHttpClient()
+		});
 
 		autorun(async() => {
 			await this._setupLanguages();
@@ -319,9 +324,9 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	async _createNewDraftRevision() {
-		return await this.apiClient.createRevision({
-			contentId: this._content.id,
-			draftFromSource: this._selectedRevision.id,
+		return this.client.content.createRevision({
+			id: this._content.id,
+			revisionOptions: { draftFromSource: this._selectedRevision.id }
 		});
 	}
 
@@ -373,10 +378,11 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			if (revisionReference) {
 				delete revisionReference.transcodes;
 			}
-			await this.apiClient.updateRevision({
-				contentId: this._content.id,
-				revisionId: draftToPublish.id,
-				revision: {
+
+			await this.client.content.updateRevision({
+				id: this._content.id,
+				revisionTag: draftToPublish.id,
+				updatedRevision: {
 					formats: this._getFormatsForContent(this._content, this._selectedRevision),
 					...draftToPublish.revisionReference && {revisionReference}
 				}
@@ -385,20 +391,22 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 		try {
 			if (this._metadataChanged) {
-				await this.apiClient.updateMetadata({
-					contentId: this._content.id,
-					metadata: this._metadata,
-					revisionId: draftToPublish.id,
+				await this.client.content.updateResource({
+					id: this._content.id,
+					revisionTag: draftToPublish.id,
+					resource: 'metadata',
+					updatedResource: this._metadata
 				});
 				this._metadataChanged = false;
 			}
 			if (this._captionsChanged) {
 				await this._saveCaptions(draftToPublish);
 			}
-			await this.apiClient.processRevision({
-				contentId: this._content.id,
-				revisionId: draftToPublish.id,
-				captionLanguages: autoGenerateCaptionsLanguage ? [autoGenerateCaptionsLanguage.code] : undefined,
+
+			await this.client.content.startWorkflow({
+				id: this._content.id,
+				revisionTag: draftToPublish.id,
+				processOptions: autoGenerateCaptionsLanguage ? { captionLanguages: [autoGenerateCaptionsLanguage.code] } : undefined
 			});
 
 			await this._loadContentAndAllRelatedData(draftToPublish.id);
@@ -568,10 +576,11 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			}
 
 			if (this._metadataChanged) {
-				await this.apiClient.updateMetadata({
-					contentId: this._content.id,
-					metadata: this._metadata,
-					revisionId: revisionToUpdate.id,
+				await this.client.content.updateResource({
+					id: this._content.id,
+					revisionTag: revisionToUpdate.id,
+					resource: 'metadata',
+					updatedResource: this._metadata
 				});
 				this._metadataChanged = false;
 			}
@@ -630,12 +639,12 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._captionsLoading = true;
 		this._captionsUrl = '';
 		try {
-			const res = await this.apiClient.getCaptionsUrl({
-				contentId: this._content.id,
-				revisionId: revision.id,
-				locale,
-				draft: true,
-				adjusted: false,
+			const res = await this.client.content.getResource({
+				id: this._content.id,
+				revisionTag: revision.id,
+				resource: 'captions',
+				query: { locale, exact: true, adjusted: false },
+				outputFormat: 'signed-url'
 			});
 			this._captionsUrl = res.value;
 		} catch (error) {
@@ -671,7 +680,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	async _loadContentAndRevisions() {
-		this._content = await this.apiClient.getContent(this.contentId);
+		this._content = await this.client.content.getItem({ id: this.contentId });
 		this._fireContentLoadedEvent(this._content);
 
 		this._revisionsLatestToOldest = this._content?.revisions?.slice()
@@ -683,9 +692,11 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	async _loadMedia() {
-		const signedUrlResponse = await this.apiClient.getOriginalSignedUrlForRevision({
-			contentId: this.contentId,
-			revisionId: this._selectedRevision.id,
+		const signedUrlResponse = await this.client.content.getResource({
+			id: this.contentId,
+			revisionTag: this._selectedRevision.id,
+			resource: 'original',
+			outputFormat: 'signed-url'
 		});
 
 		this._src = signedUrlResponse.value;
@@ -694,10 +705,11 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	async _loadMetadata(revisionId) {
 		this._metadataLoading = true;
 		try {
-			this._metadata = await this.apiClient.getMetadata({
-				contentId: this._content.id,
-				revisionId,
-				draft: true
+			this._metadata = await this.client.content.getResource({
+				id: this._content.id,
+				revisionTag: revisionId,
+				resource: 'metadata',
+				outputFormat: 'file-content'
 			});
 			this._metadataLoading = false;
 		} catch (error) {
@@ -770,19 +782,21 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 					return;
 				}
 
-				this.apiClient.getRevisionProgress({ contentId: this.contentId, revisionId })
-					.then(revisionProgress => {
-						if (revisionProgress.didFail) {
-							const revisionIndex = this._revisionsLatestToOldest.findIndex(rev => rev.id === revisionId);
-							const updatedRevisions = this._revisionsLatestToOldest.slice();
-							updatedRevisions[revisionIndex].processingFailed = true;
-							this._revisionsLatestToOldest = updatedRevisions;
-						} else if (revisionProgress.ready) {
-							this._loadContentAndAllRelatedData();
-						} else {
-							this._pollUntilRevisionIsProcessed(revisionId);
-						}
-					});
+				this.client.content.getWorkflowProgress({
+					id: this.contentId,
+					revisionTag: revisionId
+				}).then(revisionProgress => {
+					if (revisionProgress.didFail) {
+						const revisionIndex = this._revisionsLatestToOldest.findIndex(rev => rev.id === revisionId);
+						const updatedRevisions = this._revisionsLatestToOldest.slice();
+						updatedRevisions[revisionIndex].processingFailed = true;
+						this._revisionsLatestToOldest = updatedRevisions;
+					} else if (revisionProgress.ready) {
+						this._loadContentAndAllRelatedData();
+					} else {
+						this._pollUntilRevisionIsProcessed(revisionId);
+					}
+				});
 			} catch (error) {
 				this._alertMessage = this.localize('getProcessingProgressError');
 				this.shadowRoot.querySelector('d2l-alert-toast').open = true;
@@ -910,18 +924,25 @@ ${ showOptimizeForStreamingButton ?
 
 	async _saveCaptions(revision) {
 		if (this._captions?.length > 0) {
-			await this.apiClient.updateCaptions({
-				contentId: this._content.id,
-				captionsVttText: convertVttCueArrayToVttText(this._captions),
-				revisionId: revision.id,
-				locale: this._selectedLanguage.code,
-				adjusted: false,
+			await this.client.content.updateResource({
+				id: this._content.id,
+				revisionTag: revision.id,
+				resource: 'captions',
+				updateOptions: {
+					locale: this._selectedLanguage.code,
+					adjusted: false
+				},
+				updatedResource: convertVttCueArrayToVttText(this._captions),
+				options: {
+					contentType: 'text/vtt'
+				}
 			});
 		} else {
-			await this.apiClient.deleteCaptions({
-				contentId: this._content.id,
-				revisionId: revision.id,
-				locale: this._selectedLanguage.code,
+			await this.client.content.deleteResource({
+				id: this._content.id,
+				revisionTag: revision.id,
+				resource: 'captions',
+				deleteOptions: { locale: this._selectedLanguage.code }
 			});
 		}
 		this._captionsChanged = false;
@@ -949,7 +970,7 @@ ${ showOptimizeForStreamingButton ?
 	}
 
 	async _setupLanguages() {
-		const Items = await this.userBrightspaceClient.getLocales();
+		const Items = await this.brightspaceClient.getLocales();
 		this._languages = Items.map(({ LocaleName, CultureCode, IsDefault, AutoCaptions }) => {
 			const code = CultureCode.toLowerCase();
 			return { name: LocaleName, code, isDefault: IsDefault, autoCaptions: AutoCaptions };

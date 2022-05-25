@@ -1,7 +1,7 @@
 import { action, decorate, flow, observable, toJS } from 'mobx';
 
 import resolveWorkerError from '../util/resolve-worker-error.js';
-import { S3Uploader } from '../util/s3-uploader.js';
+import { S3Uploader } from '../../../../util/s3-uploader.js';
 
 const randomizeDelay = (delay = 30000, range = 5000) => {
 	const low = delay - range;

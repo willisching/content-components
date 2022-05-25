@@ -324,8 +324,8 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 		const parsedD2lrn = parse(this.d2lrn);
 		const tenantId = parsedD2lrn.tenantId;
 		const contentId = parsedD2lrn.contentId;
-		const httpClient = new ContentServiceBrowserHttpClient({tenantId: tenantId, serviceUrl: this.serviceUrl});
-		this.client = new ContentServiceApiClient({ httpClient });
+		const httpClient = new ContentServiceBrowserHttpClient({ serviceUrl: this.serviceUrl });
+		this.client = new ContentServiceApiClient({ httpClient, tenantId: tenantId });
 		const content = await this.client.content.getItem({id: contentId});
 		this.content = content;
 		const lastRevision = content.revisions[content.revisions.length - 1];
