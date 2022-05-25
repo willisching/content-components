@@ -12,7 +12,7 @@ import './upload.js';
 import './preview.js';
 import './progress.js';
 import './bulk-complete.js';
-import '../../../d2l-content-properties/d2l-content-properties.js';
+import '../../../d2l-content-properties'
 
 const VIEW = Object.freeze({
 	UPLOAD: 'UPLOAD',
@@ -20,6 +20,7 @@ const VIEW = Object.freeze({
 	PROGRESS: 'PROGRESS',
 	LOADING: 'LOADING',
 	BULKCOMPLETE: 'BULKCOMPLETE',
+	PROPERTIES: 'PROPERTIES'
 });
 
 export class Main extends InternalLocalizeMixin(MobxReactionUpdate(ProviderMixin(LitElement))) {
@@ -152,6 +153,9 @@ export class Main extends InternalLocalizeMixin(MobxReactionUpdate(ProviderMixin
 						completed-files=${this._completedFiles}
 						bulk-error-messages=${JSON.stringify(this._bulkErrorMessages)}
 						@upload-view=${this.uploadView}
+						@edit-properties=${this.editProperties}
+						@default-properties=${this.defaultProperties}
+
 						>
 					</d2l-content-uploader-bulk-complete>
 				`;
@@ -182,6 +186,15 @@ export class Main extends InternalLocalizeMixin(MobxReactionUpdate(ProviderMixin
 					this.onDiscardStagedFile();
 				});
 		}
+	}
+
+	defaultProperties() {
+		// current behaviour is to return to content selector
+		this.dispatchEvent(new CustomEvent('default-properties'));
+	}
+
+	editProperties() {
+		this._currentView = VIEW.PROPERTIES;
 	}
 
 	onDiscardStagedFile() {
@@ -222,17 +235,6 @@ export class Main extends InternalLocalizeMixin(MobxReactionUpdate(ProviderMixin
 			this._currentView = VIEW.BULKCOMPLETE;
 			this._uploader.reset();
 		}
-	}
-
-	uploadView() {
-		this._uploader.reset();
-		this._errorMessage = '';
-		this._file = undefined;
-		this._fileName = '';
-		this._fileSize = 0;
-		this._fileType = '';
-		this._d2lrnList = [];
-		this._currentView = VIEW.UPLOAD;
 	}
 
 	reactToUploadSuccess(value) {
@@ -294,6 +296,17 @@ export class Main extends InternalLocalizeMixin(MobxReactionUpdate(ProviderMixin
 			this.value = value;
 		}
 		this.filename = this._fileName;
+	}
+
+	uploadView() {
+		this._uploader.reset();
+		this._errorMessage = '';
+		this._file = undefined;
+		this._fileName = '';
+		this._fileSize = 0;
+		this._fileType = '';
+		this._d2lrnList = [];
+		this._currentView = VIEW.UPLOAD;
 	}
 }
 

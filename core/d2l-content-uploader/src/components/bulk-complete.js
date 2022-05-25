@@ -95,17 +95,17 @@ export class BulkComplete extends InternalLocalizeMixin(LitElement) {
 							${this.localize('back')}
 						</d2l-button>
 					`
-					: html`
+		: html`
 						<d2l-button
 							description=${this.localize('continue')}
 							@click=${this.onContinue}>
 							${this.localize('continue')}
 						</d2l-button>
 					`
-					}
+}
 				</div>
 			`
-			: html`
+		: html`
 				<div id="upload-successful-body">
 					<div id="settings-options">
 						<d2l-button
@@ -125,24 +125,24 @@ export class BulkComplete extends InternalLocalizeMixin(LitElement) {
 					</div>
 				</div>
 			`
-			}
+}
 		`;
 	}
 
-	onEditProperties() {
-		this.dispatchEvent(new CustomEvent('edit-properties'));
-	}
-
-	onDefaultProperties() {
-		this.dispatchEvent(new CustomEvent('default-properties'));
+	onBack() {
+		this.dispatchEvent(new CustomEvent('upload-view'));
 	}
 
 	onContinue() {
 		this.successfulBodyHide = false;
 	}
 
-	onBack() {
-		this.dispatchEvent(new CustomEvent('upload-view'));
+	onDefaultProperties() {
+		this.dispatchEvent(new CustomEvent('default-properties'));
+	}
+
+	onEditProperties() {
+		this.dispatchEvent(new CustomEvent('edit-properties'));
 	}
 }
 
