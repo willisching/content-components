@@ -12,7 +12,7 @@ import './upload.js';
 import './preview.js';
 import './progress.js';
 import './bulk-complete.js';
-import '../../../d2l-content-properties'
+import '../../../d2l-content-properties';
 
 const VIEW = Object.freeze({
 	UPLOAD: 'UPLOAD',

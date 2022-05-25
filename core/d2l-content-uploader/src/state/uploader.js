@@ -19,11 +19,11 @@ export class Uploader {
 		this.lastProgressPosition = 0;
 		this.totalFiles = 1;
 
-		/* eslint-disable no-invaild-this */
+		/* eslint-disable no-invalid-this */
 		this.uploadFile = flow((function * (file, title, fileType, totalFiles = 1) {
 			yield this._uploadWorkflowAsync(file, title, totalFiles);
 		}));
-		/* eslint-enable no-invaild-this */
+		/* eslint-enable no-invalid-this */
 	}
 
 	async cancelUpload() {
