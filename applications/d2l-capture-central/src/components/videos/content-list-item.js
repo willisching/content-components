@@ -227,8 +227,8 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 
 	delete() {
 		return async() => {
-			await this.apiClient.deleteContent({
-				contentId: this.id
+			await this.apiClient.content.deleteItem({
+				id: this.id
 			});
 			this.dispatchDeletedEvent();
 		};
@@ -303,10 +303,12 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 	}
 
 	download() {
-		this.apiClient.getSignedUrlForRevision({
-			contentId: this.id,
-			revisionId: this.revisionId,
-			attachment: true
+		this.apiClient.content.getResource({
+			id: this.id,
+			revisionTag: this.revisionId,
+			resource: 'transcodes',
+			query: { disposition: 'attachment' },
+			outputFormat: 'signed-url'
 		})
 			.then(res => {
 				const downloadUrl = res.value;
@@ -345,12 +347,11 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 	async editDescription(newDescription) {
 		if (this.description !== newDescription) {
 			if (!this.content) {
-				this.content = await this.apiClient.getContent(this.id);
+				this.content = await this.apiClient.content.getItem({ id: this.id });
 			}
 			const updatedContent = {...this.content, description: newDescription};
-			this.content = await this.apiClient.updateContent({
-				id: this.id,
-				body: updatedContent,
+			this.content = await this.apiClient.content.updateItem({
+				content: updatedContent
 			});
 			this.dispatchEditDescriptionEvent(newDescription);
 		}
@@ -393,12 +394,11 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 	async rename(newTitle) {
 		if (this.title !== newTitle) {
 			if (!this.content) {
-				this.content = await this.apiClient.getContent(this.id);
+				this.content = await this.apiClient.content.getItem({ id: this.id });
 			}
 			const updatedContent = {...this.content, title: newTitle};
-			this.content = await this.apiClient.updateContent({
-				id: this.id,
-				body: updatedContent,
+			this.content = await this.apiClient.content.updateItem({
+				content: updatedContent
 			});
 			this.dispatchRenameEvent(newTitle);
 		}
@@ -418,15 +418,14 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 		const { userId } = detail;
 		if (this.ownerId !== userId) {
 			if (!this.content) {
-				this.content = await this.apiClient.getContent(this.id);
+				this.content = await this.apiClient.content.getItem({ id: this.id });
 			}
 			const updatedContent = {...this.content, ...{
 				ownerId: userId,
 				tenantIdOwnerId: `${this.content.tenantId}_${userId}`
 			}};
-			this.content = await this.apiClient.updateContent({
-				id: this.id,
-				body: updatedContent,
+			this.content = await this.apiClient.content.updateContent({
+				content: updatedContent
 			});
 			this.dispatchTransferOwnershipEvent(detail);
 		}

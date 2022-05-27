@@ -71,7 +71,7 @@ export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixi
 			dateModified = '',
 		} = rootStore.routingStore.getQueryParams();
 
-		this.queryParams = { ou, searchQuery, sortQuery, dateCreated, dateModified};
+		this.queryParams = { ou, searchQuery, sortQuery, dateCreated, dateModified };
 
 		window.addEventListener('scroll', this.onWindowScroll.bind(this));
 		this.observeQueryParams();

@@ -1,11 +1,11 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
+import { CaptureApiClient, BrightspaceApiClient, ContentServiceApiClient } from 'd2l-content-service-api-client';
+import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
+
 import { bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
-import CaptureServiceClient from './src/util/capture-service-client.js';
-import ContentServiceClient from './src/util/content-service-client.js';
 import { DependencyProvider } from './src/mixins/dependency-provider-mixin.js';
 import { rootStore } from './src/state/root-store.js';
 import { Uploader } from './src/state/uploader.js';
-import UserBrightspaceClient from './src/util/user-brightspace-client.js';
 
 class D2lCaptureCentral extends DependencyProvider(LitElement) {
 	static get properties() {
@@ -44,19 +44,21 @@ class D2lCaptureCentral extends DependencyProvider(LitElement) {
 		this.provideDependency('content-service-endpoint', this.contentServiceEndpoint);
 		this.provideDependency('tenant-id', this.tenantId);
 
-		const apiClient = new ContentServiceClient({
-			endpoint: this.contentServiceEndpoint,
+		const apiClient = new ContentServiceApiClient({
+			httpClient: new ContentServiceBrowserHttpClient({ serviceUrl: this.contentServiceEndpoint }),
 			tenantId: this.tenantId
 		});
 		this.provideDependency('content-service-client', apiClient);
 		rootStore.uploader.apiClient = apiClient;
-		const captureApiClient = new CaptureServiceClient({
-			endpoint: this.captureServiceEndpoint
+		const captureApiClient = new CaptureApiClient({
+			httpClient: new ContentServiceBrowserHttpClient({ serviceUrl: this.captureServiceEndpoint }),
 		});
 		this.provideDependency('capture-service-client', captureApiClient);
 
-		const userBrightspaceClient = new UserBrightspaceClient();
-		this.provideDependency('user-brightspace-client', userBrightspaceClient);
+		const brightspaceClient = new BrightspaceApiClient({
+			httpClient: new ContentServiceBrowserHttpClient()
+		});
+		this.provideDependency('user-brightspace-client', brightspaceClient);
 
 		const uploader = new Uploader({
 			apiClient

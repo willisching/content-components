@@ -166,10 +166,10 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 
 	destroy() {
 		return async() => {
-			await this.apiClient.deleteContent(
-				{contentId: this.id,
-					hardDelete: true}
-			);
+			await this.apiClient.content.deleteItem({
+				id: this.id,
+				hardDelete: true
+			});
 			this.dispatchDestroyEvent();
 		};
 	}
@@ -198,9 +198,9 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 
 	restore() {
 		return async() => {
-			await this.apiClient.undeleteContent(
-				{ contentId: this.id }
-			);
+			await this.apiClient.content.updateItem({
+				content: { id: this.id, deletedAt: null }
+			});
 			this.dispatchRestoreEvent();
 		};
 	}
