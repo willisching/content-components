@@ -424,7 +424,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 				ownerId: userId,
 				tenantIdOwnerId: `${this.content.tenantId}_${userId}`
 			}};
-			this.content = await this.apiClient.content.updateContent({
+			this.content = await this.apiClient.content.updateItem({
 				content: updatedContent
 			});
 			this.dispatchTransferOwnershipEvent(detail);
