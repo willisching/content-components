@@ -17,6 +17,8 @@ import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-cl
 class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
+			allowUpload: { type: Boolean },
+			allowSelection: { type: Boolean },
 			contentTypes: { type: Array },
 			serviceUrl: { type: String },
 			showDeleteAction: { type: Boolean },
@@ -24,12 +26,11 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 			showEditPropertiesAction: { type: Boolean },
 			showPreviewAction: { type: Boolean },
 			tenantId: { type: String },
-			types: { type: Array },
 
 			_contentItems: { type: Array, attribute: false },
 			_hasMore: { type: Boolean, attribute: false },
 			_itemToDelete: { type: Object, attribute: false },
-			_selectedContent: { type: Object, attribute: false },
+			selectedContent: { type: Object, attribute: false },
 			_isLoading: { type: Boolean, attribute: false },
 		};
 	}
@@ -107,7 +108,7 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 		super();
 
 		this._contentItems = [];
-		this._selectedContent = null;
+		this.selectedContent = null;
 		this._itemToDelete = null;
 		this._hasMore = true;
 		this._isLoading = true;
@@ -133,21 +134,23 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 
 	render() {
 		return html`
-		<div class="search">
+		<div>
 			<div class="input-container">
 				<d2l-input-search
 					label=${this.localize('search')}
 					@d2l-input-search-searched=${this._handleSearch}
 					maxlength="200"
 				></d2l-input-search>
+				${this.allowUpload ? html`
 				<d2l-button
 					@click="${this._handleClickUploadButton}"
 				>
 					${this.localize('bulkUpload')}
-				</d2l-button>
+				</d2l-button>` : ''
+}
 			</div>
 			<d2l-scroller
-				maxHeight="330"
+				maxHeight="415"
 				@load-more=${this._loadMore}
 				.hasMore=${this._hasMore}
 				?isLoading=${this._isLoading}
@@ -158,18 +161,6 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 			: html`<p>${this.localize('noResults')}</p>`
 		: this._contentItems.map(this._itemRenderer.bind(this))}
 			</d2l-scroller>
-			<div class="action-group">
-				<d2l-button
-					@click="${this._handleNextButton}"
-					primary
-					description=${this.localize('next')}
-					?disabled=${this._selectedContent === null}
-				>${this.localize('next')}</d2l-button>
-				<d2l-button
-					@click="${this._handleCancelButton}"
-					description=${this.localize('cancel')}
-				>${this.localize('cancel')}</d2l-button>
-			</div>
 			<d2l-dialog-confirm
 				class="d2l-delete-dialog"
 				title-text=${this.localize('deleteThis', {toDelete: this._itemToDelete?.lastRevTitle})}
@@ -194,6 +185,10 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 		`;
 	}
 
+	get selectedItem() {
+		return this.selectedContent;
+	}
+
 	_deleteItem(item) {
 		return () => {
 			if (item === null) return;
@@ -211,7 +206,7 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_handleChecked(result) {
-		return this._selectedContent && this._selectedContent.id === result.id;
+		return this.selectedContent && this.selectedContent.id === result.id;
 	}
 
 	_handleClickUploadButton() {
@@ -235,7 +230,7 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 	_handleNextButton() {
 		this.dispatchEvent(new CustomEvent('on-next-button-click', {
 			detail: {
-				selectedItem: this._selectedContent
+				selectedItem: this.selectedContent
 			}
 		}));
 	}
@@ -250,7 +245,7 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 
 	_handleSelect(item) {
 		const func = () => {
-			this._selectedContent = item;
+			this.selectedContent = item;
 			this.dispatchEvent(new CustomEvent('object-selected'));
 		};
 		return func.bind(this);
@@ -263,6 +258,7 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 	_itemRenderer(item) {
 		return html`
 		<div class="search-result">
+			${this.allowSelection ? html`
 			<div class="input-button">
 				<input
 					class="d2l-input-radio"
@@ -271,7 +267,8 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 					?checked=${this._handleChecked(item)}
 					@change=${this._handleSelect(item)}
 				/>
-			</div>
+			</div>` : ''
+}
 			<div class="heading">
 				<div class=title-wrapper>
 					<a class="title">

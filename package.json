@@ -10,6 +10,7 @@
     "lint:lit": "lit-analyzer  \"{applications,core,capture,test,demo}/**/*.js\" --strict --rules.no-unknown-tag-name off --rules.no-unknown-attribute off",
     "start:d2l-capture-producer": "es-dev-server --app-index capture/d2l-capture-producer/demo/index.html --node-resolve --dedupe --open --watch",
     "start:d2l-content-properties": "es-dev-server --config ./core/d2l-content-properties/es-dev-server.config.cjs --app-index core/d2l-content-properties/demo/index.html --node-resolve --dedupe --open --watch",
+	"start:d2l-content-selector":  "es-dev-server --config ./core/d2l-content-selector/es-dev-server.config.cjs --app-index core/d2l-content-selector/demo/index.html --node-resolve --dedupe --open --watch",
     "start:d2l-content-selector-list": "es-dev-server --config ./core/d2l-content-selector-list/es-dev-server.config.cjs --app-index core/d2l-content-selector-list/demo/index.html --node-resolve --dedupe --open --watch",
     "start:d2l-content-topic-settings": "es-dev-server --config ./core/d2l-content-topic-settings/es-dev-server.config.cjs --app-index core/d2l-content-topic-settings/demo/index.html --node-resolve --dedupe --open --watch",
     "test": "npm run lint && npm run test:headless",

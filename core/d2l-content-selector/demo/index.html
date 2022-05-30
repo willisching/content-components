@@ -5,7 +5,7 @@
 		<script src="/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
 		<script type="module">
 			import '@brightspace-ui/core/components/demo/demo-page.js';
-			import '../d2l-content-selector-list.js';
+			import '../d2l-content-selector.js';
 		</script>
 		<title>d2l-content-selector</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,18 +14,22 @@
 	</head>
 	<body>
 		<d2l-demo-page page-title="d2l-content-selector">
-			<h2>d2l-content-selector-list</h2>
+			<h2>d2l-content-selector</h2>
 			<d2l-demo-snippet>
-				<d2l-content-selector-list
-					allowUpload
-					allowSelection
-					tenantId="97dc5895-cd3b-465f-8d5b-3c8d7e1bb6a7"
-					serviceUrl="http://localhost:8000/contentservice"
-					showPreviewAction
-					showDeleteAction
-					showRevisionUploadAction
-					showEditPropertiesAction
-				></d2l-content-selector-list>
+				<div style="position:relative;">
+					<d2l-content-selector
+						allowExistingObjectSelection
+						allowUpload
+						editPropertiesAfterUpload
+						editTopicPropertiesAfterSelection
+						maxFilesPerUpload="1"
+						serviceUrl="http://localhost:8000/contentservice"
+						tenantId="97dc5895-cd3b-465f-8d5b-3c8d7e1bb6a7"
+						context="6606"
+						maxFileUploadSize="2147483648"
+						canShareTo='[{"id": "6606", "name": "Dev"}, {"id": "6609", "name": "Prod"}]'
+					></d2l-content-selector>
+				</div>
 			</d2l-demo-snippet>
 		</d2l-demo-page>
 	</body>

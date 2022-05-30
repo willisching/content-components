@@ -25,7 +25,11 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 			canShareTo: { type: Array },
 			canSelectShareLocation: { type: Boolean },
 			embedFeatureEnabled: { type: Boolean },
+			contentId: { type: String },
+			tenantId: { type: String },
+			revisionTag: { type: String },
 
+			_resourceType: { type: String, attribute: false },
 			_saveButtonDisabled: { type: Boolean, attribute: false },
 			_selectedSharingIndex: { type: Number, attribute: false }
 		};
@@ -103,6 +107,12 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 
 	constructor() {
 		super();
+
+		this.contentId = '';
+		this.tenantId = '';
+		this._resourceType = '';
+		this.revisionTag = 'latest';
+
 		this._title = null;
 		this._description = null;
 		this._shared = null;
@@ -277,18 +287,6 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 					</div>
 				</div>
 				`}
-				<div>
-					<d2l-button
-						primary
-						description="save"
-						@click=${this._save}
-						?disabled=${this._saveButtonDisabled}
-					>${this.localize('save')}</d2l-button>
-					<d2l-button
-						description="back"
-						@click=${this._back}
-					>${this.localize('back')}</d2l-button>
-				</div>
 			</div>
 		`;
 	}
@@ -300,88 +298,7 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 		});
 	}
 
-	_back() {
-		console.log('back');
-	}
-
-	get _contentId() {
-		return parse(this.d2lrn).contentId;
-	}
-
-	_handleDescriptionChange(e) {
-		this._description = e.target.value;
-	}
-
-	_handleSelectedSharing(e) {
-		this._selectedSharingIndex = Number.parseInt(e.target.getAttribute('sharing-index'));
-	}
-
-	_handleTitleChange(e) {
-		this._title = e.target.value;
-	}
-
-	async _initProperties() {
-		const parsedD2lrn = parse(this.d2lrn);
-		const tenantId = parsedD2lrn.tenantId;
-		const contentId = parsedD2lrn.contentId;
-		const httpClient = new ContentServiceBrowserHttpClient({ serviceUrl: this.serviceUrl });
-		this.client = new ContentServiceApiClient({ httpClient, tenantId: tenantId });
-		const content = await this.client.content.getItem({id: contentId});
-		this.content = content;
-		const lastRevision = content.revisions[content.revisions.length - 1];
-
-		this._title = content.title;
-		this._description = content.description;
-
-		if (this.content.sharedWith.length === 0) {
-			this._shared = false;
-		} else {
-			this._shared = true;
-			this._selectedSharingIndex = this.canShareTo.findIndex((canShareLocation) =>
-				this.content.sharedWith.includes(buildOrgUnitShareLocationStr(String(canShareLocation.id))));
-			if (this._selectedSharingIndex === -1) {
-				this._selectedSharingIndex = 0;
-			}
-		}
-
-		this._playerShowNavBar = lastRevision.options ? lastRevision.options.playerShowNavBar : null;
-		this._reviewRetake = lastRevision.options
-			? lastRevision.options.reviewRetake !== false
-			: true;
-		this._recommendedPlayer = (lastRevision.options && lastRevision.options.recommendedPlayer)
-			|| RecommendedPlayerOptions.embedPlayer;
-	}
-
-	_renderShareLabel() {
-		if (!this.canSelectShareLocation) {
-			return html`<div class="label-body">${this.localize('yesShareFileWithAll')}</div>`;
-		} else if (this.canShareTo.length === 1) {
-			return html`<div class="label-body">${this.localize('yesShareFileWithX', { name: this.canShareTo[0].name })}</div>`;
-		}
-		return html`<div class="label-body">${this.localize('yesShareFileWith')}</div>`;
-	}
-
-	_renderSharingDropdown() {
-		return this.canShareTo.length > 1 ? html`
-		<d2l-dropdown-button
-			text="${this.canShareTo[this._selectedSharingIndex].name}"
-		>
-			<d2l-dropdown-menu
-				@d2l-menu-item-select="${this._handleSelectedSharing}"
-			>
-				<d2l-menu label="revisions">
-					${this.renderSharingItems()}
-				</d2l-menu>
-			</d2l-dropdown-menu>
-		</d2l-dropdown-button>
-		` : html``;
-	}
-
-	get _resourceType() {
-		return parse(this.d2lrn).resourceType;
-	}
-
-	async _save() {
+	async save() {
 		const updateLastRevision = (updates) => {
 			const updatedLastRevision = Object.assign(
 				this.content.revisions.pop(),
@@ -393,8 +310,6 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 					updatedLastRevision,
 				]};
 		};
-
-		this._saveButtonDisabled = true;
 
 		const options = {};
 		if (this._playerShowNavBar !== null) {
@@ -438,8 +353,93 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 
 		await this.client.content.updateItem(item);
 		await this._initProperties();
-		this._saveButtonDisabled = false;
-		this.dispatchEvent(new CustomEvent('saved-settings'));
+	}
+
+	_back() {
+		this.dispatchEvent(new CustomEvent('on-back'));
+	}
+
+	get _contentId() {
+		return parse(this.d2lrn).contentId;
+	}
+
+	_handleDescriptionChange(e) {
+		this._description = e.target.value;
+	}
+
+	_handleSelectedSharing(e) {
+		this._selectedSharingIndex = Number.parseInt(e.target.getAttribute('sharing-index'));
+	}
+
+	_handleTitleChange(e) {
+		this._title = e.target.value;
+	}
+
+	async _initProperties() {
+		if (this.d2lrn !== '') {
+			const parsedD2lrn = parse(this.d2lrn);
+			this.tenantId = parsedD2lrn.tenantId;
+			this.contentId = parsedD2lrn.contentId;
+		}
+		const httpClient = new ContentServiceBrowserHttpClient({ serviceUrl: this.serviceUrl });
+		this.client = new ContentServiceApiClient({ httpClient, tenantId: this.tenantId });
+		const content = await this.client.content.getItem({id: this.contentId});
+		this.content = content;
+
+		let revision;
+		if (this.revisionTag === 'latest') {
+			revision = content.revisions[content.revisions.length - 1];
+		} else {
+			revision = content.revisions.find(rev => rev.id === this.revisionTag);
+		}
+
+		this._resourceType = revision.type.toLowerCase();
+
+		this._title = content.title;
+		this._description = content.description;
+
+		if (this.content.sharedWith === undefined || this.content.sharedWith.length === 0) {
+			this._shared = false;
+		} else {
+			this._shared = true;
+			this._selectedSharingIndex = this.canShareTo.findIndex((canShareLocation) =>
+				this.content.sharedWith.includes(buildOrgUnitShareLocationStr(String(canShareLocation.id))));
+			if (this._selectedSharingIndex === -1) {
+				this._selectedSharingIndex = 0;
+			}
+		}
+
+		this._playerShowNavBar = revision.options ? revision.options.playerShowNavBar : null;
+		this._reviewRetake = revision.options
+			? revision.options.reviewRetake !== false
+			: true;
+		this._recommendedPlayer = (revision.options && revision.options.recommendedPlayer)
+			|| RecommendedPlayerOptions.embedPlayer;
+	}
+
+	_renderShareLabel() {
+		if (!this.canSelectShareLocation) {
+			return html`<div class="label-body">${this.localize('yesShareFileWithAll')}</div>`;
+		} else if (this.canShareTo.length === 1) {
+			return html`<div class="label-body">${this.localize('yesShareFileWithX', { name: this.canShareTo[0].name })}</div>`;
+		}
+		return html`<div class="label-body">${this.localize('yesShareFileWith')}</div>`;
+	}
+
+	_renderSharingDropdown() {
+		return this.canShareTo.length > 1 ? html`
+		<d2l-dropdown-button
+			text="${this.canShareTo[this._selectedSharingIndex].name}"
+		>
+			<d2l-dropdown-menu
+				@d2l-menu-item-select="${this._handleSelectedSharing}"
+			>
+				<d2l-menu label="revisions">
+					${this.renderSharingItems()}
+				</d2l-menu>
+			</d2l-dropdown-menu>
+		</d2l-dropdown-button>
+		` : html``;
 	}
 
 	_setReviewRetake(reviewRetake) {
