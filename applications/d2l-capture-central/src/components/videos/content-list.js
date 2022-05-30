@@ -225,7 +225,9 @@ class ContentList extends CaptureCentralList {
 
 		if (deleteToastElement && this.undoDeleteObject && this.undoDeleteObject.id) {
 			deleteToastElement.removeAttribute('open');
-			await this.apiClient.undeleteContent({ contentId: this.undoDeleteObject.id });
+			await this.apiClient.content.updateItem({
+				content: { id: this.undoDeleteObject.id, deletedAt: null }
+			});
 
 			if (!this.areAnyFiltersActive()) {
 				await this.insertIntoContentItemsBasedOnSort(this.undoDeleteObject);
@@ -242,7 +244,7 @@ class ContentList extends CaptureCentralList {
 	async _getUserDisplayName(userId) {
 		if (!this.userDisplayName) {
 			try {
-				const { DisplayName } = await this.userBrightspaceClient.getUser(userId);
+				const { DisplayName } = await this.userBrightspaceClient.getUser({ userId });
 				this.userDisplayName = DisplayName || userId;
 			} catch (error) {
 				this.userDisplayName = userId;

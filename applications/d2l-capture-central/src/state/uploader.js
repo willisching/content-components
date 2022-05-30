@@ -90,9 +90,9 @@ export class Uploader {
 	) {
 		let err;
 		try {
-			const progress = await this.apiClient.getWorkflowProgress({
-				contentId: content.id,
-				revisionId: revision.id
+			const progress = await this.apiClient.content.getWorkflowProgress({
+				id: content.id,
+				revisionTag: revision.id
 			});
 			if (progress.didFail) {
 				try {
@@ -109,9 +109,9 @@ export class Uploader {
 					error: err
 				});
 				try {
-					await this.apiClient.deleteRevision({
-						contentId: content.id,
-						revisionId: revision.id
+					await this.apiClient.content.deleteRevision({
+						id: content.id,
+						revisionTag: revision.id
 					});
 				} catch (error) {
 					// Catch the error to delete here so that it doesn't fall through
@@ -148,21 +148,25 @@ export class Uploader {
 	async _uploadWorkflowAsync({ file, extension }) {
 		try {
 			this.runningJobs += 1;
-			const content = await this.apiClient.createContent({
-				title: file.name,
-				clientApp: 'LmsCapture',
+			const content = await this.apiClient.content.postItem({
+				content: {
+					title: file.name,
+					clientApp: 'LmsCapture'
+				}
 			});
-			const revision = await this.apiClient.createRevision({
-				contentId: content.id,
-				body: {
+			const revision = await this.apiClient.content.createRevision({
+				id: content.id,
+				properties: {
 					extension,
 				}
 			});
+
+			console.log(this.apiClient.s3Sign);
 			const uploader = new S3Uploader({
 				file,
 				key: revision.s3Key,
 				signRequest: ({ file, key }) =>
-					this.apiClient.signUploadRequest({
+					this.apiClient.s3Sign.sign({
 						fileName: key,
 						contentType: file.type,
 						contentDisposition: 'auto'
@@ -177,9 +181,9 @@ export class Uploader {
 				}
 			});
 			await uploader.upload();
-			await this.apiClient.processRevision({
-				contentId: content.id,
-				revisionId: revision.id
+			await this.apiClient.content.startWorkflow({
+				id: content.id,
+				revisionTag: revision.id
 			});
 			await this._monitorProgressAsync(content, revision, async({ percentComplete = 0, ready, error }) => {
 				const upload = this.uploads.find(
@@ -193,7 +197,12 @@ export class Uploader {
 				if (ready && upload.progress === 100) {
 					let poster;
 					try {
-						poster = (await this.apiClient.getPoster({ contentId: content.id, revisionId: revision.id })).value;
+						poster = (await this.apiClient.content.getResource({
+							id: content.id,
+							revisionTag: revision.id,
+							resource: 'poster',
+							outputFormat: 'signed-url'
+						})).value;
 					} catch (error) {
 						// Ignore if the poster can't be retrieved. An icon will be shown instead of the poster image.
 					}

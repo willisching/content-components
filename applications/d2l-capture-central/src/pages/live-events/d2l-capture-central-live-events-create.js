@@ -35,6 +35,7 @@ class D2LCaptureLiveEventsCreate extends DependencyRequester(PageViewElement) {
 	constructor() {
 		super();
 		this.captureApiClient = this.requestDependency('capture-service-client');
+		this._orgUnitId = rootStore.routingStore.orgUnitId;
 		this.observeSubView();
 	}
 
@@ -81,7 +82,8 @@ class D2LCaptureLiveEventsCreate extends DependencyRequester(PageViewElement) {
 					endTime,
 					status,
 					enableChat,
-					layoutName
+					layoutName,
+					orgUnitId: this._orgUnitId
 				});
 			} catch (error) {
 				const createLiveEventForm = this.shadowRoot.querySelector('#create-live-event-form');

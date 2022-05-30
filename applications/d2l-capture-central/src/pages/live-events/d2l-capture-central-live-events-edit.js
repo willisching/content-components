@@ -51,6 +51,7 @@ class D2LCaptureLiveEventsEdit extends DependencyRequester(PageViewElement) {
 		this._liveEvent = {};
 		this.captureApiClient = this.requestDependency('capture-service-client');
 		this._loading = true;
+		this._orgUnitId = rootStore.routingStore.orgUnitId;
 		this.observeQueryParams();
 	}
 
@@ -108,7 +109,8 @@ class D2LCaptureLiveEventsEdit extends DependencyRequester(PageViewElement) {
 					endTime,
 					status,
 					enableChat,
-					layoutName
+					layoutName,
+					orgUnitId: this._orgUnitId
 				});
 			} catch (error) {
 				const editLiveEventForm = this.shadowRoot.querySelector('#edit-live-event-form');
@@ -147,7 +149,8 @@ class D2LCaptureLiveEventsEdit extends DependencyRequester(PageViewElement) {
 		let liveEventResponse;
 		try {
 			liveEventResponse = await this.captureApiClient.getEvent({
-				id: rootStore.routingStore.getQueryParams().id
+				id: rootStore.routingStore.getQueryParams().id,
+				orgUnitId: this._orgUnitId
 			});
 			this._liveEvent = liveEventResponse.item;
 			editLiveEventForm.setLiveEvent(this._liveEvent);
