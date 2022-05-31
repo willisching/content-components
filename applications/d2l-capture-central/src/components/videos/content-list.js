@@ -15,6 +15,7 @@ import { ifDefined } from 'lit-html/directives/if-defined.js';
 import { observe, toJS } from 'mobx';
 
 import { rootStore } from '../../state/root-store.js';
+import IotClient from '../../../../../build/iot-client.js';
 
 class ContentList extends CaptureCentralList {
 	constructor() {
@@ -32,6 +33,8 @@ class ContentList extends CaptureCentralList {
 			this.userBrightspaceClient = this.requestDependency('user-brightspace-client');
 		}
 		this.observeSuccessfulUpload();
+		this.tenantId = this.apiClient.tenantId;
+		this._setUpIotClient();
 		this.reloadPage();
 	}
 
@@ -252,6 +255,37 @@ class ContentList extends CaptureCentralList {
 		}
 
 		return this.userDisplayName;
+	}
+
+	async _onIotMessage(topic, payload) {
+		const decoder = new TextDecoder('utf-8');
+
+		const message = decoder.decode(payload);
+		const status = JSON.parse(message).data?.processingStatus;
+		const [ , contentId, revisionId] = topic.split('/');
+		if (status === 'ready') {
+			for (let i = 0; i < this._videos.length; i++) {
+				if (this._videos[i].id === contentId) {
+					this._videos[i].processingStatus = 'ready';
+					this._videos[i].poster = await this.apiClient.getPoster({contentId, revisionId});
+					this.requestUpdate();
+					break;
+				}
+			}
+		}
+	}
+
+	async _setUpIotClient() {
+		const { accessKeyId, secretAccessKey, sessionToken, region } = await this.apiClient.requestNotificationsClientAuth();
+		const host = (await this.apiClient.getIotEndpoint()).iotEndpoint;
+		new IotClient({
+			tenantId: this.tenantId,
+			region,
+			host,
+			accessKeyId,
+			secretAccessKey,
+			sessionToken
+		}, this._onIotMessage.bind(this));
 	}
 }
 
