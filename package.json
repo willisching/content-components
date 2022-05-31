@@ -25,13 +25,16 @@
   "author": "D2L Corporation",
   "license": "Apache-2.0",
   "devDependencies": {
+    "@aws-sdk/client-iot": "^3.92.0",
     "@babel/eslint-parser": "^7",
     "@open-wc/testing": "^3",
     "@rollup/plugin-commonjs": "^22.0.0",
+    "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@web/test-runner": "^0.13",
     "@web/test-runner-playwright": "^0.8",
     "@webcomponents/webcomponentsjs": "^2",
+    "aws-iot-device-sdk-v2": "^1.8.1",
     "es-dev-server": "^1",
     "eslint": "^7",
     "eslint-config-brightspace": "^0.13",
@@ -41,11 +44,11 @@
     "lit-analyzer": "^1",
     "rollup": "^2.73.0",
     "rollup-plugin-node-polyfills": "^0.2.1",
-    "sinon": "^9.2.4"
+    "sinon": "^9.2.4",
+    "uuid": "^8.3.2"
   },
   "dependencies": {
     "@adobe/lit-mobx": "^2",
-    "@aws-sdk/client-iot": "^3.92.0",
     "@brightspace-ui-labs/accordion": "^3",
     "@brightspace-ui-labs/file-uploader": "^3",
     "@brightspace-ui-labs/media-player": "^3",
@@ -55,8 +58,6 @@
     "@chaitin/querystring": "^1.1.0",
     "@createjs/easeljs": "^2.0.0-beta.4",
     "@polymer/polymer": "^3",
-    "@rollup/plugin-json": "^4.1.0",
-    "aws-iot-device-sdk-v2": "^1.8.1",
     "d2l-content-service-api-client": "^7.2.0",
     "d2l-content-service-browser-http-client": "^7.2.0",
     "d2l-fetch": "github:Brightspace/d2l-fetch#semver:^2",
@@ -76,7 +77,6 @@
     "siren-parser": "^8",
     "superagent": "^3",
     "superagent-d2l-session-auth": "^2.0.1",
-    "uuid": "^8.3.2",
     "webvtt-parser": "^2.1.2"
   }
 }
