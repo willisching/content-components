@@ -267,12 +267,12 @@ class ContentList extends CaptureCentralList {
 			for (let i = 0; i < this._videos.length; i++) {
 				if (this._videos[i].id === contentId) {
 					this._videos[i].processingStatus = 'ready';
-					this._videos[i].poster = await this.apiClient.content.getResource({
+					this._videos[i].poster = (await this.apiClient.content.getResource({
 						id: contentId,
 						revisionTag: revisionId,
 						resource: 'poster',
 						outputFormat: 'signed-url'
-					});
+					})).value;
 					this.requestUpdate();
 					break;
 				}
