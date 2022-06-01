@@ -241,6 +241,7 @@ class ContentListItem extends DependencyRequester(InternalLocalizeMixin(LitEleme
 			if (!this.content) {
 				this.content = await this.apiClient.getContent(this.id);
 			}
+
 			const updatedContent = Object.assign({}, this.content, { title: newTitle });
 			await this.apiClient.updateContent({
 				id: this.id,
