@@ -33,7 +33,7 @@ class ContentList extends CaptureCentralList {
 			this.userBrightspaceClient = this.requestDependency('user-brightspace-client');
 		}
 		this.observeSuccessfulUpload();
-		this.tenantId = this.apiClient.tenantId;
+		this.tenantId = this.requestDependency('tenant-id');
 		this._setUpIotClient();
 		this.reloadPage();
 	}
@@ -267,7 +267,12 @@ class ContentList extends CaptureCentralList {
 			for (let i = 0; i < this._videos.length; i++) {
 				if (this._videos[i].id === contentId) {
 					this._videos[i].processingStatus = 'ready';
-					this._videos[i].poster = await this.apiClient.getPoster({contentId, revisionId});
+					this._videos[i].poster = await this.apiClient.content.getResource({
+						id: contentId,
+						revisionTag: revisionId,
+						resource: 'poster',
+						outputFormat: 'signed-url'
+					});
 					this.requestUpdate();
 					break;
 				}
@@ -276,8 +281,8 @@ class ContentList extends CaptureCentralList {
 	}
 
 	async _setUpIotClient() {
-		const { accessKeyId, secretAccessKey, sessionToken, region } = await this.apiClient.requestNotificationsClientAuth();
-		const host = (await this.apiClient.getIotEndpoint()).iotEndpoint;
+		const { accessKeyId, secretAccessKey, sessionToken, region } = await this.apiClient.notifications.requestNotificationsClientAuth();
+		const host = (await this.apiClient.notifications.getIotEndpoint()).iotEndpoint;
 		new IotClient({
 			tenantId: this.tenantId,
 			region,
