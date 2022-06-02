@@ -40,7 +40,7 @@ To run both linting and unit tests:
 npm test
 ```
 
-To run visual div tests, see [visual-diff testing](https://github.com/BrightspaceUI/core#visual-diff-testing)
+To run visual-diff tests, see [visual-diff testing](https://github.com/BrightspaceUI/core#visual-diff-testing)
 
 ## Versioning & Releasing
 
