@@ -40,6 +40,8 @@ To run both linting and unit tests:
 npm test
 ```
 
+To run visual div tests, see [visual-diff testing](https://github.com/BrightspaceUI/core#visual-diff-testing)
+
 ## Versioning & Releasing
 
 > TL;DR: Commits prefixed with `fix:` and `feat:` will trigger patch and minor releases when merged to `main`. Read on for more details...
