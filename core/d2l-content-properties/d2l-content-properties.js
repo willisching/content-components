@@ -29,6 +29,7 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 			tenantId: { type: String },
 			revisionTag: { type: String },
 
+			_isLoading: { type: Boolean, attribute: false },
 			_resourceType: { type: String, attribute: false },
 			_saveButtonDisabled: { type: Boolean, attribute: false },
 			_selectedSharingIndex: { type: Number, attribute: false }
@@ -63,7 +64,7 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 			flex-wrap: wrap;
 			align-items: center;
 			pointer-events: none;
-			color: #787C85;
+			color: #6E7477;
 			font-size: 14px;
 			line-height: 1rem;
 		}
@@ -83,7 +84,7 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 			margin-top: 0;
 			margin-bottom: 6px;
 			font-size: 14px;
-			color: #787C85;
+			color: #6E7477;
 			line-height: 1rem;
 		}
 
@@ -120,6 +121,7 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 		this._reviewRetake = null;
 		this._recommendedPlayer = null;
 
+		this._isLoading = true;
 		this._selectedSharingIndex = 0;
 		this._saveButtonDisabled = false;
 	}
@@ -127,16 +129,17 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 	async connectedCallback() {
 		super.connectedCallback();
 		await this._initProperties();
-		this.requestUpdate();
+		this._isLoading = false;
 	}
 
 	render() {
 		return html`
 			<div class="settings-container">
-				<h3 class="heading-org-level">Edit Course Package Properties</h3>
+				<h3 class="heading-org-level">${this.localize('editCoursePackageProperties')}</h3>
 				<div class="package-section">
 					<h4 class="package-name">${this.localize('packageName')}</h4>
 					<d2l-input-text
+						id="package-name"
 						class="form-control"
 						type="text"
 						placeholder=${this.localize('packageName')}
@@ -148,6 +151,7 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 					></d2l-input-text>
 					<h4 class="package-description">${this.localize('description')}</h4>
 					<d2l-input-text
+						id="package-description"
 						class="form-control"
 						type="text"
 						placeholder=${this.localize('description')}
@@ -183,7 +187,7 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 							@change="${this._setShared(false)}"
 							?checked="${this._shared !== null && !this._shared}"
 						/>
-						<div class="label-body">${this.localize('noKeepToMyself')}</div>
+						<label for="remove-sharing" class="label-body">${this.localize('noKeepToMyself')}</label>
 					</div>
 				</div>
 				${!this._resourceType || this._resourceType === 'audio' || this._resourceType === 'video' ?
@@ -200,7 +204,7 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 							@change="${this._setUseEmbedPlayer(RecommendedPlayerOptions.embedPlayer)}"
 							?checked="${this._recommendedPlayer === RecommendedPlayerOptions.embedPlayer}"
 						/>
-						<label htmlFor="use-embedded-player">
+						<label for="use-embedded-player">
 							<div class="label-body">${this.localize('useEmbeddedPlayer')}</div>
 							<div class="label-description">${this.localize('useEmbeddedPlayerDescription')}</div>
 						</label>
@@ -214,7 +218,7 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 							@change="${this._setUseEmbedPlayer(RecommendedPlayerOptions.newWindow)}"
 							?checked="${this._recommendedPlayer === RecommendedPlayerOptions.newWindow}"
 						/>
-						<label htmlFor="open-player-in-new-window">
+						<label for="open-new-window">
 							<div class="label-body">${this.localize('openPlayerInNewWindow')}</div>
 							<div class="label-description">${this.localize('openPlayerInNewWindowDescription')}</div>
 						</label>
@@ -233,7 +237,7 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 							@change="${this._setShowNavBar(false)}"
 							?checked="${this._playerShowNavBar !== null && !this._playerShowNavBar}"
 						/>
-						<label htmlFor="use-embedded-player">
+						<label for="remove-navigation">
 							<div class="label-body">${this.localize('playerHideNavBar')}</div>
 							<div class="label-description">${this.localize('playerHideNavBarDescription')}</div>
 						</label>
@@ -247,7 +251,7 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 							@change="${this._setShowNavBar(true)}"
 							?checked="${this._playerShowNavBar !== null && this._playerShowNavBar}"
 						/>
-						<label htmlFor="use-embedded-player">
+						<label for="add-navigation">
 							<div class="label-body">${this.localize('playerShowNavBar')}</div>
 							<div class="label-description">${this.localize('playerShowNavBarDescription')}</div>
 						</label>
@@ -266,7 +270,7 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 							@change="${this._setReviewRetake(true)}"
 							?checked="${this._reviewRetake !== null && this._reviewRetake}"
 						/>
-						<label htmlFor="add-review-retake">
+						<label for="add-review-retake">
 							<div class="label-body">${this.localize('addReviewRetake')}</div>
 							<div class="label-description">${this.localize('addReviewRetakeDescription')}</div>
 						</label>
@@ -280,7 +284,7 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 							@change="${this._setReviewRetake(false)}"
 							?checked="${this._reviewRetake !== null && !this._reviewRetake}"
 						/>
-						<label htmlFor="do-not-add-review-retake">
+						<label for="do-not-add-review-retake">
 							<div class="label-body">${this.localize('doNotAddReviewRetake')}</div>
 							<div class="label-description">${this.localize('doNotAddReviewRetakeDescription')}</div>
 						</label>
@@ -324,6 +328,8 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 			options.reviewRetake = this._reviewRetake;
 		}
 
+		console.log(options);
+
 		let sharedWith = this.content.sharedWith;
 
 		if (this._shared !== null) {
@@ -352,11 +358,6 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 		};
 
 		await this.client.content.updateItem(item);
-		await this._initProperties();
-	}
-
-	_back() {
-		this.dispatchEvent(new CustomEvent('on-back'));
 	}
 
 	get _contentId() {
@@ -419,11 +420,11 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 
 	_renderShareLabel() {
 		if (!this.canSelectShareLocation) {
-			return html`<div class="label-body">${this.localize('yesShareFileWithAll')}</div>`;
+			return html`<label for="add-sharing" class="label-body">${this.localize('yesShareFileWithAll')}</label>`;
 		} else if (this.canShareTo.length === 1) {
-			return html`<div class="label-body">${this.localize('yesShareFileWithX', { name: this.canShareTo[0].name })}</div>`;
+			return html`<label for="add-sharing" class="label-body">${this.localize('yesShareFileWithX', { name: this.canShareTo[0].name })}</label>`;
 		}
-		return html`<div class="label-body">${this.localize('yesShareFileWith')}</div>`;
+		return html`<label for="add-sharing" class="label-body">${this.localize('yesShareFileWith')}</label>`;
 	}
 
 	_renderSharingDropdown() {

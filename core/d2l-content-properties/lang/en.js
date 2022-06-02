@@ -26,4 +26,5 @@ export default {
 	yesShareFileWithX: 'Yes, share this file with {name}',
 	yesShareFileWith: 'Yes, share this file with ',
 	noKeepToMyself: 'No, keep this file only to myself',
+	editCoursePackageProperties: 'Edit Course Package Properties'
 };
