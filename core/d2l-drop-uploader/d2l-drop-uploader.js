@@ -10,8 +10,8 @@ import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { css, html, LitElement } from 'lit-element';
 import { RequesterMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
-import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin.js';
-import { isSupported, supportedTypeExtensions } from '../util/media-type-util.js';
+import { isSupported, supportedTypeExtensions } from '../d2l-content-uploader/src/util/media-type-util.js';
+import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
 
 export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
@@ -84,7 +84,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 
 	constructor() {
 		super();
-		this.maxNumberOfFiles = 50;
+		this._maxNumberOfFiles = 50;
 	}
 
 	async connectedCallback() {
@@ -118,7 +118,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 						${this.errorMessage ? html`<p id="error-message" class="d2l-body-compact">${this.errorMessage}&nbsp;</p>` : ''}
 					</div>
 				</file-drop>
-				<p>${this.enableBulkUpload ? this.localize('maxNumberOfFiles', { maxNumberOfFiles: this.maxNumberOfFiles }) : this.localize('fileSizeLimitMessage', { localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes) })}</p>
+				<p>${this.enableBulkUpload ? this.localize('maxNumberOfFiles', { _maxNumberOfFiles: this._maxNumberOfFiles }) : this.localize('fileSizeLimitMessage', { localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes) })}</p>
 			</div>
 		`;
 	}
@@ -140,6 +140,17 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 			this.dispatchEvent(new CustomEvent('file-drop-error', {
 				detail: {
 					message: this.localize('mayOnlyUpload1File'),
+				},
+				bubbles: true,
+				composed: true,
+			}));
+			return;
+		}
+
+		if (this.enableBulkUpload && files.length > this._maxNumberOfFiles) {
+			this.dispatchEvent(new CustomEvent('file-drop-error', {
+				detail: {
+					message: this.localize('tooManyFiles'),
 				},
 				bubbles: true,
 				composed: true,
@@ -180,4 +191,4 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 	}
 }
 
-customElements.define('d2l-content-uploader-upload', Upload);
+customElements.define('d2l-drop-uploader', Upload);

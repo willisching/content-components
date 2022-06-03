@@ -1,7 +1,7 @@
 import '@brightspace-ui/core/components/meter/meter-linear.js';
 import { css, html, LitElement } from 'lit-element';
 import { bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
-import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
 
 export class Progress extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
@@ -45,4 +45,4 @@ export class Progress extends InternalLocalizeMixin(LitElement) {
 	}
 }
 
-customElements.define('d2l-content-uploader-progress', Progress);
+customElements.define('d2l-upload-progress', Progress);

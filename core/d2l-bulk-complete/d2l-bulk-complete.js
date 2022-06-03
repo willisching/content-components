@@ -2,7 +2,7 @@ import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/colors/colors.js';
 import { css, html, LitElement } from 'lit-element';
 import { bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
-import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from './.src/mixins/internal-localize-mixin.js';
 
 export class BulkComplete extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
@@ -12,8 +12,8 @@ export class BulkComplete extends InternalLocalizeMixin(LitElement) {
 			completedFiles: { type: Number, attribute: 'completed-files' },
 			bulkErrorMessages: { type: Object, attribute: 'bulk-error-messages' },
 
-			successfulBodyHide: { type: Boolean, attribute: false },
-			failedFiles: { type: Number, attribute: false },
+			_successfulBodyHide: { type: Boolean, attribute: false },
+			_failedFiles: { type: Number, attribute: false },
 		};
 	}
 
@@ -73,8 +73,8 @@ export class BulkComplete extends InternalLocalizeMixin(LitElement) {
 
 	async connectedCallback() {
 		super.connectedCallback();
-		this.failedFiles = this.totalFiles - this.completedFiles;
-		this.successfulBodyHide = this.failedFiles > 0;
+		this._failedFiles = this.totalFiles - this.completedFiles;
+		this._successfulBodyHide = this._failedFiles > 0;
 	}
 
 	render() {
@@ -82,13 +82,13 @@ export class BulkComplete extends InternalLocalizeMixin(LitElement) {
 			<div id="file-details-container">
 				<p class="d2l-body-standard">${this.completedFiles === this.totalFiles ? this.localize('uploadBulkFinished', { totalFiles: this.totalFiles }) : this.localize('uploadBulkFinishedWithErrors', { totalFiles: this.totalFiles, completedFiles: this.completedFiles })}</p>
 			</div>
-			${this.successfulBodyHide ? html`
+			${this._successfulBodyHide ? html`
 				<div class="upload-failed-body">
-					<p class="failed-files-info">${this.failedFiles > 1 ? this.localize('failedUploads', { failedFiles: this.failedFiles }) : this.localize('failedUpload')}</p>
+					<p class="failed-files-info">${this._failedFiles > 1 ? this.localize('failedUploads', { _failedFiles: this._failedFiles }) : this.localize('failedUpload')}</p>
 					<div class="failed-file-list">
 						${Object.keys(this.bulkErrorMessages).map(file => html`<div class="failed-file"><p class="failed-file-name">${file}</p><p class="failed-file-message">${this.bulkErrorMessages[file]}</p></div>`)}
 					</div>
-					${this.failedFiles === this.totalFiles ? html`
+					${this._failedFiles === this.totalFiles ? html`
 						<d2l-button
 							description=${this.localize('back')}
 							@click=${this.onBack}>
@@ -96,35 +96,35 @@ export class BulkComplete extends InternalLocalizeMixin(LitElement) {
 						</d2l-button>
 					`
 		: html`
-						<d2l-button
-							description=${this.localize('continue')}
-							@click=${this.onContinue}>
-							${this.localize('continue')}
-						</d2l-button>
-					`
+			<d2l-button
+				description=${this.localize('continue')}
+				@click=${this.onContinue}>
+				${this.localize('continue')}
+			</d2l-button>
+		`
 }
 				</div>
 			`
 		: html`
-				<div id="upload-successful-body">
-					<div id="settings-options">
-						<d2l-button
-							primary
-							description=${this.localize('bulkDefaultProperties')}
-							@click=${this.onDefaultProperties}>
-							${this.localize('bulkDefaultProperties')}
-						</d2l-button>
-						<div id="default-settings-label">
-							${this.localize('bulkDefaultPropertiesLabel')}
-						</div>
-						<d2l-button
-							description=${this.localize('bulkEditProperties')}
-							@click=${this.onEditProperties}>
-							${this.localize('bulkEditProperties')}
-						</d2l-button>
+			<div id="upload-successful-body">
+				<div id="settings-options">
+					<d2l-button
+						primary
+						description=${this.localize('bulkDefaultProperties')}
+						@click=${this.onDefaultProperties}>
+						${this.localize('bulkDefaultProperties')}
+					</d2l-button>
+					<div id="default-settings-label">
+						${this.localize('bulkDefaultPropertiesLabel')}
 					</div>
+					<d2l-button
+						description=${this.localize('bulkEditProperties')}
+						@click=${this.onEditProperties}>
+						${this.localize('bulkEditProperties')}
+					</d2l-button>
 				</div>
-			`
+			</div>
+		`
 }
 		`;
 	}
@@ -134,7 +134,7 @@ export class BulkComplete extends InternalLocalizeMixin(LitElement) {
 	}
 
 	onContinue() {
-		this.successfulBodyHide = false;
+		this._successfulBodyHide = false;
 	}
 
 	onDefaultProperties() {
@@ -146,4 +146,4 @@ export class BulkComplete extends InternalLocalizeMixin(LitElement) {
 	}
 }
 
-customElements.define('d2l-content-uploader-bulk-complete', BulkComplete);
+customElements.define('d2l-bulk-complete', BulkComplete);
