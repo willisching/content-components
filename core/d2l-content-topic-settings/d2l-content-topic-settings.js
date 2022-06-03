@@ -18,7 +18,10 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 			serviceUrl: { type: String },
 			topicId: { type: String },
 			context: { type: String },
+			contentId: { type: String },
+			tenantId: { type: String },
 
+			_resourceType: { type: String, attribute: false },
 			_isLoading: { type: Boolean, attribute: false},
 
 			_displayLatestVersion: { type: Boolean, attribute: false},
@@ -39,7 +42,6 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 		.package-title {
 			font-size: 18px;
 			margin-top: 0;
-			margin-bottom: 15px;
 			word-wrap: break-word;
 			overflow-wrap: break-word;
 		}
@@ -47,7 +49,7 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 		h4.section-heading {
 			font-size: 16px;
 			margin-bottom: 10px;
-			margin-top: 20px;
+			margin-top: 15px;
 			-webkit-text-size-adjust: 100%;
 		}
 
@@ -91,10 +93,6 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 			letter-spacing: 0.02rem;
 			line-height: 1.2rem;
 		}
-
-		.action-group {
-			margin-top: 10px;
-		}
 		`];
 	}
 
@@ -111,6 +109,10 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 
 		this.d2lrn = '';
 		this.serviceUrl = '';
+		this.contentId = '';
+		this.tenantId = '';
+		this.revisionTag = 'latest';
+		this._resourceType = '';
 
 		this._isLoading = true;
 
@@ -122,17 +124,26 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 	async connectedCallback() {
 		super.connectedCallback();
 
-		const parsedD2lrn = parse(this.d2lrn);
-		const tenantId = parsedD2lrn.tenantId;
-		const contentId = parsedD2lrn.contentId;
-		this._resourceType = parsedD2lrn.resourceType;
+		if (this.d2lrn !== '') {
+			const parsedD2lrn = parse(this.d2lrn);
+			this.tenantId = parsedD2lrn.tenantId;
+			this.contentId = parsedD2lrn.contentId;
+		}
 
 		const httpClient = new ContentServiceBrowserHttpClient({serviceUrl: this.serviceUrl});
-		this.client = new ContentServiceApiClient({ tenantId, httpClient });
+		this.client = new ContentServiceApiClient({ tenantId: this.tenantId, httpClient });
 
-		const content = await this.client.content.getItem({id: contentId});
+		const content = await this.client.content.getItem({id: this.contentId});
 		this.content = content;
 
+		let revision;
+		if (this.revisionTag === 'latest') {
+			revision = content.revisions[content.revisions.length - 1];
+		} else {
+			revision = content.revisions.find(rev => rev.id === this.revisionTag);
+		}
+
+		this._resourceType = revision.type.toLowerCase();
 		this._title = content.title;
 		this._isLoading = false;
 	}
@@ -241,52 +252,31 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 						</div>
 					</div>` : ''
 }
-				<div class="action-group">
-					<d2l-button
-						primary
-						description=${this.localize('add')}
-						@click=${this._addContent}
-						?disabled=${this._saveButtonDisabled}
-					>${this.localize('add')}</d2l-button>
-					<d2l-button
-						description=${this.localize('back')}
-						@click=${this._back}
-					>${this.localize('back')}</d2l-button>
-				</div>
 			</div>
 		`;
 	}
 
-	renderGradingMethodItems() {
-		return ContentTopicSettings.gradingCalculationMethods.map((item, index) => {
-			return html`<d2l-menu-item grading-index="${index}" text="${this.localize(item.toLowerCase())}"></d2l-menu-item>`;
-		});
-	}
-
-	async _addContent() {
+	getContent() {
 		const content = {
 			topic: {
-				id: this.topicId,
 				contexts: {
 					[this.context]: {
 						resourceLinkTitle: this.content.title
 					}
 				},
 				contentId: this.content.id,
-				revisionTag: this._displayLatestVersion
-					? 'latest'
-					: this.content.revisions[this.content.revisions.length - 1].id,
+				revisionTag: this.revisionTag,
 				gradeCalculationMethod: ContentTopicSettings.gradingCalculationMethods[this._selectedGradingIndex],
 				gradeObjectAssociation: this._gradeObjectAssociation
 			}
 		};
-		await this.client.topic.postItem(content);
+		return content;
+	}
 
-		this.dispatchEvent(new CustomEvent('on-add-content', {
-			detail: {
-				content
-			}
-		}));
+	renderGradingMethodItems() {
+		return ContentTopicSettings.gradingCalculationMethods.map((item, index) => {
+			return html`<d2l-menu-item grading-index="${index}" text="${this.localize(item.toLowerCase())}"></d2l-menu-item>`;
+		});
 	}
 
 	_handleGradeObjectAssociation(val) {

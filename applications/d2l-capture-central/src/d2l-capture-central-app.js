@@ -117,8 +117,9 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 		this.userBrightspaceClient = this.requestDependency('user-brightspace-client');
 
 		try {
-			const permissions = await this.userBrightspaceClient.getPermissions();
-
+			const permissions = await this.userBrightspaceClient.getCapturePermissions({
+				orgUnitId: rootStore.routingStore.orgUnitId
+			});
 			// "Can Manage All Videos" is mapped from the "Can Manage All Content" permission in Content Service.
 			// Since it's not a Capture permission, it is passed down from the LMS to Capture Central as a Lit attribute.
 			permissions.canManageAllVideos = this.canManageAllVideos ? 'true' : 'false';

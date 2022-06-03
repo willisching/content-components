@@ -1,5 +1,8 @@
 import { formatDate } from '@brightspace-ui/intl/lib/dateTime.js';
 
+import { dateFilterToSearchQuery } from '../util/date-filter.js';
+import { getTimeZoneOrTimeZoneOffset } from '../util/date-time.js';
+
 const contentTypes = ['Audio', 'Video'];
 const clientApps = ['LmsContent', 'LmsCourseImport', 'LmsCapture', 'Capture', 'none'];
 
@@ -37,7 +40,7 @@ export const contentSearchMixin = superClass => class extends superClass {
 	async _getDisplayName(userId) {
 		if (!this._userCache[userId]) {
 			try {
-				const { DisplayName } = await this.userBrightspaceClient.getUser(userId);
+				const { DisplayName } = await this.userBrightspaceClient.getUser({ userId });
 				this._userCache[userId] = DisplayName || userId;
 			} catch (error) {
 				this._userCache[userId] = userId;
@@ -58,15 +61,19 @@ export const contentSearchMixin = superClass => class extends superClass {
 			this._start += this._resultSize;
 		}
 
-		const { hits: { hits, total } } = await this.apiClient.searchDeletedContent({
+		const { hits: { hits, total } } = await this.apiClient.search.searchContent({
 			contentType: contentTypes.join(','),
 			clientApps: clientApps.join(','),
-			createdAt: createdAt,
-			includeThumbnails:  true,
+			createdAt: dateFilterToSearchQuery(createdAt),
+			filter: 'DELETED',
+			includeProcessing: true,
+			includeThumbnails: true,
 			query: query,
+			size: this._resultSize,
 			sort: sort,
 			start: this._start,
-			updatedAt: updatedAt
+			timeZone: getTimeZoneOrTimeZoneOffset(),
+			updatedAt: dateFilterToSearchQuery(updatedAt)
 		});
 		this._updateVideoList(hits, append);
 		this._totalResults = total;
@@ -99,15 +106,18 @@ export const contentSearchMixin = superClass => class extends superClass {
 			this._start += this._resultSize;
 		}
 
-		const { hits: { hits, total } } = await this.apiClient.searchContent({
+		const { hits: { hits, total } } = await this.apiClient.search.searchContent({
 			contentType: contentTypes.join(','),
 			clientApps: clientApps.join(','),
-			createdAt,
+			createdAt: dateFilterToSearchQuery(createdAt),
+			includeProcessing: true,
 			includeThumbnails: true,
 			query,
+			size: this._resultSize,
 			sort,
 			start: this._start,
-			updatedAt
+			timeZone: getTimeZoneOrTimeZoneOffset(),
+			updatedAt: dateFilterToSearchQuery(updatedAt)
 		});
 		if (this.canTransferOwnership && this.userBrightspaceClient) {
 			await this._addDisplayNames(hits);

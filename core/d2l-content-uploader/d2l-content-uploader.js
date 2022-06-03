@@ -178,6 +178,11 @@ export class Main extends InternalLocalizeMixin(MobxReactionUpdate(ProviderMixin
 		this.canManage = this.canUpload;
 		this.updateValue(value);
 		this._currentView = VIEW.PREVIEW;
+		this.dispatchEvent(new CustomEvent('on-upload-success', {
+			detail: {
+				d2lrn: value
+			}
+		}));
 	}
 
 	startUpload(event) {

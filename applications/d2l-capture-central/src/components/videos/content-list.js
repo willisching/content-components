@@ -15,6 +15,7 @@ import { ifDefined } from 'lit-html/directives/if-defined.js';
 import { observe, toJS } from 'mobx';
 
 import { rootStore } from '../../state/root-store.js';
+import IotClient from '../../../../../build/iot-client.js';
 
 class ContentList extends CaptureCentralList {
 	constructor() {
@@ -32,6 +33,8 @@ class ContentList extends CaptureCentralList {
 			this.userBrightspaceClient = this.requestDependency('user-brightspace-client');
 		}
 		this.observeSuccessfulUpload();
+		this.tenantId = this.requestDependency('tenant-id');
+		this._setUpIotClient();
 		this.reloadPage();
 	}
 
@@ -225,7 +228,9 @@ class ContentList extends CaptureCentralList {
 
 		if (deleteToastElement && this.undoDeleteObject && this.undoDeleteObject.id) {
 			deleteToastElement.removeAttribute('open');
-			await this.apiClient.undeleteContent({ contentId: this.undoDeleteObject.id });
+			await this.apiClient.content.updateItem({
+				content: { id: this.undoDeleteObject.id, deletedAt: null }
+			});
 
 			if (!this.areAnyFiltersActive()) {
 				await this.insertIntoContentItemsBasedOnSort(this.undoDeleteObject);
@@ -242,7 +247,7 @@ class ContentList extends CaptureCentralList {
 	async _getUserDisplayName(userId) {
 		if (!this.userDisplayName) {
 			try {
-				const { DisplayName } = await this.userBrightspaceClient.getUser(userId);
+				const { DisplayName } = await this.userBrightspaceClient.getUser({ userId });
 				this.userDisplayName = DisplayName || userId;
 			} catch (error) {
 				this.userDisplayName = userId;
@@ -250,6 +255,42 @@ class ContentList extends CaptureCentralList {
 		}
 
 		return this.userDisplayName;
+	}
+
+	async _onIotMessage(topic, payload) {
+		const decoder = new TextDecoder('utf-8');
+
+		const message = decoder.decode(payload);
+		const status = JSON.parse(message).data?.processingStatus;
+		const [ , contentId, revisionId] = topic.split('/');
+		if (status === 'ready') {
+			for (let i = 0; i < this._videos.length; i++) {
+				if (this._videos[i].id === contentId) {
+					this._videos[i].processingStatus = 'ready';
+					this._videos[i].poster = (await this.apiClient.content.getResource({
+						id: contentId,
+						revisionTag: revisionId,
+						resource: 'poster',
+						outputFormat: 'signed-url'
+					})).value;
+					this.requestUpdate();
+					break;
+				}
+			}
+		}
+	}
+
+	async _setUpIotClient() {
+		const { accessKeyId, secretAccessKey, sessionToken, region } = await this.apiClient.notifications.requestNotificationsClientAuth();
+		const host = (await this.apiClient.notifications.getIotEndpoint()).iotEndpoint;
+		new IotClient({
+			tenantId: this.tenantId,
+			region,
+			host,
+			accessKeyId,
+			secretAccessKey,
+			sessionToken
+		}, this._onIotMessage.bind(this));
 	}
 }
 

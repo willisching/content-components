@@ -34,7 +34,7 @@ export default {
 	testRunnerHtml: testFramework =>
 		`<html lang="en">
 			<body>
-				<script src="./tools/resize-observer-test-error-handler.js"></script>
+				<script src="node_modules/@brightspace-ui/core/tools/resize-observer-test-error-handler.js"></script>
 				<script type="module" src="${testFramework}"></script>
 			</body>
 		</html>`

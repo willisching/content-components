@@ -19,7 +19,6 @@ class Scroller extends InternalLocalizeMixin(LitElement) {
 			overflow-y: auto;
 			padding-right: 3px;
 			position: relative;
-			padding-bottom: 50px;
 		}
 		`];
 	}

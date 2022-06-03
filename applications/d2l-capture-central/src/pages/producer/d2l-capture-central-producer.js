@@ -43,7 +43,9 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 
 	async connectedCallback() {
 		super.connectedCallback();
-		this.apiClient = this.requestDependency('content-service-client');
+
+		this.contentServiceEndpoint = this.requestDependency('content-service-endpoint');
+		this.tenantId = this.requestDependency('tenant-id');
 	}
 
 	render() {
@@ -55,10 +57,10 @@ class D2LCaptureCentralProducer extends DependencyRequester(PageViewElement) {
 			<div class="d2l-capture-central-producer">
 				${this._renderBreadcrumbs()}
 
-				${this.apiClient ? html`
+				${this.contentServiceEndpoint && this.tenantId ? html`
 					<d2l-capture-producer
-						.endpoint="${this.apiClient.endpoint}"
-						.tenantId="${this.apiClient.tenantId}"
+						.endpoint="${this.contentServiceEndpoint}"
+						.tenantId="${this.tenantId}"
 						.contentId="${this.rootStore.routingStore.params.id}"
 						@content-loaded="${this._handleContentLoaded}"
 					></d2l-capture-producer>

@@ -77,13 +77,14 @@ class CaptureCentralLiveEvents extends DependencyRequester(InternalLocalizeMixin
 		this._canView = false;
 		this._currentSort = sortNames.default;
 		this._sortIsDesc = false;
+		this._orgUnitId = null;
 	}
 
 	async connectedCallback() {
 		super.connectedCallback();
 		this.captureApiClient = this.requestDependency('capture-service-client');
-		this.userBrightspaceClient = this.requestDependency('user-brightspace-client');
 		this.observeQueryParams();
+		this._orgUnitId = rootStore.routingStore.orgUnitId;
 		await this.reload({ searchQuery: rootStore.routingStore.getQueryParams().searchQuery });
 	}
 
@@ -179,7 +180,10 @@ class CaptureCentralLiveEvents extends DependencyRequester(InternalLocalizeMixin
 		}
 
 		try {
-			const events = await this.captureApiClient.listEvents({ title: searchQuery });
+			const events = await this.captureApiClient.listEvents({
+				title: searchQuery,
+				orgUnitId: this._orgUnitId
+			});
 			this._liveEvents = events.items;
 			this._liveEvents.forEach(event => event.delete = () => this._deleteEvent({ id: event.id }));
 			this._sortLiveEvents(this._currentSort);
@@ -230,7 +234,10 @@ class CaptureCentralLiveEvents extends DependencyRequester(InternalLocalizeMixin
 		this.hideAlerts();
 
 		try {
-			await this.captureApiClient.deleteEvent({ id });
+			await this.captureApiClient.deleteEvent({
+				id,
+				orgUnitId: this._orgUnitId
+			});
 		} catch (error) {
 			const inlineCriticalAlertElement = this.shadowRoot.querySelector('#live-events-inline-critical-alert');
 			this._alertMessage = this.localize('deleteEventError', { numEvents: this._numSelected || 1 });
