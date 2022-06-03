@@ -1,8 +1,8 @@
 import '../d2l-content-renderer.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
-
-import ContentServiceClient from './src/rest-client.js';
+import { BrightspaceApiClient } from 'd2l-content-service-api-client';
+import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
 
 class ContentTopicRenderer extends LitElement {
 	static get properties() {
@@ -31,10 +31,10 @@ class ContentTopicRenderer extends LitElement {
 
 	async firstUpdated() {
 		super.firstUpdated();
-		this.client = new ContentServiceClient({
-			topicId: this.topicId,
+		const client = new BrightspaceApiClient({
+			httpClient: new ContentServiceBrowserHttpClient()
 		});
-		this._d2lrn = await this.client.getD2LRN();
+		this._d2lrn = await client.getD2lRn({ topicId: this.topicId });
 	}
 
 	render() {

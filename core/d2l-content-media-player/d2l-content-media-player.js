@@ -179,14 +179,23 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 		};
 	}
 
-	_getResource({resource, outputFormat = 'signed-url', query = {}}) {
-		return this.client.content.getResource({
-			id: this._contentId,
-			revisionTag: this._revisionTag,
-			resource,
-			outputFormat,
-			query
-		});
+	async _getResource({resource, outputFormat = 'signed-url', query = {}}) {
+		let result;
+		try {
+			result = await this.client.content.getResource({
+				id: this._contentId,
+				revisionTag: this._revisionTag,
+				resource,
+				outputFormat,
+				query
+			});
+		} catch (error) {
+			if (error.cause !== 404) {
+				throw error;
+			}
+		}
+
+		return result;
 	}
 
 	async _loadCaptions() {
