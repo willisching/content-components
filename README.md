@@ -48,7 +48,16 @@ To run both linting and unit tests:
 npm test
 ```
 
+
+To run with local instance of bsi:
+```shell
+npm link
+cd ../<your-brightspace-integration-dir>
+npm link @Brightspace/content-components
+```
+
 To run visual-diff tests, see [visual-diff testing](https://github.com/BrightspaceUI/core#visual-diff-testing)
+
 
 ## Versioning & Releasing
 

@@ -377,6 +377,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			const revisionReference = {...draftToPublish.revisionReference};
 			if (revisionReference) {
 				delete revisionReference.transcodes;
+				delete revisionReference.thumbnails;
 			}
 
 			await this.client.content.updateRevision({
