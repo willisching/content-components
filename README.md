@@ -5,13 +5,21 @@ A collection of components used for content in Brightspace.
 ## Components
 
 ### Applications
-* [d2l-content-store](applications/d2l-content-store)
+* [d2l-content-store](applications/d2l-content-store) **(DEPRECATED - TO BE DELETED)**
 * [d2l-capture-central](applications/d2l-capture-central)
 
 ### Core
+* [d2l-content-activity-renderer](core/d2l-content-activity-renderer)
+* [d2l-content-media-player](core/d2l-content-media-player)
+* [d2l-content-properties](core/d2l-content-properties)
+* [d2l-content-renderer](core/d2l-content-renderer)
+* [d2l-content-scorm-player](core/d2l-content-scorm-player)
+* [d2l-content-selector](core/d2l-content-selector)
+* [d2l-content-selector-list](core/d2l-content-selector-list)
+* [d2l-content-topic-renderer](core/d2l-content-topic-renderer)
+* [d2l-content-topic-settings](core/d2l-content-topic-settings)
 * [d2l-content-uploader](core/d2l-content-uploader)
-* [d2l-content-viewer](core/d2l-content-viewer)
-* [d2l-captions-manager](core/d2l-captions-manager)
+* [d2l-content-viewer](core/d2l-content-viewer) **(DEPRECATED - TO BE DELETED)**
 
 ### Capture
 * [d2l-capture-producer](capture/d2l-capture-producer)
