@@ -27,60 +27,6 @@
     ]
   },
   {
-    "name": "ContentStore",
-    "source_dir": "applications/d2l-content-store/locales",
-    "source_match": "en\\.js$",
-    "output_file_path": "applications/d2l-content-store/locales/%LANG%.js",
-    "parser_plugin": {
-      "plugin": "parse_js"
-    },
-    "output_lang_rewrite": [
-      "ar-sa ar",
-      "da-dk da",
-      "de-de de",
-      "es-mx es",
-      "fr-ca fr-ca",
-      "fr-fr fr",
-      "es-es es",
-      "cy-gb cy",
-      "ja-jp ja",
-      "ko-kr ko",
-      "nl-nl nl",
-      "pt-br pt",
-      "sv-se sv",
-      "tr-tr tr",
-      "zh-cn zh",
-      "zh-tw zh-tw"
-    ]
-  },
-  {
-    "name": "ContentUploader",
-    "source_dir": "core/d2l-content-uploader/locales",
-    "source_match": "en\\.js$",
-    "output_file_path": "core/d2l-content-uploader/locales/%LANG%.js",
-    "parser_plugin": {
-      "plugin": "parse_js"
-    },
-    "output_lang_rewrite": [
-      "ar-sa ar",
-      "da-dk da",
-      "de-de de",
-      "es-mx es",
-      "fr-ca fr-ca",
-      "fr-fr fr",
-      "es-es es",
-      "cy-gb cy",
-      "ja-jp ja",
-      "ko-kr ko",
-      "nl-nl nl",
-      "pt-br pt",
-      "sv-se sv",
-      "tr-tr tr",
-      "zh-cn zh",
-      "zh-tw zh-tw"
-    ]
-  },
-  {
     "name": "CaptureProducer",
     "source_dir": "capture/d2l-capture-producer/locales",
     "source_match": "en\\.js$",
@@ -108,10 +54,10 @@
     ]
   },
   {
-    "name": "CaptionsManager",
-    "source_dir": "core/d2l-captions-manager/locales",
+    "name": "ContentMediaPlayer",
+    "source_dir": "core/d2l-content-media-player/lang",
     "source_match": "en\\.js$",
-    "output_file_path": "core/d2l-captions-manager/locales/%LANG%.js",
+    "output_file_path": "core/d2l-content-media-player/lang/%LANG%.js",
     "parser_plugin": {
       "plugin": "parse_js"
     },
@@ -135,10 +81,145 @@
     ]
   },
   {
-    "name": "ContentViewer",
-    "source_dir": "core/d2l-content-viewer/locales",
+    "name": "ContentProperties",
+    "source_dir": "core/d2l-content-properties/lang",
     "source_match": "en\\.js$",
-    "output_file_path": "core/d2l-content-viewer/locales/%LANG%.js",
+    "output_file_path": "core/d2l-content-properties/lang/%LANG%.js",
+    "parser_plugin": {
+      "plugin": "parse_js"
+    },
+    "output_lang_rewrite": [
+      "ar-sa ar",
+      "da-dk da",
+      "de-de de",
+      "es-mx es",
+      "fr-ca fr-ca",
+      "fr-fr fr",
+      "es-es es",
+      "cy-gb cy",
+      "ja-jp ja",
+      "ko-kr ko",
+      "nl-nl nl",
+      "pt-br pt",
+      "sv-se sv",
+      "tr-tr tr",
+      "zh-cn zh",
+      "zh-tw zh-tw"
+    ]
+  },
+  {
+    "name": "ContentRenderer",
+    "source_dir": "core/d2l-content-renderer/lang",
+    "source_match": "en\\.js$",
+    "output_file_path": "core/d2l-content-renderer/lang/%LANG%.js",
+    "parser_plugin": {
+      "plugin": "parse_js"
+    },
+    "output_lang_rewrite": [
+      "ar-sa ar",
+      "da-dk da",
+      "de-de de",
+      "es-mx es",
+      "fr-ca fr-ca",
+      "fr-fr fr",
+      "es-es es",
+      "cy-gb cy",
+      "ja-jp ja",
+      "ko-kr ko",
+      "nl-nl nl",
+      "pt-br pt",
+      "sv-se sv",
+      "tr-tr tr",
+      "zh-cn zh",
+      "zh-tw zh-tw"
+    ]
+  },
+  {
+    "name": "ContentSelector",
+    "source_dir": "core/d2l-content-selector/lang",
+    "source_match": "en\\.js$",
+    "output_file_path": "core/d2l-content-selector/lang/%LANG%.js",
+    "parser_plugin": {
+      "plugin": "parse_js"
+    },
+    "output_lang_rewrite": [
+      "ar-sa ar",
+      "da-dk da",
+      "de-de de",
+      "es-mx es",
+      "fr-ca fr-ca",
+      "fr-fr fr",
+      "es-es es",
+      "cy-gb cy",
+      "ja-jp ja",
+      "ko-kr ko",
+      "nl-nl nl",
+      "pt-br pt",
+      "sv-se sv",
+      "tr-tr tr",
+      "zh-cn zh",
+      "zh-tw zh-tw"
+    ]
+  },
+  {
+    "name": "ContentSelectorList",
+    "source_dir": "core/d2l-content-selector-list/lang",
+    "source_match": "en\\.js$",
+    "output_file_path": "core/d2l-content-selector-list/lang/%LANG%.js",
+    "parser_plugin": {
+      "plugin": "parse_js"
+    },
+    "output_lang_rewrite": [
+      "ar-sa ar",
+      "da-dk da",
+      "de-de de",
+      "es-mx es",
+      "fr-ca fr-ca",
+      "fr-fr fr",
+      "es-es es",
+      "cy-gb cy",
+      "ja-jp ja",
+      "ko-kr ko",
+      "nl-nl nl",
+      "pt-br pt",
+      "sv-se sv",
+      "tr-tr tr",
+      "zh-cn zh",
+      "zh-tw zh-tw"
+    ]
+  },
+  {
+    "name": "ContentTopicSettings",
+    "source_dir": "core/d2l-content-topic-settings/lang",
+    "source_match": "en\\.js$",
+    "output_file_path": "core/d2l-content-topic-settings/lang/%LANG%.js",
+    "parser_plugin": {
+      "plugin": "parse_js"
+    },
+    "output_lang_rewrite": [
+      "ar-sa ar",
+      "da-dk da",
+      "de-de de",
+      "es-mx es",
+      "fr-ca fr-ca",
+      "fr-fr fr",
+      "es-es es",
+      "cy-gb cy",
+      "ja-jp ja",
+      "ko-kr ko",
+      "nl-nl nl",
+      "pt-br pt",
+      "sv-se sv",
+      "tr-tr tr",
+      "zh-cn zh",
+      "zh-tw zh-tw"
+    ]
+  },
+  {
+    "name": "ContentUploader",
+    "source_dir": "core/d2l-content-uploader/locales",
+    "source_match": "en\\.js$",
+    "output_file_path": "core/d2l-content-uploader/locales/%LANG%.js",
     "parser_plugin": {
       "plugin": "parse_js"
     },
