@@ -20,13 +20,15 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 			context: { type: String },
 			contentId: { type: String },
 			tenantId: { type: String },
+			revisionTag: { type: String },
 
 			_resourceType: { type: String, attribute: false },
 			_isLoading: { type: Boolean, attribute: false},
 
-			_displayLatestVersion: { type: Boolean, attribute: false},
-			_gradeObjectAssociation: { type: Boolean, attribute: false},
-			_selectedGradingIndex: { type: Number, attribute: false},
+			_displayLatestVersion: { type: Boolean, attribute: false },
+			_gradeObjectAssociation: { type: Boolean, attribute: false },
+			_selectedGradingIndex: { type: Number, attribute: false },
+			_selectedPlayerIndex: { type: Number, attribute: false },
 		};
 	}
 
@@ -96,6 +98,11 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 		`];
 	}
 
+	static coursePlayers = [
+		'NewWindowPlayer',
+		'EmbeddedPlayer'
+	];
+
 	static gradingCalculationMethods = [
 		'Highest',
 		'Lowest',
@@ -119,6 +126,7 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 		this._displayLatestVersion = true;
 		this._gradeObjectAssociation = true;
 		this._selectedGradingIndex = 0;
+		this._selectedPlayerIndex = 0;
 	}
 
 	async connectedCallback() {
@@ -162,27 +170,27 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 						</h4>
 						<div class="setting-option">
 							<input
-								id="latest-version"
+								id="create-grade-item-yes"
 								class="d2l-input-radio"
 								name="grade-item"
 								type="radio"
 								?checked="${this._gradeObjectAssociation}"
 								@change=${this._handleGradeObjectAssociation(true)}
 							/>
-							<label htmlFor="use-embedded-player">
+							<label for="create-grade-item-yes">
 								<div class="label-body">${this.localize('yes')}</div>
 							</label>
 						</div>
 						<div class="setting-option">
 							<input
-								id="latest-version"
+								id="create-grade-item-no"
 								class="d2l-input-radio"
 								name="grade-item"
 								type="radio"
 								?checked="${!this._gradeObjectAssociation}"
 								@change=${this._handleGradeObjectAssociation(false)}
 							/>
-							<label htmlFor="use-embedded-player">
+							<label for="create-grade-item-no">
 								<div class="label-body">${this.localize('no')}</div>
 							</label>
 						</div>
@@ -221,20 +229,22 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 							name="version"
 							type="radio"
 							?checked=${this._displayLatestVersion}
+							@change=${this._handleVersionControlChange(true)}
 						/>
-						<label htmlFor="use-embedded-player">
+						<label for="latest-version">
 							<div class="label-body">${this.localize('displayLatestVersion')}</div>
 						</label>
 					</div>
 					<div class="setting-option">
 						<input
-							id="latest-version"
+							id="this-version"
 							class="d2l-input-radio"
 							name="version"
 							type="radio"
 							?checked=${!this._displayLatestVersion}
+							@change=${this._handleVersionControlChange(false)}
 						/>
-						<label htmlFor="use-embedded-player">
+						<label for="this-version">
 							<div class="label-body">${this.localize('displayThisVersion')}</div>
 						</label>
 					</div>
@@ -245,7 +255,12 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 							${this.localize('coursePlayer')}
 						</h4>
 						<div class="select-container">
-							<select>
+							<select
+								id="player-options"
+								aria-label=${this.localize('playerOptions')}
+								value=${this._selectedPlayerIndex}
+								@change=${this._handleSelectedPlayerChange}
+							>
 								<option value="0">${this.localize('openPlayerInNewWindow')}</option>
 								<option value="1">${this.localize('useEmbeddedPlayer')}</option>
 							</select>
@@ -265,9 +280,10 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 					}
 				},
 				contentId: this.content.id,
-				revisionTag: this.revisionTag,
+				revisionTag: this._displayLatestVersion ? 'latest' : this.revisionTag,
 				gradeCalculationMethod: ContentTopicSettings.gradingCalculationMethods[this._selectedGradingIndex],
-				gradeObjectAssociation: this._gradeObjectAssociation
+				gradeObjectAssociation: this._gradeObjectAssociation,
+				selectedPlayer: ContentTopicSettings.coursePlayers[this._selectedPlayerIndex],
 			}
 		};
 		return content;
@@ -285,6 +301,14 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 
 	_handleSelectedGrading(e) {
 		this._selectedGradingIndex = Number.parseInt(e.target.getAttribute('grading-index'));
+	}
+
+	_handleSelectedPlayerChange(e) {
+		this._selectedPlayerIndex = Number.parseInt(e.target.value);
+	}
+
+	_handleVersionControlChange(val) {
+		return () => this._displayLatestVersion = val;
 	}
 }
 

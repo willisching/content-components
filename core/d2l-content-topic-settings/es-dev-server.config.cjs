@@ -6,6 +6,15 @@ const contentServiceEndpointMap = {
 			description: 'Package description',
 			sharedWith: ['ou:6606'],
 			revisions: [{
+				id: '0',
+				options: {
+					playerShowNavBar: false,
+					reviewRetake: true,
+					recommendedPlayer: 1,
+				},
+				type: 'Scorm',
+			}, {
+				id: '1',
 				options: {
 					playerShowNavBar: false,
 					reviewRetake: true,
@@ -23,6 +32,7 @@ const contentServiceEndpointMap = {
 			description: 'Package description',
 			sharedWith: ['ou:6606'],
 			revisions: [{
+				id: '2',
 				options: {
 					playerShowNavBar: false,
 					reviewRetake: true,
@@ -33,10 +43,6 @@ const contentServiceEndpointMap = {
 		},
 		status: 200
 	},
-	'/contentservice/api/97dc5895-cd3b-465f-8d5b-3c8d7e1bb6a7/topic': {
-		body: {},
-		status: 200
-	}
 };
 
 module.exports = {

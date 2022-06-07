@@ -17,4 +17,5 @@ export default {
 	noGradeItemCreationNote: 'Note: no grade item will be created even if the SCORM/xAPI package posts the score.',
 	add: 'Add',
 	back: 'Back',
+	playerOptions: 'Player Options'
 };
