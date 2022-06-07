@@ -28,7 +28,7 @@ class RecycleBinList extends CaptureCentralList {
 		return html`
 			<recycle-bin-list-header @change-sort=${this.changeSort}></recycle-bin-list-header>
 			<d2l-list>
-				<div id="d2l-content-store-list">
+				<div id="d2l-capture-central-list">
 					${this.renderNotFound()}
 					${this._videos.map(item => this.renderRecycleBinItem(item))}
 					${this.renderGhosts()}
@@ -56,7 +56,7 @@ class RecycleBinList extends CaptureCentralList {
 	}
 
 	onWindowScroll() {
-		const contentListElem = this.shadowRoot.querySelector('#d2l-content-store-list');
+		const contentListElem = this.shadowRoot.querySelector('#d2l-capture-central-list');
 		if (contentListElem) {
 			const bottom = contentListElem.getBoundingClientRect().top + window.pageYOffset + contentListElem.clientHeight;
 			const scrollY = window.pageYOffset + window.innerHeight;
