@@ -43,7 +43,7 @@ class ContentList extends CaptureCentralList {
 			></content-list-header>
 			<content-file-drop @file-drop-error=${this.fileDropErrorHandler}>
 			<d2l-list>
-				<div id="d2l-content-store-list">
+				<div id="d2l-capture-central-list">
 					${this.renderNotFound()}
 					${this._videos.map(item => this.renderContentItem(item))}
 					${this.renderGhosts()}
