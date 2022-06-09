@@ -7,11 +7,17 @@ A collection of components used for content in Brightspace.
 ### Applications
 * [d2l-content-store](applications/d2l-content-store)
 * [d2l-capture-central](applications/d2l-capture-central)
+* [d2l-content-uploader](applications/d2l-content-uploader)
+
 
 ### Core
-* [d2l-content-uploader](core/d2l-content-uploader)
 * [d2l-content-viewer](core/d2l-content-viewer)
 * [d2l-captions-manager](core/d2l-captions-manager)
+* [d2l-bulk-complete](core/bulk-complete)
+* [d2l-drop-uploader](core/drop-uploader)
+* [d2l-topic-preview](core/topic-preview)
+* [d2l-upload-progress](core/upload-progress)
+
 
 ### Capture
 * [d2l-capture-producer](capture/d2l-capture-producer)

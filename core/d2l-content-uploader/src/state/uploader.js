@@ -1,3 +1,5 @@
+// copy of /applications/d2l-content-uploader; need to keep until smart curriculum uploader imports are changed
+
 import { action, decorate, flow, observable } from 'mobx';
 import resolveWorkerError from '../util/resolve-worker-error.js';
 import { S3Uploader } from '../../../../util/s3-uploader.js';

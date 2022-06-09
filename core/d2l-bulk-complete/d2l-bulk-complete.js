@@ -2,9 +2,10 @@ import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/colors/colors.js';
 import { css, html, LitElement } from 'lit-element';
 import { bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
-import { InternalLocalizeMixin } from './.src/mixins/internal-localize-mixin.js';
+import { RevisionLoaderMixin } from '../mixins/revision-loader-mixin.js';
+import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
 
-export class BulkComplete extends InternalLocalizeMixin(LitElement) {
+export class BulkComplete extends RevisionLoaderMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
 			fileName: { type: String, attribute: 'file-name', reflect: true },
@@ -12,7 +13,7 @@ export class BulkComplete extends InternalLocalizeMixin(LitElement) {
 			completedFiles: { type: Number, attribute: 'completed-files' },
 			bulkErrorMessages: { type: Object, attribute: 'bulk-error-messages' },
 
-			_successfulBodyHide: { type: Boolean, attribute: false },
+			_hasFailures: { type: Boolean, attribute: false },
 			_failedFiles: { type: Number, attribute: false },
 		};
 	}
@@ -74,38 +75,36 @@ export class BulkComplete extends InternalLocalizeMixin(LitElement) {
 	async connectedCallback() {
 		super.connectedCallback();
 		this._failedFiles = this.totalFiles - this.completedFiles;
-		this._successfulBodyHide = this._failedFiles > 0;
+		this._hasFailures = this._failedFiles > 0;
 	}
 
 	render() {
 		return html`
 			<div id="file-details-container">
-				<p class="d2l-body-standard">${this.completedFiles === this.totalFiles ? this.localize('uploadBulkFinished', { totalFiles: this.totalFiles }) : this.localize('uploadBulkFinishedWithErrors', { totalFiles: this.totalFiles, completedFiles: this.completedFiles })}</p>
-			</div>
-			${this._successfulBodyHide ? html`
-				<div class="upload-failed-body">
-					<p class="failed-files-info">${this._failedFiles > 1 ? this.localize('failedUploads', { _failedFiles: this._failedFiles }) : this.localize('failedUpload')}</p>
-					<div class="failed-file-list">
-						${Object.keys(this.bulkErrorMessages).map(file => html`<div class="failed-file"><p class="failed-file-name">${file}</p><p class="failed-file-message">${this.bulkErrorMessages[file]}</p></div>`)}
-					</div>
-					${this._failedFiles === this.totalFiles ? html`
-						<d2l-button
-							description=${this.localize('back')}
-							@click=${this.onBack}>
-							${this.localize('back')}
-						</d2l-button>
-					`
-		: html`
-			<d2l-button
-				description=${this.localize('continue')}
-				@click=${this.onContinue}>
-				${this.localize('continue')}
-			</d2l-button>
-		`
-}
+					<p class="d2l-body-standard">${this.completedFiles === this.totalFiles ? this.localize('uploadBulkFinished', { totalFiles: this.totalFiles }) : this.localize('uploadBulkFinishedWithErrors', { totalFiles: this.totalFiles, completedFiles: this.completedFiles })}</p>
 				</div>
-			`
-		: html`
+			${this._hasFailures ? this._renderFailures() : this._renderContinue()}
+		`;
+	}
+
+	onBack() {
+		this.dispatchEvent(new CustomEvent('upload-view'));
+	}
+
+	onContinue() {
+		this._hasFailures = false;
+	}
+
+	onDefaultProperties() {
+		this.dispatchEvent(new CustomEvent('default-properties'));
+	}
+
+	onEditProperties() {
+		this.dispatchEvent(new CustomEvent('edit-properties'));
+	}
+
+	_renderContinue() {
+		return html`
 			<div id="upload-successful-body">
 				<div id="settings-options">
 					<d2l-button
@@ -124,25 +123,33 @@ export class BulkComplete extends InternalLocalizeMixin(LitElement) {
 					</d2l-button>
 				</div>
 			</div>
-		`
-}
 		`;
 	}
 
-	onBack() {
-		this.dispatchEvent(new CustomEvent('upload-view'));
-	}
-
-	onContinue() {
-		this._successfulBodyHide = false;
-	}
-
-	onDefaultProperties() {
-		this.dispatchEvent(new CustomEvent('default-properties'));
-	}
-
-	onEditProperties() {
-		this.dispatchEvent(new CustomEvent('edit-properties'));
+	_renderFailures() {
+		return html`
+			<div class="upload-failed-body">
+				<p class="failed-files-info">${this._failedFiles > 1 ? this.localize('failedUploads', { _failedFiles: this._failedFiles }) : this.localize('failedUpload')}</p>
+				<div class="failed-file-list">
+					${Object.keys(this.bulkErrorMessages).map(file => html`<div class="failed-file"><p class="failed-file-name">${file}</p><p class="failed-file-message">${this.bulkErrorMessages[file]}</p></div>`)}
+				</div>
+				${this._failedFiles === this.totalFiles ? html`
+					<d2l-button
+						description=${this.localize('back')}
+						@click=${this.onBack}>
+						${this.localize('back')}
+					</d2l-button>
+				`
+		: html`
+			<d2l-button
+				description=${this.localize('continue')}
+				@click=${this.onContinue}>
+				${this.localize('continue')}
+			</d2l-button>
+		`
+}
+					</div>
+		`;
 	}
 }
 

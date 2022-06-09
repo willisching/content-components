@@ -1,1 +1,1 @@
-import './d2l-content-uploader/d2l-content-uploader';
+import '../applications/d2l-content-uploader/d2l-content-uploader.js';

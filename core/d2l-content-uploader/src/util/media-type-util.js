@@ -1,3 +1,5 @@
+// copy of /applications/d2l-content-uploader; need to keep until smart curriculum uploader imports are changed
+
 export const supportedTypeExtensions = {
 	Audio: ['.m4a', '.mp3', '.ogg', '.wav', '.wma'],
 	Video: ['.avi', '.f4v', '.flv', '.m4v', '.mov', '.mp4', '.webm', '.wmv'],
