@@ -95,8 +95,8 @@ class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {
 	render() {
 		return html`
 			<div class="d2l-video-producer-chapters">
-				<h3 class="d2l-heading-3 d2l-video-producer-chapters-heading">
-					<div class="d2l-body-small ${this._editingOverrides ? '' : 'hidden'}">
+				<h3 class="d2l-heading-3 d2l-video-producer-chapters-heading ${this._editingOverrides ? '' : 'hidden'}">
+					<div class="d2l-body-small">
 						${this.localize('editingOverrides', { language: this.selectedLanguage && this.selectedLanguage.name })}
 					</div>
 				</h3>

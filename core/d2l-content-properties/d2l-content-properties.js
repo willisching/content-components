@@ -328,8 +328,6 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 			options.reviewRetake = this._reviewRetake;
 		}
 
-		console.log(options);
-
 		let sharedWith = this.content.sharedWith;
 
 		if (this._shared !== null) {

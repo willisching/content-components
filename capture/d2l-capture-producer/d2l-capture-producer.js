@@ -377,6 +377,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			const revisionReference = {...draftToPublish.revisionReference};
 			if (revisionReference) {
 				delete revisionReference.transcodes;
+				delete revisionReference.thumbnails;
 			}
 
 			await this.client.content.updateRevision({
@@ -845,7 +846,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	_renderSavedUnsavedIndicator() {
-		let feedbackColor = 'var(--d2l-color-feedback-success)';
+		let feedbackColor = 'var(--d2l-color-olivine-minus-1)';
 		let icon = 'tier1:check-circle';
 		let langterm = 'saved';
 		if (this._unsavedChanges) {

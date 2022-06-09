@@ -5,19 +5,26 @@ A collection of components used for content in Brightspace.
 ## Components
 
 ### Applications
-* [d2l-content-store](applications/d2l-content-store)
 * [d2l-capture-central](applications/d2l-capture-central)
 * [d2l-content-uploader](applications/d2l-content-uploader)
 
 
 ### Core
-* [d2l-content-viewer](core/d2l-content-viewer)
 * [d2l-captions-manager](core/d2l-captions-manager)
 * [d2l-bulk-complete](core/bulk-complete)
 * [d2l-drop-uploader](core/drop-uploader)
 * [d2l-topic-preview](core/topic-preview)
 * [d2l-upload-progress](core/upload-progress)
-
+* [d2l-content-activity-renderer](core/d2l-content-activity-renderer)
+* [d2l-content-media-player](core/d2l-content-media-player)
+* [d2l-content-properties](core/d2l-content-properties)
+* [d2l-content-renderer](core/d2l-content-renderer)
+* [d2l-content-scorm-player](core/d2l-content-scorm-player)
+* [d2l-content-selector](core/d2l-content-selector)
+* [d2l-content-selector-list](core/d2l-content-selector-list)
+* [d2l-content-topic-renderer](core/d2l-content-topic-renderer)
+* [d2l-content-topic-settings](core/d2l-content-topic-settings)
+* [d2l-content-viewer](core/d2l-content-viewer) **(DEPRECATED - TO BE DELETED)**
 
 ### Capture
 * [d2l-capture-producer](capture/d2l-capture-producer)
@@ -46,7 +53,16 @@ To run both linting and unit tests:
 npm test
 ```
 
+
+To run with local instance of bsi:
+```shell
+npm link
+cd ../<your-brightspace-integration-dir>
+npm link @Brightspace/content-components
+```
+
 To run visual-diff tests, see [visual-diff testing](https://github.com/BrightspaceUI/core#visual-diff-testing)
+
 
 ## Versioning & Releasing
 

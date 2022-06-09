@@ -37,7 +37,7 @@ export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixi
 				word-break: break-word;
 			}
 
-			#d2l-content-store-list {
+			#d2l-capture-central-list {
 				padding-top: 1px;
 			}
 
@@ -211,7 +211,7 @@ export class CaptureCentralList extends DependencyRequester(InternalLocalizeMixi
 	}
 
 	onWindowScroll() {
-		const contentListElem = this.shadowRoot.querySelector('#d2l-content-store-list');
+		const contentListElem = this.shadowRoot.querySelector('#d2l-capture-central-list');
 		if (contentListElem) {
 			const bottom = contentListElem.getBoundingClientRect().top + window.pageYOffset + contentListElem.clientHeight;
 			const scrollY = window.pageYOffset + window.innerHeight;
