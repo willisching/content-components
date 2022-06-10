@@ -9,9 +9,9 @@ const sauceLabsOptions = {
 };
 
 const sauceLabsCapabilities = {
-	name: 'content-components unit tests',
+	name: '@d2l/content-components unit tests',
 	// eslint-disable-next-line no-undef
-	build: `content-components ${process.env.GITHUB_REF ?? 'local'} build ${process.env.GITHUB_RUN_NUMBER ?? ''}`
+	build: `@d2l/content-components ${process.env.GITHUB_REF ?? 'local'} build ${process.env.GITHUB_RUN_NUMBER ?? ''}`
 };
 
 const sauceLabsLauncher = createSauceLabsLauncher(

@@ -52,7 +52,7 @@ To run with local instance of bsi:
 ```shell
 npm link
 cd ../<your-brightspace-integration-dir>
-npm link @Brightspace/content-components
+npm link @d2l/content-components
 ```
 
 To run visual-diff tests, see [visual-diff testing](https://github.com/BrightspaceUI/core#visual-diff-testing)
@@ -60,7 +60,7 @@ To run visual-diff tests, see [visual-diff testing](https://github.com/Brightspa
 
 ## Versioning & Releasing
 
-> TL;DR: Commits prefixed with `fix:` and `feat:` will trigger patch and minor releases when merged to `main`. Read on for more details...
+> TL;DR: Commits prefixed with `fix:` and `feat:` will trigger patch and minor releases when merged to `master`. Read on for more details...
 
 The [semantic-release GitHub Action](https://github.com/BrightspaceUI/actions/tree/main/semantic-release) is called from the `release.yml` GitHub Action workflow to handle version changes and releasing.
 
@@ -85,6 +85,7 @@ When a release is triggered, it will:
 * Update the version in `package.json`
 * Tag the commit
 * Create a GitHub release (including release notes)
+* Deploy a new package to CodeArtifact
 
 ### Releasing from Maintenance Branches
 

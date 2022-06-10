@@ -1,5 +1,5 @@
 {
-  "name": "@brightspace/content-components",
+  "name": "@d2l/content-components",
   "description": "Web components for content in Brightspace",
   "version": "3.18.0",
   "type": "module",
@@ -72,5 +72,15 @@
     "superagent": "^3",
     "superagent-d2l-session-auth": "^2.0.1",
     "webvtt-parser": "^2.1.2"
+  },
+  "files": [
+    "/applications",
+    "/capture",
+    "/core",
+    "/util",
+    "content-components.serge.json"
+  ],
+  "publishConfig": {
+    "registry": "https://d2l-569998014834.d.codeartifact.us-east-1.amazonaws.com/npm/private/"
   }
 }
