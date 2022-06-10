@@ -51,5 +51,13 @@ class ContentTopicRenderer extends LitElement {
 		`;
 	}
 
+	reloadResources(reloadRevision = true) {
+		this.renderer.reloadResources(reloadRevision);
+	}
+
+	get renderer() {
+		return this.renderRoot.querySelector('#renderer');
+	}
+
 }
 customElements.define('d2l-content-topic-renderer', ContentTopicRenderer);
