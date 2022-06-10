@@ -1,5 +1,3 @@
-// copy of /applications/d2l-content-uploader; need to keep until smart curriculum uploader imports are changed
-
 import * as querystring from '@chaitin/querystring';
 import auth from 'd2l-fetch-auth/src/unframed/index.js';
 import { d2lfetch } from 'd2l-fetch/src/index.js';

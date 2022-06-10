@@ -1,5 +1,3 @@
-// copy of /applications/d2l-content-uploader; need to keep until smart curriculum uploader imports are changed
-
 const PREFIX = 'workerError';
 const DEFAULT_ERROR_TYPE = 'UploadFailed';
 
@@ -17,4 +15,6 @@ const getWorkerErrorType = details => {
 	return DEFAULT_ERROR_TYPE;
 };
 
-export default details => `${PREFIX}${getWorkerErrorType(details)}`;
+export default details => {
+	return `${PREFIX}${getWorkerErrorType(details)}`;
+};

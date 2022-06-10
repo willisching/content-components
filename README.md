@@ -6,7 +6,6 @@ A collection of components used for content in Brightspace.
 
 ### Applications
 * [d2l-capture-central](applications/d2l-capture-central)
-* [d2l-content-uploader](applications/d2l-content-uploader)
 
 
 ### Core
@@ -24,6 +23,7 @@ A collection of components used for content in Brightspace.
 * [d2l-content-selector-list](core/d2l-content-selector-list)
 * [d2l-content-topic-renderer](core/d2l-content-topic-renderer)
 * [d2l-content-topic-settings](core/d2l-content-topic-settings)
+* [d2l-content-uploader](core/d2l-content-uploader)
 * [d2l-content-viewer](core/d2l-content-viewer) **(DEPRECATED - TO BE DELETED)**
 
 ### Capture

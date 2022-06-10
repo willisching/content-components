@@ -8,9 +8,9 @@ import UserBrightspaceClient from './src/util/user-brightspace-client.js';
 import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
 import { Uploader } from './src/state/uploader.js';
 
-import '../../core/d2l-drop-uploader.js';
-import '../../core/d2l-topic-preview.js';
-import '../../core/d2l-upload-progress.js';
+import '../d2l-drop-uploader.js';
+import '../d2l-topic-preview.js';
+import '../d2l-upload-progress.js';
 
 const VIEW = Object.freeze({
 	UPLOAD: 'UPLOAD',

@@ -55,9 +55,9 @@
   },
   {
     "name": "ContentUploader",
-    "source_dir": "applications/d2l-content-uploader/locales",
+    "source_dir": "core/d2l-content-uploader/locales",
     "source_match": "en\\.js$",
-    "output_file_path": "applications/d2l-content-uploader/locales/%LANG%.js",
+    "output_file_path": "core/d2l-content-uploader/locales/%LANG%.js",
     "parser_plugin": {
       "plugin": "parse_js"
     },
