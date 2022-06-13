@@ -1,5 +1,8 @@
-const SUPPORTED_AUDIO_EXTENSIONS = ['.m4a', '.mp3', '.ogg', '.wav', '.wma'];
-const SUPPORTED_VIDEO_EXTENSIONS = ['.avi', '.f4v', '.flv', '.m4v', '.mov', '.mp4', '.webm', '.wmv'];
+export const supportedTypeExtensions = {
+	Audio: ['.m4a', '.mp3', '.ogg', '.wav', '.wma'],
+	Video: ['.avi', '.f4v', '.flv', '.m4v', '.mov', '.mp4', '.webm', '.wmv'],
+	Scorm: ['.zip'],
+};
 
 export function getExtension(filePath) {
 	const pathParts = filePath.split('.');
@@ -8,7 +11,7 @@ export function getExtension(filePath) {
 }
 
 export function getSupportedExtensions() {
-	return [...SUPPORTED_AUDIO_EXTENSIONS, ...SUPPORTED_VIDEO_EXTENSIONS];
+	return Object.values(supportedTypeExtensions).flat(1);
 }
 
 export function isSupported(filePath) {
@@ -16,5 +19,9 @@ export function isSupported(filePath) {
 }
 
 export function isAudioType(filePath) {
-	return SUPPORTED_AUDIO_EXTENSIONS.includes(getExtension(filePath));
+	return supportedTypeExtensions.Audio.includes(getExtension(filePath));
+}
+
+export function isVideoType(filePath) {
+	return supportedTypeExtensions.Video.includes(getExtension(filePath));
 }

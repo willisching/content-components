@@ -1,4 +1,4 @@
-import '@brightspace-ui/core/components/button/button-subtle';
+import '@brightspace-ui/core/components/button/button-subtle.js';
 import '@brightspace-ui/core/components/inputs/input-text.js';
 import '@brightspace-ui-labs/media-player/media-player.js';
 import { css, html, LitElement } from 'lit-element';
@@ -6,11 +6,10 @@ import { ifDefined } from 'lit-html/directives/if-defined.js';
 import { bodyCompactStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { RequesterMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
-import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin';
 import { getComposedActiveElement } from '@brightspace-ui/core/helpers/focus.js';
-import { parse } from '../util/d2lrn';
-import '../../../../capture/d2l-capture-producer.js';
-import '../../../d2l-content-renderer.js';
+import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
+import '../../capture/d2l-capture-producer.js';
+import '../d2l-content-renderer.js';
 
 export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
@@ -19,7 +18,8 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 			canManage: { type: Boolean, attribute: 'can-manage' },
 			canUpload: { type: Boolean, attribute: 'can-upload' },
 			resource: { type: String, attribute: true },
-			topicId: { type: String, attribute: 'topic-id' }
+			topicId: { type: String, attribute: 'topic-id' },
+			contentId: { type: String, attribute: 'content-id' },
 		};
 	}
 
@@ -50,13 +50,10 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 
 	constructor() {
 		super();
-		this._contentId = null;
 		this._advancedEditingAvailable = false;
 	}
 
 	render() {
-		const {contentId} = parse(this.resource);
-		this._contentId = contentId;
 		const showAdvancedEditing = this.canManage && this._advancedEditingAvailable;
 		return html`
 			<div id="container">
@@ -103,7 +100,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 	}
 
 	async _onAdvancedEditing() {
-		const location = `/d2l/le/contentservice/producer/${this._contentId}/view`;
+		const location = `/d2l/le/contentservice/producer/${this.contentId}/view`;
 
 		const dialogResult = await D2L.LP.Web.UI.Desktop.MasterPages.Dialog.Open(
 			getComposedActiveElement(),
@@ -124,7 +121,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 	_onChangeFile() {
 		this.dispatchEvent(new CustomEvent('cancel', {
 			bubbles: true,
-			composed: true
+			composed: true,
 		}));
 	}
 
@@ -133,4 +130,4 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 	}
 }
 
-customElements.define('d2l-content-uploader-preview', Preview);
+customElements.define('d2l-topic-preview', Preview);

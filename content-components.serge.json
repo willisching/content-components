@@ -241,5 +241,113 @@
       "zh-cn zh",
       "zh-tw zh-tw"
     ]
+  },
+  {
+    "name": "BulkComplete",
+    "source_dir": "core/d2l-bulk-complete/locales",
+    "source_match": "en\\.js$",
+    "output_file_path": "core/d2l-bulk-complete/locales/%LANG%.js",
+    "parser_plugin": {
+      "plugin": "parse_js"
+    },
+    "output_lang_rewrite": [
+      "ar-sa ar",
+      "da-dk da",
+      "de-de de",
+      "es-mx es",
+      "fr-ca fr-ca",
+      "fr-fr fr",
+      "es-es es",
+      "cy-gb cy",
+      "ja-jp ja",
+      "ko-kr ko",
+      "nl-nl nl",
+      "pt-br pt",
+      "sv-se sv",
+      "tr-tr tr",
+      "zh-cn zh",
+      "zh-tw zh-tw"
+    ]
+  },
+  {
+    "name": "DropUploader",
+    "source_dir": "core/d2l-drop-uploader/locales",
+    "source_match": "en\\.js$",
+    "output_file_path": "core/d2l-drop-uploader/locales/%LANG%.js",
+    "parser_plugin": {
+      "plugin": "parse_js"
+    },
+    "output_lang_rewrite": [
+      "ar-sa ar",
+      "da-dk da",
+      "de-de de",
+      "es-mx es",
+      "fr-ca fr-ca",
+      "fr-fr fr",
+      "es-es es",
+      "cy-gb cy",
+      "ja-jp ja",
+      "ko-kr ko",
+      "nl-nl nl",
+      "pt-br pt",
+      "sv-se sv",
+      "tr-tr tr",
+      "zh-cn zh",
+      "zh-tw zh-tw"
+    ]
+  },
+  {
+    "name": "TopicPreview",
+    "source_dir": "core/d2l-topic-preview/locales",
+    "source_match": "en\\.js$",
+    "output_file_path": "core/d2l-topic-preview/locales/%LANG%.js",
+    "parser_plugin": {
+      "plugin": "parse_js"
+    },
+    "output_lang_rewrite": [
+      "ar-sa ar",
+      "da-dk da",
+      "de-de de",
+      "es-mx es",
+      "fr-ca fr-ca",
+      "fr-fr fr",
+      "es-es es",
+      "cy-gb cy",
+      "ja-jp ja",
+      "ko-kr ko",
+      "nl-nl nl",
+      "pt-br pt",
+      "sv-se sv",
+      "tr-tr tr",
+      "zh-cn zh",
+      "zh-tw zh-tw"
+    ]
+  },
+  {
+    "name": "UploadProgress",
+    "source_dir": "core/d2l-upload-progress/locales",
+    "source_match": "en\\.js$",
+    "output_file_path": "core/d2l-upload-progress/locales/%LANG%.js",
+    "parser_plugin": {
+      "plugin": "parse_js"
+    },
+    "output_lang_rewrite": [
+      "ar-sa ar",
+      "da-dk da",
+      "de-de de",
+      "es-mx es",
+      "fr-ca fr-ca",
+      "fr-fr fr",
+      "es-es es",
+      "cy-gb cy",
+      "ja-jp ja",
+      "ko-kr ko",
+      "nl-nl nl",
+      "pt-br pt",
+      "sv-se sv",
+      "tr-tr tr",
+      "zh-cn zh",
+      "zh-tw zh-tw"
+    ]
   }
 ]

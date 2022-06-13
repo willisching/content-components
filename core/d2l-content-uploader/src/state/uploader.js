@@ -2,13 +2,13 @@ import { action, decorate, flow, observable } from 'mobx';
 import resolveWorkerError from '../util/resolve-worker-error.js';
 import { S3Uploader } from '../../../../util/s3-uploader.js';
 import { randomizeDelay, sleep } from '../../../../util/delay.js';
-import { getExtension } from '../util/media-type-util.js';
+import { getExtension, isAudioType, isVideoType } from '../util/media-type-util.js';
 
 const UPLOAD_FAILED_ERROR = 'workerErrorUploadFailed';
 
 /* eslint-disable no-unused-vars */
 export class Uploader {
-	constructor({ apiClient, onSuccess, onError, waitForProcessing, onProgress = (progress) => {}}) {
+	constructor({ apiClient, onSuccess, onError, waitForProcessing, onProgress = progress => {} }) {
 		/* eslint-enable no-unused-vars */
 		this.apiClient = apiClient;
 		this.onSuccess = onSuccess;
@@ -16,12 +16,14 @@ export class Uploader {
 		this.waitForProcessing = waitForProcessing;
 		this.onProgress = onProgress;
 		this.uploadProgress = 0;
+		this.lastProgressPosition = 0;
+		this.totalFiles = 1;
 
 		/* eslint-disable no-invalid-this */
-		this.uploadFile = flow((function * (file, title) {
-			yield this._uploadWorkflowAsync(file, title);
-			/* eslint-enable no-invalid-this */
+		this.uploadFile = flow((function * (file, title, fileType, totalFiles = 1) {
+			yield this._uploadWorkflowAsync(file, title, totalFiles);
 		}));
+		/* eslint-enable no-invalid-this */
 	}
 
 	async cancelUpload() {
@@ -49,7 +51,8 @@ export class Uploader {
 				contentId: this.content.id,
 				revisionId: this.revision.id,
 			});
-			this.uploadProgress = 50 + ((progress.percentComplete || 0) / 2);
+
+			this.uploadProgress = this.lastProgressPosition + ((50 + ((progress.percentComplete || 0) / 2)) / this.totalFiles);
 			this.onProgress(this.uploadProgress);
 			if (progress.ready) {
 				this.onSuccess(this.revision.d2lrn);
@@ -74,18 +77,24 @@ export class Uploader {
 		await this._monitorProgressAsync(this.content, this.revision);
 	}
 
-	async _uploadWorkflowAsync(file, title) {
+	async _uploadWorkflowAsync(file, title, totalFiles) {
 		try {
+			this.totalFiles = totalFiles;
 			const extension = getExtension(file.name);
-			this.content = await this.apiClient.createContent({
+			const createContentBody = {
 				title,
-			});
+			};
+			if (isAudioType(file.name) || isVideoType(file.name)) {
+				createContentBody.clientApp = 'LmsContent';
+			}
+			this.content = await this.apiClient.createContent(createContentBody);
 			this.revision = await this.apiClient.createRevision(
 				this.content.id,
 				{
 					extension,
 				},
 			);
+			this.lastProgressPosition = this.uploadProgress;
 			this.s3Uploader = new S3Uploader({
 				file,
 				key: this.revision.s3Key,
@@ -96,7 +105,7 @@ export class Uploader {
 						contentDisposition: 'auto',
 					}),
 				onProgress: progress => {
-					this.uploadProgress = progress / (this.waitForProcessing ? 2 : 1);
+					this.uploadProgress = this.lastProgressPosition + (progress / (this.waitForProcessing ? 2 : 1) / totalFiles);
 					this.onProgress(this.uploadProgress);
 				},
 			});

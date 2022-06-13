@@ -9,24 +9,27 @@ import { inputLabelStyles } from '@brightspace-ui/core/components/inputs/input-l
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { css, html, LitElement } from 'lit-element';
 import { RequesterMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
-import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin';
-import { getSupportedExtensions, isSupported } from '../util/media-type-util';
+import { isSupported, supportedTypeExtensions } from '../d2l-content-uploader/src/util/media-type-util.js';
+import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
 
 export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
 		return {
 			errorMessage: { type: String, attribute: 'error-message', reflect: true },
 			maxFileSizeInBytes: { type: Number, attribute: 'max-file-size' },
+			enableBulkUpload: { type: Boolean, attribute: 'enable-bulk-upload' },
+			supportedTypes: { type: Array },
 		};
 	}
 
 	static get styles() {
-		return [ bodySmallStyles,
+		return [bodySmallStyles,
 			bodyStandardStyles,
 			heading2Styles,
 			bodyCompactStyles,
 			selectStyles,
-			inputLabelStyles, css`
+			inputLabelStyles,
+			css`
 			file-drop {
 				display: block;
 				border: 2px dashed var(--d2l-color-corundum);
@@ -80,8 +83,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 
 	constructor() {
 		super();
-		this._supportedTypes = getSupportedExtensions();
-		this.enableFileDrop = false;
+		this._maxNumberOfFiles = 50;
 	}
 
 	async connectedCallback() {
@@ -95,7 +97,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 	render() {
 		return html`
 			<div class="upload-container">
-				<file-drop @filedrop=${this.onFileDrop}>
+				<file-drop @filedrop=${this.onFileDrop} ?multiple=${this.enableBulkUpload}>
 					<div class="file-drop-content-container">
 						<h2 class="d2l-heading-2">${this.localize('dropAudioVideoFile')}</h2>
 						<p class="d2l-body-standard">${this.localize('or')}</p>
@@ -107,20 +109,21 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 							<input
 								id="file-select"
 								type="file"
-								accept=${this._supportedTypes.join(',')}
+								accept=${this.supportedTypes.flatMap(mediaType => supportedTypeExtensions[mediaType])}
 								@change=${this.onFileInputChange}
+								?multiple=${this.enableBulkUpload}
 							/>
 						</d2l-button>
 						${this.errorMessage ? html`<p id="error-message" class="d2l-body-compact">${this.errorMessage}&nbsp;</p>` : ''}
 					</div>
 				</file-drop>
-				<p>${this.localize('fileSizeLimitMessage', {localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes)})}</p>
+				<p>${this.enableBulkUpload ? this.localize('maxNumberOfFiles', { _maxNumberOfFiles: this._maxNumberOfFiles }) : this.localize('fileSizeLimitMessage', { localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes) })}</p>
 			</div>
 		`;
 	}
 
 	onBrowseClick() {
-		this.shadowRoot.getElementById('file-select').click();
+		this.shadowRoot.querySelector('#file-select').click();
 	}
 
 	onFileDrop(event) {
@@ -132,45 +135,59 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 	}
 
 	processFiles(files) {
-		if (files.length !== 1) {
+		if (files.length !== 1 && !this.enableBulkUpload) {
 			this.dispatchEvent(new CustomEvent('file-drop-error', {
 				detail: {
-					message: this.localize('mayOnlyUpload1File')
+					message: this.localize('mayOnlyUpload1File'),
 				},
 				bubbles: true,
-				composed: true
+				composed: true,
 			}));
 			return;
 		}
 
-		const file = files[0];
-		if (!isSupported(file.name)) {
-			this.dispatchEvent(new CustomEvent('file-error', {
+		if (this.enableBulkUpload && files.length > this._maxNumberOfFiles) {
+			this.dispatchEvent(new CustomEvent('file-drop-error', {
 				detail: {
-					message: this.localize('invalidFileType')
+					message: this.localize('tooManyFiles'),
 				},
 				bubbles: true,
-				composed: true
+				composed: true,
 			}));
 			return;
 		}
-		if (file.size > this.maxFileSizeInBytes) {
-			this.dispatchEvent(new CustomEvent('file-error', {
-				detail: {
-					message: this.localize('fileTooLarge', {localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes)})
-				},
-				bubbles: true,
-				composed: true
-			}));
-			return;
+
+		const acceptedFiles = [];
+		for (const file of files) {
+			if (!isSupported(file.name)) {
+				this.dispatchEvent(new CustomEvent('file-error', {
+					detail: {
+						message: this.localize('invalidFileType'),
+					},
+					bubbles: true,
+					composed: true,
+				}));
+				return;
+			}
+			if (file.size > this.maxFileSizeInBytes) {
+				this.dispatchEvent(new CustomEvent('file-error', {
+					detail: {
+						message: this.localize('fileTooLarge', { localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes) }),
+					},
+					bubbles: true,
+					composed: true,
+				}));
+				return;
+			}
+			acceptedFiles.push(file);
 		}
 
 		this.dispatchEvent(new CustomEvent('file-change', {
-			detail: { file },
+			detail: { acceptedFiles },
 			bubbles: true,
-			composed: true
+			composed: true,
 		}));
 	}
 }
 
-customElements.define('d2l-content-uploader-upload', Upload);
+customElements.define('d2l-drop-uploader', Upload);

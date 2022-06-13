@@ -1,7 +1,7 @@
 import * as querystring from '@chaitin/querystring';
 import auth from 'd2l-fetch-auth/src/unframed/index.js';
 import { d2lfetch } from 'd2l-fetch/src/index.js';
-import { parse } from './d2lrn.js';
+import { parse } from '../../../../util/d2lrn.js';
 
 export default class ContentServiceClient {
 	constructor({
@@ -19,7 +19,6 @@ export default class ContentServiceClient {
 			method: 'POST',
 			body: {
 				...body,
-				clientApp: 'LmsContent',
 			},
 		});
 	}
