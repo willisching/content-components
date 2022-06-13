@@ -19,6 +19,8 @@ const VIEW = Object.freeze({
 	LOADING: 'LOADING',
 });
 
+const SUPPORTED_TYPES = ['Audio', 'Video'];
+
 export class Main extends InternalLocalizeMixin(MobxReactionUpdate(ProviderMixin(LitElement))) {
 	static get properties() {
 		return {
@@ -102,7 +104,7 @@ export class Main extends InternalLocalizeMixin(MobxReactionUpdate(ProviderMixin
 						id="prompt-with-file-drop-enabled"
 						error-message=${this._errorMessage}
 						max-file-size=${this.maxFileUploadSize}
-						supported-types='["Audio","Video"]'
+						.supportedTypes=${SUPPORTED_TYPES}
 						@file-change=${this.onFileChange}
 						@file-error=${this.onUploadError}>
 					</d2l-drop-uploader>

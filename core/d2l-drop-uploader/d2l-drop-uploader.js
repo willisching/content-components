@@ -19,7 +19,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 			errorMessage: { type: String, attribute: 'error-message', reflect: true },
 			maxFileSizeInBytes: { type: Number, attribute: 'max-file-size' },
 			enableBulkUpload: { type: Boolean, attribute: 'enable-bulk-upload' },
-			supportedTypes: { type: Array, attribute: 'supported-types' },
+			supportedTypes: { type: Array },
 		};
 	}
 
@@ -97,8 +97,8 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 
 	render() {
 		return html`
-			<div class="upload-container" display="none">
-				<file-drop @filedrop=${this.onFileDrop} multiple=${ifDefined(this.enableBulkUpload)}>
+			<div class="upload-container">
+				<file-drop @filedrop=${this.onFileDrop} ?multiple=${this.enableBulkUpload}>
 					<div class="file-drop-content-container">
 						<h2 class="d2l-heading-2">${this.localize('dropAudioVideoFile')}</h2>
 						<p class="d2l-body-standard">${this.localize('or')}</p>
@@ -112,7 +112,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 								type="file"
 								accept=${this.supportedTypes.flatMap(mediaType => supportedTypeExtensions[mediaType])}
 								@change=${this.onFileInputChange}
-								multiple=${ifDefined(this.enableBulkUpload)}
+								?multiple=${this.enableBulkUpload}
 							/>
 						</d2l-button>
 						${this.errorMessage ? html`<p id="error-message" class="d2l-body-compact">${this.errorMessage}&nbsp;</p>` : ''}
