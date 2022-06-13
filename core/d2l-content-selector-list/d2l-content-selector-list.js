@@ -167,16 +167,20 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 				text=${this.localize('confirmDeleteThis', {toDelete: this._itemToDelete?.lastRevTitle})}
 			>
 				<d2l-button
+					id="delete-button"
 					@click="${this._deleteItem(this._itemToDelete)}"
 					data-dialog-action="yes"
 					primary
 					slot="footer"
+					aria-label=${this.localize('delete')}
 				>
 					${this.localize('delete')}
 				</d2l-button>
 				<d2l-button
+					id="cancel-button"
 					data-dialog-action="no"
 					slot="footer"
+					aria-label=${this.localize('cancel')}
 				>
 					${this.localize('cancel')}
 				</d2l-button>
@@ -235,12 +239,12 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 		}));
 	}
 
-	_handleSearch(e) {
+	async _handleSearch(e) {
 		this.start = 0;
 		this.query = e.detail.value;
 		this._contentItems = [];
 		this._hasMore = true;
-		this._loadMore();
+		await this._loadMore();
 	}
 
 	_handleSelect(item) {
@@ -264,6 +268,7 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 					class="d2l-input-radio"
 					name="selected-result"
 					type="radio"
+					aria-label=${this.localize('itemSelect')}
 					?checked=${this._handleChecked(item)}
 					@change=${this._handleSelect(item)}
 				/>
@@ -280,13 +285,15 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 				</div>
 			</div>
 			<div class="context-menu">
-				<d2l-dropdown-more>
+				<d2l-dropdown-more
+					text=${this.localize('actionDropdown')}
+				>
 					<d2l-dropdown-menu>
 						<d2l-menu>
-							${this.showPreviewAction ? html`<d2l-menu-item text=${this.localize('preview')} @click=${this._handleShowPreviewAction}></d2l-menu-item>` : ''}
-							${this.showEditPropertiesAction ? html`<d2l-menu-item text=${this.localize('editProperties')} @click=${this._handleEditPropertiesAction}></d2l-menu-item>` : ''}
-							${this.showRevisionUploadAction ? html`<d2l-menu-item text=${this.localize('uploadNewVersion')} @click=${this._handleNewUploadAction}></d2l-menu-item>` : ''}
-							${this.showDeleteAction ? html`<d2l-menu-item text=${this.localize('delete')} @click=${this._openDialog(item)}></d2l-menu-item>` : ''}
+							${this.showPreviewAction ? html`<d2l-menu-item class="preview" text=${this.localize('preview')} @click=${this._handleShowPreviewAction}></d2l-menu-item>` : ''}
+							${this.showEditPropertiesAction ? html`<d2l-menu-item class="edit-properties" text=${this.localize('editProperties')} @click=${this._handleEditPropertiesAction}></d2l-menu-item>` : ''}
+							${this.showRevisionUploadAction ? html`<d2l-menu-item class="revision-upload" text=${this.localize('uploadNewVersion')} @click=${this._handleNewUploadAction}></d2l-menu-item>` : ''}
+							${this.showDeleteAction ? html`<d2l-menu-item class="delete-item" text=${this.localize('delete')} @click=${this._openDialog(item)}></d2l-menu-item>` : ''}
 						</d2l-menu>
 					</d2l-dropdown-menu>
 				</d2l-dropdown-more>
@@ -315,6 +322,7 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 		}
 
 		this._isLoading = false;
+		this.dispatchEvent(new CustomEvent('content-loaded'));
 	}
 
 	_openDialog(item) {

@@ -49,15 +49,17 @@ class Scroller extends InternalLocalizeMixin(LitElement) {
 			entries.forEach(async entry => {
 				if (entry.isIntersecting) {
 					observer.unobserve(entry.target);
-					if (this.hasMore)
+					if (this.hasMore) {
 						this._loadMore();
+					}
 				}
 			});
 		};
 
 		const options = {
 			root: this.shadowRoot.querySelector('.item-container'),
-			rootMargin: '1000px'
+			rootMargin: '1000px',
+			threshold:0.9,
 		};
 
 		this.lastItemObserver = new IntersectionObserver(callback, options);

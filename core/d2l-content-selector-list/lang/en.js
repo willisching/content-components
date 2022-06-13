@@ -15,4 +15,6 @@ export default {
 	confirmDeleteThis: 'Are you sure you want to delete {toDelete}',
 	cancel: 'Cancel',
 	loading: 'Loading...',
+	itemSelect: 'Item Select',
+	actionDropdown: 'Action Dropdown',
 };
