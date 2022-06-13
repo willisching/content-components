@@ -244,9 +244,9 @@
   },
   {
     "name": "BulkComplete",
-    "source_dir": "core/d2l-bulk-complete/locales",
+    "source_dir": "core/d2l-bulk-complete/lang",
     "source_match": "en\\.js$",
-    "output_file_path": "core/d2l-bulk-complete/locales/%LANG%.js",
+    "output_file_path": "core/d2l-bulk-complete/lang/%LANG%.js",
     "parser_plugin": {
       "plugin": "parse_js"
     },
@@ -271,9 +271,9 @@
   },
   {
     "name": "DropUploader",
-    "source_dir": "core/d2l-drop-uploader/locales",
+    "source_dir": "core/d2l-drop-uploader/lang",
     "source_match": "en\\.js$",
-    "output_file_path": "core/d2l-drop-uploader/locales/%LANG%.js",
+    "output_file_path": "core/d2l-drop-uploader/lang/%LANG%.js",
     "parser_plugin": {
       "plugin": "parse_js"
     },
@@ -298,9 +298,9 @@
   },
   {
     "name": "TopicPreview",
-    "source_dir": "core/d2l-topic-preview/locales",
+    "source_dir": "core/d2l-topic-preview/lang",
     "source_match": "en\\.js$",
-    "output_file_path": "core/d2l-topic-preview/locales/%LANG%.js",
+    "output_file_path": "core/d2l-topic-preview/lang/%LANG%.js",
     "parser_plugin": {
       "plugin": "parse_js"
     },
@@ -325,9 +325,9 @@
   },
   {
     "name": "UploadProgress",
-    "source_dir": "core/d2l-upload-progress/locales",
+    "source_dir": "core/d2l-upload-progress/lang",
     "source_match": "en\\.js$",
-    "output_file_path": "core/d2l-upload-progress/locales/%LANG%.js",
+    "output_file_path": "core/d2l-upload-progress/lang/%LANG%.js",
     "parser_plugin": {
       "plugin": "parse_js"
     },
