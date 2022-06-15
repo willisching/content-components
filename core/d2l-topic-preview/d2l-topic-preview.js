@@ -10,6 +10,7 @@ import { getComposedActiveElement } from '@brightspace-ui/core/helpers/focus.js'
 import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
 import '../../capture/d2l-capture-producer.js';
 import '../d2l-content-renderer.js';
+import { parse as d2lrnParse } from '../../util/d2lrn.js';
 
 export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
@@ -18,8 +19,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 			canManage: { type: Boolean, attribute: 'can-manage' },
 			canUpload: { type: Boolean, attribute: 'can-upload' },
 			resource: { type: String, attribute: true },
-			topicId: { type: String, attribute: 'topic-id' },
-			contentId: { type: String, attribute: 'content-id' },
+			topicId: { type: String, attribute: 'topic-id' }
 		};
 	}
 
@@ -100,7 +100,8 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 	}
 
 	async _onAdvancedEditing() {
-		const location = `/d2l/le/contentservice/producer/${this.contentId}/view`;
+		const parsedD2lrn = d2lrnParse(this.resource);
+		const location = `/d2l/le/contentservice/producer/${parsedD2lrn.contentId}/view`;
 
 		const dialogResult = await D2L.LP.Web.UI.Desktop.MasterPages.Dialog.Open(
 			getComposedActiveElement(),
