@@ -1,5 +1,5 @@
 import '../d2l-content-topic-settings.js';
-import { assert, expect, fixture, html } from '@open-wc/testing';
+import { expect, fixture, html } from '@open-wc/testing';
 
 import ContentApi from '../../../node_modules/d2l-content-service-api-client/lib/apis/content-api';
 import { runConstructor } from '@brightspace-ui/core/tools/constructor-test-helper.js';
@@ -13,42 +13,46 @@ function dispatchEvent(elem, eventType, composed) {
 	elem.dispatchEvent(e);
 }
 
+const CONTEXT = '6609';
+const CONTENT_ID = '123';
+const TITLE = 'Package title';
+const REVISIONS = [{
+	id: 'revision0',
+	options: {
+		playerShowNavBar: false,
+		reviewRetake: true,
+		recommendedPlayer: 1,
+	},
+	type: 'Scorm',
+}, {
+	id: 'revision1',
+	options: {
+		playerShowNavBar: false,
+		reviewRetake: true,
+		recommendedPlayer: 1,
+	},
+	type: 'Scorm',
+}];
+
 describe('ContentTopicSettings', async() => {
 
 	let el, getItemStub, sampleItem;
 	beforeEach(async() => {
 		getItemStub = Sinon.stub(ContentApi.prototype, 'getItem');
 		sampleItem = {
-			id: '123',
-			title: 'Package title',
+			id: CONTENT_ID,
+			title: TITLE,
 			description: 'Package description',
 			sharedWith: ['ou:6606'],
-			revisions: [{
-				id: '0',
-				options: {
-					playerShowNavBar: false,
-					reviewRetake: true,
-					recommendedPlayer: 1,
-				},
-				type: 'Scorm',
-			}, {
-				id: '1',
-				options: {
-					playerShowNavBar: false,
-					reviewRetake: true,
-					recommendedPlayer: 1,
-				},
-				type: 'Scorm',
-			}]
+			revisions: REVISIONS
 		};
 		getItemStub.returns(sampleItem);
 		el = await fixture(html`
 		<d2l-content-topic-settings
-			d2lrn='d2l:brightspace:content:region:0:scorm:0'
+			d2lrn='d2l:brightspace:content:region:0:scorm:${CONTENT_ID}'
 			serviceUrl='http://localhost:8000/contentservice'
-			context='0'
-			topicId='0'
-			revisionTag='0'
+			context='${CONTEXT}'
+			revisionTag='${REVISIONS[0].id}'
 		></d2l-content-topic-settings>`);
 	});
 
@@ -65,17 +69,31 @@ describe('ContentTopicSettings', async() => {
 	describe('constructor', () => {
 		it('should construct', () => {
 			runConstructor('d2l-content-topic-settings');
-			Sinon.assert.calledWith(getItemStub, Sinon.match({ id: '0' }));
+			Sinon.assert.calledWith(getItemStub, Sinon.match({ id: CONTENT_ID }));
 		});
 	});
 
 	describe('d2l-content-topic-settings getContent', () => {
 		it('getContent', () => {
-			const actual = el.getContent();
-			assert.equal(actual.topic.revisionTag, 'latest');
-			assert.equal(actual.topic.gradeCalculationMethod, 'Highest');
-			assert.equal(actual.topic.gradeObjectAssociation, true);
-			assert.equal(actual.topic.selectedPlayer, 'NewWindowPlayer');
+			const actual = el.getSettings();
+			expect(actual).to.deep.include({
+				contentServiceTopic: {
+					contexts: {
+						[CONTEXT]: {
+							resourceLinkTitle: TITLE
+						}
+					},
+					contentId: CONTENT_ID,
+					revisionTag: 'latest',
+					gradeCalculationMethod: 'Highest',
+					gradeObjectAssociation: true
+				},
+				brightspaceTopic: {
+					openInNewWindow: true,
+					title: TITLE
+				},
+				resourceType: 'scorm'
+			});
 		});
 
 		it('should change based on inputs', () => {
@@ -91,11 +109,25 @@ describe('ContentTopicSettings', async() => {
 			const gradingMethodItemsElem = el.shadowRoot.querySelectorAll('d2l-menu-item')[2];
 			gradingMethodItemsElem.click();
 
-			const actual = el.getContent();
-			assert.equal(actual.topic.revisionTag, '0');
-			assert.equal(actual.topic.gradeCalculationMethod, 'Average');
-			assert.equal(actual.topic.gradeObjectAssociation, false);
-			assert.equal(actual.topic.selectedPlayer, 'EmbeddedPlayer');
+			const actual = el.getSettings();
+			expect(actual).to.deep.include({
+				contentServiceTopic: {
+					contexts: {
+						[CONTEXT]: {
+							resourceLinkTitle: TITLE
+						}
+					},
+					contentId: CONTENT_ID,
+					revisionTag: REVISIONS[0].id,
+					gradeCalculationMethod: 'Average',
+					gradeObjectAssociation: false
+				},
+				brightspaceTopic: {
+					openInNewWindow: false,
+					title: TITLE
+				},
+				resourceType: 'scorm'
+			});
 		});
 	});
 });

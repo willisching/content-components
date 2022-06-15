@@ -16,7 +16,6 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 		return {
 			d2lrn: { type: String },
 			serviceUrl: { type: String },
-			topicId: { type: String },
 			context: { type: String },
 			contentId: { type: String },
 			tenantId: { type: String },
@@ -119,7 +118,7 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 		this.contentId = '';
 		this.tenantId = '';
 		this.revisionTag = 'latest';
-		this._resourceType = '';
+		this._resourceType = null;
 
 		this._isLoading = true;
 
@@ -271,9 +270,9 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 		`;
 	}
 
-	getContent() {
-		const content = {
-			topic: {
+	getSettings() {
+		const settings = {
+			contentServiceTopic: {
 				contexts: {
 					[this.context]: {
 						resourceLinkTitle: this.content.title
@@ -282,11 +281,15 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 				contentId: this.content.id,
 				revisionTag: this._displayLatestVersion ? 'latest' : this.revisionTag,
 				gradeCalculationMethod: ContentTopicSettings.gradingCalculationMethods[this._selectedGradingIndex],
-				gradeObjectAssociation: this._gradeObjectAssociation,
-				selectedPlayer: ContentTopicSettings.coursePlayers[this._selectedPlayerIndex],
-			}
+				gradeObjectAssociation: this._gradeObjectAssociation
+			},
+			brightspaceTopic: {
+				openInNewWindow: ContentTopicSettings.coursePlayers[this._selectedPlayerIndex] === 'NewWindowPlayer',
+				title: this.content.title
+			},
+			resourceType: this._resourceType
 		};
-		return content;
+		return settings;
 	}
 
 	renderGradingMethodItems() {

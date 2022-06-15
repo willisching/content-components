@@ -1,11 +1,13 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
+import { ContentServiceApiClient } from 'd2l-content-service-api-client';
+import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
+
 import '../d2l-content-selector-list.js';
 import '../d2l-content-topic-settings.js';
 import '../d2l-content-uploader.js';
 import '../d2l-content-properties.js';
 import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
-import { ContentServiceApiClient } from 'd2l-content-service-api-client';
-import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
+import { build as buildD2lRn } from '../../util/d2lrn';
 
 const VIEW = Object.freeze({
 	LIST: 'list',
@@ -17,18 +19,16 @@ const VIEW = Object.freeze({
 class ContentSelector extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
-			allowUpload: { type: Boolean },
-			canShareTo: { type: Array },
+			allowUpload: { type: Boolean, attribute: 'allow-upload' },
+			canShareTo: { type: Array, attribute: 'can-share-to' },
 			context: { type: String },
-			maxFilesPerUpload: { type: Number },
-			maxFileUploadSize: { type: Number },
-			selectedObject: { type: String, reflect: true },
-			serviceUrl: { type: String },
-			orgUnitId: { type: String },
-			tenantId: { type: String },
+			maxFilesPerUpload: { type: Number, attribute: 'max-files-per-upload' },
+			maxFileUploadSize: { type: Number, attribute: 'max-file-upload-size' },
+			selectedObject: { type: String, reflect: true, attribute: 'selected-object' },
+			serviceUrl: { type: String, attribute: 'service-url' },
+			tenantId: { type: String, attribute: 'tenant-id' },
 
 			_contentId: { type: String },
-			_resourceType: { type: String },
 			_nextButtonSettingsDisabled: { type: Boolean },
 			_saveButtonPropertiesDisabled: { type: Boolean },
 			_selectedView: { type: String },
@@ -67,18 +67,21 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 		this.context = '';
 		this.orgUnitId = '';
 		this._contentId = '';
-		this._resourceType = '';
+		this._region = null;
+		this._client = null;
+		this._value = null;
 
 		this._nextButtonSettingsDisabled = true;
 		this._saveButtonPropertiesDisabled = false;
 		this._selectedView = VIEW.LIST;
 	}
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 
 		const httpClient = new ContentServiceBrowserHttpClient({serviceUrl: this.serviceUrl});
-		this.client = new ContentServiceApiClient({ tenantId: this.tenantId, httpClient });
+		this._client = new ContentServiceApiClient({ tenantId: this.tenantId, httpClient });
+		this._region = (await this._client.region.getRegion()).region;
 	}
 
 	render() {
@@ -95,19 +98,20 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 						showEditPropertiesAction
 						showPreviewAction
 						tenantId='${this.tenantId}'
-						@object-selected=${this.enableNextButton}
-						@on-upload-button-click=${this.handleListUpload}
+						@object-selected=${this._enableNextButton}
+						@on-upload-button-click=${this._handleListUpload}
+						@on-show-edit-properties=${this._handleShowEditProperties}
 					></d2l-content-selector-list>
 				</div>
 				<div class="action-group">
 					<d2l-button
-						@click="${this.handleListNext}"
+						@click="${this._handleListNext}"
 						primary
 						description=${this.localize('next')}
 						?disabled=${this._nextButtonSettingsDisabled}
 					>${this.localize('next')}</d2l-button>
 					<d2l-button
-						@click="${this._handleCancelButton}"
+						@click="${this._handleCancel}"
 						description=${this.localize('cancel')}
 					>${this.localize('cancel')}</d2l-button>
 				</div>
@@ -118,7 +122,6 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 					<d2l-content-topic-settings
 						contentId=${this._contentId}
 						tenantId=${this.tenantId}
-						resourceType=${this._resourceType}
 						serviceUrl=${this.serviceUrl}
 						context=${this.context}
 					></d2l-content-topic-settings>
@@ -127,11 +130,11 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 					<d2l-button
 						primary
 						description=${this.localize('add')}
-						@click=${this.handleSettingsAddContent}
+						@click=${this._handleAddTopic}
 					>${this.localize('add')}</d2l-button>
 					<d2l-button
 						description=${this.localize('back')}
-						@click=${this.handleSettingsBack}
+						@click=${this._handleSettingsBack}
 					>${this.localize('back')}</d2l-button>
 				</div>
 				`;
@@ -147,7 +150,7 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 							tenant-id=${this.tenantId}
 							topic-id=""
 							max-file-upload-size=${this.maxFileUploadSize}
-							@on-upload-success=${this.handleUploadSuccess}
+							@on-upload-success=${this._handleUploadSuccess}
 						></d2l-content-uploader>
 					</div>
 					<div class="action-group">
@@ -177,7 +180,7 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 					<d2l-button
 						primary
 						description=${this.localize('save')}
-						@click=${this.handlePropertiesSaved}
+						@click=${this._handlePropertiesSaved}
 						?disabled=${this._saveButtonPropertiesDisabled}
 					>${this.localize('save')}</d2l-button>
 					<d2l-button
@@ -191,70 +194,81 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 		}
 	}
 
-	get contentProperties() {
+	get value() {
+		return this._value;
+	}
+
+	get _contentProperties() {
 		return this.shadowRoot.querySelector('d2l-content-properties');
 	}
 
-	enableNextButton() {
+	_enableNextButton() {
 		this._nextButtonSettingsDisabled = false;
 	}
 
-	handleListNext() {
-		const selectedItem = this.selectorList.selectedItem;
+	async _handleAddTopic() {
+		const topicSettings = this._topicSettings.getSettings();
+		const topic = await this._client.topic.postItem({
+			topic: topicSettings.contentServiceTopic
+		});
+		this._value = {
+			d2lrn: buildD2lRn({
+				region: this._region,
+				tenantId: this.tenantId,
+				resourceType: topicSettings.resourceType,
+				contentId: topicSettings.contentServiceTopic.contentId,
+				revisionTag: topicSettings.contentServiceTopic.revisionTag
+			}),
+			contentServiceTopicId: topic.id,
+			...topicSettings.brightspaceTopic
+		};
+		this.dispatchEvent(new CustomEvent('addtopic'));
+	}
+
+	_handleCancel() {
+		this.dispatchEvent(new CustomEvent('cancel'));
+	}
+
+	_handleListNext() {
+		const selectedItem = this._selectorList.selectedItem;
 
 		this._contentId = selectedItem.id;
-		this._resourceType = selectedItem.lastRevType.toLowerCase();
 
 		this._selectedView = VIEW.SETTINGS;
 	}
 
-	handleListUpload() {
+	_handleListUpload() {
 		this._selectedView = VIEW.UPLOAD;
 	}
 
-	async handlePropertiesSaved() {
+	async _handlePropertiesSaved() {
 		this._saveButtonPropertiesDisabled = true;
-		await this.contentProperties.save();
+		await this._contentProperties.save();
 		this._saveButtonPropertiesDisabled = false;
 
 		this._selectedView = VIEW.LIST;
 	}
 
-	async handleSettingsAddContent() {
-		const content = this.topicSettings.getContent();
-		await this.client.topic.postItem(content);
-		this._openPreview();
-	}
-
-	handleSettingsBack() {
+	_handleSettingsBack() {
 		this._selectedView = VIEW.LIST;
 	}
 
-	handleUploadSuccess({ detail: { d2lrn } }) {
+	_handleUploadSuccess({ detail: { d2lrn } }) {
 		this.selectedObject = d2lrn;
 		this._selectedView = VIEW.PROPERTIES;
 	}
 
-	get selectorList() {
+	get _selectorList() {
 		return this.shadowRoot.querySelector('d2l-content-selector-list');
 	}
 
-	get topicSettings() {
+	get _topicSettings() {
 		return this.shadowRoot.querySelector('d2l-content-topic-settings');
-	}
-
-	_cancel() {
-		this.dispatchEvent(new CustomEvent('on-cancel'));
-	}
-
-	_openPreview() {
-		this.dispatchEvent(new CustomEvent('on-open-preview'));
 	}
 
 	_uploadBack() {
 		this._selectedView = VIEW.LIST;
 	}
-
 }
 
 customElements.define('d2l-content-selector', ContentSelector);

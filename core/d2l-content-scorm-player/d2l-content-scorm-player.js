@@ -31,9 +31,13 @@ class ContentScormPlayer extends LitElement {
 	render() {
 		return html`
 		<div class="iframe-container">
-			<iframe
-				src=${this._url}
-			></iframe>
+			${this.preview ? html`
+				<iframe
+					src=${this._url}
+				></iframe>
+			` : html`
+				Not implemented
+			`}
 		</div>
 		`;
 	}
