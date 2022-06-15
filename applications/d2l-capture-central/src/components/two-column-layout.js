@@ -1,6 +1,6 @@
 import '@brightspace-ui/core/components/colors/colors.js';
 import { css, html, LitElement } from 'lit-element';
-import { ResizeObserver } from 'd2l-resize-aware/resize-observer-module.js';
+import { ResizeObserver } from '@brightspace-ui/resize-aware/resize-observer-module.js';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 
 class TwoColumnLayout extends RtlMixin(LitElement) {
