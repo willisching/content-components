@@ -5,7 +5,7 @@ import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
 import { css, html } from 'lit-element/lit-element.js';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
 import { heading2Styles, bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
-import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin';
+import { InternalLocalizeMixin } from '../../../../../mixins/internal-localize-mixin.js';
 import isMobile from 'ismobilejs';
 import { PageViewElement } from '../../components/page-view-element';
 
