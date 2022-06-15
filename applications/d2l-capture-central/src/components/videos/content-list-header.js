@@ -5,7 +5,7 @@ import './content-list-columns.js';
 import '../column-header.js';
 
 import { css, html, LitElement } from 'lit-element/lit-element.js';
-import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../../../../mixins/internal-localize-mixin.js';
 import { labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
 
 class ContentListHeader extends InternalLocalizeMixin(LitElement) {

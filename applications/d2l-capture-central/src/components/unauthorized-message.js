@@ -6,7 +6,7 @@ import '@brightspace-ui/core/components/list/list-item.js';
 import '@brightspace-ui/core/components/list/list.js';
 
 import { html, LitElement } from 'lit-element/lit-element.js';
-import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../../../mixins/internal-localize-mixin.js';
 import { NavigationMixin } from '../mixins/navigation-mixin.js';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 

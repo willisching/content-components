@@ -3,7 +3,7 @@ import 'file-drop-element';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 
 import { DependencyRequester } from '../mixins/dependency-requester-mixin.js';
-import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../../../mixins/internal-localize-mixin.js';
 import { isSupported } from '../util/media-type-util.js';
 import { maxFileSizeInBytes } from '../util/constants';
 import { formatFileSize } from '@brightspace-ui/intl/lib/fileSize';
@@ -50,7 +50,7 @@ class ContentFileDrop extends InternalLocalizeMixin(DependencyRequester(LitEleme
 				));
 				return;
 			} else if (!isSupported(file.name)) {
-				this._dispatchFileDropErrorEvent(this.localize('invalidFileType'));
+				this._dispatchFileDropErrorEvent(this.localize('invalidFileTypeSelected'));
 				return;
 			}
 		}

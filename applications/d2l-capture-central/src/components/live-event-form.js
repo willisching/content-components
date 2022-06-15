@@ -15,7 +15,7 @@ import { heading2Styles, labelStyles } from '@brightspace-ui/core/components/typ
 import { layoutNames, pageNames, streamingStatus } from '../util/constants.js';
 import { inputLabelStyles } from '@brightspace-ui/core/components/inputs/input-label-styles';
 import { inputStyles } from '@brightspace-ui/core/components/inputs/input-styles.js';
-import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../../../mixins/internal-localize-mixin.js';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { NavigationMixin } from '../mixins/navigation-mixin.js';
 import { radioStyles } from '@brightspace-ui/core/components/inputs/input-radio-styles.js';

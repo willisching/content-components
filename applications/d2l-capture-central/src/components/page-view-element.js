@@ -1,6 +1,6 @@
 
 import { css, LitElement } from 'lit-element';
-import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../../../mixins/internal-localize-mixin.js';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { NavigationMixin } from '../mixins/navigation-mixin.js';
 import { rootStore } from '../state/root-store.js';

@@ -155,7 +155,7 @@ class D2LCaptureCentralVideos extends contentSearchMixin(DependencyRequester(Pag
 				return;
 			}
 			if (!isSupported(file.name)) {
-				this._showUploadErrorToast(this.localize('invalidFileType'));
+				this._showUploadErrorToast(this.localize('invalidFileTypeSelected'));
 				event.target.value = '';
 				return;
 			}
