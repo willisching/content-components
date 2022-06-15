@@ -120,8 +120,7 @@ export class Main extends InternalLocalizeMixin(MobxReactionUpdate(ProviderMixin
 						resource=${this.value}
 						@cancel=${this.onDiscardStagedFile}
 						org-unit-id=${this.orgUnitId}
-						topic-id=${ifDefined(this.topicId)}
-						content-id=${this._contentId}>
+						topic-id=${ifDefined(this.topicId)}>
 					</d2l-topic-preview>
 				`;
 				break;
@@ -203,7 +202,6 @@ export class Main extends InternalLocalizeMixin(MobxReactionUpdate(ProviderMixin
 		if (value) {
 			const d2lrn = d2lrnParse(value);
 			d2lrn.resource = `${d2lrn.contentId}/latest`;
-			this._contentId = d2lrn.resource;
 			delete d2lrn.contentId;
 			delete d2lrn.revisionId;
 			this.value = d2lrnToString(d2lrn);
