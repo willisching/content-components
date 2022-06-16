@@ -85,6 +85,16 @@ The next version number will be determined from the commit messages since the pr
 
 To revert a change, add the `revert:` prefix to the original commit message. This will cause the reverted change to be omitted from the release notes. Example: `revert: fix: validate input before using`.
 
+### Langterms
+To rename or cleanup langterms, use https://github.com/bearfriend/messageformat-validator
+`npm i -g messageformat-validator`
+Add missing langterms:
+`mfv -p lang/ -s en add-missing`
+Remove extraneous langterms:
+`mfv -p lang/ -s en remove-extraneous`
+Rename langterm:
+`mfv -p lang/ -s en rename <old key> <new key>`
+
 ### Releases
 
 When a release is triggered, it will:

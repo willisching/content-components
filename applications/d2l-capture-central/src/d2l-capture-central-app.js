@@ -8,7 +8,7 @@ import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { BASE_PATH } from './state/routing-store.js';
 
 import { DependencyRequester } from './mixins/dependency-requester-mixin.js';
-import { InternalLocalizeMixin } from './mixins/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../../mixins/internal-localize-mixin.js';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { NavigationMixin } from './mixins/navigation-mixin.js';
 import { navigationSharedStyle } from './style/d2l-navigation-shared-styles.js';

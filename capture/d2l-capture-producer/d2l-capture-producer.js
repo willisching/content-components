@@ -15,7 +15,7 @@ import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-cl
 import { ContentServiceApiClient, BrightspaceApiClient } from 'd2l-content-service-api-client';
 
 import { formatDateTimeFromTimestamp } from '@brightspace-ui/intl/lib/dateTime.js';
-import { InternalLocalizeMixin } from './src/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { bodyStandardStyles, labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';

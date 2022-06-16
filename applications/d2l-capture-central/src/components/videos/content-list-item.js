@@ -17,7 +17,7 @@ import {
 } from '@brightspace-ui/core/components/typography/styles.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
-import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../../../../mixins/internal-localize-mixin.js';
 import { navigationMixin } from '../../mixins/navigation-mixin.js';
 import { pageNames } from '../../util/constants.js';
 import { rootStore } from '../../state/root-store.js';

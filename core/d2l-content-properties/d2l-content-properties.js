@@ -7,7 +7,7 @@ import '@brightspace-ui/core/components/menu/menu.js';
 import '@brightspace-ui/core/components/menu/menu-item.js';
 import {radioStyles} from '@brightspace-ui/core/components/inputs/input-radio-styles.js';
 import '@brightspace-ui/core/components/button/button.js';
-import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { parse } from '../../util/d2lrn.js';
 import { ContentServiceApiClient } from 'd2l-content-service-api-client';
 import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';

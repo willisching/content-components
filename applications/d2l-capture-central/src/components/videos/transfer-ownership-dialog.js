@@ -9,7 +9,7 @@ import { radioStyles } from '@brightspace-ui/core/components/inputs/input-radio-
 
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
-import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin';
+import { InternalLocalizeMixin } from '../../../../../mixins/internal-localize-mixin.js';
 
 const dialogConfirmAction = 'confirm';
 const sortFields = {

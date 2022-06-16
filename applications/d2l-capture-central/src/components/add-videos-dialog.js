@@ -10,7 +10,7 @@ import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { asyncStates } from '@brightspace-ui/core/mixins/async-container/async-container-mixin.js';
 import { contentSearchMixin } from '../mixins/content-search-mixin';
 import { DependencyRequester } from '../mixins/dependency-requester-mixin.js';
-import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../../../mixins/internal-localize-mixin.js';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { sharedManageStyles } from '../style/shared-styles.js';
 

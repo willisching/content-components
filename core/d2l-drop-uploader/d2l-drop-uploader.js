@@ -10,7 +10,7 @@ import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { css, html, LitElement } from 'lit-element';
 import { RequesterMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
 import { isSupported, supportedTypeExtensions } from '../d2l-content-uploader/src/util/media-type-util.js';
-import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 
 export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {

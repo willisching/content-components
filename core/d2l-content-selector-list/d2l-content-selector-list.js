@@ -3,7 +3,7 @@ import {radioStyles} from '@brightspace-ui/core/components/inputs/input-radio-st
 import '@brightspace-ui/core/components/inputs/input-search.js';
 import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/dialog/dialog-confirm.js';
-import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-more.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-menu.js';
 import '@brightspace-ui/core/components/menu/menu-item.js';
@@ -137,7 +137,7 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 		<div>
 			<div class="input-container">
 				<d2l-input-search
-					label=${this.localize('search')}
+					label=${this.localize('searchEllipsis')}
 					@d2l-input-search-searched=${this._handleSearch}
 					maxlength="200"
 				></d2l-input-search>
@@ -158,7 +158,7 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 				${this._contentItems.length === 0
 		? this._hasMore
 			? html`<p>${this.localize('loading')}</p>`
-			: html`<p>${this.localize('noResults')}</p>`
+			: html`<p>${this.localize('noResultsFound')}</p>`
 		: this._contentItems.map(this._itemRenderer.bind(this))}
 			</d2l-scroller>
 			<d2l-dialog-confirm

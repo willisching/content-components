@@ -6,7 +6,7 @@ import '../d2l-content-selector-list.js';
 import '../d2l-content-topic-settings.js';
 import '../d2l-content-uploader.js';
 import '../d2l-content-properties.js';
-import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { build as buildD2lRn } from '../../util/d2lrn';
 
 const VIEW = Object.freeze({

@@ -8,7 +8,7 @@ import '@brightspace-ui/core/components/tooltip/tooltip.js';
 import { formatFileSize } from '@brightspace-ui/intl/lib/fileSize.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { inputStyles } from '@brightspace-ui/core/components/inputs/input-styles.js';
-import { InternalLocalizeMixin } from './internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../../mixins/internal-localize-mixin.js';
 import { labelStyles, bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { formatTimestampText, convertSrtTextToVttText, validTimestampFormat, unformatTimestampText } from './captions-utils.js';
 import { getUniqueId } from '@brightspace-ui/core/helpers/uniqueId';

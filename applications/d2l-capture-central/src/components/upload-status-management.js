@@ -9,7 +9,7 @@ import '@brightspace-ui/core/components/meter/meter-circle.js';
 import { bodySmallStyles, heading4Styles } from '@brightspace-ui/core/components/typography/styles.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { DependencyRequester } from '../mixins/dependency-requester-mixin.js';
-import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../../../mixins/internal-localize-mixin.js';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { rootStore } from '../state/root-store.js';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';

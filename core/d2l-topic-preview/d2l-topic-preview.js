@@ -7,7 +7,7 @@ import { bodyCompactStyles } from '@brightspace-ui/core/components/typography/st
 import { RequesterMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { getComposedActiveElement } from '@brightspace-ui/core/helpers/focus.js';
-import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import '../../capture/d2l-capture-producer.js';
 import '../d2l-content-renderer.js';
 import { parse as d2lrnParse } from '../../util/d2lrn.js';

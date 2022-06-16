@@ -6,7 +6,7 @@ import { ifDefined } from 'lit-html/directives/if-defined.js';
 
 import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
 import { ContentServiceApiClient } from 'd2l-content-service-api-client';
-import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { RevisionLoaderMixin } from '../mixins/revision-loader-mixin.js';
 
 const TRACK_ERROR_FETCH_WAIT_MILLISECONDS = 5000;

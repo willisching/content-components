@@ -3,7 +3,7 @@ import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/dialog/dialog.js';
 import './d2l-video-producer-language-selector.js';
 import { bodyCompactStyles } from '@brightspace-ui/core/components/typography/styles.js';
-import { InternalLocalizeMixin } from '../src/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../../mixins/internal-localize-mixin.js';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 
 class AutoGenerateCaptionsDialog extends RtlMixin(InternalLocalizeMixin(LitElement)) {

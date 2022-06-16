@@ -12,7 +12,7 @@ import { observe, toJS } from 'mobx';
 
 import { contentSearchMixin } from '../mixins/content-search-mixin.js';
 import { DependencyRequester } from '../mixins/dependency-requester-mixin.js';
-import { InternalLocalizeMixin } from '../mixins/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../../../mixins/internal-localize-mixin.js';
 import { NavigationMixin } from '../mixins/navigation-mixin.js';
 import { navigationSharedStyle } from '../style/d2l-navigation-shared-styles.js';
 import { rootStore } from '../state/root-store.js';

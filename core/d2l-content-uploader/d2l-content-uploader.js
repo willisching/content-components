@@ -5,7 +5,7 @@ import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { parse as d2lrnParse, toString as d2lrnToString } from '../../util/d2lrn.js';
 import ContentServiceClient from './src/util/content-service-client.js';
 import UserBrightspaceClient from './src/util/user-brightspace-client.js';
-import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { Uploader } from './src/state/uploader.js';
 
 import '../d2l-drop-uploader.js';
