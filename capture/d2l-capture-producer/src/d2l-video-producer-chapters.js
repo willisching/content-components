@@ -4,7 +4,7 @@ import '@brightspace-ui/core/components/inputs/input-text.js';
 import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
 import { bodySmallStyles, bodyStandardStyles, heading3Styles } from '@brightspace-ui/core/components/typography/styles.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
-import { InternalLocalizeMixin } from './internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../../mixins/internal-localize-mixin.js';
 import constants from './constants.js';
 
 class VideoProducerChapters extends InternalLocalizeMixin(LitElement) {

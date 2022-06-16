@@ -1,6 +1,6 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import {radioStyles} from '@brightspace-ui/core/components/inputs/input-radio-styles.js';
-import { InternalLocalizeMixin } from './mixins/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../../mixins/internal-localize-mixin.js';
 
 class Scroller extends InternalLocalizeMixin(LitElement) {
 	static get properties() {

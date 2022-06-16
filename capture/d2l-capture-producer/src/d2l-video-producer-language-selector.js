@@ -1,7 +1,7 @@
 import '@brightspace-ui/core/components/dropdown/dropdown-button-subtle.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-menu.js';
 import { html, LitElement } from 'lit-element/lit-element.js';
-import { InternalLocalizeMixin } from './internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../../mixins/internal-localize-mixin.js';
 
 class VideoProducerLanguageSelector extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
