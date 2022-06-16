@@ -6,6 +6,7 @@ import '../d2l-content-selector-list.js';
 import '../d2l-content-topic-settings.js';
 import '../d2l-content-uploader.js';
 import '../d2l-content-properties.js';
+import '@brightspace-ui/core/components/button/button.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { build as buildD2lRn } from '../../util/d2lrn';
 
@@ -100,11 +101,12 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 						tenantId='${this.tenantId}'
 						@object-selected=${this._enableNextButton}
 						@on-upload-button-click=${this._handleListUpload}
-						@on-show-edit-properties=${this._handleShowEditProperties}
+						@show-edit-properties=${this._handleListEditProperties}
 					></d2l-content-selector-list>
 				</div>
 				<div class="action-group">
 					<d2l-button
+						id="selector-list-next"
 						@click="${this._handleListNext}"
 						primary
 						description=${this.localize('next')}
@@ -133,6 +135,7 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 						@click=${this._handleAddTopic}
 					>${this.localize('add')}</d2l-button>
 					<d2l-button
+						id='topic-settings-back'
 						description=${this.localize('back')}
 						@click=${this._handleSettingsBack}
 					>${this.localize('back')}</d2l-button>
@@ -155,6 +158,7 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 					</div>
 					<div class="action-group">
 						<d2l-button
+							id='uploader-back'
 							description=${this.localize('back')}
 							@click=${this._uploadBack}
 						>${this.localize('back')}</d2l-button>
@@ -171,6 +175,8 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 					<d2l-content-properties
 						d2lrn=${this.selectedObject}
 						serviceUrl=${this.serviceUrl}
+						contentId=${this._contentId}
+						tenantId=${this.tenantId}
 						.canShareTo=${this.canShareTo}
 						canSelectShareLocation
 						embedFeatureEnabled
@@ -184,8 +190,9 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 						?disabled=${this._saveButtonPropertiesDisabled}
 					>${this.localize('save')}</d2l-button>
 					<d2l-button
+						id='properties-back'
 						description=${this.localize('back')}
-						@click=${this.handleSettingsBack}
+						@click=${this._handleSettingsBack}
 					>${this.localize('back')}</d2l-button>
 				</div>
 				`;
@@ -229,12 +236,21 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 		this.dispatchEvent(new CustomEvent('cancel'));
 	}
 
+	_handleListEditProperties({ detail: { selectedItem } }) {
+		this.selectedObject = '';
+		this._contentId = selectedItem.id;
+
+		this._selectedView = VIEW.PROPERTIES;
+		this.dispatchEvent(new CustomEvent('change-view-properties'));
+	}
+
 	_handleListNext() {
-		const selectedItem = this._selectorList.selectedItem;
+		const selectedItem = this._selectorList.selectedContent;
 
 		this._contentId = selectedItem.id;
 
 		this._selectedView = VIEW.SETTINGS;
+		this.dispatchEvent(new CustomEvent('change-view-topic-settings'));
 	}
 
 	_handleListUpload() {

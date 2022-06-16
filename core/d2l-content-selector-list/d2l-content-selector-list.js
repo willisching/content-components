@@ -143,6 +143,7 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 				></d2l-input-search>
 				${this.allowUpload ? html`
 				<d2l-button
+					id="upload-button"
 					@click="${this._handleClickUploadButton}"
 				>
 					${this.localize('bulkUpload')}
@@ -189,10 +190,6 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 		`;
 	}
 
-	get selectedItem() {
-		return this.selectedContent;
-	}
-
 	_deleteItem(item) {
 		return () => {
 			if (item === null) return;
@@ -223,8 +220,14 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 		};
 	}
 
-	_handleEditPropertiesAction() {
-		this.dispatchEvent(new CustomEvent('show-edit-properties'));
+	_handleEditPropertiesAction(item) {
+		return () => {
+			this.dispatchEvent(new CustomEvent('show-edit-properties', {
+				detail: {
+					selectedItem: item
+				}
+			}));
+		};
 	}
 
 	_handleNewUploadAction() {
@@ -241,7 +244,7 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 
 	async _handleSearch(e) {
 		this.start = 0;
-		this.query = e.detail.value;
+		this.query = e.detail.value.trim();
 		this._contentItems = [];
 		this._hasMore = true;
 		await this._loadMore();
@@ -291,7 +294,7 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 					<d2l-dropdown-menu>
 						<d2l-menu>
 							${this.showPreviewAction ? html`<d2l-menu-item class="preview" text=${this.localize('preview')} @click=${this._handleShowPreviewAction}></d2l-menu-item>` : ''}
-							${this.showEditPropertiesAction ? html`<d2l-menu-item class="edit-properties" text=${this.localize('editProperties')} @click=${this._handleEditPropertiesAction}></d2l-menu-item>` : ''}
+							${this.showEditPropertiesAction ? html`<d2l-menu-item class="edit-properties" text=${this.localize('editProperties')} @click=${this._handleEditPropertiesAction(item)}></d2l-menu-item>` : ''}
 							${this.showRevisionUploadAction ? html`<d2l-menu-item class="revision-upload" text=${this.localize('uploadNewVersion')} @click=${this._handleNewUploadAction}></d2l-menu-item>` : ''}
 							${this.showDeleteAction ? html`<d2l-menu-item class="delete-item" text=${this.localize('delete')} @click=${this._openDialog(item)}></d2l-menu-item>` : ''}
 						</d2l-menu>

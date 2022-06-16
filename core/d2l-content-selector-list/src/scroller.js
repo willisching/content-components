@@ -58,8 +58,8 @@ class Scroller extends InternalLocalizeMixin(LitElement) {
 
 		const options = {
 			root: this.shadowRoot.querySelector('.item-container'),
-			rootMargin: '1000px',
-			threshold:0.9,
+			rootMargin: '0px',
+			threshold:0.25,
 		};
 
 		this.lastItemObserver = new IntersectionObserver(callback, options);

@@ -457,10 +457,6 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 		return () => this._recommendedPlayer = useEmbedPlayer;
 	}
 
-	get _tenantId() {
-		return parse(this.d2lrn).tenantId;
-	}
-
 }
 
 customElements.define('d2l-content-properties', ContentProperties);

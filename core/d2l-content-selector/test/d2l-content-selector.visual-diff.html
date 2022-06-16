@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>d2l-content-selector</title>
+  <script type="module">
+    import '@brightspace-ui/core/components/typography/typography.js';
+    import '../d2l-content-selector.js';
+  </script>
+  <style>
+    .visual-diff {
+		margin-bottom: 30px;
+	}
+	.relative {
+		position: relative;
+	}
+  </style>
+</head>
+<body class="d2l-typography">
+  <div class="visual-diff">
+	<div id="list-container" class="relative">
+		<d2l-content-selector
+			id="list-view"
+			allow-upload
+			max-files-per-upload="1"
+			context="6606"
+			max-file-upload-size="2147483648"
+			canShareTo='[{"id": "6606", "name": "Dev"}, {"id": "6609", "name": "Prod"}]'
+		></d2l-content-selector>
+	</div>
+  </div>
+  <div class="visual-diff">
+	<div id="upload-container" class="relative">
+		<d2l-content-selector
+			id="upload-view"
+			allow-upload
+			max-files-per-upload="1"
+			context="6606"
+			max-file-upload-size="2147483648"
+			canShareTo='[{"id": "6606", "name": "Dev"}, {"id": "6609", "name": "Prod"}]'
+		></d2l-content-selector>
+	</div>
+  </div>
+  <div class="visual-diff">
+	<div id="topic-settings-container" class="relative">
+		<d2l-content-selector
+			id="topic-settings-view"
+			allow-upload
+			max-files-per-upload="1"
+			context="6606"
+			max-file-upload-size="2147483648"
+			canShareTo='[{"id": "6606", "name": "Dev"}, {"id": "6609", "name": "Prod"}]'
+		></d2l-content-selector>
+	</div>
+  </div>
+  <div class="visual-diff">
+	<div id="properties-container" class="relative">
+		<d2l-content-selector
+			id="properties-view"
+			allow-upload
+			max-files-per-upload="1"
+			context="6606"
+			max-file-upload-size="2147483648"
+			can-share-to='[{"id": "6606", "name": "Dev"}, {"id": "6609", "name": "Prod"}]'
+		></d2l-content-selector>
+	</div>
+  </div>
+</body>
+</html>
