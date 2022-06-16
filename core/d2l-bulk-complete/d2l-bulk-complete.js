@@ -3,7 +3,7 @@ import '@brightspace-ui/core/components/colors/colors.js';
 import { css, html, LitElement } from 'lit-element';
 import { bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { RevisionLoaderMixin } from '../mixins/revision-loader-mixin.js';
-import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 
 export class BulkComplete extends RevisionLoaderMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {

@@ -6,7 +6,7 @@ import { ifDefined } from 'lit-html/directives/if-defined.js';
 import ContentServiceClient from './src/clients/rest-client.js';
 import HypermediaClient from './src/clients/hypermedia-client.js';
 import { VideoFormat, ContentType } from './src/clients/enums.js';
-import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 
 const TRACK_ERROR_FETCH_WAIT_MILLISECONDS = 5000;
 const REVISION_POLL_WAIT_MILLISECONDS = 10000;

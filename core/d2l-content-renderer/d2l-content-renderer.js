@@ -1,6 +1,6 @@
 import '../d2l-content-media-player.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
-import { InternalLocalizeMixin } from './src/mixins/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
 import '../d2l-content-scorm-player.js';
 import { RevisionLoaderMixin } from '../mixins/revision-loader-mixin.js';
