@@ -76,6 +76,7 @@
     "/applications",
     "/capture",
     "/core",
+    "/lang",
     "/mixins",
     "/util",
     "content-components.serge.json"
