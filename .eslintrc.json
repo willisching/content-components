@@ -16,12 +16,13 @@
     "sort-imports": "off",
     "no-console": "warn",
     "lines-between-class-members": "error",
-    "no-multi-spaces": "error"
+    "no-multi-spaces": "error",
+    "key-spacing": ["error", { "afterColon": true }]
   },
   "env": {
     "mocha": true,
-	"browser": true,
+    "browser": true,
     "amd": true,
-	"node": true
+    "node": true
   }
 }

@@ -4,19 +4,19 @@ import { VisualDiff } from '@brightspace-ui/visual-diff';
 const numItems = 105;
 function generateHits(id) {
 	return {
-		'_source':{
-			'createdAt':'2022-05-03T21:55:24.308Z',
-			'processingStatus':'ready',
-			'lastRevType':'Scorm',
-			'lastRevTitle':`quicktest${id}`,
-			'lastRevStorageVersion':2,
-			'tenantId':'97dc5895-cd3b-465f-8d5b-3c8d7e1bb6a7',
-			'lastRevId':`${id}`,
-			'id':`${id}`,
-			'ownerId':'169',
-			'sharedWith':['ou:6606'],
-			'storageId':`${id}`,
-			'updatedAt':'2022-05-03T21:58:01.203Z'
+		'_source': {
+			'createdAt': '2022-05-03T21:55:24.308Z',
+			'processingStatus': 'ready',
+			'lastRevType': 'Scorm',
+			'lastRevTitle': `quicktest${id}`,
+			'lastRevStorageVersion': 2,
+			'tenantId': '97dc5895-cd3b-465f-8d5b-3c8d7e1bb6a7',
+			'lastRevId': `${id}`,
+			'id': `${id}`,
+			'ownerId': '169',
+			'sharedWith': ['ou:6606'],
+			'storageId': `${id}`,
+			'updatedAt': '2022-05-03T21:58:01.203Z'
 		},
 	};
 }
@@ -48,11 +48,11 @@ describe('d2l-content-selector-list', () => {
 					content: 'application/json',
 					body: JSON.stringify({
 						'took': 5,
-						'timed_out':false,
-						'_shards':{ 'total': numHits, 'successful': numHits, 'skipped': 0, 'failed': 0 },
-						'hits':{
-							'total':numHits,
-							'max_score':null,
+						'timed_out': false,
+						'_shards': { 'total': numHits, 'successful': numHits, 'skipped': 0, 'failed': 0 },
+						'hits': {
+							'total': numHits,
+							'max_score': null,
 							'hits': hits,
 						}
 					})
