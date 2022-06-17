@@ -250,7 +250,7 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this._controlMode = constants.CONTROL_MODES.MARK;
 	}
 
-	handleMediaPlayerCurrentTimeUpdate({detail:{time}}) {
+	handleMediaPlayerCurrentTimeUpdate({detail: {time}}) {
 		this._mediaPlayer.currentTime = time;
 		this.mediaPlayerCurrentTime = time;
 	}

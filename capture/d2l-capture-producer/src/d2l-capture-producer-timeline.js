@@ -443,7 +443,7 @@ class CaptureProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)
 			});
 		});
 		const target = this.shadowRoot.querySelector('.d2l-video-producer-timeline');
-		observer.observe(target, { attributes : true, attributeFilter : ['style'] });
+		observer.observe(target, { attributes: true, attributeFilter: ['style'] });
 	}
 
 	_clampNumBetweenMinAndMax(num, min, max) {

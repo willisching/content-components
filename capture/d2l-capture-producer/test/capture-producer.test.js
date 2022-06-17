@@ -32,8 +32,8 @@ describe('d2l-capture-producer', () => {
 			}]
 		};
 		const sampleGetResourceOriginal = {
-			'value':'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-			'expireTime':999999999
+			'value': 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+			'expireTime': 999999999
 		};
 		const sampleGetResourceMetadata = {
 			cuts: [],
