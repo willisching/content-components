@@ -78,6 +78,20 @@ describe('d2l-content-selector-list', () => {
 			{ waitUntil: ['networkidle0', 'load'] }
 		);
 		await page.bringToFront();
+		await page.evaluate(async() => {
+			const waitFinishLoading = async(elem) => new Promise(resolve => {
+				const waitTime = 200;
+				const interval = setInterval(() => {
+					if (!elem._isLoading) {
+						clearInterval(interval);
+						resolve();
+					}
+				}, waitTime);
+			});
+			const elems = Array.from(document.querySelectorAll('d2l-content-selector-list'));
+
+			await Promise.all(elems.map((elem) => waitFinishLoading(elem)));
+		});
 	});
 
 	beforeEach(async() => await visualDiff.resetFocus(page));

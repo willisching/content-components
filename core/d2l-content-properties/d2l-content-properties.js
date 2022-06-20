@@ -133,6 +133,7 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 	}
 
 	render() {
+		if (this._isLoading) return '';
 		return html`
 			<div class="settings-container">
 				<h3 class="heading-org-level">${this.localize('editCoursePackageProperties')}</h3>
