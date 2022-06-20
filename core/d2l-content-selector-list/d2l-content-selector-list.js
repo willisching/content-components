@@ -40,6 +40,11 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 		d2l-input-search {
 			width: 50%;
 		}
+
+		.input-container {
+			padding-top: 20px;
+		}
+
 		.input-container d2l-button {
 			float: right;
 		}
@@ -50,6 +55,10 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 
 		.input-container d2l-button {
 			float: right;
+		}
+
+		.heading .title-wrapper {
+			height: 25px;
 		}
 
 		.heading .title-wrapper .title {
@@ -67,6 +76,7 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 			font-size: 14px;
 			margin-top: -2px;
 			-webkit-text-size-adjust: 100%;
+			height:25px;
 		}
 
 		.input-button {
@@ -81,8 +91,7 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 
 		.search-result {
 			display: flex;
-			font-size: 16px;
-			margin-bottom: 5px;
+			font-size: 14px;
 			border-bottom: 1px solid #e3e9f1;
 			border-bottom-width: 1px;
 			border-bottom-style: solid;
