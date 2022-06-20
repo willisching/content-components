@@ -11,6 +11,15 @@
   "globals": {
     "Prism": false
   },
+  "overrides": [
+    {
+      "files": ["lang/*.js"],
+      "rules": {
+        "indent": ["off"],
+        "quotes": ["error", "double"]
+      }
+    }
+  ],
   "rules": {
     "object-curly-spacing": "off",
     "sort-imports": "off",
