@@ -156,6 +156,7 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 	}
 
 	render() {
+		if (this._isLoading) return '';
 		return html`
 			<div>
 				<h3 class="package-title">

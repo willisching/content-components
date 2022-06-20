@@ -262,16 +262,21 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 		await this._contentProperties.save();
 		this._saveButtonPropertiesDisabled = false;
 
-		this._selectedView = VIEW.LIST;
+		this._navToList();
 	}
 
 	_handleSettingsBack() {
-		this._selectedView = VIEW.LIST;
+		this._navToList();
 	}
 
 	_handleUploadSuccess({ detail: { d2lrn } }) {
 		this.selectedObject = d2lrn;
 		this._selectedView = VIEW.PROPERTIES;
+	}
+
+	_navToList() {
+		this._nextButtonSettingsDisabled = true;
+		this._selectedView = VIEW.LIST;
 	}
 
 	get _selectorList() {
@@ -283,7 +288,7 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_uploadBack() {
-		this._selectedView = VIEW.LIST;
+		this._navToList();
 	}
 }
 
