@@ -7,6 +7,7 @@ import '../d2l-content-topic-settings.js';
 import '../d2l-content-uploader.js';
 import '../d2l-content-properties.js';
 import '@brightspace-ui/core/components/button/button.js';
+import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { build as buildD2lRn } from '../../util/d2lrn';
 
@@ -17,6 +18,7 @@ const VIEW = Object.freeze({
 	PROPERTIES: 'properties'
 });
 
+const SPINNER_SIZE = 150;
 class ContentSelector extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
@@ -30,6 +32,7 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 			tenantId: { type: String, attribute: 'tenant-id' },
 
 			_contentId: { type: String },
+			_isLoading: { type: Boolean },
 			_nextButtonSettingsDisabled: { type: Boolean },
 			_saveButtonPropertiesDisabled: { type: Boolean },
 			_selectedView: { type: String },
@@ -49,6 +52,13 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 
 		.bottom-padding {
 			padding-bottom: 50px;
+		}
+
+		.loading-spinner {
+			top: 50%;
+			left: 50%;
+			position: absolute;
+			transform: translate(-50%, -50%);
 		}
 		`;
 	}
@@ -72,6 +82,7 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 		this._client = null;
 		this._value = null;
 
+		this._isLoading = false;
 		this._nextButtonSettingsDisabled = true;
 		this._saveButtonPropertiesDisabled = false;
 		this._selectedView = VIEW.LIST;
@@ -86,6 +97,12 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 	}
 
 	render() {
+		if (this._isLoading) {
+			return html`<d2l-loading-spinner
+				class="loading-spinner"
+				size=${SPINNER_SIZE}
+			></d2l-loading-spinner>`;
+		}
 		switch (this._selectedView) {
 			case VIEW.LIST:
 				return html`
@@ -214,6 +231,7 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 	}
 
 	async _handleAddTopic() {
+		this._isLoading = true;
 		const topicSettings = this._topicSettings.getSettings();
 		const topic = await this._client.topic.postItem({
 			topic: topicSettings.contentServiceTopic
@@ -230,6 +248,7 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 			...topicSettings.brightspaceTopic
 		};
 		this.dispatchEvent(new CustomEvent('addtopic'));
+		this._isLoading = false;
 	}
 
 	_handleCancel() {

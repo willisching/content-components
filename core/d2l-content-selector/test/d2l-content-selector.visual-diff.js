@@ -179,6 +179,7 @@ describe('d2l-content-selector', () => {
 
 			const properties = contentSelector.shadowRoot.querySelector('d2l-content-properties');
 			await properties.updateComplete;
+			await contentSelector.updateComplete;
 		});
 
 		const rect = await visualDiff.getRect(page, '#properties-container');
