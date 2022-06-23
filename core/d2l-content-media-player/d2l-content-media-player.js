@@ -69,10 +69,6 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 	}
 
 	render() {
-		if (this._revision && !this._playbackSupported) {
-			return this.renderStatusMessage(this.localize('unsupportedPlaybackMessage'));
-		}
-
 		if (this._mediaSources && this._mediaSources.length > 0) {
 			return html`
 			<d2l-offscreen>${this.localize('offscreenInfoMessage', { title: this._revision.title, description: this._revision.description })}</d2l-offscreen>
@@ -121,12 +117,6 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 				}));
 
 				this._verifyContentType(this._revision.type);
-
-				// Determine whether the type has supported playback
-				const isVideo = this._revision.type === 'Video';
-				const playbackSupportTestElement = isVideo ? document.createElement('video') : document.createElement('audio');
-				const mimeType = isVideo ? 'video/mp4' : 'audio/mp3' ;
-				this._playbackSupported = playbackSupportTestElement.canPlayType && playbackSupportTestElement.canPlayType(mimeType).replace(/no/, '');
 
 				await this._setupAfterRevisionReady();
 			}
@@ -199,7 +189,7 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 	}
 
 	async _loadCaptions() {
-		clearInterval(this._trackErrorFetchTimeoutId);
+		clearTimeout(this._trackErrorFetchTimeoutId);
 		this._trackErrorFetchTimeoutId = null;
 
 		const captionSignedUrls = await this._getResource({
