@@ -118,6 +118,7 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 						tenantId='${this.tenantId}'
 						@object-selected=${this._enableNextButton}
 						@on-upload-button-click=${this._handleListUpload}
+						@show-preview=${this._handleListShowPreview}
 						@show-edit-properties=${this._handleListEditProperties}
 					></d2l-content-selector-list>
 				</div>
@@ -270,6 +271,18 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 
 		this._selectedView = VIEW.SETTINGS;
 		this.dispatchEvent(new CustomEvent('change-view-topic-settings'));
+	}
+
+	_handleListShowPreview({ detail: { id, type } }) {
+		const d2lrn = buildD2lRn({
+			region: this._region,
+			tenantId: this.tenantId,
+			resourceType: type.toLowerCase(),
+			contentId: id,
+			revisionTag: 'latest'
+		});
+
+		window.open(`/d2l/le/contentservice/launch/preview?d2lrn=${d2lrn}`, '_blank');
 	}
 
 	_handleListUpload() {
