@@ -271,7 +271,8 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 		return () => this.dispatchEvent(new CustomEvent('show-preview', {
 			detail: {
 				id: item.id,
-				type: item.lastRevType
+				type: item.lastRevType,
+				title: item.lastRevTitle
 			}
 		}));
 	}

@@ -273,7 +273,7 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 		this.dispatchEvent(new CustomEvent('change-view-topic-settings'));
 	}
 
-	_handleListShowPreview({ detail: { id, type } }) {
+	_handleListShowPreview({ detail: { id, type, title } }) {
 		const d2lrn = buildD2lRn({
 			region: this._region,
 			tenantId: this.tenantId,
@@ -282,7 +282,7 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 			revisionTag: 'latest'
 		});
 
-		window.open(`/d2l/le/contentservice/launch/preview?d2lrn=${d2lrn}`, '_blank');
+		window.open(`/d2l/le/contentservice/launch/preview?d2lrn=${d2lrn}&title=${encodeURIComponent(title)}`, '_blank');
 	}
 
 	_handleListUpload() {
