@@ -129,7 +129,8 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 							showPreviewAction
 							tenantId='${this.tenantId}'
 							@object-selected=${this._enableNextButton}
-							@on-upload-button-click=${this._handleListUpload}
+							@on-upload-button-click=${this._navigateToUpload}
+							@revision-upload-requested=${this._navigateToUpload}
 							@show-preview=${this._handleListShowPreview}
 							@show-edit-properties=${this._handleListEditProperties}
 						></d2l-content-selector-list>
@@ -302,10 +303,6 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 		window.open(`/d2l/le/contentservice/launch/preview?d2lrn=${d2lrn}&title=${encodeURIComponent(title)}`, '_blank');
 	}
 
-	_handleListUpload() {
-		this._selectedView = VIEW.UPLOAD;
-	}
-
 	async _handlePropertiesSaved() {
 		this._saveButtonPropertiesDisabled = true;
 		await this._contentProperties.save();
@@ -321,6 +318,10 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 	_handleUploadSuccess({ detail: { d2lrn } }) {
 		this.selectedObject = d2lrn;
 		this._selectedView = VIEW.PROPERTIES;
+	}
+
+	_navigateToUpload() {
+		this._selectedView = VIEW.UPLOAD;
 	}
 
 	_navToList() {
