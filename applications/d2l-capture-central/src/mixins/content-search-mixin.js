@@ -4,7 +4,7 @@ import { dateFilterToSearchQuery } from '../util/date-filter.js';
 import { getTimeZoneOrTimeZoneOffset } from '../util/date-time.js';
 
 const contentTypes = ['Audio', 'Video'];
-const clientApps = ['LmsContent', 'LmsCourseImport', 'LmsCapture', 'Capture', 'none'];
+const clientApps = ['LmsContent', 'LmsCourseImport', 'LmsCapture', 'Capture', 'VideoNote', 'none'];
 
 export const contentSearchMixin = superClass => class extends superClass {
 	static get properties() {
