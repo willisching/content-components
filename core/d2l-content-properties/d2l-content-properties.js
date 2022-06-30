@@ -109,6 +109,7 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 	constructor() {
 		super();
 
+		this.canShareTo = [];
 		this.contentId = '';
 		this.tenantId = '';
 		this._resourceType = '';
@@ -163,34 +164,33 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 						value=${this._description}
 					></d2l-input-text>
 				</div>
-				<div class="setting-section share">
-					<h4 class="section-heading">${this.localize('askIfShare')}</h4>
-					<div class="setting-option">
-						<input
-							id="add-sharing"
-							class="d2l-input-radio"
-							name="sharing"
-							type="radio"
-							@change="${this._setShared(true)}"
-							?checked="${this._shared !== null && this._shared}"
-						/>
-						${this._renderShareLabel()}
-						${this.canSelectShareLocation
-		? this._renderSharingDropdown()
-		: html``}
-				</div>
-					<div class="setting-option">
-						<input
-							id="remove-sharing"
-							class="d2l-input-radio"
-							name="sharing"
-							type="radio"
-							@change="${this._setShared(false)}"
-							?checked="${this._shared !== null && !this._shared}"
-						/>
-						<label for="remove-sharing" class="label-body">${this.localize('noKeepToMyself')}</label>
-					</div>
-				</div>
+				${ this.canShare() ? html`
+					<div class="setting-section share">
+						<h4 class="section-heading">${this.localize('askIfShare')}</h4>
+						<div class="setting-option">
+							<input
+								id="add-sharing"
+								class="d2l-input-radio"
+								name="sharing"
+								type="radio"
+								@change="${this._setShared(true)}"
+								?checked="${this._shared !== null && this._shared}"
+							/>
+							${this._renderShareLabel()}
+							${this._renderSharingDropdown()}
+						</div>
+						<div class="setting-option">
+							<input
+								id="remove-sharing"
+								class="d2l-input-radio"
+								name="sharing"
+								type="radio"
+								@change="${this._setShared(false)}"
+								?checked="${this._shared !== null && !this._shared}"
+							/>
+							<label for="remove-sharing" class="label-body">${this.localize('noKeepToMyself')}</label>
+						</div>
+					</div>` : ''}
 				${!this._resourceType || this._resourceType === 'audio' || this._resourceType === 'video' ?
 		'' : html`
 				<div class="setting-section navigation">
@@ -296,6 +296,10 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 		`;
 	}
 
+	canShare() {
+		return this.canShareTo && this.canShareTo.length > 0;
+	}
+
 	renderSharingItems() {
 		return this.canShareTo.map((item, index) => {
 			const label = item.name;
@@ -398,7 +402,8 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 		this._title = content.title;
 		this._description = content.description;
 
-		if (this.content.sharedWith === undefined || this.content.sharedWith.length === 0) {
+		if (!this.content.sharedWith || !this.content.sharedWith.length || !this.canShareTo) {
+			this.canShareTo = [];
 			this._shared = false;
 		} else {
 			this._shared = true;

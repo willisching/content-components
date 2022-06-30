@@ -43,15 +43,22 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 	static get styles() {
 		return css`
 		.action-group {
-			position: absolute;
-			bottom: 0;
-			left: 0;
-			width: 100%;
-			background-color: white;
+
 		}
 
-		.bottom-padding {
-			padding-bottom: 50px;
+		.view-container {
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+		}
+
+		.main-view {
+			flex: 1;
+			overflow: auto;
+		}
+
+		.full-height {
+			height:100%;
 		}
 
 		.loading-spinner {
@@ -59,6 +66,10 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 			left: 50%;
 			position: absolute;
 			transform: translate(-50%, -50%);
+		}
+
+		d2l-content-selector-list {
+			height: 100%;
 		}
 		`;
 	}
@@ -106,63 +117,67 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 		switch (this._selectedView) {
 			case VIEW.LIST:
 				return html`
-				<div class="bottom-padding">
-					<d2l-content-selector-list
-						?allowUpload=${this.allowUpload}
-						allowSelection
-						serviceUrl=${this.serviceUrl}
-						showDeleteAction
-						showRevisionUploadAction
-						showEditPropertiesAction
-						showPreviewAction
-						tenantId='${this.tenantId}'
-						@object-selected=${this._enableNextButton}
-						@on-upload-button-click=${this._handleListUpload}
-						@show-preview=${this._handleListShowPreview}
-						@show-edit-properties=${this._handleListEditProperties}
-					></d2l-content-selector-list>
-				</div>
-				<div class="action-group">
-					<d2l-button
-						id="selector-list-next"
-						@click="${this._handleListNext}"
-						primary
-						description=${this.localize('next')}
-						?disabled=${this._nextButtonSettingsDisabled}
-					>${this.localize('next')}</d2l-button>
-					<d2l-button
-						@click="${this._handleCancel}"
-						description=${this.localize('cancel')}
-					>${this.localize('cancel')}</d2l-button>
+				<div class='view-container'>
+					<div class='bottom-padding main-view'>
+						<d2l-content-selector-list
+							?allowUpload=${this.allowUpload}
+							allowSelection
+							serviceUrl=${this.serviceUrl}
+							showDeleteAction
+							showRevisionUploadAction
+							showEditPropertiesAction
+							showPreviewAction
+							tenantId='${this.tenantId}'
+							@object-selected=${this._enableNextButton}
+							@on-upload-button-click=${this._handleListUpload}
+							@show-preview=${this._handleListShowPreview}
+							@show-edit-properties=${this._handleListEditProperties}
+						></d2l-content-selector-list>
+					</div>
+					<div class="action-group">
+						<d2l-button
+							id="selector-list-next"
+							@click="${this._handleListNext}"
+							primary
+							description=${this.localize('next')}
+							?disabled=${this._nextButtonSettingsDisabled}
+						>${this.localize('next')}</d2l-button>
+						<d2l-button
+							@click="${this._handleCancel}"
+							description=${this.localize('cancel')}
+						>${this.localize('cancel')}</d2l-button>
+					</div>
 				</div>
 				`;
 			case VIEW.SETTINGS:
 				return html`
-				<div class="bottom-padding">
-					<d2l-content-topic-settings
-						contentId=${this._contentId}
-						tenantId=${this.tenantId}
-						serviceUrl=${this.serviceUrl}
-						context=${this.context}
-					></d2l-content-topic-settings>
-				</div>
-				<div class="action-group">
-					<d2l-button
-						primary
-						description=${this.localize('add')}
-						@click=${this._handleAddTopic}
-					>${this.localize('add')}</d2l-button>
-					<d2l-button
-						id='topic-settings-back'
-						description=${this.localize('back')}
-						@click=${this._handleSettingsBack}
-					>${this.localize('back')}</d2l-button>
+				<div class="view-container">
+					<div class="bottom-padding main-view">
+						<d2l-content-topic-settings
+							contentId=${this._contentId}
+							tenantId=${this.tenantId}
+							serviceUrl=${this.serviceUrl}
+							context=${this.context}
+						></d2l-content-topic-settings>
+					</div>
+					<div class="action-group">
+						<d2l-button
+							primary
+							description=${this.localize('add')}
+							@click=${this._handleAddTopic}
+						>${this.localize('add')}</d2l-button>
+						<d2l-button
+							id='topic-settings-back'
+							description=${this.localize('back')}
+							@click=${this._handleSettingsBack}
+						>${this.localize('back')}</d2l-button>
+					</div>
 				</div>
 				`;
 			case VIEW.UPLOAD:
 				return html`
-				<div class="bottom-padding">
-					<div id="uploader-wrapper">
+				<div class="view-container">
+					<div id="uploader-wrapper" class="main-view">
 						<d2l-content-uploader
 							api-endpoint=${this.serviceUrl}
 							can-manage
@@ -189,29 +204,31 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 				`;
 			case VIEW.PROPERTIES:
 				return html`
-				<div class="bottom-padding">
-					<d2l-content-properties
-						d2lrn=${this.selectedObject}
-						serviceUrl=${this.serviceUrl}
-						contentId=${this._contentId}
-						tenantId=${this.tenantId}
-						.canShareTo=${this.canShareTo}
-						canSelectShareLocation
-						embedFeatureEnabled
-					></d2l-content-properties>
-				</div>
-				<div class="action-group">
-					<d2l-button
-						primary
-						description=${this.localize('save')}
-						@click=${this._handlePropertiesSaved}
-						?disabled=${this._saveButtonPropertiesDisabled}
-					>${this.localize('save')}</d2l-button>
-					<d2l-button
-						id='properties-back'
-						description=${this.localize('back')}
-						@click=${this._handleSettingsBack}
-					>${this.localize('back')}</d2l-button>
+				<div class='view-container'>
+					<div class="bottom-padding main-view">
+						<d2l-content-properties
+							d2lrn=${this.selectedObject}
+							serviceUrl=${this.serviceUrl}
+							contentId=${this._contentId}
+							tenantId=${this.tenantId}
+							.canShareTo=${this.canShareTo}
+							canSelectShareLocation
+							embedFeatureEnabled
+						></d2l-content-properties>
+					</div>
+					<div class="action-group">
+						<d2l-button
+							primary
+							description=${this.localize('save')}
+							@click=${this._handlePropertiesSaved}
+							?disabled=${this._saveButtonPropertiesDisabled}
+						>${this.localize('save')}</d2l-button>
+						<d2l-button
+							id='properties-back'
+							description=${this.localize('back')}
+							@click=${this._handleSettingsBack}
+						>${this.localize('back')}</d2l-button>
+					</div>
 				</div>
 				`;
 			default:

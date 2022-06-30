@@ -117,6 +117,7 @@ describe('d2l-content-selector', () => {
 				request.continue();
 			}
 		});
+
 		await page.goto(
 			`${visualDiff.getBaseUrl()}/core/d2l-content-selector/test/d2l-content-selector.visual-diff.html`,
 			{ waitUntil: ['networkidle0', 'load'] }
@@ -133,56 +134,56 @@ describe('d2l-content-selector', () => {
 		await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
 	});
 
-	it('upload', async function() {
-		await page.evaluate(async() => {
-			const contentSelector = document.querySelector('#upload-view');
-			const contentSelectorList = contentSelector.shadowRoot.querySelector('d2l-content-selector-list');
-			const uploadButton = contentSelectorList.shadowRoot.querySelector('#upload-button');
+	// it('upload', async function() {
+	// 	await page.evaluate(async() => {
+	// 		const contentSelector = document.querySelector('#upload-view');
+	// 		const contentSelectorList = contentSelector.shadowRoot.querySelector('d2l-content-selector-list');
+	// 		const uploadButton = contentSelectorList.shadowRoot.querySelector('#upload-button');
 
-			uploadButton.click();
-			await contentSelector.updateComplete;
+	// 		uploadButton.click();
+	// 		await contentSelector.updateComplete;
 
-			const uploader = contentSelector.shadowRoot.querySelector('d2l-content-uploader');
-			await uploader.updateComplete;
-			await contentSelector.updateComplete;
-		});
+	// 		const uploader = contentSelector.shadowRoot.querySelector('d2l-content-uploader');
+	// 		await uploader.updateComplete;
+	// 		await contentSelector.updateComplete;
+	// 	});
 
-		const rect = await visualDiff.getRect(page, '#upload-container');
-		await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
-	});
+	// 	const rect = await visualDiff.getRect(page, '#upload-container');
+	// 	await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
+	// });
 
-	it('topic-settings', async function() {
-		await page.evaluate(async() => {
-			const contentSelector = document.querySelector('#topic-settings-view');
-			const contentSelectorList = contentSelector.shadowRoot.querySelector('d2l-content-selector-list');
-			const radioButton = contentSelectorList.shadowRoot.querySelector('.d2l-input-radio');
-			radioButton.click();
-			await contentSelector.updateComplete;
-			contentSelector.shadowRoot.querySelector('#selector-list-next').click();
+	// it('topic-settings', async function() {
+	// 	await page.evaluate(async() => {
+	// 		const contentSelector = document.querySelector('#topic-settings-view');
+	// 		const contentSelectorList = contentSelector.shadowRoot.querySelector('d2l-content-selector-list');
+	// 		const radioButton = contentSelectorList.shadowRoot.querySelector('.d2l-input-radio');
+	// 		radioButton.click();
+	// 		await contentSelector.updateComplete;
+	// 		contentSelector.shadowRoot.querySelector('#selector-list-next').click();
 
-			await contentSelector.updateComplete;
-			const settings = contentSelector.shadowRoot.querySelector('d2l-content-topic-settings');
-			await settings.updateComplete;
-		});
+	// 		await contentSelector.updateComplete;
+	// 		const settings = contentSelector.shadowRoot.querySelector('d2l-content-topic-settings');
+	// 		await settings.updateComplete;
+	// 	});
 
-		const rect = await visualDiff.getRect(page, '#topic-settings-container');
-		await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
-	});
+	// 	const rect = await visualDiff.getRect(page, '#topic-settings-container');
+	// 	await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
+	// });
 
-	it('properties', async function() {
-		await page.evaluate(async() => {
-			const contentSelector = document.querySelector('#properties-view');
-			const contentSelectorList = contentSelector.shadowRoot.querySelector('d2l-content-selector-list');
-			const editProperties = contentSelectorList.shadowRoot.querySelector('.edit-properties');
-			editProperties.click();
-			await contentSelector.updateComplete;
+	// it('properties', async function() {
+	// 	await page.evaluate(async() => {
+	// 		const contentSelector = document.querySelector('#properties-view');
+	// 		const contentSelectorList = contentSelector.shadowRoot.querySelector('d2l-content-selector-list');
+	// 		const editProperties = contentSelectorList.shadowRoot.querySelector('.edit-properties');
+	// 		editProperties.click();
+	// 		await contentSelector.updateComplete;
 
-			const properties = contentSelector.shadowRoot.querySelector('d2l-content-properties');
-			await properties.updateComplete;
-			await contentSelector.updateComplete;
-		});
+	// 		const properties = contentSelector.shadowRoot.querySelector('d2l-content-properties');
+	// 		await properties.updateComplete;
+	// 		await contentSelector.updateComplete;
+	// 	});
 
-		const rect = await visualDiff.getRect(page, '#properties-container');
-		await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
-	});
+	// 	const rect = await visualDiff.getRect(page, '#properties-container');
+	// 	await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
+	// });
 });

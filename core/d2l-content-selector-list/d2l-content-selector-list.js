@@ -32,6 +32,7 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 			_itemToDelete: { type: Object, attribute: false },
 			selectedContent: { type: Object, attribute: false },
 			_isLoading: { type: Boolean, attribute: false },
+			_scrollerHeight: { type: String, attribute: false },
 		};
 	}
 
@@ -110,6 +111,17 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 		.context-menu {
 			margin-right: 15px;
 		}
+
+		.container {
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+		}
+
+		d2l-scroller {
+			flex: 1;
+			overflow: auto;
+		}
 		`];
 	}
 
@@ -121,6 +133,7 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 		this._itemToDelete = null;
 		this._hasMore = true;
 		this._isLoading = true;
+		this._scrollerHeight = '0px';
 
 		this.contentTypes = [];
 		this.showDeleteAction = null;
@@ -143,7 +156,7 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 
 	render() {
 		return html`
-		<div>
+		<div class='container'>
 			<div class="input-container">
 				<d2l-input-search
 					label=${this.localize('searchEllipsis')}
@@ -160,7 +173,6 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 }
 			</div>
 			<d2l-scroller
-				maxHeight="415"
 				@load-more=${this._loadMore}
 				.hasMore=${this._hasMore}
 				?isLoading=${this._isLoading}

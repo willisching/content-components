@@ -6,7 +6,6 @@ class Scroller extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
 			hasMore: { type: Boolean },
-			maxHeight: { type: Number },
 			isLoading: { type: Boolean },
 		};
 	}
@@ -14,7 +13,6 @@ class Scroller extends InternalLocalizeMixin(LitElement) {
 	static get styles() {
 		return [radioStyles, css`
 		.item-container {
-			max-height: var(--max-height);
 			height: 100%;
 			overflow-y: auto;
 			padding-right: 3px;
@@ -29,17 +27,6 @@ class Scroller extends InternalLocalizeMixin(LitElement) {
 		this.items = [];
 		this.isLoading = false;
 		this.lastItemObserver = null;
-	}
-
-	async connectedCallback() {
-		super.connectedCallback();
-
-		this.style.setProperty(
-			'--max-height',
-			this.maxHeight
-				? `${this.maxHeight}px`
-				: '500px'
-		);
 	}
 
 	firstUpdated() {
@@ -101,4 +88,5 @@ class Scroller extends InternalLocalizeMixin(LitElement) {
 		this.dispatchEvent(new CustomEvent('load-more'));
 	}
 }
+
 customElements.define('d2l-scroller', Scroller);
