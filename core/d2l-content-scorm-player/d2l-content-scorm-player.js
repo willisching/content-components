@@ -58,11 +58,8 @@ class ContentScormPlayer extends LitElement {
 	}
 
 	async _setup() {
-		if (this.contextType !== 'topic') {
-			return;
-		}
-
 		const { tenantId, contentId, revisionId } = parse(this.d2lrn);
+
 		const httpClient = new ContentServiceBrowserHttpClient({
 			serviceUrl: this.contentServiceEndpoint
 		});
@@ -71,15 +68,22 @@ class ContentScormPlayer extends LitElement {
 			tenantId
 		});
 
-		const locale = getDocumentLocaleSettings()._language || getDocumentLocaleSettings()._fallbackLanguage;
-		const { topicId, orgUnitId } = this._parseContextId();
-		const { url } = await this.client.topic.launch({
-			id: createToolItemId({ toolItemType: ToolItemType.Topic, id: topicId}),
-			locale,
-			contentId,
-			revisionTag: revisionId,
-			orgUnitId
-		});
+		let url;
+		if (this.preview) {
+			const result = await this.client.content.getPreviewUrl({id: contentId, revisionTag: revisionId});
+			url = result.previewUrl;
+		} else if (this.contextType === 'topic') {
+			const locale = getDocumentLocaleSettings()._language || getDocumentLocaleSettings()._fallbackLanguage;
+			const { topicId, orgUnitId } = this._parseContextId();
+			const result = await this.client.topic.launch({
+				id: createToolItemId({ toolItemType: ToolItemType.Topic, id: topicId}),
+				locale,
+				contentId,
+				revisionTag: revisionId,
+				orgUnitId
+			});
+			url = result.url;
+		}
 
 		if (this.fullPageView) {
 			window.location.replace(url);
