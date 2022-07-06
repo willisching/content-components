@@ -252,19 +252,18 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 	async _handleAddTopic() {
 		this._isLoading = true;
 		const topicSettings = this._topicSettings.getSettings();
-		const topic = await this._client.topic.postItem({
-			topic: topicSettings.contentServiceTopic
-		});
 		this._value = {
 			d2lrn: buildD2lRn({
 				region: this._region,
 				tenantId: this.tenantId,
 				resourceType: topicSettings.resourceType,
-				contentId: topicSettings.contentServiceTopic.contentId,
-				revisionTag: topicSettings.contentServiceTopic.revisionTag
+				contentId: topicSettings.contentId,
+				revisionTag: topicSettings.revisionTag
 			}),
-			contentServiceTopicId: topic.id,
-			...topicSettings.brightspaceTopic
+			openInNewWindow: topicSettings.openInNewWindow,
+			title: topicSettings.title,
+			gradeCalculationMethod: topicSettings.gradeCalculationMethod,
+			gradeObjectAssociation: topicSettings.gradeObjectAssociation
 		};
 		this.dispatchEvent(new CustomEvent('addtopic'));
 		this._isLoading = false;

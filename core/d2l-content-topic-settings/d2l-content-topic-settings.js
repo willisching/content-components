@@ -273,22 +273,13 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 
 	getSettings() {
 		const settings = {
-			contentServiceTopic: {
-				contexts: {
-					[this.context]: {
-						resourceLinkTitle: this.content.title
-					}
-				},
-				contentId: this.content.id,
-				revisionTag: this._displayLatestVersion ? 'latest' : this.revisionTag,
-				gradeCalculationMethod: ContentTopicSettings.gradingCalculationMethods[this._selectedGradingIndex],
-				gradeObjectAssociation: this._gradeObjectAssociation
-			},
-			brightspaceTopic: {
-				openInNewWindow: ContentTopicSettings.coursePlayers[this._selectedPlayerIndex] === 'NewWindowPlayer',
-				title: this.content.title
-			},
-			resourceType: this._resourceType
+			contentId: this.content.id,
+			revisionTag: this._displayLatestVersion ? 'latest' : this.revisionTag,
+			resourceType: this._resourceType,
+			openInNewWindow: ContentTopicSettings.coursePlayers[this._selectedPlayerIndex] === 'NewWindowPlayer',
+			title: this.content.title,
+			gradeCalculationMethod: ContentTopicSettings.gradingCalculationMethods[this._selectedGradingIndex],
+			gradeObjectAssociation: this._gradeObjectAssociation
 		};
 		return settings;
 	}

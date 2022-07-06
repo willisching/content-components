@@ -11,6 +11,8 @@ class ContentTopicRenderer extends LitElement {
 			allowDownload: { type: Boolean, attribute: 'allow-download' },
 			allowDownloadOnError: { type: Boolean, attribute: 'allow-download-on-error' },
 			contentServiceEndpoint: { type: String, attribute: 'content-service-endpoint' },
+			fullPageView: { type: Boolean, attribute: 'full-page-view' },
+			orgUnitId: { type: Number, attribute: 'org-unit-id' },
 			topicId: { type: Number, attribute: 'topic-id' },
 		};
 	}
@@ -44,9 +46,10 @@ class ContentTopicRenderer extends LitElement {
 				?allow-download=${this.allowDownload}
 				?allow-download-on-error=${this.allowDownloadOnError}
 				content-service-endpoint=${ifDefined(this.contentServiceEndpoint)}
-				context-id=${this.topicId}
+				context-id=${this._buildContextId()}
 				context-type='topic'
 				d2lrn=${this._d2lrn}
+				?full-page-view=${this.fullPageView}
 			></d2l-content-renderer>
 		`;
 	}
@@ -57,6 +60,10 @@ class ContentTopicRenderer extends LitElement {
 
 	get renderer() {
 		return this.renderRoot.querySelector('#renderer');
+	}
+
+	_buildContextId() {
+		return `${this.topicId}${this.orgUnitId ? `:${this.orgUnitId}` : ''}`;
 	}
 
 }
