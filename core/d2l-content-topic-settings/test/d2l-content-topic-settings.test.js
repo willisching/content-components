@@ -77,22 +77,13 @@ describe('ContentTopicSettings', async() => {
 		it('getContent', () => {
 			const actual = el.getSettings();
 			expect(actual).to.deep.include({
-				contentServiceTopic: {
-					contexts: {
-						[CONTEXT]: {
-							resourceLinkTitle: TITLE
-						}
-					},
-					contentId: CONTENT_ID,
-					revisionTag: 'latest',
-					gradeCalculationMethod: 'Highest',
-					gradeObjectAssociation: true
-				},
-				brightspaceTopic: {
-					openInNewWindow: true,
-					title: TITLE
-				},
-				resourceType: 'scorm'
+				contentId: CONTENT_ID,
+				revisionTag: 'latest',
+				resourceType: 'scorm',
+				openInNewWindow: true,
+				title: TITLE,
+				gradeCalculationMethod: 'Highest',
+				gradeObjectAssociation: true
 			});
 		});
 
@@ -111,22 +102,13 @@ describe('ContentTopicSettings', async() => {
 
 			const actual = el.getSettings();
 			expect(actual).to.deep.include({
-				contentServiceTopic: {
-					contexts: {
-						[CONTEXT]: {
-							resourceLinkTitle: TITLE
-						}
-					},
-					contentId: CONTENT_ID,
-					revisionTag: REVISIONS[0].id,
-					gradeCalculationMethod: 'Average',
-					gradeObjectAssociation: false
-				},
-				brightspaceTopic: {
-					openInNewWindow: false,
-					title: TITLE
-				},
-				resourceType: 'scorm'
+				contentId: CONTENT_ID,
+				revisionTag: REVISIONS[0].id,
+				resourceType: 'scorm',
+				openInNewWindow: false,
+				title: TITLE,
+				gradeCalculationMethod: 'Average',
+				gradeObjectAssociation: false
 			});
 		});
 	});

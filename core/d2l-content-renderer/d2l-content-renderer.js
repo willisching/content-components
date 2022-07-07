@@ -10,6 +10,7 @@ class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEleme
 		return {
 			allowDownload: { type: Boolean, attribute: 'allow-download' },
 			allowDownloadOnError: { type: Boolean, attribute: 'allow-download-on-error' },
+			fullPageView: { type: Boolean, attribute: 'full-page-view' },
 			inserting: { type: Boolean },
 			preview: { type: Boolean }
 		};
@@ -94,9 +95,10 @@ class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEleme
 				context-id=${ifDefined(this.contextId)}
 				context-type=${ifDefined(this.contextType)}
 				d2lrn=${ifDefined(this.d2lrn)}
+				?full-page-view=${this.fullPageView}
+				?inserting=${this.inserting}
 				revision-tag=${ifDefined(this._revisionTag)}
 				tenant-id=${ifDefined(this._tenantId)}
-				?inserting=${this.inserting}
 			></d2l-content-media-player>
 		`;
 		}
@@ -105,9 +107,12 @@ class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEleme
 			return html`
 			<d2l-content-scorm-player
 				id="player"
-				?preview=${this.preview}
 				content-service-endpoint=${this.contentServiceEndpoint}
+				context-type=${ifDefined(this.contextType)}
+				context-id=${ifDefined(this.contextId)}
 				d2lrn=${this.d2lrn}
+				?full-page-view=${this.fullPageView}
+				?preview=${this.preview}
 			></d2l-content-scorm-player>
 			`;
 		}

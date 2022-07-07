@@ -13,6 +13,7 @@ class ContentActivityRenderer extends LitElement {
 			activity: { type: String },
 			allowDownload: { type: Boolean, attribute: 'allow-download'},
 			allowDownloadOnError: { type: Boolean, attribute: 'allow-download-on-error' },
+			fullPageView: { type: Boolean, attribute: 'full-page-view' },
 			framed: { type: Boolean, value: false }
 		};
 	}
@@ -62,6 +63,7 @@ class ContentActivityRenderer extends LitElement {
 				context-id=${this._topicId}
 				context-type='topic'
 				d2lrn=${this._d2lrn}
+				?full-page-view=${this.fullPageView}
 			></d2l-content-renderer>
 		`;
 	}
