@@ -85,6 +85,8 @@ class ContentScormPlayer extends InternalLocalizeMixin(LitElement) {
 				orgUnitId
 			});
 			url = result.url;
+		} else {
+			throw new Error('Invalid inputs');
 		}
 
 		if (this.fullPageView) {
