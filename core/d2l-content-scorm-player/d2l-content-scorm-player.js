@@ -60,7 +60,7 @@ class ContentScormPlayer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	async _setup() {
-		const { tenantId, contentId, revisionId } = parse(this.d2lrn);
+		const { tenantId, contentId, revisionId = 'latest' } = parse(this.d2lrn);
 
 		const httpClient = new ContentServiceBrowserHttpClient({
 			serviceUrl: this.contentServiceEndpoint
