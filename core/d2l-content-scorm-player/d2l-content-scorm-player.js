@@ -4,8 +4,9 @@ import { ContentServiceApiClient } from 'd2l-content-service-api-client';
 import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
 import { parse } from '../../util/d2lrn.js';
 import { createToolItemId, ToolItemType } from '../../util/tool-item-id.js';
+import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 
-class ContentScormPlayer extends LitElement {
+class ContentScormPlayer extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
 			contentServiceEndpoint: { type: String, attribute: 'content-service-endpoint' },
@@ -38,6 +39,7 @@ class ContentScormPlayer extends LitElement {
 		<div class="iframe-container">
 			<iframe
 				src=${this._url}
+				title=${this.localize('scormPlayer')}
 			></iframe>
 		</div>
 		`;

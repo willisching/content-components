@@ -42,10 +42,6 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 
 	static get styles() {
 		return css`
-		.action-group {
-
-		}
-
 		.view-container {
 			display: flex;
 			flex-direction: column;

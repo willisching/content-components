@@ -230,6 +230,7 @@ export default {
 	"saveSuccess": "Saved changes successfully.",
 	"saved": "Saved",
 	"saving": "Saving…",
+	"scormPlayer": "SCORM Player",
 	"screen": "Screen",
 	"search": "Search",
 	"searchByName": "Search by Name",
