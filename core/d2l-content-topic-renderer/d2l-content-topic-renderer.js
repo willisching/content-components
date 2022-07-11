@@ -50,6 +50,7 @@ class ContentTopicRenderer extends LitElement {
 				context-type='topic'
 				d2lrn=${this._d2lrn}
 				?full-page-view=${this.fullPageView}
+				preview
 			></d2l-content-renderer>
 		`;
 	}
