@@ -4,9 +4,9 @@ import { VisualDiff } from '@brightspace-ui/visual-diff';
 const VIDEO_SOURCE = 'https://d2l-content-test-files.s3.amazonaws.com/sample.webm';
 const AUDIO_SOURCE = 'https://d2l-content-test-files.s3.amazonaws.com/sample-audio.mp3';
 
-describe('d2l-content-media-player', () => {
+describe('d2l-content-renderer', () => {
 
-	const visualDiff = new VisualDiff('content-media-player', import.meta.url);
+	const visualDiff = new VisualDiff('content-renderer', import.meta.url);
 
 	let browser, page;
 
@@ -90,12 +90,31 @@ describe('d2l-content-media-player', () => {
 					content: 'application/json',
 					body: JSON.stringify([])
 				});
+			} else if (request.url() === 'http://localhost:8000/contentservice/api/0/content/2/revisions/latest?contextType=topic&contextId=12345') {
+				request.respond({
+					status: 200,
+					content: 'application/json',
+					body: JSON.stringify({
+						title: 'Title',
+						description: 'Description',
+						type: 'Scorm',
+						ready: true,
+					})
+				});
+			} else if (request.url() === 'http://localhost:8000/contentservice/api/0/content/2/revisions/latest/preview-url') {
+				request.respond({
+					status: 200,
+					content: 'application/json',
+					body: JSON.stringify({
+						previewUrl: 'mocked-scorm.html'
+					})
+				});
 			} else {
 				request.continue();
 			}
 		});
 		await page.goto(
-			`${visualDiff.getBaseUrl()}/core/d2l-content-media-player/test/d2l-content-media-player.visual-diff.html`,
+			`${visualDiff.getBaseUrl()}/core/d2l-content-renderer/test/d2l-content-renderer.visual-diff.html`,
 			{ waitUntil: ['networkidle0', 'load'] }
 		);
 		await page.bringToFront();
@@ -105,13 +124,18 @@ describe('d2l-content-media-player', () => {
 
 	after(async() => await browser.close());
 
-	it('media-player-video', async function() {
-		const rect = await visualDiff.getRect(page, '#media-player-video');
+	it('renderer-video', async function() {
+		const rect = await visualDiff.getRect(page, '#content-renderer-video');
 		await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
 	});
 
-	it('media-player-audio', async function() {
-		const rect = await visualDiff.getRect(page, '#media-player-audio');
+	it('renderer-audio', async function() {
+		const rect = await visualDiff.getRect(page, '#content-renderer-audio');
+		await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
+	});
+
+	it('renderer-scorm', async function() {
+		const rect = await visualDiff.getRect(page, '#content-renderer-scorm');
 		await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
 	});
 

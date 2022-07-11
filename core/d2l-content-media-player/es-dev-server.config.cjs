@@ -11,19 +11,19 @@ const contentServiceEndpointMap = {
 	},
 	'/contentservice/api/0/content/0/revisions/latest/resources/transcodes/signed-url?disposition=attachment&format=hd&contextType=topic&contextId=12345': {
 		body: {
-			value: 'sample.webm'
+			value: 'https://d2l-content-test-files.s3.amazonaws.com/sample.webm'
 		},
 		status: 200
 	},
 	'/contentservice/api/0/content/0/revisions/latest/resources/transcodes/signed-url?disposition=attachment&contextType=topic&contextId=12345': {
 		body: {
-			value: 'sample.webm'
+			value: 'https://d2l-content-test-files.s3.amazonaws.com/sample.webm'
 		},
 		status: 200
 	},
 	'/contentservice/api/0/content/0/revisions/latest/resources/transcodes/signed-url?disposition=attachment&format=sd&contextType=topic&contextId=12345': {
 		body: {
-			value: 'sample.webm'
+			value: 'https://d2l-content-test-files.s3.amazonaws.com/sample.webm'
 		},
 		status: 200
 	},
@@ -57,7 +57,7 @@ const contentServiceEndpointMap = {
 	},
 	'/contentservice/api/0/content/1/revisions/latest/resources/transcodes/signed-url?disposition=attachment&contextType=topic&contextId=12345': {
 		body: {
-			value: 'sample-audio.mp3'
+			value: 'https://d2l-content-test-files.s3.amazonaws.com/sample-audio.mp3'
 		},
 		status: 200
 	},

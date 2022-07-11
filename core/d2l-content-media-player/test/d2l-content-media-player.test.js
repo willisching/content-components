@@ -5,8 +5,8 @@ import ContentApi from '../../../node_modules/d2l-content-service-api-client/lib
 import { runConstructor } from '@brightspace-ui/core/tools/constructor-test-helper.js';
 import Sinon from 'sinon';
 
-const VIDEO_SOURCE = 'core/d2l-content-media-player/test/sample.webm';
-const AUDIO_SOURCE = 'core/d2l-content-media-player/test/sample-audio.mp3';
+const VIDEO_SOURCE = 'https://d2l-content-test-files.s3.amazonaws.com/sample.mp3';
+const AUDIO_SOURCE = 'https://d2l-content-test-files.s3.amazonaws.com/sample-audio.mp3';
 
 function dispatchEvent(elem, eventType, composed) {
 	const e = new Event(
