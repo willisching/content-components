@@ -79,13 +79,14 @@ export class Uploader {
 	}
 
 	async _uploadWorkflowAsync(file, title, totalFiles) {
+		const isAudioVideo = isAudioType(file.name) || isVideoType(file.name);
 		try {
 			this.totalFiles = totalFiles;
 			const extension = getExtension(file.name);
 			const createContentBody = {
 				title,
 			};
-			if (isAudioType(file.name) || isVideoType(file.name)) {
+			if (isAudioVideo) {
 				createContentBody.clientApp = 'LmsContent';
 			}
 			this.content = await this.apiClient.createContent(createContentBody);
@@ -125,7 +126,7 @@ export class Uploader {
 				this.s3Uploader = undefined;
 			}
 		} catch (error) {
-			const resolvedError = error.cause === 503 ? AV_CAPS_EXCEEDED_ERROR : resolveWorkerError(error);
+			const resolvedError = (isAudioVideo && error.cause === 503) ? AV_CAPS_EXCEEDED_ERROR : resolveWorkerError(error);
 			this.onError(resolvedError);
 		}
 	}
