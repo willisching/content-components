@@ -13,6 +13,7 @@ class ContentScormPlayer extends InternalLocalizeMixin(LitElement) {
 			contextType: { type: String, attribute: 'context-type' },
 			contextId: { type: String, attribute: 'context-id' },
 			d2lrn: { type: String },
+			framed: { type: Boolean, value: false },
 			fullPageView: { type: Boolean, attribute: 'full-page-view' },
 			preview: { type: Boolean },
 
@@ -63,7 +64,8 @@ class ContentScormPlayer extends InternalLocalizeMixin(LitElement) {
 		const { tenantId, contentId, revisionId = 'latest' } = parse(this.d2lrn);
 
 		const httpClient = new ContentServiceBrowserHttpClient({
-			serviceUrl: this.contentServiceEndpoint
+			serviceUrl: this.contentServiceEndpoint,
+			framed: this.framed
 		});
 		this.client = new ContentServiceApiClient({
 			httpClient,

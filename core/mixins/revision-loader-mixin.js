@@ -10,6 +10,7 @@ export const RevisionLoaderMixin = (superClass) => class extends superClass {
 		contextId: { type: String, attribute: 'context-id' },
 		contextType: { type: String, attribute: 'context-type' },
 		d2lrn: { type: String, attribute: 'd2lrn' },
+		framed: { type: Boolean, value: false },
 		revisionTag: { type: String, attribute: 'revision-tag' },
 		tenantId: { type: String, attribute: 'tenant-id' },
 		_contentId: { type: String, attribute: false },
@@ -71,7 +72,7 @@ export const RevisionLoaderMixin = (superClass) => class extends superClass {
 	}
 
 	async _loadRevision() {
-		const httpClient = new ContentServiceBrowserHttpClient({ serviceUrl: this.contentServiceEndpoint });
+		const httpClient = new ContentServiceBrowserHttpClient({ serviceUrl: this.contentServiceEndpoint, framed: this.framed });
 		const client = new ContentServiceApiClient({
 			contextId: this.contextId,
 			contextType: this.contextType,

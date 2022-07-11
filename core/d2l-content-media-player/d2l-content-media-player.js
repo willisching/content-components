@@ -25,7 +25,7 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 			_playbackSupported: { type: Boolean, attribute: false },
 			allowDownload: { type: Boolean, attribute: 'allow-download'},
 			allowDownloadOnError: { type: Boolean, attribute: 'allow-download-on-error' },
-			framed: { type: Boolean, value: false, attribute: 'framed' },
+			framed: { type: Boolean, value: false }
 		};
 	}
 
@@ -98,7 +98,8 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 		if (changedProperties.has('_revision')) {
 			if (!changedProperties._revision && this._revision) {
 				const httpClient = new ContentServiceBrowserHttpClient({
-					serviceUrl: this.contentServiceEndpoint
+					serviceUrl: this.contentServiceEndpoint,
+					framed: this.framed
 				});
 				this.client = new ContentServiceApiClient({
 					httpClient,

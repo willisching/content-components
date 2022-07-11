@@ -95,6 +95,7 @@ class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEleme
 				context-id=${ifDefined(this.contextId)}
 				context-type=${ifDefined(this.contextType)}
 				d2lrn=${ifDefined(this.d2lrn)}
+				?framed=${this.framed}
 				?full-page-view=${this.fullPageView}
 				?inserting=${this.inserting}
 				revision-tag=${ifDefined(this._revisionTag)}
@@ -111,6 +112,7 @@ class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEleme
 				context-type=${ifDefined(this.contextType)}
 				context-id=${ifDefined(this.contextId)}
 				d2lrn=${this.d2lrn}
+				?framed=${this.framed}
 				?full-page-view=${this.fullPageView}
 				?preview=${this.preview}
 			></d2l-content-scorm-player>
