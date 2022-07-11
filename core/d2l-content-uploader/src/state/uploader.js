@@ -5,6 +5,7 @@ import { randomizeDelay, sleep } from '../../../../util/delay.js';
 import { getExtension, isAudioType, isVideoType } from '../util/media-type-util.js';
 
 const UPLOAD_FAILED_ERROR = 'workerErrorUploadFailed';
+const AV_CAPS_EXCEEDED_ERROR = 'workerErrorAVCapsExceeded';
 
 /* eslint-disable no-unused-vars */
 export class Uploader {
@@ -78,13 +79,14 @@ export class Uploader {
 	}
 
 	async _uploadWorkflowAsync(file, title, totalFiles) {
+		const isAudioVideo = isAudioType(file.name) || isVideoType(file.name);
 		try {
 			this.totalFiles = totalFiles;
 			const extension = getExtension(file.name);
 			const createContentBody = {
 				title,
 			};
-			if (isAudioType(file.name) || isVideoType(file.name)) {
+			if (isAudioVideo) {
 				createContentBody.clientApp = 'LmsContent';
 			}
 			this.content = await this.apiClient.createContent(createContentBody);
@@ -124,7 +126,8 @@ export class Uploader {
 				this.s3Uploader = undefined;
 			}
 		} catch (error) {
-			this.onError(resolveWorkerError(error));
+			const resolvedError = (isAudioVideo && error.cause === 503) ? AV_CAPS_EXCEEDED_ERROR : resolveWorkerError(error);
+			this.onError(resolvedError);
 		}
 	}
 }

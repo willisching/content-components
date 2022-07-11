@@ -285,6 +285,7 @@ export default {
 	"viewNextCues": "View next {cueBatchSize} cues",
 	"viewPreviousCues": "View previous {cueBatchSize} cues",
 	"visits": "Visits",
+	"workerErrorAVCapsExceeded": "Your upload has hit your organization's Audio-Video content limit for this period and all content activity has been halted. An email will be sent to your System Admin and D2L representatives. Please do not attempt the upload again.",
 	"workerErrorCancelUploadFailed": "The upload could not be cancelled",
 	"workerErrorConflict": "A course already exists. Please refresh",
 	"workerErrorEmptyFile": "The file cannot be empty",
