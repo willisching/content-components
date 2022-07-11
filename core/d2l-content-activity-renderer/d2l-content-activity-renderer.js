@@ -63,6 +63,7 @@ class ContentActivityRenderer extends LitElement {
 				context-id=${this._topicId}
 				context-type='topic'
 				d2lrn=${this._d2lrn}
+				?framed=${this.framed}
 				?full-page-view=${this.fullPageView}
 			></d2l-content-renderer>
 		`;
