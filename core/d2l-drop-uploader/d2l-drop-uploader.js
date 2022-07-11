@@ -56,7 +56,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 			}
 			.file-drop-content-container {
 				text-align: center;
-				margin: 1.5rem 0;
+				margin: 1.5rem;
 			}
 			#file-select {
 				display: none;
@@ -77,6 +77,9 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 			}
 			table {
 				border-collapse: collapse;
+			}
+			.file-limit-message {
+				margin-block-end: 0;
 			}
 		`];
 	}
@@ -117,7 +120,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 						${this.errorMessage ? html`<p id="error-message" class="d2l-body-compact">${this.errorMessage}&nbsp;</p>` : ''}
 					</div>
 				</file-drop>
-				<p>${this.enableBulkUpload ? this.localize('maxNumberOfFiles', { _maxNumberOfFiles: this._maxNumberOfFiles }) : this.localize('fileSizeLimitMessage', { localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes) })}</p>
+				<p class="file-limit-message">${this.enableBulkUpload ? this.localize('maxNumberOfFiles', { _maxNumberOfFiles: this._maxNumberOfFiles }) : this.localize('fileSizeLimitMessage', { localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes) })}</p>
 			</div>
 		`;
 	}
