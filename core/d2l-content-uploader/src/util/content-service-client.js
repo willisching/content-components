@@ -1,5 +1,5 @@
 import * as querystring from '@chaitin/querystring';
-import auth from 'd2l-fetch-auth/src/unframed/index.js';
+import { fetchAuthFramed, fetchAuth } from 'd2l-fetch-auth';
 import { d2lfetch } from 'd2l-fetch/src/index.js';
 import { parse } from '../../../../util/d2lrn.js';
 
@@ -7,10 +7,11 @@ export default class ContentServiceClient {
 	constructor({
 		endpoint,
 		tenantId,
+		framed = false,
 	}) {
 		this.endpoint = endpoint;
 		this.tenantId = tenantId;
-		this.d2lfetch = d2lfetch.addTemp({ name: 'auth', fn: auth });
+		this.d2lfetch = d2lfetch.addTemp({ name: 'auth', fn: framed ? fetchAuthFramed : fetchAuth });
 	}
 
 	createContent(body) {
