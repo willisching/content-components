@@ -94,6 +94,10 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 			letter-spacing: 0.02rem;
 			line-height: 1.2rem;
 		}
+
+		.settings-container {
+			margin-bottom: 20px;
+		}
 		`];
 	}
 
@@ -158,7 +162,7 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 	render() {
 		if (this._isLoading) return '';
 		return html`
-			<div>
+			<div class="settings-container">
 				<h3 class="package-title">
 					${this._title}
 				</h3>

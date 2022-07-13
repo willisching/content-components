@@ -114,7 +114,7 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 			case VIEW.LIST:
 				return html`
 				<div class='view-container'>
-					<div class='bottom-padding main-view'>
+					<div class='main-view'>
 						<d2l-content-selector-list
 							?allowUpload=${this.allowUpload}
 							allowSelection
@@ -149,7 +149,7 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 			case VIEW.SETTINGS:
 				return html`
 				<div class="view-container">
-					<div class="bottom-padding main-view">
+					<div class="main-view">
 						<d2l-content-topic-settings
 							contentId=${this._contentId}
 							tenantId=${this.tenantId}
@@ -202,7 +202,7 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 			case VIEW.PROPERTIES:
 				return html`
 				<div class='view-container'>
-					<div class="bottom-padding main-view">
+					<div class="main-view">
 						<d2l-content-properties
 							d2lrn=${this.selectedObject}
 							serviceUrl=${this.serviceUrl}

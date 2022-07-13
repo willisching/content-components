@@ -103,6 +103,10 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 			margin-top: 10px;
 			font-size: 16px;
 		}
+
+		.settings-container {
+			margin-bottom: 20px;
+		}
 		`];
 	}
 

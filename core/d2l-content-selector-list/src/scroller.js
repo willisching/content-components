@@ -18,6 +18,10 @@ class Scroller extends InternalLocalizeMixin(LitElement) {
 			padding-right: 3px;
 			position: relative;
 		}
+
+		.padding {
+			height: 30px;
+		}
 		`];
 	}
 
@@ -58,6 +62,7 @@ class Scroller extends InternalLocalizeMixin(LitElement) {
 		return html`
 		<div class="item-container">
 			<slot></slot>
+			<div class="padding"></div>
 		</div>
 		`;
 	}
