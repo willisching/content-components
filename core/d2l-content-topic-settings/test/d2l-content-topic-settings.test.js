@@ -80,7 +80,7 @@ describe('ContentTopicSettings', async() => {
 				contentId: CONTENT_ID,
 				revisionTag: 'latest',
 				resourceType: 'scorm',
-				openInNewWindow: true,
+				openInNewWindow: false,
 				title: TITLE,
 				gradeCalculationMethod: 'Highest',
 				gradeObjectAssociation: true

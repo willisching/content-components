@@ -210,7 +210,7 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 							?checked="${this._recommendedPlayer === RecommendedPlayerOptions.embedPlayer}"
 						/>
 						<label for="use-embedded-player">
-							<div class="label-body">${this.localize('useEmbeddedPlayer')}</div>
+							<div class="label-body">${this.localize('useEmbeddedPlayerDefault')}</div>
 							<div class="label-description">${this.localize('useEmbeddedPlayerDescription')}</div>
 						</label>
 					</div>

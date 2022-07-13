@@ -11,6 +11,10 @@ import { parse } from '../../util/d2lrn';
 import { ContentServiceApiClient } from 'd2l-content-service-api-client';
 import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
 
+const RecommendedPlayerOptions = Object.freeze({
+	embedPlayer: 1,
+	newWindow: 2,
+});
 class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
@@ -154,6 +158,8 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 			revision = content.revisions.find(rev => rev.id === this.revisionTag);
 		}
 
+		this._recommendedPlayer = revision.options.recommendedPlayer;
+		this._selectedPlayerIndex = this._recommendedPlayer;
 		this._resourceType = revision.type.toLowerCase();
 		this._title = content.title;
 		this._isLoading = false;
@@ -262,11 +268,16 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 							<select
 								id="player-options"
 								aria-label=${this.localize('playerOptions')}
-								value=${this._selectedPlayerIndex}
+								value=${this._selectedPlayerIndex.toString()}
 								@change=${this._handleSelectedPlayerChange}
 							>
-								<option value="0">${this.localize('openPlayerInNewWindow')}</option>
-								<option value="1">${this.localize('useEmbeddedPlayer')}</option>
+								<option value="1">${this._recommendedPlayer === RecommendedPlayerOptions.embedPlayer
+		? this.localize('useEmbeddedPlayerRecommended')
+		: this.localize('useEmbeddedPlayer')}</option>
+								<option value="2">${this._recommendedPlayer === RecommendedPlayerOptions.newWindow
+		? this.localize('openPlayerInNewWindowRecommended')
+		: this.localize('openPlayerInNewWindow')}</option>
+								
 							</select>
 						</div>
 					</div>` : ''
