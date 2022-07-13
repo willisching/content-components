@@ -9,16 +9,23 @@ import { inputLabelStyles } from '@brightspace-ui/core/components/inputs/input-l
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { css, html, LitElement } from 'lit-element';
 import { RequesterMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
-import { isSupported, supportedTypeExtensions } from '../d2l-content-uploader/src/util/media-type-util.js';
+import { ContentServiceApiClient } from 'd2l-content-service-api-client';
+import { isSupported, supportedTypeExtensions } from '../../util/media-type-util.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
+import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
+import { Uploader } from '../../util/uploader.js';
 
 export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
 		return {
+			tenantId: { type: String, attribute: 'tenant-id' },
+			apiEndpoint: { type: String, attribute: 'api-endpoint' },
 			errorMessage: { type: String, attribute: 'error-message', reflect: true },
 			maxFileSizeInBytes: { type: Number, attribute: 'max-file-size' },
 			enableBulkUpload: { type: Boolean, attribute: 'enable-bulk-upload' },
+			allowAsyncProcessing: { type: Boolean },
 			supportedTypes: { type: Array },
+			videoAudioDisplay: { type: Boolean },
 		};
 	}
 
@@ -58,6 +65,25 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 				text-align: center;
 				margin: 1.5rem;
 			}
+			.d2l-file-uploader-browse-label{
+				cursor: pointer;
+			}
+			d2l-icon {
+				height: 60px;
+				width: 60px;
+				margin: 10px;
+				color: $d2l-color-ferrite;
+			  }
+			.file-uploader-background {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				flex-direction: column;
+				text-align: center;
+				width: 100%;
+				height: 250px;
+				font-size: 20px;
+			  }
 			#file-select {
 				display: none;
 			}
@@ -66,6 +92,9 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 			}
 			#error-message {
 				color: var(--d2l-color-feedback-error);
+			}
+			#file-max {
+				font-size: 14px;
 			}
 			.upload-container {
 				display: flex;
@@ -87,28 +116,54 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 	constructor() {
 		super();
 		this._maxNumberOfFiles = 50;
+		this.reactToUploaderError = this.reactToUploaderError.bind(this);
+		this.reactToUploaderSuccess = this.reactToUploaderSuccess.bind(this);
+		this.onProgress = this.onProgress.bind(this);
+		this.fileName = '';
 	}
 
 	async connectedCallback() {
 		super.connectedCallback();
+		const httpClient = new ContentServiceBrowserHttpClient({ serviceUrl: this.apiEndpoint });
+		const apiClient = new ContentServiceApiClient({ tenantId: this.tenantId, httpClient });
 
-		this.client = this.requestInstance('content-service-client');
-
-		this.userBrightspaceClient = this.requestInstance('user-brightspace-client');
+		this.uploader = new Uploader({
+			apiClient,
+			onSuccess: this.reactToUploaderSuccess,
+			onError: this.reactToUploaderError,
+			waitForProcessing: !this.allowAsyncProcessing,
+			onProgress: this.onProgress,
+		});
 	}
 
 	render() {
 		return html`
 			<div class="upload-container">
-				<file-drop @filedrop=${this.onFileDrop} ?multiple=${this.enableBulkUpload}>
-					<div class="file-drop-content-container">
-						<h2 class="d2l-heading-2">${this.localize('dropAudioVideoFile')}</h2>
-						<p class="d2l-body-standard">${this.localize('or')}</p>
-						<d2l-button
-							description=${this.localize('browseForFile')}
-							@click=${this.onBrowseClick}
-						>
-							${this.localize('browse')}
+				${this.videoAudioDisplay ? html`
+					<file-drop @filedrop=${this.onFileDrop} ?multiple=${this.enableBulkUpload}>
+							<div class="file-drop-content-container">
+								<h2 class="d2l-heading-2">${this.localize('dropAudioVideoFile')}</h2>
+								<p class="d2l-body-standard">${this.localize('or')}</p>
+								<d2l-button
+									description=${this.localize('browseForFile')}
+									@click=${this.onBrowseClick}
+								>
+									${this.localize('browse')}
+									<input
+										id="file-select"
+										type="file"
+										accept=${this.supportedTypes.flatMap(mediaType => supportedTypeExtensions[mediaType])}
+										@change=${this.onFileInputChange}
+										?multiple=${this.enableBulkUpload}
+									/>
+								</d2l-button>
+								${this.errorMessage ? html`<p id="error-message" class="d2l-body-compact">${this.errorMessage}&nbsp;</p>` : ''}
+							</div>
+						</file-drop>
+						<p class="file-limit-message">${this.enableBulkUpload ? this.localize('maxNumberOfFiles', { _maxNumberOfFiles: this._maxNumberOfFiles }) : this.localize('fileSizeLimitMessage', { localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes) })}</p>
+						` : html`
+							<label class="d2l-file-uploader-browse-label">
+							<file-drop @filedrop=${this.onFileDrop} ?multiple=${this.enableBulkUpload}>
 							<input
 								id="file-select"
 								type="file"
@@ -116,12 +171,16 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 								@change=${this.onFileInputChange}
 								?multiple=${this.enableBulkUpload}
 							/>
-						</d2l-button>
-						${this.errorMessage ? html`<p id="error-message" class="d2l-body-compact">${this.errorMessage}&nbsp;</p>` : ''}
-					</div>
-				</file-drop>
-				<p class="file-limit-message">${this.enableBulkUpload ? this.localize('maxNumberOfFiles', { _maxNumberOfFiles: this._maxNumberOfFiles }) : this.localize('fileSizeLimitMessage', { localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes) })}</p>
-			</div>
+							<div class="file-uploader-background">
+								<d2l-icon icon="d2l-tier2:upload"></d2l-icon>
+								<div>${this.localize('dropFilesOrClick')}</div>
+							${this.errorMessage ? html`<p id="error-message" class="d2l-body-compact">${this.errorMessage}&nbsp;</p>` : ''}
+							</div>
+						</file-drop>
+						</label>
+						<p class="file-limit-message">${this.enableBulkUpload ? this.localize('maxNumberOfFiles', { _maxNumberOfFiles: this._maxNumberOfFiles }) : this.localize('fileSizeLimitMessage', { localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes) })}</p>
+						`}
+						</div>
 		`;
 	}
 
@@ -137,59 +196,89 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 		this.processFiles(event.target.files);
 	}
 
+	onProgress(progress) {
+		this.dispatchEvent(new CustomEvent('on-progress', {
+			detail: {
+				progress,
+			},
+		}));
+	}
+
+	onUploadError(message) {
+		this.dispatchEvent(new CustomEvent('on-uploader-error', {
+			detail: {
+				view: 'UPLOAD',
+				fileName: '',
+				errorMessage: message,
+			},
+		}));
+	}
+
 	processFiles(files) {
 		if (files.length !== 1 && !this.enableBulkUpload) {
-			this.dispatchEvent(new CustomEvent('file-drop-error', {
-				detail: {
-					message: this.localize('mayOnlyUpload1File'),
-				},
-				bubbles: true,
-				composed: true,
-			}));
-			return;
+			return this.onUploadError(this.localize('mayOnlyUpload1File'));
 		}
 
 		if (this.enableBulkUpload && files.length > this._maxNumberOfFiles) {
-			this.dispatchEvent(new CustomEvent('file-drop-error', {
-				detail: {
-					message: this.localize('tooManyFiles'),
-				},
-				bubbles: true,
-				composed: true,
-			}));
-			return;
+			return this.onUploadError(this.localize('tooManyFiles'));
 		}
 
 		const acceptedFiles = [];
 		for (const file of files) {
 			if (!isSupported(file.name)) {
-				this.dispatchEvent(new CustomEvent('file-error', {
-					detail: {
-						message: this.localize('invalidFileType'),
-					},
-					bubbles: true,
-					composed: true,
-				}));
-				return;
+				return this.onUploadError(this.localize('invalidFileType'));
 			}
 			if (file.size > this.maxFileSizeInBytes) {
-				this.dispatchEvent(new CustomEvent('file-error', {
-					detail: {
-						message: this.localize('fileTooLarge', { localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes) }),
-					},
-					bubbles: true,
-					composed: true,
-				}));
-				return;
+				return this.onUploadError(this.localize('fileTooLarge', { localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes) }));
 			}
 			acceptedFiles.push(file);
 		}
 
-		this.dispatchEvent(new CustomEvent('file-change', {
-			detail: { acceptedFiles },
-			bubbles: true,
-			composed: true,
+		this.startUpload(acceptedFiles);
+	}
+
+	reactToUploaderError(error) {
+		this.dispatchEvent(new CustomEvent('on-uploader-error', {
+			detail: {
+				// can we pass the filename?
+				fileName: this.fileName,
+				errorMessage: this.localize(error),
+			},
 		}));
+	}
+
+	reactToUploaderSuccess(value) {
+		this.dispatchEvent(new CustomEvent('on-uploader-success', {
+			detail: {
+				d2lrn: value,
+			},
+		}));
+	}
+
+	async startUpload(acceptedFiles) {
+		// reset uploader from any previous state, if any
+		this.uploader.reset();
+		const files = acceptedFiles;
+		this.dispatchEvent(new CustomEvent('change-view', {
+			detail: {
+				view: 'PROGRESS',
+				fileName: files[0].name,
+				errorMessage: '',
+			},
+		}));
+		for (let index = 0; index < files.length; index++) {
+			const file = files[index];
+			this.fileName = file.name;
+			this.dispatchEvent(new CustomEvent('bulk-upload-details', {
+				detail: {
+					fileName: file.name,
+					// remove extension from name?
+					totalFiles: files.length,
+					progress: index,
+				},
+			}));
+			await this.uploader.uploadFile(file, file.name, file.type, files.length);
+		}
 	}
 }
 
