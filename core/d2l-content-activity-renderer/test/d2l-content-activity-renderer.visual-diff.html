@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>d2l-content-activity-renderer</title>
+  <script type="module">
+    import '@brightspace-ui/core/components/typography/typography.js';
+    import '../d2l-content-activity-renderer.js';
+  </script>
+  <style>
+    .visual-diff { margin-bottom: 30px; }
+	d2l-content-activity-renderer {
+		width: 100%;
+	}
+  </style>
+</head>
+<body class="d2l-typography">
+  <div class="visual-diff">
+    <d2l-content-activity-renderer
+		id="content-activity-renderer-video"
+		activity='{
+			"links":[
+				{
+					"rel":[
+						"alternate"
+					],
+					"href":"http://localhost:8000/topics/0/0",
+					"class":[
+						"content-service-resource"
+					]
+				}
+			]
+		}'
+	></d2l-content-activity-renderer>
+  </div>
+  <div class="visual-diff">
+    <d2l-content-activity-renderer
+		id="content-activity-renderer-audio"
+		content-service-endpoint="http://localhost:8000/contentservice"
+		activity='{
+			"links":[
+				{
+					"rel":[
+						"alternate"
+					],
+					"href":"http://localhost:8000/topics/0/1",
+					"class":[
+						"content-service-resource"
+					]
+				}
+			]
+		}'
+	></d2l-content-activity-renderer>
+  </div>
+  <div class="visual-diff">
+    <d2l-content-activity-renderer
+		id="content-activity-renderer-scorm"
+		content-service-endpoint="http://localhost:8000/contentservice"
+		activity='{
+			"links":[
+				{
+					"rel":[
+						"alternate"
+					],
+					"href":"http://localhost:8000/topics/0/2",
+					"class":[
+						"content-service-resource"
+					]
+				}
+			]
+		}'
+	></d2l-content-activity-renderer>
+  </div>
+</body>
+</html>
+

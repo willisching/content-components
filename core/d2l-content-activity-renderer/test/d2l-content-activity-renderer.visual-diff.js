@@ -4,14 +4,14 @@ import { VisualDiff } from '@brightspace-ui/visual-diff';
 const VIDEO_SOURCE = 'https://d2l-content-test-files.s3.amazonaws.com/sample.webm';
 const AUDIO_SOURCE = 'https://d2l-content-test-files.s3.amazonaws.com/sample-audio.mp3';
 
-describe('d2l-content-topic-renderer', () => {
+describe('d2l-content-activity-renderer', () => {
 
-	const visualDiff = new VisualDiff('content-topic-renderer', import.meta.url);
+	const visualDiff = new VisualDiff('content-activity-renderer', import.meta.url);
 
 	let browser, page;
 
 	before(async() => {
-		browser = await puppeteer.launch();
+		browser = await puppeteer.launch({ headless: true });
 		page = await visualDiff.createPage(browser);
 		await page.setRequestInterception(true);
 		page.on('request', (request) => {
@@ -22,7 +22,7 @@ describe('d2l-content-topic-renderer', () => {
 					body: JSON.stringify({
 						title: 'Title',
 						description: 'Description',
-						format: 'webm',
+						format: 'mp4',
 						type: 'Video',
 						ready: true,
 					})
@@ -109,23 +109,41 @@ describe('d2l-content-topic-renderer', () => {
 						previewUrl: 'mocked-scorm.html'
 					})
 				});
-			} else if (request.url() === 'http://localhost:8000/d2l/le/content/contentservice/resources/topics/0/d2lrn') {
+			} else if (request.url() === 'http://localhost:8000/topics/0/0') {
 				request.respond({
 					status: 200,
 					content: 'application/json',
-					body: JSON.stringify('d2l:brightspace:content:region:0:video:0')
+					body: JSON.stringify({
+						properties: {
+							d2lrn: 'd2l:brightspace:content:region:0:video:0',
+							contentServiceEndpoint: 'http://localhost:8000/contentservice',
+							topicId: '0'
+						}
+					})
 				});
-			} else if (request.url() === 'http://localhost:8000/d2l/le/content/contentservice/resources/topics/1/d2lrn') {
+			} else if (request.url() === 'http://localhost:8000/topics/0/1') {
 				request.respond({
 					status: 200,
 					content: 'application/json',
-					body: JSON.stringify('d2l:brightspace:content:region:0:video:1')
+					body: JSON.stringify({
+						properties: {
+							d2lrn: 'd2l:brightspace:content:region:0:audio:1',
+							contentServiceEndpoint: 'http://localhost:8000/contentservice',
+							topicId: '1'
+						}
+					})
 				});
-			} else if (request.url() === 'http://localhost:8000/d2l/le/content/contentservice/resources/topics/2/d2lrn') {
+			} else if (request.url() === 'http://localhost:8000/topics/0/2') {
 				request.respond({
 					status: 200,
 					content: 'application/json',
-					body: JSON.stringify('d2l:brightspace:content:region:0:video:2')
+					body: JSON.stringify({
+						properties: {
+							d2lrn: 'd2l:brightspace:content:region:0:scorm:2',
+							contentServiceEndpoint: 'http://localhost:8000/contentservice',
+							topicId: '2'
+						}
+					})
 				});
 			} else if (request.url() === 'http://localhost:8000/contentservice/api/0/topic/1002/launch') {
 				request.respond({
@@ -139,12 +157,18 @@ describe('d2l-content-topic-renderer', () => {
 					content: 'application/json',
 					body: JSON.stringify({})
 				});
+			} else if (request.url() === 'http://localhost:8000/d2l/lp/auth/oauth2/token') {
+				request.respond({
+					status: 200,
+					content: 'application/json',
+					body: JSON.stringify({})
+				});
 			} else {
 				request.continue();
 			}
 		});
 		await page.goto(
-			`${visualDiff.getBaseUrl()}/core/d2l-content-topic-renderer/test/d2l-content-topic-renderer.visual-diff.html`,
+			`${visualDiff.getBaseUrl()}/core/d2l-content-activity-renderer/test/d2l-content-activity-renderer.visual-diff.html`,
 			{ waitUntil: ['networkidle0', 'load'] }
 		);
 		await page.bringToFront();
@@ -155,17 +179,17 @@ describe('d2l-content-topic-renderer', () => {
 	after(async() => await browser.close());
 
 	it('renderer-video', async function() {
-		const rect = await visualDiff.getRect(page, '#content-topic-renderer-video');
+		const rect = await visualDiff.getRect(page, '#content-activity-renderer-video');
 		await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
 	});
 
 	it('renderer-audio', async function() {
-		const rect = await visualDiff.getRect(page, '#content-topic-renderer-audio');
+		const rect = await visualDiff.getRect(page, '#content-activity-renderer-audio');
 		await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
 	});
 
 	it('renderer-scorm', async function() {
-		const rect = await visualDiff.getRect(page, '#content-topic-renderer-scorm');
+		const rect = await visualDiff.getRect(page, '#content-activity-renderer-scorm');
 		await visualDiff.screenshotAndCompare(page, this.test.fullTitle(), { clip: rect });
 	});
 
