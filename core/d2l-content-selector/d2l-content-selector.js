@@ -1,5 +1,5 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
-import { ContentServiceApiClient } from 'd2l-content-service-api-client';
+import { ContentServiceApiClient, getRegion } from 'd2l-content-service-api-client';
 import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
 import '../d2l-content-selector-list.js';
 import '../d2l-content-topic-settings.js';
@@ -121,7 +121,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 		super.connectedCallback();
 		const httpClient = new ContentServiceBrowserHttpClient({ serviceUrl: this.serviceUrl });
 		this._client = new ContentServiceApiClient({ tenantId: this.tenantId, httpClient });
-		this._region = (await this._client.region.getRegion()).region;
+		this._region = getRegion({ serviceUrl: this.serviceUrl });
 	}
 
 	render() {

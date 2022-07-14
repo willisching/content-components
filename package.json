@@ -54,7 +54,7 @@
     "@chaitin/querystring": "^1.1.0",
     "@createjs/easeljs": "^2.0.0-beta.4",
     "@polymer/polymer": "^3",
-    "d2l-content-service-api-client": "^7.9.0",
+    "d2l-content-service-api-client": "^7.10.0",
     "d2l-content-service-browser-http-client": "^7.9.0",
     "d2l-fetch": "^2",
     "d2l-fetch-auth": "^1",
