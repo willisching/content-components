@@ -12,8 +12,8 @@ export class BulkComplete extends RevisionLoaderMixin(InternalLocalizeMixin(LitE
 			totalFiles: { type: Number, attribute: 'total-files' },
 			completedFiles: { type: Number, attribute: 'completed-files' },
 			bulkErrorMessages: { type: Object },
+			hasFailures: { type: Boolean, attribute: 'has-failures' },
 
-			hasFailures: { type: Boolean },
 			_failedFiles: { type: Number, attribute: false },
 		};
 	}

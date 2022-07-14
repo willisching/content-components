@@ -170,7 +170,7 @@ describe('ContentSelector', async() => {
 			await oneEvent(selectorList, 'on-upload-button-click');
 			await el.updateComplete;
 
-			const uploader = el.shadowRoot.querySelector('d2l-content-uploader');
+			const uploader = el.shadowRoot.querySelector('d2l-drop-uploader');
 			assert.isNotNull(uploader);
 
 			// test the back button

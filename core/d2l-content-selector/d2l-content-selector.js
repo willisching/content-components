@@ -38,7 +38,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 			selectedObject: { type: String, reflect: true, attribute: 'selected-object' },
 			serviceUrl: { type: String, attribute: 'service-url' },
 			tenantId: { type: String, attribute: 'tenant-id' },
-			hasFailures: { type: Boolean },
+			_hasFailures: { type: Boolean },
 
 			_contentId: { type: String },
 			_isLoading: { type: Boolean },
@@ -52,9 +52,6 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 
 	static get styles() {
 		return css`
-		.action-group {
-
-		}
 
 		.view-container {
 			display: flex;
@@ -117,7 +114,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 		this._d2lrnList = [];
 		this._fileName = '';
 		this._uploadProgress = 0;
-		this.hasFailures = false;
+		this._hasFailures = false;
 	}
 
 	async connectedCallback() {
@@ -125,16 +122,15 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 		const httpClient = new ContentServiceBrowserHttpClient({ serviceUrl: this.serviceUrl });
 		this._client = new ContentServiceApiClient({ tenantId: this.tenantId, httpClient });
 		this._region = (await this._client.region.getRegion()).region;
-
 	}
 
 	render() {
 		if (this._isLoading) {
 			return html`
 				<d2l-loading-spinner
-								class="loading-spinner"
-								size=${SPINNER_SIZE}
-							></d2l-loading-spinner>
+					class="loading-spinner"
+					size=${SPINNER_SIZE}
+				></d2l-loading-spinner>
 			`;
 		}
 		switch (this._selectedView) {
@@ -178,7 +174,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 								description=${this.localize('cancel')}
 							>${this.localize('cancel')}</d2l-button>
 					</div>
-					</div>
+				</div>
 				`;
 			case VIEW.SETTINGS:
 				return html`
@@ -236,7 +232,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 								@click=${this._uploadBack}
 							>${this.localize('cancel')}</d2l-button>
 						</div>
-						</div>
+					</div>
 				`;
 			case VIEW.PROPERTIES:
 				return html`
@@ -261,19 +257,25 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 								@click=${this._handlePropertiesSaved}
 								?disabled=${this._saveButtonPropertiesDisabled}
 							>${this._totalFiles > 0 ? this.localize('next') : this.localize('save')}</d2l-button>
+							<d2l-button
+							id='properties-back'
+							description=${this.localize('back')}
+							@click=${this._handleSettingsBack}
+							?hidden=${this._totalFiles > 0}
+						>${this.localize('back')}</d2l-button>
 						</div>
-						</div>
+					</div>
 				`;
 			case VIEW.PROGRESS:
 				return html`
 					<div class="view-container">
 						<div id="uploader-wrapper" class="main-view">
-						<d2l-upload-progress
-							file-name=${this._fileName}
-							total-files=${this._totalFiles}
-							upload-progress=${this._uploadProgress}
-							completed-files=${this._progress}>
-						</d2l-upload-progress>
+							<d2l-upload-progress
+								file-name=${this._fileName}
+								total-files=${this._totalFiles}
+								upload-progress=${this._uploadProgress}
+								completed-files=${this._progress}>
+							</d2l-upload-progress>
 						</div>
 						<div class="action-group">
 							<d2l-button
@@ -285,40 +287,40 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 								@click=${this._handleCancel}
 							>${this.localize('cancel')}</d2l-button>
 						</div>
-						</div>
+					</div>
 				`;
 			case VIEW.BULK:
 				return html`
 					<div class="view-container">
-					<div id="uploader-wrapper" class="main-view">
-						<d2l-bulk-complete
-							file-name=${this._fileName}
-							total-files=${this._totalFiles}
-							completed-files=${this._uploadSuccessFiles}
-							.bulkErrorMessages=${this._bulkErrorMessages}
-							@change-view=${this.changeView}
-							@edit-properties=${this.editBulkProperties}
-							@default-properties=${this._uploadBack}
-							.hasFailures=${this.hasFailures}
-							>
-						</d2l-bulk-complete>
+						<div id="uploader-wrapper" class="main-view">
+							<d2l-bulk-complete
+								file-name=${this._fileName}
+								total-files=${this._totalFiles}
+								completed-files=${this._uploadSuccessFiles}
+								?has-failures=${this._hasFailures}
+								.bulkErrorMessages=${this._bulkErrorMessages}
+								@change-view=${this.changeView}
+								@edit-properties=${this.editBulkProperties}
+								@default-properties=${this._uploadBack}
+								>
+							</d2l-bulk-complete>
 						</div>
-						${this.hasFailures ?
+						${this._hasFailures ?
 		html`
-			<div class="action-group">
-									<d2l-button
-										id='bulk-complete-button'
-										description=${this._uploadSuccessFiles === 0 ? this.localize('back') : this.localize('continue')}
-										@click=${this._uploadSuccessFiles === 0 ? this._uploadBack : this._handleBulkContinue}
-									>${this._uploadSuccessFiles === 0 ? this.localize('back') : this.localize('continue')}</d2l-button>
-									<d2l-button
-										description=${this.localize('cancel')}
-										@click=${this._handleCancel}
-									>${this.localize('cancel')}</d2l-button>
-								</div>
-		` : `
-					`}
-						</div>
+					<div class="action-group">
+						<d2l-button
+							id='bulk-complete-button'
+							description=${this._uploadSuccessFiles === 0 ? this.localize('back') : this.localize('continue')}
+							@click=${this._uploadSuccessFiles === 0 ? this._uploadBack : this._handleBulkContinue}
+						>${this._uploadSuccessFiles === 0 ? this.localize('back') : this.localize('continue')}</d2l-button>
+						<d2l-button
+							description=${this.localize('cancel')}
+							@click=${this._handleCancel}
+						>${this.localize('cancel')}</d2l-button>
+					</div>`
+		: `
+		`}
+					</div>
 				`;
 			default:
 				return html`<p>something went wrong</p>`;
@@ -344,10 +346,6 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 		this._selectedView = VIEW.PROPERTIES;
 	}
 
-	enableNextButton() {
-		this._nextButtonSettingsDisabled = false;
-	}
-
 	onProgress(event) {
 		this._uploadProgress = event.detail.progress;
 		this.requestUpdate();
@@ -357,9 +355,9 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 		this._progress += 1;
 		this._errorMessage = event.detail.errorMessage;
 		this._bulkErrorMessages[this._fileName] = this._errorMessage;
-		// if bulk and last file is error, show bulk-complete failue page
+		// if bulk and last file is error, show bulk-complete failure page
 		if (this._progress === this._totalFiles) {
-			this.hasFailures = true;
+			this._hasFailures = true;
 			this._selectedView = VIEW.BULK;
 		}
 		this.requestUpdate();
@@ -380,19 +378,17 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 		} else {
 			this.selectedObject = value;
 		}
-		this._d2lrnList.push([this._contentId, this.selectedObject]);
 
-		// if bulk upload, need to make sure all files have been uploaded before continuing
-		if (this._progress !== this._totalFiles) {
-			// update progress and continue to wait
-
-		} else if (this._totalFiles > 1) {
-			// update _selectedView to multipage editing dialog if bulk
-			this.hasFailures = this._uploadSuccessFiles !== this._totalFiles;
-			this._selectedView = VIEW.BULK;
-		} else {
+		if (this._totalFiles === 1) {
 			// go to properties page if single file
 			this._selectedView = VIEW.PROPERTIES;
+		} else {
+			// if bulk, add to list of d2lrns for properties later
+			this._d2lrnList.push([this._contentId, this.selectedObject]);
+			if (this._progress === this._totalFiles) {
+				this._hasFailures = this._uploadSuccessFiles !== this._totalFiles;
+				this._selectedView = VIEW.BULK;
+			}
 		}
 	}
 
@@ -402,6 +398,10 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 
 	get _contentProperties() {
 		return this.shadowRoot.querySelector('d2l-content-properties');
+	}
+
+	_enableNextButton() {
+		this._nextButtonSettingsDisabled = false;
 	}
 
 	async _handleAddTopic() {
@@ -426,7 +426,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 	}
 
 	_handleBulkContinue() {
-		this.hasFailures = false;
+		this._hasFailures = false;
 		this.requestUpdate();
 	}
 
@@ -502,7 +502,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 		this._fileName = '';
 		this._uploadProgress = 0;
 		this._errorMessage = '';
-		this.hasFailures = false;
+		this._hasFailures = false;
 		this._selectedView = VIEW.LIST;
 	}
 
