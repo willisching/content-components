@@ -100,7 +100,7 @@ class ContentSelector extends InternalLocalizeMixin(LitElement) {
 
 		const httpClient = new ContentServiceBrowserHttpClient({serviceUrl: this.serviceUrl});
 		this._client = new ContentServiceApiClient({ tenantId: this.tenantId, httpClient });
-		this._region = getRegion(this.serviceUrl);
+		this._region = getRegion({ serviceUrl: this.serviceUrl });
 	}
 
 	render() {
