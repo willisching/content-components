@@ -11,9 +11,9 @@ export class BulkComplete extends RevisionLoaderMixin(InternalLocalizeMixin(LitE
 			fileName: { type: String, attribute: 'file-name', reflect: true },
 			totalFiles: { type: Number, attribute: 'total-files' },
 			completedFiles: { type: Number, attribute: 'completed-files' },
-			bulkErrorMessages: { type: Object, attribute: 'bulk-error-messages' },
+			bulkErrorMessages: { type: Object },
+			hasFailures: { type: Boolean, attribute: 'has-failures' },
 
-			_hasFailures: { type: Boolean, attribute: false },
 			_failedFiles: { type: Number, attribute: false },
 		};
 	}
@@ -45,6 +45,7 @@ export class BulkComplete extends RevisionLoaderMixin(InternalLocalizeMixin(LitE
 
 			#default-settings-label {
 				padding-bottom: 20px;
+				font-size: 14px;
 			}
 
 			.failed-files-info {
@@ -75,7 +76,6 @@ export class BulkComplete extends RevisionLoaderMixin(InternalLocalizeMixin(LitE
 	async connectedCallback() {
 		super.connectedCallback();
 		this._failedFiles = this.totalFiles - this.completedFiles;
-		this._hasFailures = this._failedFiles > 0;
 	}
 
 	render() {
@@ -83,16 +83,8 @@ export class BulkComplete extends RevisionLoaderMixin(InternalLocalizeMixin(LitE
 			<div id="file-details-container">
 					<p class="d2l-body-standard">${this.completedFiles === this.totalFiles ? this.localize('uploadBulkFinished', { totalFiles: this.totalFiles }) : this.localize('uploadBulkFinishedWithErrors', { totalFiles: this.totalFiles, completedFiles: this.completedFiles })}</p>
 				</div>
-			${this._hasFailures ? this._renderFailures() : this._renderContinue()}
+			${this.hasFailures ? this._renderFailures() : this._renderContinue()}
 		`;
-	}
-
-	onBack() {
-		this.dispatchEvent(new CustomEvent('upload-view'));
-	}
-
-	onContinue() {
-		this._hasFailures = false;
 	}
 
 	onDefaultProperties() {
@@ -133,22 +125,7 @@ export class BulkComplete extends RevisionLoaderMixin(InternalLocalizeMixin(LitE
 				<div class="failed-file-list">
 					${Object.keys(this.bulkErrorMessages).map(file => html`<div class="failed-file"><p class="failed-file-name">${file}</p><p class="failed-file-message">${this.bulkErrorMessages[file]}</p></div>`)}
 				</div>
-				${this._failedFiles === this.totalFiles ? html`
-					<d2l-button
-						description=${this.localize('back')}
-						@click=${this.onBack}>
-						${this.localize('back')}
-					</d2l-button>
-				`
-		: html`
-			<d2l-button
-				description=${this.localize('continue')}
-				@click=${this.onContinue}>
-				${this.localize('continue')}
-			</d2l-button>
-		`
-}
-					</div>
+			</div>
 		`;
 	}
 }

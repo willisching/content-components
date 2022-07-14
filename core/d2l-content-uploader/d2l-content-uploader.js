@@ -1,12 +1,10 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
-import { ProviderMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
+import { ContentServiceApiClient } from 'd2l-content-service-api-client';
+import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
 import { parse as d2lrnParse, toString as d2lrnToString } from '../../util/d2lrn.js';
-import ContentServiceClient from './src/util/content-service-client.js';
-import UserBrightspaceClient from './src/util/user-brightspace-client.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
-import { Uploader } from './src/state/uploader.js';
 
 import '../d2l-drop-uploader.js';
 import '../d2l-topic-preview.js';
@@ -21,7 +19,7 @@ const VIEW = Object.freeze({
 
 const SUPPORTED_TYPES = ['Audio', 'Video'];
 
-export class Main extends InternalLocalizeMixin(MobxReactionUpdate(ProviderMixin(LitElement))) {
+export class Main extends InternalLocalizeMixin(MobxReactionUpdate(LitElement)) {
 	static get properties() {
 		return {
 			allowAsyncProcessing: { type: Boolean, attribute: 'allow-async-processing' },
@@ -39,7 +37,6 @@ export class Main extends InternalLocalizeMixin(MobxReactionUpdate(ProviderMixin
 			_currentView: { type: Number, attribute: false },
 			_errorMessage: { type: String, attribute: false },
 			_fileName: { type: String, attribute: false },
-			_fileSize: { type: Number, attribute: false },
 			_fileType: { type: String, attribute: false },
 			_contentId: { type: String, attribute: false },
 		};
@@ -55,28 +52,16 @@ export class Main extends InternalLocalizeMixin(MobxReactionUpdate(ProviderMixin
 		this._currentView = VIEW.LOADING;
 		this._errorMessage = '';
 		this._fileName = '';
-		this._fileSize = 0;
 		this._fileType = '';
-		this.reactToUploadError = this.reactToUploadError.bind(this);
-		this.reactToUploadSuccess = this.reactToUploadSuccess.bind(this);
+		this._uploadProgress = 0;
 	}
 
 	async connectedCallback() {
 		super.connectedCallback();
-		const apiClient = new ContentServiceClient({
-			endpoint: this.apiEndpoint,
+		const httpClient = new ContentServiceBrowserHttpClient({ serviceUrl: this.apiEndpoint });
+		const apiClient = new ContentServiceApiClient({
+			httpClient,
 			tenantId: this.tenantId,
-		});
-		this.provideInstance('content-service-client', apiClient);
-
-		const userBrightspaceClient = new UserBrightspaceClient();
-		this.provideInstance('user-brightspace-client', userBrightspaceClient);
-
-		this._uploader = new Uploader({
-			apiClient,
-			onSuccess: this.reactToUploadSuccess,
-			onError: this.reactToUploadError,
-			waitForProcessing: !this.allowAsyncProcessing,
 		});
 
 		if (this.value) {
@@ -102,21 +87,27 @@ export class Main extends InternalLocalizeMixin(MobxReactionUpdate(ProviderMixin
 				view = this.canUpload ? html`
 					<d2l-drop-uploader
 						id="prompt-with-file-drop-enabled"
+						tenant-id=${this.tenantId}
+						api-endpoint=${this.apiEndpoint}
+						?allowAsyncProcessing=${this.allowAsyncProcessing}
 						error-message=${this._errorMessage}
 						max-file-size=${this.maxFileUploadSize}
 						.supportedTypes=${SUPPORTED_TYPES}
-						@file-change=${this.onFileChange}
-						@file-error=${this.onUploadError}>
+						@change-view=${this.changeView}
+						@on-uploader-error=${this.changeView}
+						@on-uploader-success=${this.reactToUploaderSuccess}
+						@on-progress=${this.onProgress}
+						videoAudioDisplay>
 					</d2l-drop-uploader>
 				` : html`<d2l-loading-spinner></d2l-loading-spinner>`;
 				break;
 			case VIEW.PREVIEW:
 				view = html`
 					<d2l-topic-preview
-						?allow-async-processing=${this.allowAsyncProcessing}
 						?can-manage=${this.canManage}
 						?can-upload=${this.canUpload}
 						file-name=${this._fileName}
+						api-endpoint=${this.apiEndpoint}
 						resource=${this.value}
 						@cancel=${this.onDiscardStagedFile}
 						org-unit-id=${this.orgUnitId}
@@ -129,73 +120,41 @@ export class Main extends InternalLocalizeMixin(MobxReactionUpdate(ProviderMixin
 					<d2l-upload-progress
 						file-name=${this._fileName}
 						total-files=1
-						upload-progress=${this._uploader.uploadProgress}>
+						upload-progress=${this._uploadProgress}>
 					</d2l-upload-progress>
 				`;
 		}
 		return view;
 	}
 
-	cancelUpload() {
-		if (this._currentView === VIEW.PROGRESS) {
-			this._uploader.cancelUpload()
-				.catch(() => {
-					this._errorMessage = this.localize('workerErrorCancelUploadFailed');
-				})
-				.finally(() => {
-					this.onDiscardStagedFile();
-				});
-		}
+	changeView(event) {
+		this._fileName = event.detail.fileName;
+		this._currentView = event.detail.view ? VIEW[event.detail.view] : VIEW.UPLOAD;
+		this._errorMessage = event.detail.errorMessage;
 	}
 
 	onDiscardStagedFile() {
 		if (this.canUpload) {
 			this._errorMessage = '';
-			this.uploadView();
-			this._uploader.reset();
+			this._fileName = '';
 			this.updateValue('');
 			this.topicId = '';
 			this.contentId = '';
 			this.canManage = this.canUpload;
+			this._currentView = VIEW.UPLOAD;
 		}
 	}
 
-	onFileChange(event) {
-		this.startUpload(event);
+	onProgress(event) {
+		this._uploadProgress = event.detail.progress;
+		this.requestUpdate();
 	}
 
-	onUploadError(event) {
-		this._errorMessage = event.detail.message;
-		this.uploadView();
-	}
-
-	reactToUploadError(error) {
-		this._errorMessage = this.localize(error);
-		this.uploadView();
-		this._uploader.reset();
-	}
-
-	reactToUploadSuccess(value) {
+	reactToUploaderSuccess(event) {
+		const value = event.detail.d2lrn;
 		this.canManage = this.canUpload;
 		this.updateValue(value);
 		this._currentView = VIEW.PREVIEW;
-		this.dispatchEvent(new CustomEvent('on-upload-success', {
-			detail: {
-				d2lrn: value,
-			},
-		}));
-	}
-
-	startUpload(event) {
-		const files = event.detail.acceptedFiles;
-		this._currentView = VIEW.PROGRESS;
-		const file = files[0];
-		this._file = file;
-		this._fileName = file.name;
-		this._fileSize = file.size;
-		this._fileType = file.type;
-		this._errorMessage = '';
-		this._uploader.uploadFile(this._file, this._fileName);
 	}
 
 	updateValue(value) {
@@ -213,14 +172,6 @@ export class Main extends InternalLocalizeMixin(MobxReactionUpdate(ProviderMixin
 			bubbles: true,
 			composed: true,
 		}));
-	}
-
-	uploadView() {
-		this._file = undefined;
-		this._fileName = '';
-		this._fileSize = 0;
-		this._fileType = '';
-		this._currentView = VIEW.UPLOAD;
 	}
 }
 

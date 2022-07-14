@@ -17,9 +17,10 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 		return {
 			_advancedEditingAvailable: { type: Boolean, attribute: false },
 			canManage: { type: Boolean, attribute: 'can-manage' },
+			apiEndpoint: { type: String, attribute: 'api-endpoint' },
 			canUpload: { type: Boolean, attribute: 'can-upload' },
 			resource: { type: String, attribute: true },
-			topicId: { type: String, attribute: 'topic-id' }
+			topicId: { type: String, attribute: 'topic-id' },
 		};
 	}
 
@@ -59,7 +60,7 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 			<div id="container">
 				<d2l-content-renderer
 					id="content-renderer"
-					content-service-endpoint=${this._getApiEndpoint()}
+					content-service-endpoint=${this.apiEndpoint}
 					d2lrn=${this.resource}
 					context-type=${ifDefined(this.topicId ? 'topic' : undefined)}
 					context-id=${ifDefined(this.topicId)}
@@ -92,11 +93,6 @@ export class Preview extends MobxReactionUpdate(RequesterMixin(InternalLocalizeM
 
 	get contentRenderer() {
 		return this.renderRoot.querySelector('#content-renderer');
-	}
-
-	_getApiEndpoint() {
-		const client = this.requestInstance('content-service-client');
-		return client.endpoint;
 	}
 
 	async _onAdvancedEditing() {
