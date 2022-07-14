@@ -2,7 +2,7 @@ import '../d2l-content-selector.js';
 import { assert, expect, fixture, html, oneEvent } from '@open-wc/testing';
 
 import ContentApi from '../../../node_modules/d2l-content-service-api-client/lib/apis/content-api';
-import RegionApi from '../../../node_modules/d2l-content-service-api-client/lib/apis/region-api';
+import getRegion from '../../../node_modules/d2l-content-service-api-client/lib/util/region-util.js';
 import { runConstructor } from '@brightspace-ui/core/tools/constructor-test-helper.js';
 import SearchApi from '../../../node_modules/d2l-content-service-api-client/lib/apis/search-api';
 import Sinon from 'sinon';
@@ -93,10 +93,8 @@ describe('ContentSelector', async() => {
 				type: 'Scorm',
 			}]
 		});
-		getRegionStub = Sinon.stub(RegionApi.prototype, 'getRegion');
-		getRegionStub.returns({
-			region: 'us-east-1'
-		});
+		getRegionStub = getRegion({ serviceUrl: 'some-url.com' });
+		expect(getRegionStub).to.equal('us-east-1');
 		el = await fixture(html`<d2l-content-selector
 			allowExistingObjectSelection
 			allow-upload
@@ -115,7 +113,7 @@ describe('ContentSelector', async() => {
 	afterEach(() => {
 		getItemStub.restore();
 		searchStub.restore();
-		getRegionStub.restore();
+		getRegionStub = '';
 		start = 0;
 	});
 
