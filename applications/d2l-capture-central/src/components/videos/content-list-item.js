@@ -89,12 +89,16 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 	connectedCallback() {
 		super.connectedCallback();
 		this.apiClient = this.requestDependency('content-service-client');
+		this.tenantId = this.requestDependency('tenant-id');
 	}
 
-	firstUpdated() {
-		super.firstUpdated();
+	async firstUpdated() {
+		await super.firstUpdated();
 		this.addEventListener('d2l-dropdown-close', this.dropdownClosed);
 		this.addEventListener('d2l-dropdown-open', this.adjustDropdownBoundary);
+		if (this.processingStatus === 'created') {
+			this.setUpWebsocket();
+		}
 	}
 
 	render() {
@@ -402,6 +406,44 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 			});
 			this.dispatchRenameEvent(newTitle);
 		}
+	}
+
+	async setUpWebsocket() {
+		const { url, connectionToken } = await this.apiClient.notifications.getWebsocketServerEndpoint({
+			contentId: this.id,
+			revisionId: this.revisionId
+		});
+		const endpoint = `${url}?connectionToken=${connectionToken}&tenantId=${this.tenantId}&contentId=${this.id}&revisionId=${this.revisionId}`;
+
+		this.websocket = new WebSocket(endpoint);
+		if (!this.websocket) {
+			console.warn('Could not connect to Websocket Server');
+			return;
+		}
+
+		this.websocket.onmessage = async(message) => {
+			const parsedJson = JSON.parse(message.data);
+			const status = parsedJson.processingStatus;
+			if (status === 'ready') {
+				this.processingStatus = 'ready';
+				this.poster = (await this.apiClient.content.getResource({
+					id: this.id,
+					revisionTag: this.revisionId,
+					resource: 'poster',
+					outputFormat: 'signed-url'
+				})).value;
+				this.requestUpdate();
+			}
+			this.websocket.close();
+		};
+
+		this.websocket.onclose = async() => {
+			// in this use case, websocket should only disconnect when we are done processing
+			if (!this.processingStatus === 'ready') {
+				// websocket has disconnected early, try again
+				this.setUpWebsocket();
+			}
+		};
 	}
 
 	titleInputChangedHandler(event) {
