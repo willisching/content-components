@@ -25,3 +25,9 @@ export function isAudioType(filePath) {
 export function isVideoType(filePath) {
 	return supportedTypeExtensions.Video.includes(getExtension(filePath));
 }
+
+export function getType(filePath) {
+	return Object.keys(supportedTypeExtensions).find(type =>
+		supportedTypeExtensions[type].includes(getExtension(filePath))
+	);
+}

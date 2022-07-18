@@ -1,6 +1,7 @@
 import { action, decorate, flow, observable, toJS } from 'mobx';
 
-import resolveWorkerError from '../util/resolve-worker-error.js';
+import { getType } from '../../../../util/media-type-util';
+import resolveWorkerError from '../../../../util/resolve-worker-error.js';
 import { S3Uploader } from '../../../../util/s3-uploader.js';
 
 const randomizeDelay = (delay = 30000, range = 5000) => {
@@ -146,12 +147,14 @@ export class Uploader {
 	}
 
 	async _uploadWorkflowAsync({ file, extension }) {
+		const type = getType(file.name);
 		try {
 			this.runningJobs += 1;
 			const content = await this.apiClient.content.postItem({
 				content: {
 					title: file.name,
-					clientApp: 'LmsCapture'
+					clientApp: 'LmsCapture',
+					type
 				}
 			});
 			const revision = await this.apiClient.content.createRevision({
@@ -161,7 +164,6 @@ export class Uploader {
 				}
 			});
 
-			console.log(this.apiClient.s3Sign);
 			const uploader = new S3Uploader({
 				file,
 				key: revision.s3Key,
@@ -213,7 +215,7 @@ export class Uploader {
 			const upload = this.uploads.find(
 				upload => upload.file === file
 			);
-			upload.error = resolveWorkerError(error);
+			upload.error = resolveWorkerError(error, type);
 		} finally {
 			this.runningJobs -= 1;
 			this.uploadsInProgress -= 1;
