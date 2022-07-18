@@ -54,7 +54,7 @@ export class BulkComplete extends RevisionLoaderMixin(InternalLocalizeMixin(LitE
 			}
 
 			.failed-files-list {
-				height: calc(100% - 50px); // 50px from button group
+				height: calc(100% - 50px); /* 50px from button group */
 				word-wrap: break-word;
 				overflow-wrap: break-word;
 			}
