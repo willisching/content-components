@@ -161,7 +161,6 @@ export class Uploader {
 				}
 			});
 
-			console.log(this.apiClient.s3Sign);
 			const uploader = new S3Uploader({
 				file,
 				key: revision.s3Key,
