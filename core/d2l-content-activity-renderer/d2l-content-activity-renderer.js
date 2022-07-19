@@ -9,6 +9,7 @@ class ContentActivityRenderer extends LitElement {
 		return {
 			_contentServiceEndpoint: { type: String, attribute: false },
 			_d2lrn: { type: String, attribute: false },
+			_orgUnitId: { type: String, attribute: false },
 			_topicId: { type: String, attribute: false },
 			activity: { type: String },
 			allowDownload: { type: Boolean, attribute: 'allow-download'},
@@ -50,6 +51,7 @@ class ContentActivityRenderer extends LitElement {
 			this._d2lrn = this.resourceEntity.properties.d2lrn;
 			this._contentServiceEndpoint = this.resourceEntity.properties.contentServiceEndpoint;
 			this._topicId = this.resourceEntity.properties.topicId;
+			this._orgUnitId = this.resourceEntity.properties.orgUnitId;
 		}
 	}
 
@@ -60,7 +62,7 @@ class ContentActivityRenderer extends LitElement {
 				?allow-download=${this.allowDownload}
 				?allow-download-on-error=${this.allowDownloadOnError}
 				content-service-endpoint=${this._contentServiceEndpoint}
-				context-id=${this._topicId}
+				context-id=${this._buildContextId()}
 				context-type='topic'
 				d2lrn=${this._d2lrn}
 				?framed=${this.framed}
@@ -69,5 +71,8 @@ class ContentActivityRenderer extends LitElement {
 		`;
 	}
 
+	_buildContextId() {
+		return `${this._topicId}${this._orgUnitId ? `:${this._orgUnitId}` : ''}`;
+	}
 }
 customElements.define('d2l-content-activity-renderer', ContentActivityRenderer);
