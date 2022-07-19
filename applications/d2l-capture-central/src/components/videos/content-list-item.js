@@ -40,7 +40,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 			title: { type: String },
 			ownerId: { type: String, attribute: 'owner-id' },
 			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
-			processingStatus: { type: String, attribute: 'processing-status' },
+			processingStatus: { type: String, attribute: 'processing-status', reflect: true },
 			type: { type: String }
 		};
 	}
@@ -408,6 +408,17 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 		}
 	}
 
+	sendProcessingDoneEvent() {
+		this.dispatchEvent(new CustomEvent('processing-done', {
+			detail: {
+				contentId: this.id,
+				processingStatus: 'ready'
+			},
+			bubbles: true,
+			composed: true
+		}));
+	}
+
 	async setUpWebsocket() {
 		const { url, connectionToken } = await this.apiClient.notifications.getWebsocketServerEndpoint({
 			contentId: this.id,
@@ -432,9 +443,9 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 					resource: 'poster',
 					outputFormat: 'signed-url'
 				})).value;
-				this.requestUpdate();
+				this.sendProcessingDoneEvent();
+				this.websocket.close();
 			}
-			this.websocket.close();
 		};
 
 		this.websocket.onclose = async() => {

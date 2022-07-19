@@ -35,6 +35,11 @@ class ContentList extends CaptureCentralList {
 		this.reloadPage();
 	}
 
+	firstUpdated() {
+		super.firstUpdated();
+		this.addEventListener('processing-done', this.updateVideoProcessingStatus);
+	}
+
 	render() {
 		return html`
 			<content-list-header
@@ -239,6 +244,17 @@ class ContentList extends CaptureCentralList {
 			this.requestUpdate();
 			deleteToastElement.setAttribute('open', true);
 		}
+	}
+
+	updateVideoProcessingStatus(event) {
+		const { contentId, processingStatus } = event.detail;
+		if (!(contentId && processingStatus)) {
+			return;
+		}
+		const index = this._videos.findIndex(c => c.id === contentId);
+		const item = this._videos[index];
+		item && (item.processingStatus = processingStatus);
+		this.requestUpdate();
 	}
 
 	async _getUserDisplayName(userId) {
