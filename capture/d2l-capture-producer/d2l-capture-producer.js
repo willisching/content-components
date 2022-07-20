@@ -553,7 +553,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	_handleMetadataChanged(event) {
-		this._metadata = event.detail;
+		this._metadata = {...this._metadata, ...event.detail};
 		if (!this._metadataLoading) {
 			this._metadataChanged = true;
 		}
