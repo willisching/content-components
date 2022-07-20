@@ -84,6 +84,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 		this.content = null;
 		this.confirmEditDescriptionDisabled = false;
 		this.confirmRenameDisabled = false;
+		this.connectionToken = null;
 	}
 
 	connectedCallback() {
@@ -424,6 +425,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 			contentId: this.id,
 			revisionId: this.revisionId
 		});
+		this.connectionToken = connectionToken;
 		const endpoint = `${url}?connectionToken=${connectionToken}&tenantId=${this.tenantId}&contentId=${this.id}&revisionId=${this.revisionId}`;
 
 		this.websocket = new WebSocket(endpoint);
@@ -449,6 +451,11 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 		};
 
 		this.websocket.onclose = async() => {
+			await this.apiClient.notifications.deleteWebsocketServerSession({
+				contentId: this.id,
+				revisionId: this.revisionId,
+				connectionToken: this.connectionToken
+			});
 			// in this use case, websocket should only disconnect when we are done processing
 			if (!this.processingStatus === 'ready') {
 				// websocket has disconnected early, try again
