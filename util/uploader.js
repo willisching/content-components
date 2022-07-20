@@ -2,7 +2,7 @@ import { action, decorate, flow, observable } from 'mobx';
 import resolveWorkerError from './resolve-worker-error.js';
 import { S3Uploader } from './s3-uploader.js';
 import { randomizeDelay, sleep } from './delay.js';
-import { getExtension, isAudioType, isVideoType } from './media-type-util.js';
+import { getExtension, isAudioType, isVideoType, getType } from './media-type-util.js';
 
 const UPLOAD_FAILED_ERROR = 'workerErrorUploadFailed';
 
@@ -77,11 +77,13 @@ export class Uploader {
 	}
 
 	async _uploadWorkflowAsync(file, title, totalFiles) {
+		const type = getType(file.name);
 		try {
 			this.totalFiles = totalFiles;
 			const extension = getExtension(file.name);
 			const createContentBody = {
 				title,
+				type,
 			};
 			if (isAudioType(file.name) || isVideoType(file.name)) {
 				createContentBody.clientApp = 'LmsContent';
@@ -123,7 +125,7 @@ export class Uploader {
 				this.s3Uploader = undefined;
 			}
 		} catch (error) {
-			this.onError(resolveWorkerError(error));
+			this.onError(resolveWorkerError(error, type));
 		}
 	}
 }
