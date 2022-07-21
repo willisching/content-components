@@ -1,8 +1,8 @@
 import '../d2l-content-renderer.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
-import { BrightspaceApiClient } from 'd2l-content-service-api-client';
-import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
+import { BrightspaceApiClient } from '@d2l/content-service-api-client';
+import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 
 class ContentTopicRenderer extends LitElement {
 	static get properties() {

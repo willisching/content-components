@@ -1,7 +1,7 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { getDocumentLocaleSettings } from '@brightspace-ui/intl/lib/common.js';
-import { ContentServiceApiClient } from 'd2l-content-service-api-client';
-import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
+import { ContentServiceApiClient } from '@d2l/content-service-api-client';
+import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 import { parse } from '../../util/d2lrn.js';
 import { createToolItemId, ToolItemType } from '../../util/tool-item-id.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';

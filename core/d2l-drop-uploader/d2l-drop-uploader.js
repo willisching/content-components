@@ -9,10 +9,10 @@ import { inputLabelStyles } from '@brightspace-ui/core/components/inputs/input-l
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { css, html, LitElement } from 'lit-element';
 import { RequesterMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
-import { ContentServiceApiClient } from 'd2l-content-service-api-client';
+import { ContentServiceApiClient } from '@d2l/content-service-api-client';
 import { isSupported, supportedTypeExtensions } from '../../util/media-type-util.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
-import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
+import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 import { Uploader } from '../../util/uploader.js';
 
 export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitElement))) {

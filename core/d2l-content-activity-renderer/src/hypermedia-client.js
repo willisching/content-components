@@ -1,5 +1,5 @@
 import SirenParse from 'siren-parser';
-import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
+import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 
 export default class HypermediaClient {
 	constructor({ entity, framed }) {

@@ -1,9 +1,9 @@
 import '../d2l-content-selector-list.js';
 import { assert, expect, fixture, html, oneEvent } from '@open-wc/testing';
 
-import ContentApi from '../../../node_modules/d2l-content-service-api-client/lib/apis/content-api';
+import ContentApi from '../../../node_modules/@d2l/content-service-api-client/lib/apis/content-api';
 import { runConstructor } from '@brightspace-ui/core/tools/constructor-test-helper.js';
-import SearchApi from '../../../node_modules/d2l-content-service-api-client/lib/apis/search-api';
+import SearchApi from '../../../node_modules/@d2l/content-service-api-client/lib/apis/search-api';
 import Sinon from 'sinon';
 
 // https://stackoverflow.com/questions/4620906/how-do-i-know-when-ive-stopped-scrolling

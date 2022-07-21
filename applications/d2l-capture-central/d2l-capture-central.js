@@ -1,6 +1,6 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
-import { CaptureApiClient, BrightspaceApiClient, ContentServiceApiClient } from 'd2l-content-service-api-client';
-import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
+import { CaptureApiClient, BrightspaceApiClient, ContentServiceApiClient } from '@d2l/content-service-api-client';
+import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 
 import { bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { DependencyProvider } from './src/mixins/dependency-provider-mixin.js';

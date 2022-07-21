@@ -1,8 +1,8 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
-import { ContentServiceApiClient } from 'd2l-content-service-api-client';
-import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
+import { ContentServiceApiClient } from '@d2l/content-service-api-client';
+import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 import { parse as d2lrnParse, toString as d2lrnToString } from '../../util/d2lrn.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 

@@ -1,8 +1,8 @@
 import '../d2l-capture-producer.js';
 import { expect, fixture, html } from '@open-wc/testing';
 
-import { BrightspaceApiClient } from 'd2l-content-service-api-client';
-import ContentApi from '../../../node_modules/d2l-content-service-api-client/lib/apis/content-api';
+import { BrightspaceApiClient } from '@d2l/content-service-api-client';
+import ContentApi from '../../../node_modules/@d2l/content-service-api-client/lib/apis/content-api';
 import { runConstructor } from '@brightspace-ui/core/tools/constructor-test-helper.js';
 import Sinon from 'sinon';
 

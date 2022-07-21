@@ -10,6 +10,10 @@ jobs:
       - uses: Brightspace/third-party-actions@actions/setup-node
         with:
           node-version-file: .nvmrc
+      - name: Add CodeArtifact npm registry
+        uses: Brightspace/codeartifact-actions/npm/add-registry@v1.5.1
+        with:
+          auth-token: '${{secrets.CODEARTIFACT_AUTH_TOKEN}}'
       - name: Install Dependencies
         run: npm install
       - name: Visual Diff Tests

@@ -11,8 +11,8 @@ import '@brightspace-ui/core/components/menu/menu.js';
 import './src/scroller.js';
 import { getFriendlyDate } from '../../util/date.js';
 
-import { ContentServiceApiClient } from 'd2l-content-service-api-client';
-import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
+import { ContentServiceApiClient } from '@d2l/content-service-api-client';
+import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 
 class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 	static get properties() {

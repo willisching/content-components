@@ -11,8 +11,8 @@ import './d2l-capture-producer-editor.js';
 
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { autorun } from 'mobx';
-import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
-import { ContentServiceApiClient, BrightspaceApiClient } from 'd2l-content-service-api-client';
+import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
+import { ContentServiceApiClient, BrightspaceApiClient } from '@d2l/content-service-api-client';
 
 import { formatDateTimeFromTimestamp } from '@brightspace-ui/intl/lib/dateTime.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';

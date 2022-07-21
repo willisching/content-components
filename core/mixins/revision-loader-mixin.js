@@ -1,5 +1,5 @@
-import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
-import { ContentServiceApiClient, BrightspaceApiClient } from 'd2l-content-service-api-client';
+import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
+import { ContentServiceApiClient, BrightspaceApiClient } from '@d2l/content-service-api-client';
 
 import { parse } from '../../util/d2lrn.js';
 

@@ -1,6 +1,6 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
-import { ContentServiceApiClient, getRegion } from 'd2l-content-service-api-client';
-import ContentServiceBrowserHttpClient from 'd2l-content-service-browser-http-client';
+import { ContentServiceApiClient, getRegion } from '@d2l/content-service-api-client';
+import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 import '../d2l-content-selector-list.js';
 import '../d2l-content-topic-settings.js';
 import '../d2l-drop-uploader.js';
