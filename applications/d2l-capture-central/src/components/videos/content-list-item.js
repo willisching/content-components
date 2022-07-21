@@ -147,34 +147,21 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 								<d2l-menu-item id="edit-description-initiator" text="${this.localize('editDescription')}" @click="${this.openEditDescriptionDialog()}"></d2l-menu-item>
 								${this.canTransferOwnership ? html`
 									<d2l-menu-item text="${this.localize('transferOwnership')}" @click="${this.openTransferOwnershipDialog()}"></d2l-menu-item>` : ''}
-								<d2l-menu-item text="${this.localize('delete')}" @click="${this.deleteHandler()}"></d2l-menu-item>
+								<d2l-menu-item text="${this.localize('delete')}" @click="${this.openDeleteDialog()}"></d2l-menu-item>
 							</d2l-menu>
 						</d2l-dropdown-menu>
 					</d2l-dropdown-more>
 				</div>
-
-				<d2l-dialog-confirm
-					id="d2l-capture-central-confirm-delete"
-					class="d2l-capture-central-confirm-delete"
-					title-text="${this.localize('confirmDelete')}"
-					text="${this.localize('confirmDeleteMessage', {fileName: this.title})}"
-				>
-				<d2l-button
-					@click="${this.delete()}"
-					data-dialog-action="yes"
-					primary
-					slot="footer"
-				>
-				${this.localize('delete')}
-				</d2l-button>
-				<d2l-button
-					data-dialog-action="no"
-					slot="footer"
-				>
-				${this.localize('cancel')}
-				</d2l-button>
-				</d2l-dialog-confirm>
 			</d2l-list-item-button>
+
+			<d2l-dialog-confirm
+				id="delete-dialog"
+				title-text="${this.localize('confirmDelete')}"
+				text="${this.localize('confirmDeleteMessage', {fileName: this.title})}"
+			>
+				<d2l-button @click="${this.delete()}" data-dialog-action="yes" primary slot="footer">${this.localize('delete')}</d2l-button>
+				<d2l-button data-dialog-action="no" slot="footer">${this.localize('cancel')}</d2l-button>
+			</d2l-dialog-confirm>
 
 			<d2l-dialog id="edit-description-dialog" title-text="${this.localize('description')}">
 				<d2l-input-text
@@ -236,12 +223,6 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 				id: this.id
 			});
 			this.dispatchDeletedEvent();
-		};
-	}
-
-	deleteHandler() {
-		return async() => {
-			await this.shadowRoot.querySelector('.d2l-capture-central-confirm-delete').open();
 		};
 	}
 
@@ -360,6 +341,12 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 			});
 			this.dispatchEditDescriptionEvent(newDescription);
 		}
+	}
+
+	openDeleteDialog() {
+		return async() => {
+			await this.shadowRoot.querySelector('#delete-dialog').open();
+		};
 	}
 
 	openEditDescriptionDialog() {
