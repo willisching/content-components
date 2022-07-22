@@ -217,7 +217,7 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 									@d2l-menu-item-select="${this._handleSelectedGrading}"
 								>
 									<d2l-menu label="revisions">
-										${this.renderGradingMethodItems()}
+										${this._renderGradingMethodItems()}
 									</d2l-menu>
 								</d2l-dropdown-menu>
 							</d2l-dropdown-button>
@@ -277,7 +277,7 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 								<option value="2">${this._recommendedPlayer === RecommendedPlayerOptions.newWindow
 		? this.localize('openPlayerInNewWindowRecommended')
 		: this.localize('openPlayerInNewWindow')}</option>
-								
+
 							</select>
 						</div>
 					</div>` : ''
@@ -289,7 +289,7 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 	getSettings() {
 		const settings = {
 			contentId: this.content.id,
-			revisionTag: this._displayLatestVersion ? 'latest' : this.revisionTag,
+			revisionTag: this._displayLatestVersion ? 'latest' : this._getSelectedRevisionId(),
 			resourceType: this._resourceType,
 			openInNewWindow: ContentTopicSettings.coursePlayers[this._selectedPlayerIndex] === 'NewWindowPlayer',
 			title: this.content.title,
@@ -299,10 +299,12 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 		return settings;
 	}
 
-	renderGradingMethodItems() {
-		return ContentTopicSettings.gradingCalculationMethods.map((item, index) => {
-			return html`<d2l-menu-item grading-index="${index}" text="${this.localize(item.toLowerCase())}"></d2l-menu-item>`;
-		});
+	_getSelectedRevisionId() {
+		if (this.revisionTag !== 'latest') {
+			return this.revisionTag;
+		}
+
+		return this.content.revisions[this.content.revisions.length - 1].id;
 	}
 
 	_handleGradeObjectAssociation(val) {
@@ -319,6 +321,12 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 
 	_handleVersionControlChange(val) {
 		return () => this._displayLatestVersion = val;
+	}
+
+	_renderGradingMethodItems() {
+		return ContentTopicSettings.gradingCalculationMethods.map((item, index) => {
+			return html`<d2l-menu-item grading-index="${index}" text="${this.localize(item.toLowerCase())}"></d2l-menu-item>`;
+		});
 	}
 }
 

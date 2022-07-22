@@ -49,6 +49,6 @@ export function build({region, tenantId, resourceType, contentId, revisionTag}) 
 		region,
 		tenantId,
 		resourceType,
-		resource: `${contentId}${revisionTag ? `/${revisionTag}` : ''}`
+		resource: `${contentId}${revisionTag ? `/${revisionTag}` : '/latest'}`
 	});
 }
