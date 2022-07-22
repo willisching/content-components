@@ -23,6 +23,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 			errorMessage: { type: String, attribute: 'error-message', reflect: true },
 			maxFileSizeInBytes: { type: Number, attribute: 'max-file-size' },
 			enableBulkUpload: { type: Boolean, attribute: 'enable-bulk-upload' },
+			existingContentId: { type: String, attribute: 'existing-content-id' },
 			allowAsyncProcessing: { type: Boolean },
 			supportedTypes: { type: Array },
 			videoAudioDisplay: { type: Boolean },
@@ -125,63 +126,23 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 	async connectedCallback() {
 		super.connectedCallback();
 		const httpClient = new ContentServiceBrowserHttpClient({ serviceUrl: this.apiEndpoint });
-		const apiClient = new ContentServiceApiClient({ tenantId: this.tenantId, httpClient });
-
-		this.uploader = new Uploader({
-			apiClient,
-			onSuccess: this.reactToUploaderSuccess,
-			onError: this.reactToUploaderError,
-			waitForProcessing: !this.allowAsyncProcessing,
-			onProgress: this.onProgress,
-		});
+		this.apiClient = new ContentServiceApiClient({ tenantId: this.tenantId, httpClient });
+		this._initUploader();
 	}
 
 	render() {
 		return html`
 			<div class="upload-container">
-				${this.videoAudioDisplay ? html`
-					<file-drop @filedrop=${this.onFileDrop} ?multiple=${this.enableBulkUpload}>
-							<div class="file-drop-content-container">
-								<h2 class="d2l-heading-2">${this.localize('dropAudioVideoFile')}</h2>
-								<p class="d2l-body-standard">${this.localize('or')}</p>
-								<d2l-button
-									description=${this.localize('browseForFile')}
-									@click=${this.onBrowseClick}
-								>
-									${this.localize('browse')}
-									<input
-										id="file-select"
-										type="file"
-										accept=${this.supportedTypes.flatMap(mediaType => supportedTypeExtensions[mediaType])}
-										@change=${this.onFileInputChange}
-										?multiple=${this.enableBulkUpload}
-									/>
-								</d2l-button>
-								${this.errorMessage ? html`<p id="error-message" class="d2l-body-compact">${this.errorMessage}&nbsp;</p>` : ''}
-							</div>
-						</file-drop>
-						<p class="file-limit-message">${this.enableBulkUpload ? this.localize('maxNumberOfFiles', { _maxNumberOfFiles: this._maxNumberOfFiles }) : this.localize('fileSizeLimitMessage', { localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes) })}</p>
-						` : html`
-							<label class="d2l-file-uploader-browse-label">
-							<file-drop @filedrop=${this.onFileDrop} ?multiple=${this.enableBulkUpload}>
-							<input
-								id="file-select"
-								type="file"
-								accept=${this.supportedTypes.flatMap(mediaType => supportedTypeExtensions[mediaType])}
-								@change=${this.onFileInputChange}
-								?multiple=${this.enableBulkUpload}
-							/>
-							<div class="file-uploader-background">
-								<d2l-icon icon="d2l-tier2:upload"></d2l-icon>
-								<div>${this.localize('dropFilesOrClick')}</div>
-							${this.errorMessage ? html`<p id="error-message" class="d2l-body-compact">${this.errorMessage}&nbsp;</p>` : ''}
-							</div>
-						</file-drop>
-						</label>
-						<p class="file-limit-message">${this.enableBulkUpload ? this.localize('maxNumberOfFiles', { _maxNumberOfFiles: this._maxNumberOfFiles }) : this.localize('fileSizeLimitMessage', { localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes) })}</p>
-						`}
-						</div>
-		`;
+				${this.videoAudioDisplay ? this._renderVideoAudioUI() : this._renderGenericUI()}
+			</div>`;
+	}
+
+	updated(changedProperties) {
+		super.updated(changedProperties);
+
+		if (changedProperties.has('existingContentId')) {
+			this._initUploader();
+		}
 	}
 
 	onBrowseClick() {
@@ -280,6 +241,72 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 			await this.uploader.uploadFile(file, file.name, file.type, files.length);
 		}
 	}
+
+	_initUploader() {
+		this.uploader = new Uploader({
+			apiClient: this.apiClient,
+			onSuccess: this.reactToUploaderSuccess,
+			onError: this.reactToUploaderError,
+			waitForProcessing: !this.allowAsyncProcessing,
+			onProgress: this.onProgress,
+			existingContentId: this.existingContentId
+		});
+	}
+
+	_isBulkUploadEnabled() {
+		return this.enableBulkUpload && !this.existingContentId;
+	}
+
+	_renderGenericUI() {
+		return html`
+			<label class="d2l-file-uploader-browse-label">
+				<file-drop @filedrop=${this.onFileDrop} ?multiple=${this._isBulkUploadEnabled()}>
+					<input
+						id="file-select"
+						type="file"
+						accept=${this.supportedTypes.flatMap(mediaType => supportedTypeExtensions[mediaType])}
+						@change=${this.onFileInputChange}
+						?multiple=${this._isBulkUploadEnabled()}
+					/>
+					<div class="file-uploader-background">
+						<d2l-icon icon="d2l-tier2:upload"></d2l-icon>
+						<div>${this.localize('dropFilesOrClick')}</div>
+					${this.errorMessage ? html`<p id="error-message" class="d2l-body-compact">${this.errorMessage}&nbsp;</p>` : ''}
+					</div>
+				</file-drop>
+			</label>
+			${this._isBulkUploadEnabled() ? html`<p class="file-limit-message">
+				${this.localize('maxNumberOfFiles', { _maxNumberOfFiles: this._maxNumberOfFiles })}
+			</p>` : ''}
+		`;
+	}
+
+	_renderVideoAudioUI() {
+		return html`
+			<file-drop @filedrop=${this.onFileDrop} ?multiple=${this._isBulkUploadEnabled()}>
+				<div class="file-drop-content-container">
+					<h2 class="d2l-heading-2">${this.localize('dropAudioVideoFile')}</h2>
+					<p class="d2l-body-standard">${this.localize('or')}</p>
+					<d2l-button
+						description=${this.localize('browseForFile')}
+						@click=${this.onBrowseClick}
+					>
+						${this.localize('browse')}
+						<input
+							id="file-select"
+							type="file"
+							accept=${this.supportedTypes.flatMap(mediaType => supportedTypeExtensions[mediaType])}
+							@change=${this.onFileInputChange}
+							?multiple=${this._isBulkUploadEnabled()}
+						/>
+					</d2l-button>
+					${this.errorMessage ? html`<p id="error-message" class="d2l-body-compact">${this.errorMessage}&nbsp;</p>` : ''}
+				</div>
+			</file-drop>
+			<p class="file-limit-message">${this._isBulkUploadEnabled() ? this.localize('maxNumberOfFiles', { _maxNumberOfFiles: this._maxNumberOfFiles }) : this.localize('fileSizeLimitMessage', { localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes) })}</p>
+		`;
+	}
+
 }
 
 customElements.define('d2l-drop-uploader', Upload);
