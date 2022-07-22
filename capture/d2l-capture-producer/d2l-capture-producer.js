@@ -359,38 +359,30 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._finishing = true;
 
 		let draftToPublish;
-		if (!this._latestDraftRevision || this._selectedRevisionIndex !== 0) {
-			try {
-				draftToPublish = await this._createNewDraftRevision();
-			} catch (error) {
-				this._errorOccurred = true;
-				this._alertMessage = this.localize('finishError');
-				this.shadowRoot.querySelector('d2l-alert-toast').open = true;
-				this._finishing = false;
-				return;
-			}
-		} else {
-			draftToPublish = this._latestDraftRevision;
-		}
-
-		if (optimizeForStreaming) {
-			const revisionReference = {...draftToPublish.revisionReference};
-			if (revisionReference) {
-				delete revisionReference.transcodes;
-				delete revisionReference.thumbnails;
-			}
-
-			await this.client.content.updateRevision({
-				id: this._content.id,
-				revisionTag: draftToPublish.id,
-				updatedRevision: {
-					formats: this._getFormatsForContent(this._content, this._selectedRevision),
-					...draftToPublish.revisionReference && {revisionReference}
-				}
-			});
-		}
-
 		try {
+			if (!this._latestDraftRevision || this._selectedRevisionIndex !== 0) {
+				draftToPublish = await this._createNewDraftRevision();
+			} else {
+				draftToPublish = this._latestDraftRevision;
+			}
+
+			if (optimizeForStreaming) {
+				const revisionReference = {...draftToPublish.revisionReference};
+				if (revisionReference) {
+					delete revisionReference.transcodes;
+					delete revisionReference.thumbnails;
+				}
+
+				await this.client.content.updateRevision({
+					id: this._content.id,
+					revisionTag: draftToPublish.id,
+					updatedRevision: {
+						formats: this._getFormatsForContent(this._content, this._selectedRevision),
+						...draftToPublish.revisionReference && {revisionReference}
+					}
+				});
+			}
+
 			if (this._metadataChanged) {
 				await this.client.content.updateResource({
 					id: this._content.id,
@@ -412,12 +404,12 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 			await this._loadContentAndAllRelatedData(draftToPublish.id);
 			this._errorOccurred = false;
+			this._alertMessage = this.localize('finishSuccess');
 		} catch (error) {
 			this._errorOccurred = true;
+			this._alertMessage = (error.cause === 503) ? this.localize('editAVCapsExceededError') : this.localize('finishError');
 		}
-		this._alertMessage = this._errorOccurred
-			? this.localize('finishError')
-			: this.localize('finishSuccess');
+
 		this.shadowRoot.querySelector('d2l-alert-toast').open = true;
 		this._finishing = false;
 	}
@@ -598,7 +590,7 @@ class CaptureProducer extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			this._alertMessage = this.localize('saveSuccess');
 		} catch (error) {
 			this._errorOccurred = true;
-			this._alertMessage = this.localize('saveError');
+			this._alertMessage = (error.cause === 503) ? this.localize('editAVCapsExceededError') : this.localize('saveError');
 		} finally {
 			this.shadowRoot.querySelector('d2l-alert-toast').open = true;
 			this._saving = false;
