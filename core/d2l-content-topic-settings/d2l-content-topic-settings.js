@@ -164,7 +164,7 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 			contentId: this.content.id,
 			revisionTag: this._displayLatestVersion ? 'latest' : this._getLatestRevisionId(),
 			resourceType: this._resourceType,
-			openInNewWindow: this._selectedPlayer === ContentTopicSettings.coursePlayers[this._selectedPlayerIndex] === 'NewWindowPlayer',
+			openInNewWindow: this._selectedPlayer === PlayerOption.NEW_WINDOW,
 			title: this.content.title,
 			gradeCalculationMethod: ContentTopicSettings.gradingCalculationMethods[this._selectedGradingIndex],
 			gradeObjectAssociation: this._gradeObjectAssociation
@@ -185,7 +185,7 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_handleSelectedPlayerChange(e) {
-		this._selectedPlayerIndex = Number.parseInt(e.target.value);
+		this._selectedPlayer = Number.parseInt(e.target.value);
 	}
 
 	_handleVersionControlChange(val) {
