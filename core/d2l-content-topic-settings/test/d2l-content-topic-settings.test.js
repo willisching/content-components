@@ -52,7 +52,6 @@ describe('ContentTopicSettings', async() => {
 			d2lrn='d2l:brightspace:content:region:0:scorm:${CONTENT_ID}'
 			serviceUrl='http://localhost:8000/contentservice'
 			context='${CONTEXT}'
-			revisionTag='${REVISIONS[0].id}'
 		></d2l-content-topic-settings>`);
 	});
 
@@ -103,7 +102,7 @@ describe('ContentTopicSettings', async() => {
 			const actual = el.getSettings();
 			expect(actual).to.deep.include({
 				contentId: CONTENT_ID,
-				revisionTag: REVISIONS[0].id,
+				revisionTag: REVISIONS[1].id,
 				resourceType: 'scorm',
 				openInNewWindow: false,
 				title: TITLE,

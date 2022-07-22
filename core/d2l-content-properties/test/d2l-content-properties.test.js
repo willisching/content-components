@@ -103,7 +103,7 @@ describe('ContentProperties', async() => {
 					options: {
 						playerShowNavBar: true,
 						reviewRetake: false,
-						recommendedPlayer: 2,
+						recommendedPlayer: 0,
 					},
 					type: 'Scorm',
 				}],

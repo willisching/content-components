@@ -12,11 +12,9 @@ import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-c
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { parse } from '../../util/d2lrn.js';
 import { buildOrgUnitShareLocationStr } from '../../util/sharing.js';
+import PlayerOption from '../../util/player-option.js';
+import ContentType from '../../util/content-type.js';
 
-const RecommendedPlayerOptions = Object.freeze({
-	embedPlayer: 1,
-	newWindow: 2,
-});
 class ContentProperties extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
@@ -24,7 +22,6 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 			serviceUrl: { type: String },
 			canShareTo: { type: Array },
 			canSelectShareLocation: { type: Boolean },
-			embedFeatureEnabled: { type: Boolean },
 			contentId: { type: String },
 			tenantId: { type: String },
 			revisionTag: { type: String },
@@ -115,10 +112,6 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 	constructor() {
 		super();
 
-		this.canShareTo = [];
-		this.contentId = '';
-		this.tenantId = '';
-		this._resourceType = '';
 		this.revisionTag = 'latest';
 
 		this._title = null;
@@ -127,7 +120,6 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 		this._playerShowNavBar = null;
 		this._reviewRetake = null;
 		this._recommendedPlayer = null;
-
 		this._isLoading = true;
 		this._selectedSharingIndex = 0;
 		this._saveButtonDisabled = false;
@@ -172,141 +164,16 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 						value=${this._description}
 					></d2l-input-text>
 				</div>
-				${this.canShare() ? html`
-					<div class="setting-section share">
-						<h4 class="section-heading">${this.localize('askIfShare')}</h4>
-						<div class="setting-option">
-							<input
-								id="add-sharing"
-								class="d2l-input-radio"
-								name="sharing"
-								type="radio"
-								@change="${this._setShared(true)}"
-								?checked="${this._shared !== null && this._shared}"
-							/>
-							${this._renderShareLabel()}
-							${this._renderSharingDropdown()}
-						</div>
-						<div class="setting-option">
-							<input
-								id="remove-sharing"
-								class="d2l-input-radio"
-								name="sharing"
-								type="radio"
-								@change="${this._setShared(false)}"
-								?checked="${this._shared !== null && !this._shared}"
-							/>
-							<label for="remove-sharing" class="label-body">${this.localize('noKeepToMyself')}</label>
-						</div>
-					</div>
-				` : ''}
-				${!this._resourceType || this._resourceType === 'audio' || this._resourceType === 'video' ?
-		'' : html`
-			<div class="setting-section navigation">
-				<h4 class="section-heading">${this.localize('coursePlayer')}</h4>
-				<div class="section-description">${this.localize('coursePlayerDescription')}</div>
-				<div class="setting-option">
-					<input
-						id="use-embedded-player"
-						class="d2l-input-radio"
-						name="use-embedded-player"
-						type="radio"
-						@change="${this._setUseEmbedPlayer(RecommendedPlayerOptions.embedPlayer)}"
-						?checked="${this._recommendedPlayer === RecommendedPlayerOptions.embedPlayer}"
-					/>
-					<label for="use-embedded-player">
-						<div class="label-body">${this.localize('useEmbeddedPlayerDefault')}</div>
-						<div class="label-description">${this.localize('useEmbeddedPlayerDescription')}</div>
-					</label>
-				</div>
-				<div class="setting-option">
-					<input
-						id="open-new-window"
-						class="d2l-input-radio"
-						name="use-embedded-player"
-						type="radio"
-						@change="${this._setUseEmbedPlayer(RecommendedPlayerOptions.newWindow)}"
-						?checked="${this._recommendedPlayer === RecommendedPlayerOptions.newWindow}"
-					/>
-					<label for="open-new-window">
-						<div class="label-body">${this.localize('openPlayerInNewWindow')}</div>
-						<div class="label-description">${this.localize('openPlayerInNewWindowDescription')}</div>
-					</label>
-				</div>
-			</div>
-			${this.embedFeatureEnabled ? html`
-				<div class="setting-section navigation">
-					<h4 class="section-heading">${this.localize('navigation')}</h4>
-					<div class="section-description">${this.localize('navigationDescription')}</div>
-					<div class="setting-option">
-						<input
-							id="remove-navigation"
-							class="d2l-input-radio"
-							name="navigation"
-							type="radio"
-							@change="${this._setShowNavBar(false)}"
-							?checked="${this._playerShowNavBar !== null && !this._playerShowNavBar}"
-						/>
-						<label for="remove-navigation">
-							<div class="label-body">${this.localize('playerHideNavBar')}</div>
-							<div class="label-description">${this.localize('playerHideNavBarDescription')}</div>
-						</label>
-					</div>
-					<div class="setting-option">
-						<input
-							id="add-navigation"
-							class="d2l-input-radio"
-							name="navigation"
-							type="radio"
-							@change="${this._setShowNavBar(true)}"
-							?checked="${this._playerShowNavBar !== null && this._playerShowNavBar}"
-						/>
-						<label for="add-navigation">
-							<div class="label-body">${this.localize('playerShowNavBar')}</div>
-							<div class="label-description">${this.localize('playerShowNavBarDescription')}</div>
-						</label>
-					</div>
-				</div>
-			` : html``}
-			<div class="setting-section navigation">
-				<h4 class="section-heading">${this.localize('reviewRetake')}</h4>
-				<div class="section-description">${this.localize('reviewRetakeDescription')}</div>
-				<div class="setting-option">
-					<input
-						id="add-review-retake"
-						class="d2l-input-radio"
-						name="add-review-retake"
-						type="radio"
-						@change="${this._setReviewRetake(true)}"
-						?checked="${this._reviewRetake !== null && this._reviewRetake}"
-					/>
-					<label for="add-review-retake">
-						<div class="label-body">${this.localize('addReviewRetake')}</div>
-						<div class="label-description">${this.localize('addReviewRetakeDescription')}</div>
-					</label>
-				</div>
-				<div class="setting-option">
-					<input
-						id="do-not-add-review-retake"
-						class="d2l-input-radio"
-						name="add-review-retake"
-						type="radio"
-						@change="${this._setReviewRetake(false)}"
-						?checked="${this._reviewRetake !== null && !this._reviewRetake}"
-					/>
-					<label for="do-not-add-review-retake">
-						<div class="label-body">${this.localize('doNotAddReviewRetake')}</div>
-						<div class="label-description">${this.localize('doNotAddReviewRetakeDescription')}</div>
-					</label>
-				</div>
-			</div>
-		`}
+				${this.canShare() ? this._renderSharingSection() : ''}
+				${this._shouldRenderPlayerOptions() ? this._renderPlayerOptions() : ''}
+				${this._shouldRenderNavBarOptions() ? this._renderNavBarOptions() : ''}
+				${this._shouldRenderReviewRetakeOptions() ? this._renderReviewRetakeOptions() : ''}
 			</div>
 		`;
 	}
 
 	canShare() {
-		return this.canShareTo && this.canShareTo.length > 0;
+		return this.canShareTo?.length > 0;
 	}
 
 	renderSharingItems() {
@@ -423,8 +290,115 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 		this._reviewRetake = revision.options
 			? revision.options.reviewRetake !== false
 			: true;
-		this._recommendedPlayer = (revision.options && revision.options.recommendedPlayer)
-			|| RecommendedPlayerOptions.embedPlayer;
+		this._recommendedPlayer = revision?.options?.recommendedPlayer;
+		if (this._recommendedPlayer === undefined) {
+			this._recommendedPlayer = PlayerOption.EMBEDDED;
+		}
+	}
+
+	_renderNavBarOptions() {
+		return html`<div class="setting-section navigation">
+			<h4 class="section-heading">${this.localize('navigation')}</h4>
+			<div class="section-description">${this.localize('navigationDescription')}</div>
+			<div class="setting-option">
+				<input
+					id="remove-navigation"
+					class="d2l-input-radio"
+					name="navigation"
+					type="radio"
+					@change="${this._setShowNavBar(false)}"
+					?checked="${this._playerShowNavBar !== null && !this._playerShowNavBar}"
+				/>
+				<label for="remove-navigation">
+					<div class="label-body">${this.localize('playerHideNavBar')}</div>
+					<div class="label-description">${this.localize('playerHideNavBarDescription')}</div>
+				</label>
+			</div>
+			<div class="setting-option">
+				<input
+					id="add-navigation"
+					class="d2l-input-radio"
+					name="navigation"
+					type="radio"
+					@change="${this._setShowNavBar(true)}"
+					?checked="${this._playerShowNavBar !== null && this._playerShowNavBar}"
+				/>
+				<label for="add-navigation">
+					<div class="label-body">${this.localize('playerShowNavBar')}</div>
+					<div class="label-description">${this.localize('playerShowNavBarDescription')}</div>
+				</label>
+			</div>
+		</div>`;
+	}
+
+	_renderPlayerOptions() {
+		return html`<div class="setting-section navigation">
+			<h4 class="section-heading">${this.localize('coursePlayer')}</h4>
+			<div class="section-description">${this.localize('coursePlayerDescription')}</div>
+			<div class="setting-option">
+				<input
+					id="use-embedded-player"
+					class="d2l-input-radio"
+					name="use-embedded-player"
+					type="radio"
+					@change="${this._setUseEmbedPlayer(PlayerOption.EMBEDDED)}"
+					?checked="${this._recommendedPlayer === PlayerOption.EMBEDDED}"
+				/>
+				<label for="use-embedded-player">
+					<div class="label-body">${this.localize('useEmbeddedPlayerDefault')}</div>
+					<div class="label-description">${this.localize('useEmbeddedPlayerDescription')}</div>
+				</label>
+			</div>
+			<div class="setting-option">
+				<input
+					id="open-new-window"
+					class="d2l-input-radio"
+					name="use-embedded-player"
+					type="radio"
+					@change="${this._setUseEmbedPlayer(PlayerOption.NEW_WINDOW)}"
+					?checked="${this._recommendedPlayer === PlayerOption.NEW_WINDOW}"
+				/>
+				<label for="open-new-window">
+					<div class="label-body">${this.localize('openPlayerInNewWindow')}</div>
+					<div class="label-description">${this.localize('openPlayerInNewWindowDescription')}</div>
+				</label>
+			</div>
+		</div>`;
+	}
+
+	_renderReviewRetakeOptions() {
+		return html`<div class="setting-section navigation">
+			<h4 class="section-heading">${this.localize('reviewRetake')}</h4>
+			<div class="section-description">${this.localize('reviewRetakeDescription')}</div>
+			<div class="setting-option">
+				<input
+					id="add-review-retake"
+					class="d2l-input-radio"
+					name="add-review-retake"
+					type="radio"
+					@change="${this._setReviewRetake(true)}"
+					?checked="${this._reviewRetake !== null && this._reviewRetake}"
+				/>
+				<label for="add-review-retake">
+					<div class="label-body">${this.localize('addReviewRetake')}</div>
+					<div class="label-description">${this.localize('addReviewRetakeDescription')}</div>
+				</label>
+			</div>
+			<div class="setting-option">
+				<input
+					id="do-not-add-review-retake"
+					class="d2l-input-radio"
+					name="add-review-retake"
+					type="radio"
+					@change="${this._setReviewRetake(false)}"
+					?checked="${this._reviewRetake !== null && !this._reviewRetake}"
+				/>
+				<label for="do-not-add-review-retake">
+					<div class="label-body">${this.localize('doNotAddReviewRetake')}</div>
+					<div class="label-description">${this.localize('doNotAddReviewRetakeDescription')}</div>
+				</label>
+			</div>
+		</div>`;
 	}
 
 	_renderShareLabel() {
@@ -452,6 +426,35 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 		` : html``;
 	}
 
+	_renderSharingSection() {
+		return html`<div class="setting-section share">
+			<h4 class="section-heading">${this.localize('askIfShare')}</h4>
+			<div class="setting-option">
+				<input
+					id="add-sharing"
+					class="d2l-input-radio"
+					name="sharing"
+					type="radio"
+					@change="${this._setShared(true)}"
+					?checked="${this._shared !== null && this._shared}"
+				/>
+				${this._renderShareLabel()}
+				${this._renderSharingDropdown()}
+			</div>
+			<div class="setting-option">
+				<input
+					id="remove-sharing"
+					class="d2l-input-radio"
+					name="sharing"
+					type="radio"
+					@change="${this._setShared(false)}"
+					?checked="${this._shared !== null && !this._shared}"
+				/>
+				<label for="remove-sharing" class="label-body">${this.localize('noKeepToMyself')}</label>
+			</div>
+		</div>`;
+	}
+
 	_setReviewRetake(reviewRetake) {
 		return () => this._reviewRetake = reviewRetake;
 	}
@@ -467,6 +470,19 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 	_setUseEmbedPlayer(useEmbedPlayer) {
 		return () => this._recommendedPlayer = useEmbedPlayer;
 	}
+
+	_shouldRenderNavBarOptions() {
+		return this._resourceType === ContentType.SCORM;
+	}
+
+	_shouldRenderPlayerOptions() {
+		return this._resourceType === ContentType.SCORM;
+	}
+
+	_shouldRenderReviewRetakeOptions() {
+		return this._resourceType === ContentType.SCORM;
+	}
+
 }
 
 customElements.define('d2l-content-properties', ContentProperties);
