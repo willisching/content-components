@@ -96,7 +96,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 		this.tenantId = '';
 		this.context = '';
 		this.orgUnitId = '';
-		this._contentId = '';
+		this._contentId = null;
 		this._region = null;
 		this._client = null;
 		this._value = null;
@@ -157,7 +157,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 								tenantId='${this.tenantId}'
 								@object-selected=${this._enableNextButton}
 								@on-upload-button-click=${this._navigateToUpload}
-								@revision-upload-requested=${this._navigateToUpload}
+								@revision-upload-requested=${this._navigateToUploadRevision}
 								@show-preview=${this._handleListShowPreview}
 								@show-edit-properties=${this._handleListEditProperties}
 							></d2l-content-selector-list>
@@ -211,6 +211,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 								tenant-id=${this.tenantId}
 								api-endpoint=${this.serviceUrl}
 								?allowAsyncProcessing=${ALLOW_ASYNC}
+								existing-content-id=${this._contentId}
 								error-message=${this._errorMessage}
 								max-file-size=${this.maxFileUploadSize}
 								.supportedTypes=${SUPPORTED_TYPES}
@@ -489,6 +490,12 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 	}
 
 	_navigateToUpload() {
+		this._contentId = null;
+		this._selectedView = VIEW.UPLOAD;
+	}
+
+	_navigateToUploadRevision(event) {
+		this._contentId = event.detail.id;
 		this._selectedView = VIEW.UPLOAD;
 	}
 

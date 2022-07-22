@@ -8,12 +8,13 @@ const UPLOAD_FAILED_ERROR = 'workerErrorUploadFailed';
 
 /* eslint-disable no-unused-vars */
 export class Uploader {
-	constructor({ apiClient, onSuccess, onError, waitForProcessing, onProgress = progress => {} }) {
+	constructor({ apiClient, onSuccess, onError, waitForProcessing, existingContentId, onProgress = progress => {} }) {
 		/* eslint-enable no-unused-vars */
 		this.apiClient = apiClient;
 		this.onSuccess = onSuccess;
 		this.onError = onError;
 		this.waitForProcessing = waitForProcessing;
+		this.existingContentId = existingContentId;
 		this.onProgress = onProgress;
 		this.uploadProgress = 0;
 		this.lastProgressPosition = 0;
@@ -85,10 +86,15 @@ export class Uploader {
 				title,
 				type,
 			};
+
 			if (isAudioType(file.name) || isVideoType(file.name)) {
 				createContentBody.clientApp = 'LmsContent';
 			}
-			this.content = await this.apiClient.content.postItem({ content: createContentBody });
+
+			this.content = this.existingContentId ?
+				await this.apiClient.content.updateItem({ content: { id: this.existingContentId, title } }) :
+				await this.apiClient.content.postItem({ content: createContentBody });
+
 			this.revision = await this.apiClient.content.createRevision({
 				id: this.content.id,
 				properties: {

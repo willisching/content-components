@@ -251,10 +251,6 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 		};
 	}
 
-	_handleNewUploadAction() {
-		this.dispatchEvent(new CustomEvent('revision-upload-requested'));
-	}
-
 	_handleNextButton() {
 		this.dispatchEvent(new CustomEvent('on-next-button-click', {
 			detail: {
@@ -285,6 +281,14 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 				id: item.id,
 				type: item.lastRevType,
 				title: item.lastRevTitle
+			}
+		}));
+	}
+
+	_handleUploadNewRevisionAction(item) {
+		return () => this.dispatchEvent(new CustomEvent('revision-upload-requested', {
+			detail: {
+				id: item.id
 			}
 		}));
 	}
@@ -322,7 +326,7 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 						<d2l-menu>
 							${this.showPreviewAction ? html`<d2l-menu-item class="preview" text=${this.localize('preview')} @click=${this._handleShowPreviewAction(item)}></d2l-menu-item>` : ''}
 							${this.showEditPropertiesAction ? html`<d2l-menu-item class="edit-properties" text=${this.localize('editProperties')} @click=${this._handleEditPropertiesAction(item)}></d2l-menu-item>` : ''}
-							${this.showRevisionUploadAction ? html`<d2l-menu-item class="revision-upload" text=${this.localize('uploadNewVersion')} @click=${this._handleNewUploadAction}></d2l-menu-item>` : ''}
+							${this.showRevisionUploadAction ? html`<d2l-menu-item class="revision-upload" text=${this.localize('uploadNewVersion')} @click=${this._handleUploadNewRevisionAction(item)}></d2l-menu-item>` : ''}
 							${this.showDeleteAction ? html`<d2l-menu-item class="delete-item" text=${this.localize('delete')} @click=${this._openDialog(item)}></d2l-menu-item>` : ''}
 						</d2l-menu>
 					</d2l-dropdown-menu>
