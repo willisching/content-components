@@ -24,7 +24,6 @@ A collection of components used for content in Brightspace.
 * [d2l-content-topic-renderer](core/d2l-content-topic-renderer)
 * [d2l-content-topic-settings](core/d2l-content-topic-settings)
 * [d2l-content-uploader](core/d2l-content-uploader)
-* [d2l-content-viewer](core/d2l-content-viewer) **(DEPRECATED - TO BE DELETED)**
 
 ### Capture
 * [d2l-capture-producer](capture/d2l-capture-producer)

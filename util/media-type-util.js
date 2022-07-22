@@ -1,7 +1,9 @@
+import ContentType from './content-type.js';
+
 export const supportedTypeExtensions = {
-	Audio: ['.m4a', '.mp3', '.ogg', '.wav', '.wma'],
-	Video: ['.avi', '.f4v', '.flv', '.m4v', '.mov', '.mp4', '.webm', '.wmv'],
-	Scorm: ['.zip'],
+	[ContentType.AUDIO]: ['.m4a', '.mp3', '.ogg', '.wav', '.wma'],
+	[ContentType.VIDEO]: ['.avi', '.f4v', '.flv', '.m4v', '.mov', '.mp4', '.webm', '.wmv'],
+	[ContentType.SCORM]: ['.zip'],
 };
 
 export function getExtension(filePath) {
@@ -19,11 +21,11 @@ export function isSupported(filePath) {
 }
 
 export function isAudioType(filePath) {
-	return supportedTypeExtensions.Audio.includes(getExtension(filePath));
+	return supportedTypeExtensions[ContentType.AUDIO].includes(getExtension(filePath));
 }
 
 export function isVideoType(filePath) {
-	return supportedTypeExtensions.Video.includes(getExtension(filePath));
+	return supportedTypeExtensions[ContentType.VIDEO].includes(getExtension(filePath));
 }
 
 export function getType(filePath) {

@@ -1,5 +1,5 @@
 export default Object.freeze({
-	SCORM: 'scorm',
-	VIDEO: 'video',
-	AUDIO: 'audio'
+	SCORM: 'Scorm',
+	VIDEO: 'Video',
+	AUDIO: 'Audio'
 });

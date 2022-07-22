@@ -268,7 +268,7 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 
 		const revision = this.revisionTag === 'latest' ? content.revisions[content.revisions.length - 1] : content.revisions.find(rev => rev.id === this.revisionTag);
 
-		this._resourceType = revision.type.toLowerCase();
+		this._resourceType = revision.type;
 
 		this._title = content.title;
 		this._description = content.description;
