@@ -89,6 +89,7 @@ export default {
 	"dropFilesOrClick": "Drop files here or click to upload",
 	"duration": "Duration",
 	"edit": "Edit",
+	"editAVCapsExceededError": "Your organization's Audio-Video content limit for this period has been exceeded. Editing is disabled.",
 	"editCoursePackageProperties": "Configure Course Package Properties",
 	"editCoursePackagePropertiesBulk": "Configure Course Package Properties {0}/{1}",
 	"editDescription": "Edit Description",
