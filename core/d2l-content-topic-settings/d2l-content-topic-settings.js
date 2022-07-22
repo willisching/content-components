@@ -300,11 +300,9 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_getSelectedRevisionId() {
-		if (this.revisionTag !== 'latest') {
-			return this.revisionTag;
-		}
-
-		return this.content.revisions[this.content.revisions.length - 1].id;
+		return this.revisionTag !== 'latest' ?
+			this.revisionTag :
+			this.content.revisions[this.content.revisions.length - 1].id;
 	}
 
 	_handleGradeObjectAssociation(val) {
