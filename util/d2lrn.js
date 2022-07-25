@@ -36,7 +36,7 @@ export function toString({company, product, service, region, tenantId, resourceT
 		service,
 		region,
 		tenantId,
-		resourceType,
+		resourceType.toLowerCase(),
 		resource
 	].join(':');
 }
@@ -48,7 +48,7 @@ export function build({region, tenantId, resourceType, contentId, revisionTag}) 
 		service: 'content',
 		region,
 		tenantId,
-		resourceType,
+		resourceType: resourceType.toLowerCase(),
 		resource: `${contentId}${revisionTag ? `/${revisionTag}` : '/latest'}`
 	});
 }

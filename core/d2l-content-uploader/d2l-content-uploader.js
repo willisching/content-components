@@ -3,12 +3,13 @@ import { ifDefined } from 'lit-html/directives/if-defined.js';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { ContentServiceApiClient } from '@d2l/content-service-api-client';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
-import { parse as d2lrnParse, toString as d2lrnToString } from '../../util/d2lrn.js';
-import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 
 import '../d2l-drop-uploader.js';
 import '../d2l-topic-preview.js';
 import '../d2l-upload-progress.js';
+import { parse as d2lrnParse, toString as d2lrnToString } from '../../util/d2lrn.js';
+import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
+import ContentType from '../../util/content-type.js';
 
 const VIEW = Object.freeze({
 	UPLOAD: 'UPLOAD',
@@ -17,7 +18,7 @@ const VIEW = Object.freeze({
 	LOADING: 'LOADING',
 });
 
-const SUPPORTED_TYPES = ['Audio', 'Video'];
+const SUPPORTED_TYPES = [ContentType.AUDIO, ContentType.VIDEO];
 
 export class Main extends InternalLocalizeMixin(MobxReactionUpdate(LitElement)) {
 	static get properties() {

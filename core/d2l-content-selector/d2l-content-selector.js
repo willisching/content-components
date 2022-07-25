@@ -1,17 +1,19 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { ContentServiceApiClient, getRegion } from '@d2l/content-service-api-client';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
+import { MobxReactionUpdate } from '@adobe/lit-mobx';
+import '@brightspace-ui/core/components/button/button.js';
+import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
+
 import '../d2l-content-selector-list.js';
 import '../d2l-content-topic-settings.js';
 import '../d2l-drop-uploader.js';
 import '../d2l-content-properties.js';
-import '@brightspace-ui/core/components/button/button.js';
-import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
-import { MobxReactionUpdate } from '@adobe/lit-mobx';
-import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import '../d2l-bulk-complete.js';
 import '../d2l-upload-progress.js';
+import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { parse as d2lrnParse, toString as d2lrnToString, build as buildD2lRn } from '../../util/d2lrn.js';
+import ContentType from '../../util/content-type.js';
 
 const VIEW = Object.freeze({
 	LIST: 'list',
@@ -24,7 +26,7 @@ const VIEW = Object.freeze({
 });
 
 const SPINNER_SIZE = 150;
-const SUPPORTED_TYPES = ['Scorm'];
+const SUPPORTED_TYPES = [ContentType.SCORM];
 const ALLOW_ASYNC = false;
 
 class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElement)) {
@@ -38,46 +40,43 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 			selectedObject: { type: String, reflect: true, attribute: 'selected-object' },
 			serviceUrl: { type: String, attribute: 'service-url' },
 			tenantId: { type: String, attribute: 'tenant-id' },
-			_hasFailures: { type: Boolean },
 
+			_hasFailures: { type: Boolean },
 			_contentId: { type: String },
-			_isLoading: { type: Boolean },
 			_nextButtonSettingsDisabled: { type: Boolean },
 			_saveButtonPropertiesDisabled: { type: Boolean },
 			_selectedView: { type: String },
 			_topicId: { type: String },
-
 		};
 	}
 
 	static get styles() {
 		return css`
+			.view-container {
+				display: flex;
+				flex-direction: column;
+				height: 100%;
+			}
 
-		.view-container {
-			display: flex;
-			flex-direction: column;
-			height: 100%;
-		}
+			.main-view {
+				flex: 1;
+				overflow: auto;
+			}
 
-		.main-view {
-			flex: 1;
-			overflow: auto;
-		}
+			.full-height {
+				height:100%;
+			}
 
-		.full-height {
-			height:100%;
-		}
+			.loading-spinner {
+				top: 50%;
+				left: 50%;
+				position: absolute;
+				transform: translate(-50%, -50%);
+			}
 
-		.loading-spinner {
-			top: 50%;
-			left: 50%;
-			position: absolute;
-			transform: translate(-50%, -50%);
-		}
-
-		d2l-content-selector-list {
-			height: 100%;
-		}
+			d2l-content-selector-list {
+				height: 100%;
+			}
 		`;
 	}
 
@@ -91,19 +90,11 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 		this.editPropertiesAfterUpload = true;
 		this.editTopicPropertiesAfterSelection = false;
 		this.showPreviewAfterSelection = false;
-		this.selectedObject = null;
-		this.serviceUrl = '';
-		this.tenantId = '';
-		this.context = '';
-		this.orgUnitId = '';
-		this._contentId = null;
+
 		this._region = null;
 		this._client = null;
 		this._value = null;
-		this._resourceType = '';
-		this._errorMessage = '';
-
-		this._isLoading = false;
+		this._errorMessage = null;
 		this._nextButtonSettingsDisabled = true;
 		this._saveButtonPropertiesDisabled = false;
 		this._selectedView = VIEW.LIST;
@@ -113,7 +104,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 		this._progress = 0;
 		this._propertyProgress = 1;
 		this._d2lrnList = [];
-		this._fileName = '';
+		this._fileName = null;
 		this._uploadProgress = 0;
 		this._hasFailures = false;
 	}
@@ -126,14 +117,6 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 	}
 
 	render() {
-		if (this._isLoading) {
-			return html`
-				<d2l-loading-spinner
-					class="loading-spinner"
-					size=${SPINNER_SIZE}
-				></d2l-loading-spinner>
-			`;
-		}
 		switch (this._selectedView) {
 			case VIEW.LOADING:
 				return html`
@@ -174,8 +157,8 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 								@click="${this._handleCancel}"
 								description=${this.localize('cancel')}
 							>${this.localize('cancel')}</d2l-button>
+						</div>
 					</div>
-				</div>
 				`;
 			case VIEW.SETTINGS:
 				return html`
@@ -307,21 +290,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 								>
 							</d2l-bulk-complete>
 						</div>
-						${this._hasFailures ?
-		html`
-					<div class="action-group">
-						<d2l-button
-							id='bulk-complete-button'
-							description=${this._uploadSuccessFiles === 0 ? this.localize('back') : this.localize('continue')}
-							@click=${this._uploadSuccessFiles === 0 ? this._uploadBack : this._handleBulkContinue}
-						>${this._uploadSuccessFiles === 0 ? this.localize('back') : this.localize('continue')}</d2l-button>
-						<d2l-button
-							description=${this.localize('cancel')}
-							@click=${this._handleCancel}
-						>${this.localize('cancel')}</d2l-button>
-					</div>`
-		: `
-		`}
+						${this._hasFailures ? this._renderBulkCompleteButtons() : ''}
 					</div>
 				`;
 			default:
@@ -407,7 +376,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 	}
 
 	async _handleAddTopic() {
-		this._isLoading = true;
+		this._selectedView = VIEW.LOADING;
 		const topicSettings = this._topicSettings.getSettings();
 		this._value = {
 			d2lrn: buildD2lRn({
@@ -423,7 +392,6 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 			gradeObjectAssociation: topicSettings.gradeObjectAssociation
 		};
 		this.dispatchEvent(new CustomEvent('addtopic'));
-		this._isLoading = false;
 	}
 
 	_handleBulkContinue() {
@@ -506,11 +474,27 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 		this._uploadSuccessFiles = 0;
 		this._progress = 0;
 		this._d2lrnList = [];
-		this._fileName = '';
+		this._fileName = null;
 		this._uploadProgress = 0;
-		this._errorMessage = '';
+		this._errorMessage = null;
 		this._hasFailures = false;
 		this._selectedView = VIEW.LIST;
+	}
+
+	_renderBulkCompleteButtons() {
+		return html`
+			<div class="action-group">
+				<d2l-button
+					id='bulk-complete-button'
+					description=${this._uploadSuccessFiles === 0 ? this.localize('back') : this.localize('continue')}
+					@click=${this._uploadSuccessFiles === 0 ? this._uploadBack : this._handleBulkContinue}
+				>${this._uploadSuccessFiles === 0 ? this.localize('back') : this.localize('continue')}</d2l-button>
+				<d2l-button
+					description=${this.localize('cancel')}
+					@click=${this._handleCancel}
+				>${this.localize('cancel')}</d2l-button>
+			</div>
+		`;
 	}
 
 	get _selectorList() {
