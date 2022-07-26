@@ -115,12 +115,15 @@ describe('ContentSelectorList', async() => {
 
 	let deleteItemStub, el, searchStub;
 	beforeEach(async() => {
+		const ou1 = '312';
+		const ou2 = '645';
+		const commonSearch = { searchLocations: `ou:${ou1},ou:${ou2}` };
 		searchStub = Sinon.stub(SearchApi.prototype, 'searchContent');
 		deleteItemStub = Sinon.stub(ContentApi.prototype, 'deleteItem');
-		searchStub.withArgs(Sinon.match({ query: '' })).callsFake(() => {
+		searchStub.withArgs(Sinon.match({ query: '', ...commonSearch })).callsFake(() => {
 			return generateSample(10);
 		});
-		searchStub.withArgs(Sinon.match({ query: 'hello' })).callsFake(() => {
+		searchStub.withArgs(Sinon.match({ query: 'hello', ...commonSearch })).callsFake(() => {
 			return generateSample(10, 'hello');
 		});
 		el = await fixture(html`
@@ -128,6 +131,7 @@ describe('ContentSelectorList', async() => {
 			allowUpload
 			allowSelection
 			tenantId="0"
+			.searchLocations=${[{ id: ou1 }, { id: ou2 }]}
 			serviceUrl="http://localhost:8000/contentservice"
 			showPreviewAction
 			showDeleteAction

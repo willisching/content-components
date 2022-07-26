@@ -33,10 +33,12 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 	static get properties() {
 		return {
 			allowUpload: { type: Boolean, attribute: 'allow-upload' },
+			canSelectShareLocation: { type: Boolean, attribute: 'can-select-share-location' },
 			canShareTo: { type: Array, attribute: 'can-share-to' },
 			context: { type: String },
 			maxFilesPerUpload: { type: Number, attribute: 'max-files-per-upload' },
 			maxFileUploadSize: { type: Number, attribute: 'max-file-upload-size' },
+			searchLocations: { type: Array, attribute: 'search-locations' },
 			selectedObject: { type: String, reflect: true, attribute: 'selected-object' },
 			serviceUrl: { type: String, attribute: 'service-url' },
 			tenantId: { type: String, attribute: 'tenant-id' },
@@ -132,6 +134,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 							<d2l-content-selector-list
 								?allowUpload=${this.allowUpload}
 								allowSelection
+								.searchLocations=${this.searchLocations}
 								serviceUrl=${this.serviceUrl}
 								showDeleteAction
 								showRevisionUploadAction
@@ -228,6 +231,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 								serviceUrl=${this.serviceUrl}
 								contentId=${this._contentId}
 								tenantId=${this.tenantId}
+								.canSelectShareLocation=${this.canSelectShareLocation}
 								.canShareTo=${this.canShareTo}
 								totalFiles=${this._uploadSuccessFiles}
 								progress=${this._propertyProgress}
