@@ -2,7 +2,7 @@ import Moment from 'moment/src/moment';
 
 export const getFriendlyDate = (date) => {
 	if (!date) {
-		null;
+		return null;
 	}
 	const dt = Moment(date);
 	const f = 'MMMM Do, YYYY';
