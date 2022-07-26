@@ -1,5 +1,6 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
-import {radioStyles} from '@brightspace-ui/core/components/inputs/input-radio-styles.js';
+import { radioStyles } from '@brightspace-ui/core/components/inputs/input-radio-styles.js';
+import { SkeletonMixin } from '@brightspace-ui/core/components/skeleton/skeleton-mixin.js';
 import '@brightspace-ui/core/components/inputs/input-search.js';
 import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/dialog/dialog-confirm.js';
@@ -14,7 +15,7 @@ import './src/scroller.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { getFriendlyDate } from '../../util/date.js';
 
-class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
+class ContentSelectorList extends SkeletonMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
 			allowUpload: { type: Boolean },
@@ -38,7 +39,7 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 	}
 
 	static get styles() {
-		return [radioStyles, css`
+		return [super.styles, radioStyles, css`
 			d2l-input-search {
 				width: 50%;
 			}
@@ -49,10 +50,6 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 
 			.input-container d2l-button {
 				float: right;
-			}
-
-			.input-button {
-				margin-top: 2px;
 			}
 
 			.input-container d2l-button {
@@ -76,13 +73,14 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 			.heading .info-wrapper {
 				color: #6e7376;
 				font-size: 14px;
-				margin-top: -2px;
+				margin-top: 2px;
 				-webkit-text-size-adjust: 100%;
-				height:25px;
+				height: 21px;
 			}
 
 			.input-button {
 				margin-top: 2px;
+				margin-right: 13px;
 			}
 
 			.heading {
@@ -98,15 +96,14 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 				border-bottom-width: 1px;
 				border-bottom-style: solid;
 				border-bottom-color: rgb(227, 233, 241);
-				padding-top: 6px;
-				padding-bottom: 6px;
+				padding-top: 10px;
+				padding-bottom: 10px;
 			}
 
 			.search-result input[type="radio"] {
 				margin-top: 2px;
 				height: 23px;
 				min-width: 23px;
-				margin-right: 15px;
 			}
 
 			.context-menu {
@@ -135,6 +132,7 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 		this._hasMore = true;
 		this._isLoading = true;
 		this._scrollerHeight = '0px';
+		this.skeleton = true;
 
 		this.contentTypes = [];
 		this.showDeleteAction = null;
@@ -223,6 +221,10 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_handleChecked(result) {
+		if (!result) {
+			return;
+		}
+
 		return this._selectedContent?.id === result.id;
 	}
 
@@ -290,20 +292,20 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 
 	_itemRenderer(item) {
 		return html`
-			<div class="search-result">
+			<div class="search-result ${this._skeletize(item, 'container', false)}">
 				${this.allowSelection ? this._renderRadioInput(item) : ''}
 				<div class="heading">
-					<div class=title-wrapper>
+					<div class="title-wrapper ${this._skeletize(item, '50')}">
 						<a class="title">
-							${item.lastRevTitle}
+							${item?.lastRevTitle}
 						</a>
 					</div>
-					<div class="info-wrapper">
-						${this.localize('lastEditedOn', {lastEdited: getFriendlyDate(item.updatedAt)})}
+					<div class="info-wrapper ${this._skeletize(item, '30')}">
+						${this.localize('lastEditedOn', {lastEdited: getFriendlyDate(item?.updatedAt)})}
 					</div>
 				</div>
 				<div class="context-menu">
-					<d2l-dropdown-more text=${this.localize('actionDropdown')}>
+					<d2l-dropdown-more text=${this.localize('actionDropdown')} class=${this._skeletize(item)}>
 						<d2l-dropdown-menu>
 							<d2l-menu>
 								${this.showPreviewAction ? html`<d2l-menu-item class="preview" text=${this.localize('preview')} @click=${this._handleShowPreviewAction(item)}></d2l-menu-item>` : ''}
@@ -353,16 +355,24 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 	_renderContentItems() {
 		if (this._contentItems.length === 0) {
 			return this._hasMore ?
-				html`<p>${this.localize('loading')}</p>` :
+				this._renderContentItemsSkeleton() :
 				html`<p>${this.localize('noResultsFound')}</p>`;
 		}
 
 		return this._contentItems.map(this._itemRenderer.bind(this));
 	}
 
+	_renderContentItemsSkeleton() {
+		return html`
+			${this._itemRenderer(null)}
+			${this._itemRenderer(null)}
+			${this._itemRenderer(null)}
+		`;
+	}
+
 	_renderRadioInput(item) {
 		return html`
-			<div class="input-button">
+			<div class="input-button ${this._skeletize(item)}">
 				<input
 					class="d2l-input-radio"
 					name="selected-result"
@@ -371,8 +381,7 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 					?checked=${this._handleChecked(item)}
 					@change=${this._handleSelect(item)}
 				/>
-			</div>
-		`;
+			</div>`;
 	}
 
 	_renderUploadButton() {
@@ -384,6 +393,10 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 				${this.localize('bulkUpload')}
 			</d2l-button>
 		`;
+	}
+
+	_skeletize(item, variation, includeBase = true) {
+		return (item ? '' : `${includeBase ? 'd2l-skeletize' : ''} ${variation ? `d2l-skeletize-${variation}` : ''}`);
 	}
 
 }
