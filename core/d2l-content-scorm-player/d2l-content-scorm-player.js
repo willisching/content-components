@@ -94,18 +94,13 @@ class ContentScormPlayer extends InternalLocalizeMixin(LitElement) {
 		}
 	}
 
-	_handleRetakeClick() {
-		this._showReviewRetakeOptions = false;
-		this._loading = false;
+	_handleReviewRetakeClick({ isReview }) {
+		return () => {
+			this._showReviewRetakeOptions = false;
+			this._loading = false;
 
-		this._loadScorm(this._takeUrl);
-	}
-
-	_handleReviewClick() {
-		this._showReviewRetakeOptions = false;
-		this._loading = false;
-
-		this._loadScorm(this._reviewUrl);
+			this._loadScorm(isReview ? this._reviewUrl : this._takeUrl);
+		};
 	}
 
 	_loadScorm(url) {
@@ -157,8 +152,8 @@ class ContentScormPlayer extends InternalLocalizeMixin(LitElement) {
 				<div class="review-retake-title">${this.localize('reviewRetakeViewTitle')}</div>
 				<div class="review-retake-description">${this.localize('reviewRetakeViewDescription')}</div>
 				<div class="review-retake-options">
-					<d2l-button @click=${this._handleReviewClick}>${this.localize('reviewRetakeButtonReview')}</d2l-button>
-					<d2l-button @click=${this._handleRetakeClick}>${this.localize('reviewRetakeButtonRetake')}</d2l-button>
+					<d2l-button @click=${this._handleReviewRetakeClick({ isReview: true })}>${this.localize('reviewRetakeButtonReview')}</d2l-button>
+					<d2l-button @click=${this._handleReviewRetakeClick({ isReview: false })}>${this.localize('reviewRetakeButtonRetake')}</d2l-button>
 				</div>
 			</div>
 		`;
