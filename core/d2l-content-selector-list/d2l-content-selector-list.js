@@ -20,6 +20,7 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 			allowUpload: { type: Boolean },
 			allowSelection: { type: Boolean },
 			contentTypes: { type: Array },
+			searchLocations: { type: Array },
 			serviceUrl: { type: String },
 			showDeleteAction: { type: Boolean },
 			showRevisionUploadAction: { type: Boolean },
@@ -141,6 +142,7 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 		this.showEditPropertiesAction = null;
 		this.showPreviewAction = null;
 		this.tenantId = null;
+		this.searchLocations = [];
 		this.serviceUrl = null;
 
 		this.start = 0;
@@ -323,7 +325,8 @@ class ContentSelectorList extends InternalLocalizeMixin(LitElement) {
 			start: this.start,
 			sort: 'updatedAt:desc',
 			size: 10,
-			contentType: this.contentTypes
+			contentType: this.contentTypes,
+			searchLocations: this.searchLocations?.map(l => `ou:${l.id}`).join(',')
 		});
 
 		const newItems = body.hits.hits.map((hit) => hit._source);

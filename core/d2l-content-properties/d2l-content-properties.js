@@ -411,7 +411,7 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_renderSharingDropdown() {
-		return this.canShareTo.length > 1 ? html`
+		return this.canShareTo.length > 1 && this.canSelectShareLocation ? html`
 			<d2l-dropdown-button
 				text="${this.canShareTo[this._selectedSharingIndex].name}"
 			>

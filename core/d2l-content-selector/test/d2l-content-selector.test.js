@@ -60,11 +60,12 @@ describe('ContentSelector', async() => {
 
 	let el, searchStub, getItemStub;
 	beforeEach(async() => {
+		const commonSearch = { searchLocations: 'ou:6606,ou:6609,ou:1234' };
 		searchStub = Sinon.stub(SearchApi.prototype, 'searchContent');
-		searchStub.withArgs(Sinon.match({ query: '' })).callsFake(() => {
+		searchStub.withArgs(Sinon.match({ query: '', ...commonSearch })).callsFake(() => {
 			return generateSample(10);
 		});
-		searchStub.withArgs(Sinon.match({ query: 'hello' })).callsFake(() => {
+		searchStub.withArgs(Sinon.match({ query: 'hello', ...commonSearch })).callsFake(() => {
 			return generateSample(10, 'hello');
 		});
 		getItemStub = Sinon.stub(ContentApi.prototype, 'getItem');
@@ -100,7 +101,9 @@ describe('ContentSelector', async() => {
 			tenant-id="0"
 			context="6606"
 			max-file-upload-size="2147483648"
+			canSelectShareLocation="true"
 			.canShareTo=${[{ 'id': '6606', 'name': 'Dev' }, { 'id': '6609', 'name': 'Prod' }]}
+			.searchLocations=${[{ 'id': '6606', 'name': 'Dev' }, { 'id': '6609', 'name': 'Prod' }, { 'id': '1234', 'name': 'Custom' }]}
 		></d2l-content-selector>`);
 		const selectorList = el.shadowRoot.querySelector('d2l-content-selector-list');
 		await waitFinishLoading(selectorList);
