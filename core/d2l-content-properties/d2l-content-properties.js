@@ -287,9 +287,7 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 
 		this._playerShowNavBar = revision.options ? revision.options.playerShowNavBar : null;
 
-		this._reviewRetake = revision.options
-			? revision.options.reviewRetake !== false
-			: true;
+		this._reviewRetake = revision.options?.reviewRetake ?? false;
 		this._recommendedPlayer = revision?.options?.recommendedPlayer;
 		if (this._recommendedPlayer === undefined) {
 			this._recommendedPlayer = PlayerOption.EMBEDDED;
@@ -372,20 +370,6 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 			<div class="section-description">${this.localize('reviewRetakeDescription')}</div>
 			<div class="setting-option">
 				<input
-					id="add-review-retake"
-					class="d2l-input-radio"
-					name="add-review-retake"
-					type="radio"
-					@change="${this._setReviewRetake(true)}"
-					?checked="${this._reviewRetake !== null && this._reviewRetake}"
-				/>
-				<label for="add-review-retake">
-					<div class="label-body">${this.localize('addReviewRetake')}</div>
-					<div class="label-description">${this.localize('addReviewRetakeDescription')}</div>
-				</label>
-			</div>
-			<div class="setting-option">
-				<input
 					id="do-not-add-review-retake"
 					class="d2l-input-radio"
 					name="add-review-retake"
@@ -396,6 +380,20 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 				<label for="do-not-add-review-retake">
 					<div class="label-body">${this.localize('doNotAddReviewRetake')}</div>
 					<div class="label-description">${this.localize('doNotAddReviewRetakeDescription')}</div>
+				</label>
+			</div>
+			<div class="setting-option">
+				<input
+					id="add-review-retake"
+					class="d2l-input-radio"
+					name="add-review-retake"
+					type="radio"
+					@change="${this._setReviewRetake(true)}"
+					?checked="${this._reviewRetake !== null && this._reviewRetake}"
+				/>
+				<label for="add-review-retake">
+					<div class="label-body">${this.localize('addReviewRetake')}</div>
+					<div class="label-description">${this.localize('addReviewRetakeDescription')}</div>
 				</label>
 			</div>
 		</div>`;
