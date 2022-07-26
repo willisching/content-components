@@ -1,6 +1,7 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import {radioStyles} from '@brightspace-ui/core/components/inputs/input-radio-styles.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
+import { SkeletonMixin } from '@brightspace-ui/core/components/skeleton/skeleton-mixin.js';
 import '@brightspace-ui/core/components/dropdown/dropdown.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-button.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-menu.js';
@@ -12,7 +13,7 @@ import PlayerOption from '../../util/player-option';
 import { ContentServiceApiClient } from '@d2l/content-service-api-client';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 
-class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
+class ContentTopicSettings extends SkeletonMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
 			d2lrn: { type: String },
@@ -22,7 +23,6 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 			tenantId: { type: String },
 
 			_resourceType: { type: String, attribute: false },
-			_isLoading: { type: Boolean, attribute: false },
 			_displayLatestVersion: { type: Boolean, attribute: false },
 			_gradeObjectAssociation: { type: Boolean, attribute: false },
 			_selectedGradingIndex: { type: Number, attribute: false },
@@ -31,7 +31,7 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 	}
 
 	static get styles() {
-		return [radioStyles, css`
+		return [super.styles, radioStyles, css`
 		h4.section-heading {
 			font-size: 16px;
 			margin-bottom: 10px;
@@ -44,6 +44,7 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 			margin-top: 0;
 			word-wrap: break-word;
 			overflow-wrap: break-word;
+			min-height: 28px;
 		}
 
 		h4.section-heading {
@@ -59,11 +60,14 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 			margin-bottom: 5px;
 		}
 
+		.setting-section .setting-option .radio-input-container {
+			margin-right: 5px;
+		}
+
 		.setting-section .setting-option input[type="radio"] {
 			margin-top: 2px;
 			height: 23px;
 			min-width: 23px;
-			margin-right: 15px;
 		}
 
 		.select-container {
@@ -116,7 +120,7 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 	constructor() {
 		super();
 
-		this._isLoading = true;
+		this.skeleton = true;
 		this._displayLatestVersion = true;
 		this._gradeObjectAssociation = true;
 		this._selectedGradingIndex = 0;
@@ -142,14 +146,13 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 		this._selectedPlayer = this._recommendedPlayer;
 		this._resourceType = revision.type.toLowerCase();
 		this._title = content.title;
-		this._isLoading = false;
+		this.skeleton = false;
 	}
 
 	render() {
-		if (this._isLoading) return '';
 		return html`
-			<div class="settings-container">
-				<h3 class="package-title">
+			<div class="settings-container d2l-skeletize-container">
+				<h3 class="package-title d2l-skeletize d2l-skeletize-50">
 					${this._title}
 				</h3>
 				${ this._resourceType && this._resourceType === 'scorm' ? this._renderGradeAssociationSection() : '' }
@@ -196,30 +199,34 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 		return html`
 			<div class="setting-section">
 				<h4 class="section-heading">
-				${this.localize('askIfCreateGradeItem')}
+					${this.localize('askIfCreateGradeItem')}
 				</h4>
 				<div class="setting-option">
-					<input
-						id="create-grade-item-yes"
-						class="d2l-input-radio"
-						name="grade-item"
-						type="radio"
-						?checked="${this._gradeObjectAssociation}"
-						@change=${this._handleGradeObjectAssociation(true)}
-					/>
+					<div class="radio-input-container">
+						<input
+							id="create-grade-item-yes"
+							class="d2l-input-radio"
+							name="grade-item"
+							type="radio"
+							?checked="${this._gradeObjectAssociation}"
+							@change=${this._handleGradeObjectAssociation(true)}
+						/>
+					</div>
 					<label for="create-grade-item-yes">
 						<div class="label-body">${this.localize('yes')}</div>
 					</label>
 				</div>
 				<div class="setting-option">
-					<input
-						id="create-grade-item-no"
-						class="d2l-input-radio"
-						name="grade-item"
-						type="radio"
-						?checked="${!this._gradeObjectAssociation}"
-						@change=${this._handleGradeObjectAssociation(false)}
-					/>
+					<div class="radio-input-container">
+						<input
+							id="create-grade-item-no"
+							class="d2l-input-radio"
+							name="grade-item"
+							type="radio"
+							?checked="${!this._gradeObjectAssociation}"
+							@change=${this._handleGradeObjectAssociation(false)}
+						/>
+					</div>
 					<label for="create-grade-item-no">
 						<div class="label-body">${this.localize('no')}</div>
 					</label>
@@ -263,54 +270,58 @@ class ContentTopicSettings extends InternalLocalizeMixin(LitElement) {
 
 	_renderPlayerOptionsSection() {
 		return html`
-		<div class="setting-section">
-			<h4 class="section-heading">
-				${this.localize('coursePlayer')}
-			</h4>
-			<div class="select-container">
-				<select
-					id="player-options"
-					aria-label=${this.localize('playerOptions')}
-					value=${this._selectedPlayer}
-					@change=${this._handleSelectedPlayerChange}
-				>
-					${this._renderPlayerOption(PlayerOption.EMBEDDED, this._recommendedPlayer, this._selectedPlayer)}
-					${this._renderPlayerOption(PlayerOption.NEW_WINDOW, this._recommendedPlayer, this._selectedPlayer)}
-				</select>
-			</div>
-		</div>`;
+			<div class="setting-section">
+				<h4 class="section-heading">
+					${this.localize('coursePlayer')}
+				</h4>
+				<div class="select-container">
+					<select
+						id="player-options"
+						aria-label=${this.localize('playerOptions')}
+						value=${this._selectedPlayer}
+						@change=${this._handleSelectedPlayerChange}
+					>
+						${this._renderPlayerOption(PlayerOption.EMBEDDED, this._recommendedPlayer, this._selectedPlayer)}
+						${this._renderPlayerOption(PlayerOption.NEW_WINDOW, this._recommendedPlayer, this._selectedPlayer)}
+					</select>
+				</div>
+			</div>`;
 	}
 
 	_renderVersionControlSection() {
 		return html`
 			<div class="setting-section">
-				<h4 class="section-heading">
+				<h4 class="section-heading d2l-skeletize d2l-skeletize-20">
 					${this.localize('versionControlTitle')}
 				</h4>
 				<div class="setting-option">
-					<input
-						id="latest-version"
-						class="d2l-input-radio"
-						name="version"
-						type="radio"
-						?checked=${this._displayLatestVersion}
-						@change=${this._handleVersionControlChange(true)}
-					/>
+					<div class="radio-input-container d2l-skeletize">
+						<input
+							id="latest-version"
+							class="d2l-input-radio"
+							name="version"
+							type="radio"
+							?checked=${this._displayLatestVersion}
+							@change=${this._handleVersionControlChange(true)}
+						/>
+					</div>
 					<label for="latest-version">
-						<div class="label-body">${this.localize('displayLatestVersion')}</div>
+						<div class="label-body d2l-skeletize">${this.localize('displayLatestVersion')}</div>
 					</label>
 				</div>
 				<div class="setting-option">
-					<input
-						id="this-version"
-						class="d2l-input-radio"
-						name="version"
-						type="radio"
-						?checked=${!this._displayLatestVersion}
-						@change=${this._handleVersionControlChange(false)}
-					/>
+					<div class="radio-input-container d2l-skeletize">
+						<input
+							id="this-version"
+							class="d2l-input-radio"
+							name="version"
+							type="radio"
+							?checked=${!this._displayLatestVersion}
+							@change=${this._handleVersionControlChange(false)}
+						/>
+					</div>
 					<label for="this-version">
-						<div class="label-body">${this.localize('displayThisVersion')}</div>
+						<div class="label-body d2l-skeletize">${this.localize('displayThisVersion')}</div>
 					</label>
 				</div>
 			</div>`;

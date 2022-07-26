@@ -6,6 +6,7 @@ import '@brightspace-ui/core/components/dropdown/dropdown-menu.js';
 import '@brightspace-ui/core/components/menu/menu.js';
 import '@brightspace-ui/core/components/menu/menu-item.js';
 import { radioStyles } from '@brightspace-ui/core/components/inputs/input-radio-styles.js';
+import { SkeletonMixin } from '@brightspace-ui/core/components/skeleton/skeleton-mixin.js';
 import '@brightspace-ui/core/components/button/button.js';
 import { ContentServiceApiClient } from '@d2l/content-service-api-client';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
@@ -15,7 +16,7 @@ import { buildOrgUnitShareLocationStr } from '../../util/sharing.js';
 import PlayerOption from '../../util/player-option.js';
 import ContentType from '../../util/content-type.js';
 
-class ContentProperties extends InternalLocalizeMixin(LitElement) {
+class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
 			d2lrn: { type: String },
@@ -28,7 +29,6 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 			totalFiles: { type: Number },
 			progress: { type: Number },
 
-			_isLoading: { type: Boolean, attribute: false },
 			_resourceType: { type: String, attribute: false },
 			_saveButtonDisabled: { type: Boolean, attribute: false },
 			_selectedSharingIndex: { type: Number, attribute: false },
@@ -36,7 +36,7 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 	}
 
 	static get styles() {
-		return [radioStyles, css`
+		return [super.styles, radioStyles, css`
 		.label-body {
 			display: flex;
 			flex-wrap: wrap;
@@ -120,27 +120,25 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 		this._playerShowNavBar = null;
 		this._reviewRetake = null;
 		this._recommendedPlayer = null;
-		this._isLoading = true;
 		this._selectedSharingIndex = 0;
 		this._saveButtonDisabled = false;
+		this.skeleton = true;
 	}
 
 	async connectedCallback() {
 		super.connectedCallback();
 		await this._initProperties();
-		this._isLoading = false;
+		this.skeleton = false;
 	}
 
 	render() {
-		if (this._isLoading) {
-			return '';
-		}
 		return html`
-			<div class="settings-container">
-				<h3 class="heading-org-level">${this.totalFiles > 1 ? this.localize('editCoursePackagePropertiesBulk', { 0: this.progress, 1: this.totalFiles }) : this.localize('editCoursePackageProperties')}</h3>
+			<div class="settings-container d2l-skeletize-container">
+				<h3 class="heading-org-level d2l-skeletize d2l-skeletize-50">${this.totalFiles > 1 ? this.localize('editCoursePackagePropertiesBulk', { 0: this.progress, 1: this.totalFiles }) : this.localize('editCoursePackageProperties')}</h3>
 				<div class="package-section">
-					<h4 class="package-name">${this.localize('packageName')}</h4>
+					<h4 class="package-name d2l-skeletize d2l-skeletize-10">${this.localize('packageName')}</h4>
 					<d2l-input-text
+						?skeleton=${this.skeleton}
 						id="package-name"
 						class="form-control"
 						type="text"
@@ -151,8 +149,9 @@ class ContentProperties extends InternalLocalizeMixin(LitElement) {
 						@input=${this._handleTitleChange}
 						value=${this._title}
 					></d2l-input-text>
-					<h4 class="package-description">${this.localize('description')}</h4>
+					<h4 class="package-description d2l-skeletize d2l-skeletize-10">${this.localize('description')}</h4>
 					<d2l-input-text
+						?skeleton=${this.skeleton}
 						id="package-description"
 						class="form-control"
 						type="text"
