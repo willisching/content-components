@@ -36,7 +36,6 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 			canSelectShareLocation: { type: Boolean, attribute: 'can-select-share-location' },
 			canShareTo: { type: Array, attribute: 'can-share-to' },
 			context: { type: String },
-			maxFilesPerUpload: { type: Number, attribute: 'max-files-per-upload' },
 			maxFileUploadSize: { type: Number, attribute: 'max-file-upload-size' },
 			searchLocations: { type: Array, attribute: 'search-locations' },
 			selectedObject: { type: String, reflect: true, attribute: 'selected-object' },
@@ -86,7 +85,6 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 		super();
 
 		this.allowUpload = true;
-		this.maxFilesPerUpload = 1;
 		this.maxFileUploadSize = 2000000000;
 		this.autoSelectAfterUpload = false;
 		this.editPropertiesAfterUpload = true;
@@ -329,7 +327,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 	reactToUploadError(event) {
 		this._progress += 1;
 		this._errorMessage = event.detail.errorMessage;
-		this._bulkErrorMessages[this._fileName] = this._errorMessage;
+		this._bulkErrorMessages[event.detail.fileName] = this._errorMessage;
 		// if bulk and last file is error, show bulk-complete failure page
 		if (this._progress === this._totalFiles) {
 			this._hasFailures = true;
@@ -393,7 +391,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 			openInNewWindow: topicSettings.openInNewWindow,
 			title: topicSettings.title,
 			gradeCalculationMethod: topicSettings.gradeCalculationMethod,
-			gradeObjectAssociation: topicSettings.gradeObjectAssociation
+			gradeObjectAssociation: topicSettings.gradeObjectAssociation,
 		};
 		this.dispatchEvent(new CustomEvent('addtopic'));
 	}

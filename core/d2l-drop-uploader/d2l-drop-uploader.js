@@ -10,9 +10,9 @@ import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { css, html, LitElement } from 'lit-element';
 import { RequesterMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
 import { ContentServiceApiClient } from '@d2l/content-service-api-client';
+import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 import { isSupported, supportedTypeExtensions } from '../../util/media-type-util.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
-import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 import { Uploader } from '../../util/uploader.js';
 
 export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitElement))) {
@@ -114,13 +114,40 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 		`];
 	}
 
+	preprocess = async file => {
+		if (file.size === 0) {
+			return;
+		}
+		/* eslint-disable no-invalid-this */
+		const workflow = () => {
+			// remove extention for package name in property only
+			const fileName = file.name && file.name.slice(0, file.name.lastIndexOf('.'));
+			this.dispatchEvent(new CustomEvent('bulk-upload-details', {
+				detail: {
+					fileName: file.name,
+					totalFiles: this.files.length,
+					progress: this.progress,
+				},
+			}));
+			this.uploader.uploadFile(file, fileName, file.type, this.files.length)
+				.then(() => {
+					this.progress += 1;
+				});
+		};
+		this.uploadQueue.push(workflow);
+		/* eslint-enable no-invalid-this */
+	};
+
 	constructor() {
 		super();
 		this._maxNumberOfFiles = 50;
 		this.reactToUploaderError = this.reactToUploaderError.bind(this);
 		this.reactToUploaderSuccess = this.reactToUploaderSuccess.bind(this);
 		this.onProgress = this.onProgress.bind(this);
-		this.fileName = '';
+		this.uploadQueue = [];
+		this.files = [];
+		this.progress = 0;
+		this.active = 0;
 	}
 
 	async connectedCallback() {
@@ -169,46 +196,61 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 		this.dispatchEvent(new CustomEvent('on-uploader-error', {
 			detail: {
 				view: 'UPLOAD',
-				fileName: '',
+				fileName: null,
 				errorMessage: message,
 			},
 		}));
 	}
 
+	preupload() {
+		this.reset();
+		this.dispatchEvent(new CustomEvent('change-view', {
+			detail: {
+				view: 'PROGRESS',
+				fileName: this.files[0].name,
+				errorMessage: null,
+			},
+		}));
+	}
+
 	processFiles(files) {
-		if (files.length !== 1 && !this.enableBulkUpload) {
+		this.files = Array.from(files);
+		if (this.files.length !== 1 && !this.enableBulkUpload) {
 			return this.onUploadError(this.localize('mayOnlyUpload1File'));
 		}
 
-		if (this.enableBulkUpload && files.length > this._maxNumberOfFiles) {
+		if (this.enableBulkUpload && this.files.length > this._maxNumberOfFiles) {
 			return this.onUploadError(this.localize('tooManyFiles'));
 		}
-
-		const acceptedFiles = [];
-		for (const file of files) {
-			if (!isSupported(file.name)) {
-				return this.onUploadError(this.localize('invalidFileType'));
-			}
-			if (file.size > this.maxFileSizeInBytes) {
-				return this.onUploadError(this.localize('fileTooLarge', { localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes) }));
-			}
-			acceptedFiles.push(file);
+		if (this.files.some(file => !isSupported(file.name))) {
+			return this.onUploadError(this.localize('invalidFileType'));
 		}
 
-		this.startUpload(acceptedFiles);
+		if (this.files.some(file => file.size > this.maxFileSizeInBytes)) {
+			return this.onUploadError(this.localize('fileTooLarge', { localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes) }));
+		}
+
+		for (const file of this.files) {
+			this.preprocess(file);
+		}
+		this.preupload();
+		this.startUpload();
 	}
 
-	reactToUploaderError(error) {
+	reactToUploaderError(error, contentTitle) {
+		this.active -= 1;
+		this.startUpload();
 		this.dispatchEvent(new CustomEvent('on-uploader-error', {
 			detail: {
-				// can we pass the filename?
-				fileName: this.fileName,
+				fileName: contentTitle,
 				errorMessage: this.localize(error),
 			},
 		}));
 	}
 
 	reactToUploaderSuccess(value) {
+		this.active -= 1;
+		this.startUpload();
 		this.dispatchEvent(new CustomEvent('on-uploader-success', {
 			detail: {
 				d2lrn: value,
@@ -216,29 +258,17 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 		}));
 	}
 
-	async startUpload(acceptedFiles) {
-		// reset uploader from any previous state, if any
+	reset() {
+		// reset uploader from any previous state before upload, if any
 		this.uploader.reset();
-		const files = acceptedFiles;
-		this.dispatchEvent(new CustomEvent('change-view', {
-			detail: {
-				view: 'PROGRESS',
-				fileName: files[0].name,
-				errorMessage: '',
-			},
-		}));
-		for (let index = 0; index < files.length; index++) {
-			const file = files[index];
-			this.fileName = file.name;
-			this.dispatchEvent(new CustomEvent('bulk-upload-details', {
-				detail: {
-					fileName: file.name,
-					// remove extension from name?
-					totalFiles: files.length,
-					progress: index,
-				},
-			}));
-			await this.uploader.uploadFile(file, file.name, file.type, files.length);
+		this.active = 0;
+		this.progress = 0;
+	}
+
+	startUpload() {
+		while (this.active < 5 && this.uploadQueue.length > 0) {
+			this.active += 1;
+			this.uploadQueue.pop()();
 		}
 	}
 
@@ -249,7 +279,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 			onError: this.reactToUploaderError,
 			waitForProcessing: !this.allowAsyncProcessing,
 			onProgress: this.onProgress,
-			existingContentId: this.existingContentId
+			existingContentId: this.existingContentId,
 		});
 	}
 
@@ -306,7 +336,6 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 			<p class="file-limit-message">${this._isBulkUploadEnabled() ? this.localize('maxNumberOfFiles', { _maxNumberOfFiles: this._maxNumberOfFiles }) : this.localize('fileSizeLimitMessage', { localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes) })}</p>
 		`;
 	}
-
 }
 
 customElements.define('d2l-drop-uploader', Upload);

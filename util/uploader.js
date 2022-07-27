@@ -17,64 +17,55 @@ export class Uploader {
 		this.existingContentId = existingContentId;
 		this.onProgress = onProgress;
 		this.uploadProgress = 0;
-		this.lastProgressPosition = 0;
 		this.totalFiles = 1;
 
-		/* eslint-disable no-invalid-this */
 		this.uploadFile = flow((function * (file, title, fileType, totalFiles = 1) {
+			/* eslint-disable-next-line no-invalid-this */
 			yield this._uploadWorkflowAsync(file, title, totalFiles);
 		}));
-		/* eslint-enable no-invalid-this */
 	}
 
-	async cancelUpload() {
-		if (this.content && this.s3Uploader) {
-			this.s3Uploader.abort();
-			await this.apiClient.content.deleteItem({ id: this.content.id });
-		}
+	async cancelUpload(content, s3Uploader) {
+		s3Uploader.abort();
+		await this.apiClient.content.deleteItem({ id: content.id });
 	}
 
 	reset() {
 		this.uploadProgress = 0;
-		this.content = undefined;
-		this.revision = undefined;
-		this.s3Uploader = undefined;
 	}
 
-	async _monitorProgressAsync() {
+	async _monitorProgressAsync(content, revision, lastProgressPosition) {
 		// Stop monitoring if the upload was cancelled.
-		if (!this.content || !this.revision) {
+		if (!content || !revision) {
 			return;
 		}
 
 		try {
 			const progress = await this.apiClient.content.getWorkflowProgress({
-				id: this.content.id,
-				revisionTag: this.revision.id,
+				id: content.id,
+				revisionTag: revision.id,
 			});
-			this.uploadProgress = this.lastProgressPosition + ((50 + ((progress.percentComplete || 0) / 2)) / this.totalFiles);
-			this.onProgress(this.uploadProgress);
+			this.uploadProgress += (((progress.percentComplete - lastProgressPosition || 0) / 2) / this.totalFiles);
+			lastProgressPosition = progress.percentComplete;
+			this.onProgress(this.uploadProgress, content.id);
 			if (progress.ready) {
-				this.onSuccess(this.revision.d2lrn);
-				this.s3Uploader = undefined;
+				this.onSuccess(revision.d2lrn);
 				return;
 			}
 
 			if (progress.didFail) {
-				this.onError(UPLOAD_FAILED_ERROR);
-				this.s3Uploader = undefined;
+				this.onError(UPLOAD_FAILED_ERROR, content.title);
 				return;
 			}
 		} catch (error) {
 			if (error.cause > 399 && error.cause < 500) {
-				this.onError(resolveWorkerError(error));
-				this.s3Uploader = undefined;
+				this.onError(resolveWorkerError(error, content.type));
 				return;
 			}
 		}
 
 		await sleep(randomizeDelay(5000, 1000));
-		await this._monitorProgressAsync(this.content, this.revision);
+		await this._monitorProgressAsync(content, revision, lastProgressPosition);
 	}
 
 	async _uploadWorkflowAsync(file, title, totalFiles) {
@@ -91,20 +82,20 @@ export class Uploader {
 				createContentBody.clientApp = 'LmsContent';
 			}
 
-			this.content = this.existingContentId ?
+			const content = this.existingContentId ?
 				await this.apiClient.content.updateItem({ content: { id: this.existingContentId, title } }) :
 				await this.apiClient.content.postItem({ content: createContentBody });
 
-			this.revision = await this.apiClient.content.createRevision({
-				id: this.content.id,
+			const revision = await this.apiClient.content.createRevision({
+				id: content.id,
 				properties: {
 					extension,
 				},
 			});
-			this.lastProgressPosition = this.uploadProgress;
-			this.s3Uploader = new S3Uploader({
+			let lastProgressPosition = 0;
+			const s3Uploader = new S3Uploader({
 				file,
-				key: this.revision.s3Key,
+				key: revision.s3Key,
 				signRequest: ({ file, key }) =>
 					this.apiClient.s3Sign.sign({
 						fileName: key,
@@ -112,23 +103,23 @@ export class Uploader {
 						contentDisposition: 'auto',
 					}),
 				onProgress: progress => {
-					this.uploadProgress = this.lastProgressPosition + (progress / (this.waitForProcessing ? 2 : 1) / totalFiles);
+					this.uploadProgress += ((progress - lastProgressPosition) / (this.waitForProcessing ? 2 : 1) / totalFiles);
+					lastProgressPosition = progress;
 					this.onProgress(this.uploadProgress);
 				},
 			});
 
-			await this.s3Uploader.upload();
+			await s3Uploader.upload();
 
 			await this.apiClient.content.startWorkflow({
-				id: this.content.id,
-				revisionTag: this.revision.id,
+				id: content.id,
+				revisionTag: revision.id,
 			});
 
 			if (this.waitForProcessing) {
-				await this._monitorProgressAsync();
+				await this._monitorProgressAsync(content, revision, 0);
 			} else {
-				this.onSuccess(this.revision.d2lrn);
-				this.s3Uploader = undefined;
+				this.onSuccess(revision.d2lrn);
 			}
 		} catch (error) {
 			this.onError(resolveWorkerError(error, type));
