@@ -38,11 +38,12 @@ class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement))
 	static get styles() {
 		return [super.styles, radioStyles, css`
 		.label-body {
-			display: flex;
+			display: inline-block;
 			flex-wrap: wrap;
 			align-items: center;
 			line-height: 1.5rem;
 			pointer-events: none;
+			height: 30px;
 		}
 
 		.setting-section .setting-option {
@@ -51,11 +52,15 @@ class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement))
 			margin-bottom: 5px;
 		}
 
-		.setting-section .setting-option input[type="radio"] {
-			margin-top: 2px;
-			height: 23px;
-			min-width: 23px;
-			margin-right: 15px;
+		.radio-container {
+			width: 26px;
+			height: 26px;
+			margin-top: 3px;
+			margin-right: 10px;
+		}
+
+		.radio-container input[type="radio"] {
+			margin-top: -6px;
 		}
 
 		.label-description {
@@ -70,6 +75,11 @@ class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement))
 
 		.input-container #add-sharing {
 			margin-right: 15px;
+		}
+
+		.sharing-dropdown-container {
+			margin-left: 10px;
+			margin-top: -4px;
 		}
 
 		h4.section-heading {
@@ -134,9 +144,9 @@ class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement))
 	render() {
 		return html`
 			<div class="settings-container d2l-skeletize-container">
-				<h3 class="heading-org-level d2l-skeletize d2l-skeletize-50">${this.totalFiles > 1 ? this.localize('editCoursePackagePropertiesBulk', { 0: this.progress, 1: this.totalFiles }) : this.localize('editCoursePackageProperties')}</h3>
+				<h3 class="heading-org-level d2l-skeletize d2l-skeletize-55">${this.totalFiles > 1 ? this.localize('editCoursePackagePropertiesBulk', { 0: this.progress, 1: this.totalFiles }) : this.localize('editCoursePackageProperties')}</h3>
 				<div class="package-section">
-					<h4 class="package-name d2l-skeletize d2l-skeletize-10">${this.localize('packageName')}</h4>
+					<h4 class="package-name d2l-skeletize d2l-skeletize-15">${this.localize('packageName')}</h4>
 					<d2l-input-text
 						?skeleton=${this.skeleton}
 						id="package-name"
@@ -149,7 +159,7 @@ class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement))
 						@input=${this._handleTitleChange}
 						value=${this._title}
 					></d2l-input-text>
-					<h4 class="package-description d2l-skeletize d2l-skeletize-10">${this.localize('description')}</h4>
+					<h4 class="package-description d2l-skeletize d2l-skeletize-15">${this.localize('description')}</h4>
 					<d2l-input-text
 						?skeleton=${this.skeleton}
 						id="package-description"
@@ -208,18 +218,25 @@ class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement))
 			options.reviewRetake = this._reviewRetake;
 		}
 
-		let sharedWith = this.content.sharedWith;
+		let sharedWith = this.content.sharedWith || [];
 
 		if (this._shared !== null) {
-			if (this._shared && this.canSelectShareLocation) {
-				sharedWith = sharedWith.filter(location =>
-					location !== buildOrgUnitShareLocationStr(String(this.canShareTo[this._selectedSharingIndex].id)));
+			// Remove sharedWith locations that are in canShareTo and then add the location we're
+			// trying to share to. We do this instead of replacing the sharedWith value to ensure
+			// that we don't remove share locations that were added in a different course context.
+			// For instance, if we first share in Course A and then in Course B, we don't want to
+			// remove the sharing to Course A just because we're now sharing it in Course B.
+			sharedWith = sharedWith.filter(o => !this.canShareTo.find(c => buildOrgUnitShareLocationStr(c.id) === o));
 
-				sharedWith.push(buildOrgUnitShareLocationStr(String(this.canShareTo[this._selectedSharingIndex].id)));
+			if (this._shared && this.canSelectShareLocation) {
+				sharedWith.push(buildOrgUnitShareLocationStr(this.canShareTo[this._selectedSharingIndex].id));
 			} else if (this._shared && !this.canSelectShareLocation) {
-				sharedWith = this.canShareTo.map(location => buildOrgUnitShareLocationStr(String(location.id)));
-			} else {
-				sharedWith = [];
+				for (const o of this.canShareTo) {
+					const shareLocation = buildOrgUnitShareLocationStr(o.id);
+					if (!sharedWith.includes(shareLocation)) {
+						sharedWith.push(shareLocation);
+					}
+				}
 			}
 		}
 
@@ -273,7 +290,6 @@ class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement))
 		this._description = content.description;
 
 		if (!this.content.sharedWith || this.content.sharedWith.length === 0 || !this.canShareTo) {
-			this.canShareTo = [];
 			this._shared = false;
 		} else {
 			this._shared = true;
@@ -295,34 +311,38 @@ class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement))
 
 	_renderNavBarOptions() {
 		return html`<div class="setting-section navigation">
-			<h4 class="section-heading">${this.localize('navigation')}</h4>
-			<div class="section-description">${this.localize('navigationDescription')}</div>
+			<h4 class="section-heading d2l-skeletize d2l-skeletize-40">${this.localize('navigation')}</h4>
+			<div class="section-description d2l-skeletize d2l-skeletize-50">${this.localize('navigationDescription')}</div>
 			<div class="setting-option">
-				<input
-					id="remove-navigation"
-					class="d2l-input-radio"
-					name="navigation"
-					type="radio"
-					@change="${this._setShowNavBar(false)}"
-					?checked="${this._playerShowNavBar !== null && !this._playerShowNavBar}"
-				/>
+				<div class="radio-container d2l-skeletize">
+					<input
+						id="remove-navigation"
+						class="d2l-input-radio"
+						name="navigation"
+						type="radio"
+						@change="${this._setShowNavBar(false)}"
+						?checked="${this._playerShowNavBar !== null && !this._playerShowNavBar}"
+					/>
+				</div>
 				<label for="remove-navigation">
-					<div class="label-body">${this.localize('playerHideNavBar')}</div>
-					<div class="label-description">${this.localize('playerHideNavBarDescription')}</div>
+					<div class="label-body d2l-skeletize">${this.localize('playerHideNavBar')}</div>
+					<div class="label-description d2l-skeletize">${this.localize('playerHideNavBarDescription')}</div>
 				</label>
 			</div>
 			<div class="setting-option">
-				<input
-					id="add-navigation"
-					class="d2l-input-radio"
-					name="navigation"
-					type="radio"
-					@change="${this._setShowNavBar(true)}"
-					?checked="${this._playerShowNavBar !== null && this._playerShowNavBar}"
-				/>
+				<div class="radio-container d2l-skeletize">
+					<input
+						id="add-navigation"
+						class="d2l-input-radio"
+						name="navigation"
+						type="radio"
+						@change="${this._setShowNavBar(true)}"
+						?checked="${this._playerShowNavBar !== null && this._playerShowNavBar}"
+					/>
+				</div>
 				<label for="add-navigation">
-					<div class="label-body">${this.localize('playerShowNavBar')}</div>
-					<div class="label-description">${this.localize('playerShowNavBarDescription')}</div>
+					<div class="label-body d2l-skeletize">${this.localize('playerShowNavBar')}</div>
+					<div class="label-description d2l-skeletize">${this.localize('playerShowNavBarDescription')}</div>
 				</label>
 			</div>
 		</div>`;
@@ -330,34 +350,38 @@ class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement))
 
 	_renderPlayerOptions() {
 		return html`<div class="setting-section navigation">
-			<h4 class="section-heading">${this.localize('coursePlayer')}</h4>
-			<div class="section-description">${this.localize('coursePlayerDescription')}</div>
+			<h4 class="section-heading d2l-skeletize d2l-skeletize-35">${this.localize('coursePlayer')}</h4>
+			<div class="section-description d2l-skeletize d2l-skeletize-45">${this.localize('coursePlayerDescription')}</div>
 			<div class="setting-option">
-				<input
-					id="use-embedded-player"
-					class="d2l-input-radio"
-					name="use-embedded-player"
-					type="radio"
-					@change="${this._setUseEmbedPlayer(PlayerOption.EMBEDDED)}"
-					?checked="${this._recommendedPlayer === PlayerOption.EMBEDDED}"
-				/>
+				<div class="radio-container d2l-skeletize">
+					<input
+						id="use-embedded-player"
+						class="d2l-input-radio"
+						name="use-embedded-player"
+						type="radio"
+						@change="${this._setUseEmbedPlayer(PlayerOption.EMBEDDED)}"
+						?checked="${this._recommendedPlayer === PlayerOption.EMBEDDED}"
+					/>
+				</div>
 				<label for="use-embedded-player">
-					<div class="label-body">${this.localize('useEmbeddedPlayerDefault')}</div>
-					<div class="label-description">${this.localize('useEmbeddedPlayerDescription')}</div>
+					<div class="label-body d2l-skeletize">${this.localize('useEmbeddedPlayerDefault')}</div>
+					<div class="label-description d2l-skeletize">${this.localize('useEmbeddedPlayerDescription')}</div>
 				</label>
 			</div>
 			<div class="setting-option">
-				<input
-					id="open-new-window"
-					class="d2l-input-radio"
-					name="use-embedded-player"
-					type="radio"
-					@change="${this._setUseEmbedPlayer(PlayerOption.NEW_WINDOW)}"
-					?checked="${this._recommendedPlayer === PlayerOption.NEW_WINDOW}"
-				/>
+				<div class="radio-container d2l-skeletize">
+					<input
+						id="open-new-window"
+						class="d2l-input-radio"
+						name="use-embedded-player"
+						type="radio"
+						@change="${this._setUseEmbedPlayer(PlayerOption.NEW_WINDOW)}"
+						?checked="${this._recommendedPlayer === PlayerOption.NEW_WINDOW}"
+					/>
+				</div>
 				<label for="open-new-window">
-					<div class="label-body">${this.localize('openPlayerInNewWindow')}</div>
-					<div class="label-description">${this.localize('openPlayerInNewWindowDescription')}</div>
+					<div class="label-body d2l-skeletize">${this.localize('openPlayerInNewWindow')}</div>
+					<div class="label-description d2l-skeletize">${this.localize('openPlayerInNewWindowDescription')}</div>
 				</label>
 			</div>
 		</div>`;
@@ -365,34 +389,38 @@ class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement))
 
 	_renderReviewRetakeOptions() {
 		return html`<div class="setting-section navigation">
-			<h4 class="section-heading">${this.localize('reviewRetake')}</h4>
-			<div class="section-description">${this.localize('reviewRetakeDescription')}</div>
+			<h4 class="section-heading d2l-skeletize d2l-skeletize-45">${this.localize('reviewRetake')}</h4>
+			<div class="section-description d2l-skeletize d2l-skeletize-55">${this.localize('reviewRetakeDescription')}</div>
 			<div class="setting-option">
-				<input
-					id="do-not-add-review-retake"
-					class="d2l-input-radio"
-					name="add-review-retake"
-					type="radio"
-					@change="${this._setReviewRetake(false)}"
-					?checked="${this._reviewRetake !== null && !this._reviewRetake}"
-				/>
+				<div class="radio-container d2l-skeletize">
+					<input
+						id="do-not-add-review-retake"
+						class="d2l-input-radio"
+						name="add-review-retake"
+						type="radio"
+						@change="${this._setReviewRetake(false)}"
+						?checked="${this._reviewRetake !== null && !this._reviewRetake}"
+					/>
+				</div>
 				<label for="do-not-add-review-retake">
-					<div class="label-body">${this.localize('doNotAddReviewRetake')}</div>
-					<div class="label-description">${this.localize('doNotAddReviewRetakeDescription')}</div>
+					<div class="label-body d2l-skeletize">${this.localize('doNotAddReviewRetake')}</div>
+					<div class="label-description d2l-skeletize">${this.localize('doNotAddReviewRetakeDescription')}</div>
 				</label>
 			</div>
 			<div class="setting-option">
-				<input
-					id="add-review-retake"
-					class="d2l-input-radio"
-					name="add-review-retake"
-					type="radio"
-					@change="${this._setReviewRetake(true)}"
-					?checked="${this._reviewRetake !== null && this._reviewRetake}"
-				/>
+				<div class="radio-container d2l-skeletize">
+					<input
+						id="add-review-retake"
+						class="d2l-input-radio"
+						name="add-review-retake"
+						type="radio"
+						@change="${this._setReviewRetake(true)}"
+						?checked="${this._reviewRetake !== null && this._reviewRetake}"
+					/>
+				</div>
 				<label for="add-review-retake">
-					<div class="label-body">${this.localize('addReviewRetake')}</div>
-					<div class="label-description">${this.localize('addReviewRetakeDescription')}</div>
+					<div class="label-body d2l-skeletize">${this.localize('addReviewRetake')}</div>
+					<div class="label-description d2l-skeletize">${this.localize('addReviewRetakeDescription')}</div>
 				</label>
 			</div>
 		</div>`;
@@ -400,54 +428,64 @@ class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement))
 
 	_renderShareLabel() {
 		if (!this.canSelectShareLocation) {
-			return html`<label for="add-sharing" class="label-body">${this.localize('yesShareFileWithAll')}</label>`;
-		} if (this.canShareTo.length === 1) {
-			return html`<label for="add-sharing" class="label-body">${this.localize('yesShareFileWithX', { name: this.canShareTo[0].name })}</label>`;
+			return html`<label for="add-sharing" class="label-body d2l-skeletize">${this.localize('yesShareFileWithAll')}</label>`;
 		}
-		return html`<label for="add-sharing" class="label-body">${this.localize('yesShareFileWith')}</label>`;
+
+		if (this.canShareTo.length === 1) {
+			return html`<label for="add-sharing" class="label-body d2l-skeletize">${this.localize('yesShareFileWithX', { name: this.canShareTo[0].name })}</label>`;
+		}
+
+		return html`<label for="add-sharing" class="label-body d2l-skeletize">${this.localize('yesShareFileWith')}</label>`;
 	}
 
 	_renderSharingDropdown() {
 		return this.canShareTo.length > 1 && this.canSelectShareLocation ? html`
-			<d2l-dropdown-button
-				text="${this.canShareTo[this._selectedSharingIndex].name}"
-			>
-				<d2l-dropdown-menu
-					@d2l-menu-item-select="${this._handleSelectedSharing}"
+			<div class="d2l-skeletize sharing-dropdown-container">
+				<d2l-dropdown-button
+					text="${this.canShareTo[this._selectedSharingIndex].name}"
+					class="sharing-dropdown"
 				>
-					<d2l-menu label="revisions">
-						${this.renderSharingItems()}
-					</d2l-menu>
-				</d2l-dropdown-menu>
-			</d2l-dropdown-button>
+					<d2l-dropdown-menu
+						@d2l-menu-item-select="${this._handleSelectedSharing}"
+					>
+						<d2l-menu label="revisions">
+							${this.renderSharingItems()}
+						</d2l-menu>
+					</d2l-dropdown-menu>
+				</d2l-dropdown-button>
+			</div>
 		` : html``;
 	}
 
 	_renderSharingSection() {
 		return html`<div class="setting-section share">
-			<h4 class="section-heading">${this.localize('askIfShare')}</h4>
+			<h4 class="section-heading d2l-skeletize d2l-skeletize-30">${this.localize('askIfShare')}</h4>
 			<div class="setting-option">
-				<input
-					id="add-sharing"
-					class="d2l-input-radio"
-					name="sharing"
-					type="radio"
-					@change="${this._setShared(true)}"
-					?checked="${this._shared !== null && this._shared}"
-				/>
+				<div class="radio-container d2l-skeletize">
+					<input
+						id="add-sharing"
+						class="d2l-input-radio"
+						name="sharing"
+						type="radio"
+						@change="${this._setShared(true)}"
+						?checked="${this._shared !== null && this._shared}"
+					/>
+				</div>
 				${this._renderShareLabel()}
 				${this._renderSharingDropdown()}
 			</div>
 			<div class="setting-option">
-				<input
-					id="remove-sharing"
-					class="d2l-input-radio"
-					name="sharing"
-					type="radio"
-					@change="${this._setShared(false)}"
-					?checked="${this._shared !== null && !this._shared}"
-				/>
-				<label for="remove-sharing" class="label-body">${this.localize('noKeepToMyself')}</label>
+				<div class="radio-container d2l-skeletize">
+					<input
+						id="remove-sharing"
+						class="d2l-input-radio"
+						name="sharing"
+						type="radio"
+						@change="${this._setShared(false)}"
+						?checked="${this._shared !== null && !this._shared}"
+					/>
+				</div>
+				<label for="remove-sharing" class="label-body d2l-skeletize">${this.localize('noKeepToMyself')}</label>
 			</div>
 		</div>`;
 	}
@@ -469,17 +507,16 @@ class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement))
 	}
 
 	_shouldRenderNavBarOptions() {
-		return this._resourceType === ContentType.SCORM;
+		return this.skeleton || this._resourceType === ContentType.SCORM;
 	}
 
 	_shouldRenderPlayerOptions() {
-		return this._resourceType === ContentType.SCORM;
+		return this.skeleton || this._resourceType === ContentType.SCORM;
 	}
 
 	_shouldRenderReviewRetakeOptions() {
-		return this._resourceType === ContentType.SCORM;
+		return this.skeleton || this._resourceType === ContentType.SCORM;
 	}
-
 }
 
 customElements.define('d2l-content-properties', ContentProperties);

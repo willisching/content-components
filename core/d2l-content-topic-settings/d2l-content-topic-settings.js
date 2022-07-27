@@ -61,13 +61,14 @@ class ContentTopicSettings extends SkeletonMixin(InternalLocalizeMixin(LitElemen
 		}
 
 		.setting-section .setting-option .radio-input-container {
-			margin-right: 5px;
+			width: 26px;
+			height: 26px;
+			margin-top: 2px;
+			margin-right: 10px;
 		}
 
 		.setting-section .setting-option input[type="radio"] {
-			margin-top: 2px;
-			height: 23px;
-			min-width: 23px;
+			margin-top: -6px;
 		}
 
 		.select-container {
@@ -155,9 +156,9 @@ class ContentTopicSettings extends SkeletonMixin(InternalLocalizeMixin(LitElemen
 				<h3 class="package-title d2l-skeletize d2l-skeletize-50">
 					${this._title}
 				</h3>
-				${ this._resourceType && this._resourceType === 'scorm' ? this._renderGradeAssociationSection() : '' }
+				${ this.skeleton || (this._resourceType && this._resourceType === 'scorm') ? this._renderGradeAssociationSection() : '' }
 				${ this._renderVersionControlSection() }
-				${ this._resourceType && this._resourceType === 'scorm' ? this._renderPlayerOptionsSection() : '' }
+				${ this.skeleton || (this._resourceType && this._resourceType === 'scorm') ? this._renderPlayerOptionsSection() : '' }
 			</div>
 		`;
 	}
@@ -198,11 +199,11 @@ class ContentTopicSettings extends SkeletonMixin(InternalLocalizeMixin(LitElemen
 	_renderGradeAssociationSection() {
 		return html`
 			<div class="setting-section">
-				<h4 class="section-heading">
+				<h4 class="section-heading d2l-skeletize d2l-skeletize-55">
 					${this.localize('askIfCreateGradeItem')}
 				</h4>
 				<div class="setting-option">
-					<div class="radio-input-container">
+					<div class="radio-input-container d2l-skeletize">
 						<input
 							id="create-grade-item-yes"
 							class="d2l-input-radio"
@@ -213,11 +214,11 @@ class ContentTopicSettings extends SkeletonMixin(InternalLocalizeMixin(LitElemen
 						/>
 					</div>
 					<label for="create-grade-item-yes">
-						<div class="label-body">${this.localize('yes')}</div>
+						<div class="label-body d2l-skeletize">${this.localize('yes')}</div>
 					</label>
 				</div>
 				<div class="setting-option">
-					<div class="radio-input-container">
+					<div class="radio-input-container d2l-skeletize">
 						<input
 							id="create-grade-item-no"
 							class="d2l-input-radio"
@@ -228,25 +229,27 @@ class ContentTopicSettings extends SkeletonMixin(InternalLocalizeMixin(LitElemen
 						/>
 					</div>
 					<label for="create-grade-item-no">
-						<div class="label-body">${this.localize('no')}</div>
+						<div class="label-body d2l-skeletize">${this.localize('no')}</div>
 					</label>
 				</div>
 			</div> ${this._gradeObjectAssociation ? html`
 			<div class="setting-section">
-				<h4 class="section-heading">
+				<h4 class="section-heading d2l-skeletize d2l-skeletize-30">
 					${this.localize('gradeCalculationMethodTitle')}
 				</h4>
-				<d2l-dropdown-button
-					text=${this.localize(ContentTopicSettings.gradingCalculationMethods[this._selectedGradingIndex].toLowerCase())}
-				>
-					<d2l-dropdown-menu
-						@d2l-menu-item-select="${this._handleSelectedGrading}"
+				<div class="d2l-skeletize d2l-skeletize-30">
+					<d2l-dropdown-button
+						text=${this.localize(ContentTopicSettings.gradingCalculationMethods[this._selectedGradingIndex].toLowerCase())}
 					>
-						<d2l-menu label="revisions">
-							${this._renderGradingMethodItems()}
-						</d2l-menu>
-					</d2l-dropdown-menu>
-				</d2l-dropdown-button>
+						<d2l-dropdown-menu
+							@d2l-menu-item-select="${this._handleSelectedGrading}"
+						>
+							<d2l-menu label="revisions">
+								${this._renderGradingMethodItems()}
+							</d2l-menu>
+						</d2l-dropdown-menu>
+					</d2l-dropdown-button>
+				</div>
 			</div>` : html`
 			<div className="setting-section warning-message">
 				<h5>${this.localize('noGradeItemCreationNote')}</h5>
@@ -271,10 +274,10 @@ class ContentTopicSettings extends SkeletonMixin(InternalLocalizeMixin(LitElemen
 	_renderPlayerOptionsSection() {
 		return html`
 			<div class="setting-section">
-				<h4 class="section-heading">
+				<h4 class="section-heading d2l-skeletize d2l-skeletize-40">
 					${this.localize('coursePlayer')}
 				</h4>
-				<div class="select-container">
+				<div class="select-container d2l-skeletize">
 					<select
 						id="player-options"
 						aria-label=${this.localize('playerOptions')}
@@ -291,7 +294,7 @@ class ContentTopicSettings extends SkeletonMixin(InternalLocalizeMixin(LitElemen
 	_renderVersionControlSection() {
 		return html`
 			<div class="setting-section">
-				<h4 class="section-heading d2l-skeletize d2l-skeletize-20">
+				<h4 class="section-heading d2l-skeletize d2l-skeletize-15">
 					${this.localize('versionControlTitle')}
 				</h4>
 				<div class="setting-option">
