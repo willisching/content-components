@@ -14,7 +14,6 @@ import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-c
 import './src/scroller.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { getFriendlyDate } from '../../util/date.js';
-import { buildOrgUnitShareLocationStr } from '../../util/sharing.js';
 
 class ContentSelectorList extends SkeletonMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
@@ -322,7 +321,7 @@ class ContentSelectorList extends SkeletonMixin(InternalLocalizeMixin(LitElement
 
 	async _loadMore() {
 		this._isLoading = true;
-		const searchLocations = !this.canManageAllObjects && this.searchLocations?.map((o) => buildOrgUnitShareLocationStr(o.id));
+		const searchLocations = !this.canManageAllObjects && this.searchLocations?.map(l => `ou:${l.id}`).join(',');
 		const body = await this.client.search.searchContent({
 			query: this.query,
 			start: this.start,
