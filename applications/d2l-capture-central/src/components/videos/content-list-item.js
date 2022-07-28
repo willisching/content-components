@@ -408,13 +408,15 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 	}
 
 	async setUpWebsocket() {
+		if (!this.revisionId) {
+			return;
+		}
+
 		const { url, connectionToken } = await this.apiClient.notifications.getWebsocketServerEndpoint({
 			contentId: this.id,
 			revisionId: this.revisionId
 		});
-		if (!this.revisionId) {
-			return;
-		}
+
 		this.connectionToken = connectionToken;
 		const endpoint = `${url}?connectionToken=${connectionToken}&tenantId=${this.tenantId}&contentId=${this.id}&revisionId=${this.revisionId}`;
 
