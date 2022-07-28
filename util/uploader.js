@@ -8,20 +8,23 @@ const UPLOAD_FAILED_ERROR = 'workerErrorUploadFailed';
 
 /* eslint-disable no-unused-vars */
 export class Uploader {
-	constructor({ apiClient, onSuccess, onError, waitForProcessing, existingContentId, onProgress = progress => {} }) {
+	constructor({ apiClient, onSuccess, onError, waitForProcessing, existingContentId, onProgress = progress => {}, onUploadFinish }) {
 		/* eslint-enable no-unused-vars */
 		this.apiClient = apiClient;
-		this.onSuccess = onSuccess;
+		this.onProcessingFinish = onSuccess;
 		this.onError = onError;
 		this.waitForProcessing = waitForProcessing;
 		this.existingContentId = existingContentId;
 		this.onProgress = onProgress;
 		this.uploadProgress = 0;
 		this.totalFiles = 1;
+		this.onUploadFinish = onUploadFinish ? onUploadFinish : onSuccess;
 
 		this.uploadFile = flow((function * (file, title, fileType, totalFiles = 1) {
-			/* eslint-disable-next-line no-invalid-this */
-			yield this._uploadWorkflowAsync(file, title, totalFiles);
+			/* eslint-disable no-invalid-this */
+			this.totalFiles = totalFiles;
+			yield this._uploadWorkflowAsync(file, title);
+			/* eslint-enable no-invalid-this */
 		}));
 	}
 
@@ -32,6 +35,12 @@ export class Uploader {
 
 	reset() {
 		this.uploadProgress = 0;
+	}
+
+	_handleError(lastProgressPosition, ...error) {
+		// if error, treat file progress as completely uploaded
+		this.uploadProgress += ((100 - lastProgressPosition) / (this.waitForProcessing ? 2 : 1) / this.totalFiles);
+		this.onError(...error);
 	}
 
 	async _monitorProgressAsync(content, revision, lastProgressPosition) {
@@ -49,17 +58,17 @@ export class Uploader {
 			lastProgressPosition = progress.percentComplete;
 			this.onProgress(this.uploadProgress, content.id);
 			if (progress.ready) {
-				this.onSuccess(revision.d2lrn);
+				this.onProcessingFinish(revision.d2lrn);
 				return;
 			}
 
 			if (progress.didFail) {
-				this.onError(UPLOAD_FAILED_ERROR, content.title);
+				this._handleError(lastProgressPosition, UPLOAD_FAILED_ERROR, content.title);
 				return;
 			}
 		} catch (error) {
 			if (error.cause > 399 && error.cause < 500) {
-				this.onError(resolveWorkerError(error, content.type));
+				this._handleError(lastProgressPosition, resolveWorkerError(error, content.type));
 				return;
 			}
 		}
@@ -68,10 +77,10 @@ export class Uploader {
 		await this._monitorProgressAsync(content, revision, lastProgressPosition);
 	}
 
-	async _uploadWorkflowAsync(file, title, totalFiles) {
+	async _uploadWorkflowAsync(file, title) {
 		const type = getType(file.name);
+		let lastProgressPosition = 0;
 		try {
-			this.totalFiles = totalFiles;
 			const extension = getExtension(file.name);
 			const createContentBody = {
 				title,
@@ -92,7 +101,6 @@ export class Uploader {
 					extension,
 				},
 			});
-			let lastProgressPosition = 0;
 			const s3Uploader = new S3Uploader({
 				file,
 				key: revision.s3Key,
@@ -103,7 +111,7 @@ export class Uploader {
 						contentDisposition: 'auto',
 					}),
 				onProgress: progress => {
-					this.uploadProgress += ((progress - lastProgressPosition) / (this.waitForProcessing ? 2 : 1) / totalFiles);
+					this.uploadProgress += ((progress - lastProgressPosition) / (this.waitForProcessing ? 2 : 1) / this.totalFiles);
 					lastProgressPosition = progress;
 					this.onProgress(this.uploadProgress);
 				},
@@ -116,13 +124,12 @@ export class Uploader {
 				revisionTag: revision.id,
 			});
 
+			this.onUploadFinish(revision.d2lrn);
 			if (this.waitForProcessing) {
 				await this._monitorProgressAsync(content, revision, 0);
-			} else {
-				this.onSuccess(revision.d2lrn);
 			}
 		} catch (error) {
-			this.onError(resolveWorkerError(error, type));
+			this._handleError(lastProgressPosition, resolveWorkerError(error, type));
 		}
 	}
 }
