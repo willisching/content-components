@@ -120,7 +120,6 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 		const httpClient = new ContentServiceBrowserHttpClient({ serviceUrl: this.serviceUrl });
 		this._client = new ContentServiceApiClient({ tenantId: this.tenantId, httpClient });
 		this._region = getRegion({ serviceUrl: this.serviceUrl });
-		this.canSelectShareLocation = false;
 	}
 
 	render() {
