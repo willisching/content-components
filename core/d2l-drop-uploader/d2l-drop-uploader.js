@@ -142,7 +142,8 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 		super();
 		this._maxNumberOfFiles = 50;
 		this.reactToUploaderError = this.reactToUploaderError.bind(this);
-		this.reactToUploaderSuccess = this.reactToUploaderSuccess.bind(this);
+		this.reactToUploadingSuccess = this.reactToUploadingSuccess.bind(this);
+		this.reactToProcessingSuccess = this.reactToProcessingSuccess.bind(this);
 		this.onProgress = this.onProgress.bind(this);
 		this.uploadQueue = [];
 		this.files = [];
@@ -200,6 +201,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 				errorMessage: message,
 			},
 		}));
+		this.reset();
 	}
 
 	preupload() {
@@ -237,6 +239,14 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 		this.startUpload();
 	}
 
+	reactToProcessingSuccess(value) {
+		this.dispatchEvent(new CustomEvent('on-uploader-success', {
+			detail: {
+				d2lrn: value,
+			},
+		}));
+	}
+
 	reactToUploaderError(error, contentTitle) {
 		this.active -= 1;
 		this.startUpload();
@@ -248,14 +258,16 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 		}));
 	}
 
-	reactToUploaderSuccess(value) {
+	reactToUploadingSuccess(value) {
 		this.active -= 1;
 		this.startUpload();
-		this.dispatchEvent(new CustomEvent('on-uploader-success', {
-			detail: {
-				d2lrn: value,
-			},
-		}));
+		if (this.allowAsyncProcessing) {
+			this.dispatchEvent(new CustomEvent('on-uploader-success', {
+				detail: {
+					d2lrn: value,
+				},
+			}));
+		}
 	}
 
 	reset() {
@@ -263,6 +275,8 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 		this.uploader.reset();
 		this.active = 0;
 		this.progress = 0;
+		// reset upload progress loading bar to 0
+		this.onProgress(this.progress);
 	}
 
 	startUpload() {
@@ -275,11 +289,12 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 	_initUploader() {
 		this.uploader = new Uploader({
 			apiClient: this.apiClient,
-			onSuccess: this.reactToUploaderSuccess,
+			onSuccess: this.reactToProcessingSuccess,
 			onError: this.reactToUploaderError,
 			waitForProcessing: !this.allowAsyncProcessing,
 			onProgress: this.onProgress,
 			existingContentId: this.existingContentId,
+			onUploadFinish: this.reactToUploadingSuccess,
 		});
 	}
 
