@@ -41,6 +41,8 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 			selectedObject: { type: String, reflect: true, attribute: 'selected-object' },
 			serviceUrl: { type: String, attribute: 'service-url' },
 			tenantId: { type: String, attribute: 'tenant-id' },
+			canManageAllObjects: { type: Boolean, attribute: 'can-manage-all-objects' },
+			userId: { type: String, attribute: 'user-id' },
 
 			_hasFailures: { type: Boolean },
 			_contentId: { type: String },
@@ -77,6 +79,10 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 
 			d2l-content-selector-list {
 				height: 100%;
+			}
+
+			.action-group {
+				padding-top: 5px;
 			}
 		`;
 	}
@@ -132,13 +138,15 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 							<d2l-content-selector-list
 								?allowUpload=${this.allowUpload}
 								allowSelection
+								?canManageAllObjects=${this.canManageAllObjects}
 								.searchLocations=${this.searchLocations}
 								serviceUrl=${this.serviceUrl}
 								showDeleteAction
 								showRevisionUploadAction
 								showEditPropertiesAction
 								showPreviewAction
-								tenantId='${this.tenantId}'
+								tenantId=${this.tenantId}
+								userId=${this.userId}
 								@object-selected=${this._enableNextButton}
 								@on-upload-button-click=${this._navigateToUpload}
 								@revision-upload-requested=${this._navigateToUploadRevision}
@@ -229,11 +237,10 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 								serviceUrl=${this.serviceUrl}
 								contentId=${this._contentId}
 								tenantId=${this.tenantId}
-								.canSelectShareLocation=${this.canSelectShareLocation}
+								?canSelectShareLocation=${this.canSelectShareLocation}
 								.canShareTo=${this.canShareTo}
 								totalFiles=${this._uploadSuccessFiles}
 								progress=${this._propertyProgress}
-								canSelectShareLocation
 								embedFeatureEnabled
 							></d2l-content-properties>
 						</div>

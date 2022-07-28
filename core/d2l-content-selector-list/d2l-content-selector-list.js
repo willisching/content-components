@@ -20,6 +20,7 @@ class ContentSelectorList extends SkeletonMixin(InternalLocalizeMixin(LitElement
 		return {
 			allowUpload: { type: Boolean },
 			allowSelection: { type: Boolean },
+			canManageAllObjects: { type: Boolean },
 			contentTypes: { type: Array },
 			searchLocations: { type: Array },
 			serviceUrl: { type: String },
@@ -28,6 +29,7 @@ class ContentSelectorList extends SkeletonMixin(InternalLocalizeMixin(LitElement
 			showEditPropertiesAction: { type: Boolean },
 			showPreviewAction: { type: Boolean },
 			tenantId: { type: String },
+			userId: { type: String },
 
 			_contentItems: { type: Array, attribute: false },
 			_hasMore: { type: Boolean, attribute: false },
@@ -73,14 +75,16 @@ class ContentSelectorList extends SkeletonMixin(InternalLocalizeMixin(LitElement
 			.heading .info-wrapper {
 				color: #6e7376;
 				font-size: 14px;
-				margin-top: 2px;
+				margin-top: 5px;
 				-webkit-text-size-adjust: 100%;
-				height: 21px;
+				line-height: 14px;
 			}
 
 			.input-button {
-				margin-top: 2px;
-				margin-right: 13px;
+				margin-right: 10px;
+				margin-top: 6px;
+				height: 26px;
+				width: 26px;
 			}
 
 			.heading {
@@ -101,13 +105,8 @@ class ContentSelectorList extends SkeletonMixin(InternalLocalizeMixin(LitElement
 			}
 
 			.search-result input[type="radio"] {
-				margin-top: 2px;
-				height: 23px;
-				min-width: 23px;
-			}
+				margin-top: -6px;
 
-			.context-menu {
-				margin-right: 15px;
 			}
 
 			.container {
@@ -322,13 +321,15 @@ class ContentSelectorList extends SkeletonMixin(InternalLocalizeMixin(LitElement
 
 	async _loadMore() {
 		this._isLoading = true;
+		const searchLocations = !this.canManageAllObjects && this.searchLocations?.map(l => `ou:${l.id}`).join(',');
 		const body = await this.client.search.searchContent({
 			query: this.query,
 			start: this.start,
 			sort: 'updatedAt:desc',
 			size: 10,
 			contentType: this.contentTypes,
-			searchLocations: this.searchLocations?.map(l => `ou:${l.id}`).join(',')
+			...searchLocations && { searchLocations },
+			...!this.canManageAllObjects && { ownerId: this.userId }
 		});
 
 		const newItems = body.hits.hits.map((hit) => hit._source);
