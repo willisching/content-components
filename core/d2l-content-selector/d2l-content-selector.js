@@ -1,5 +1,5 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
-import { ContentServiceApiClient, getRegion } from '@d2l/content-service-api-client';
+import { ContentServiceApiClient, getRegion } from '@d2l/content-service-shared-utils';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import '@brightspace-ui/core/components/button/button.js';

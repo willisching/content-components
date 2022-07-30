@@ -194,6 +194,7 @@ export default {
 	"packageName": "Package name",
 	"pageNotFound": "Page not found.",
 	"performSearch": "You must perform a search.",
+	"performingMaintenance": "Performing maintenance, please try again later.",
 	"permanentActionWarning": "This action cannot be undone",
 	"permanentlyDeletedFile": "Permanently deleted 1 file",
 	"permanentlyDeletedIn": "Permanently deleted in {count} {count, plural, =1 {day} other {days}}",

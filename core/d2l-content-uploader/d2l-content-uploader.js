@@ -1,7 +1,7 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
-import { ContentServiceApiClient } from '@d2l/content-service-api-client';
+import { ContentServiceApiClient } from '@d2l/content-service-shared-utils';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 
 import '../d2l-drop-uploader.js';

@@ -5,7 +5,7 @@ import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
 
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
-import { ContentServiceApiClient } from '@d2l/content-service-api-client';
+import { ContentServiceApiClient } from '@d2l/content-service-shared-utils';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { RevisionLoaderMixin } from '../mixins/revision-loader-mixin.js';
 

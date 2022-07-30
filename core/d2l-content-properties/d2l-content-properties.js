@@ -8,7 +8,7 @@ import '@brightspace-ui/core/components/menu/menu-item.js';
 import { radioStyles } from '@brightspace-ui/core/components/inputs/input-radio-styles.js';
 import { SkeletonMixin } from '@brightspace-ui/core/components/skeleton/skeleton-mixin.js';
 import '@brightspace-ui/core/components/button/button.js';
-import { ContentServiceApiClient } from '@d2l/content-service-api-client';
+import { ContentServiceApiClient } from '@d2l/content-service-shared-utils';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { parse } from '../../util/d2lrn.js';
