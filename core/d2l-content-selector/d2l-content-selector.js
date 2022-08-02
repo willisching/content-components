@@ -16,13 +16,14 @@ import { parse as d2lrnParse, toString as d2lrnToString, build as buildD2lRn } f
 import ContentType from '../../util/content-type.js';
 
 const VIEW = Object.freeze({
+	BULK: 'bulk',
 	LIST: 'list',
+	LOADING: 'loading',
+	MAINTENANCE: 'maintenance',
+	PROPERTIES: 'properties',
+	PROGRESS: 'progress',
 	SETTINGS: 'settings',
 	UPLOAD: 'upload',
-	PROPERTIES: 'properties',
-	BULK: 'bulk',
-	PROGRESS: 'progress',
-	LOADING: 'loading',
 });
 
 const SPINNER_SIZE = 150;
@@ -45,8 +46,8 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 			canManageSharedObjects: { type: Boolean, attribute: 'can-manage-shared-objects' },
 			userId: { type: String, attribute: 'user-id' },
 
-			_hasFailures: { type: Boolean },
 			_contentId: { type: String },
+			_hasFailures: { type: Boolean },
 			_nextButtonSettingsDisabled: { type: Boolean },
 			_saveButtonPropertiesDisabled: { type: Boolean },
 			_selectedView: { type: String },
@@ -71,7 +72,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 				height:100%;
 			}
 
-			.loading-spinner {
+			.center-content {
 				top: 50%;
 				left: 50%;
 				position: absolute;
@@ -121,6 +122,10 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 		const httpClient = new ContentServiceBrowserHttpClient({ serviceUrl: this.serviceUrl });
 		this._client = new ContentServiceApiClient({ tenantId: this.tenantId, httpClient });
 		this._region = getRegion({ serviceUrl: this.serviceUrl });
+		const { scormStatus } = await this._client.status.getStatus();
+		if (scormStatus === 'maintenance') {
+			this._selectedView = VIEW.MAINTENANCE;
+		}
 	}
 
 	render() {
@@ -128,7 +133,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 			case VIEW.LOADING:
 				return html`
 					<d2l-loading-spinner
-						class="loading-spinner"
+						class="center-content"
 						size=${SPINNER_SIZE}
 					></d2l-loading-spinner>
 				`;
@@ -303,6 +308,10 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 						</div>
 						${this._hasFailures ? this._renderBulkCompleteButtons() : ''}
 					</div>
+				`;
+			case VIEW.MAINTENANCE:
+				return html`
+					<div class="center-content">${this.localize('performingMaintenance')}</div>
 				`;
 			default:
 				return html`<p>something went wrong</p>`;
