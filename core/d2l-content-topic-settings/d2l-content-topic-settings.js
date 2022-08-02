@@ -10,7 +10,7 @@ import '@brightspace-ui/core/components/menu/menu-item.js';
 import { parse } from '../../util/d2lrn';
 import PlayerOption from '../../util/player-option';
 
-import { ContentServiceApiClient } from '@d2l/content-service-api-client';
+import { ContentServiceApiClient } from '@d2l/content-service-shared-utils';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 
 class ContentTopicSettings extends SkeletonMixin(InternalLocalizeMixin(LitElement)) {

@@ -1,8 +1,8 @@
 import '../d2l-content-selector.js';
 import { assert, expect, fixture, html, oneEvent } from '@open-wc/testing';
-import ContentApi from '../../../node_modules/@d2l/content-service-api-client/lib/apis/content-api';
+import ContentApi from '../../../node_modules/@d2l/content-service-shared-utils/lib/apis/content-api';
 import { runConstructor } from '@brightspace-ui/core/tools/constructor-test-helper.js';
-import SearchApi from '../../../node_modules/@d2l/content-service-api-client/lib/apis/search-api';
+import SearchApi from '../../../node_modules/@d2l/content-service-shared-utils/lib/apis/search-api';
 import Sinon from 'sinon';
 
 const waitFinishLoading = async(elem) => new Promise(resolve => {
