@@ -8,6 +8,7 @@ import '@brightspace-ui/core/components/menu/menu-item.js';
 import '@brightspace-ui/core/components/dialog/dialog.js';
 import '@brightspace-ui/core/components/dialog/dialog-confirm.js';
 import '@brightspace-ui/core/components/inputs/input-text.js';
+import '@brightspace-ui/core/components/inputs/input-textarea.js';
 import './content-list-columns.js';
 import './transfer-ownership-dialog.js';
 
@@ -164,7 +165,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 			</d2l-dialog-confirm>
 
 			<d2l-dialog id="edit-description-dialog" title-text="${this.localize('description')}">
-				<d2l-input-text
+				<d2l-input-textarea
 					id="edit-description-input"
 					label="${this.localize('description')}"
 					label-hidden
@@ -172,7 +173,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 					value="${this.description || ''}"
 					novalidate
 					@input="${this.descriptionInputChangedHandler}"
-					maxlength=100></d2l-input-text>
+					max-rows="5"></d2l-input-textarea>
 				<d2l-button slot="footer" ?disabled=${this.confirmEditDescriptionDisabled} id="edit-description-dialog-confirm" primary dialog-action="${dialogConfirmAction}">${this.localize('save')}</d2l-button>
 				<d2l-button slot="footer" id="edit-description-dialog-cancel" dialog-action>${this.localize('cancel')}</d2l-button>
 			</d2l-dialog>
