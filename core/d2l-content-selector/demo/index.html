@@ -19,14 +19,15 @@
 				<div style="position:relative; height:600px;">
 					<d2l-content-selector
 						allow-upload
-						max-files-per-upload="1"
-						service-url="http://localhost:8000/contentservice"
-						tenant-id="97dc5895-cd3b-465f-8d5b-3c8d7e1bb6a7"
+						can-manage-all-objects
+						can-select-share-location
+						can-share-to='[{"id": "6606", "name": "Dev"}, {"id": "6609", "name": "Prod"}]'
 						context="6606"
 						max-file-upload-size="2147483648"
-						can-select-share-location="true"
-						can-share-to='[{"id": "6606", "name": "Dev"}, {"id": "6609", "name": "Prod"}]'
 						search-locations='[{"id": "6606", "name": "Dev"}, {"id": "6609", "name": "Prod"}, {"id": "1234", "name": "Custom"}]'
+						service-url="http://localhost:8000/contentservice"
+						tenant-id="97dc5895-cd3b-465f-8d5b-3c8d7e1bb6a7"
+						user-id="169"
 					></d2l-content-selector>
 				</div>
 			</d2l-demo-snippet>

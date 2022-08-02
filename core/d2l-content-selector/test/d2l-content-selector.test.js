@@ -60,7 +60,7 @@ describe('ContentSelector', async() => {
 
 	let el, searchStub, getItemStub;
 	beforeEach(async() => {
-		const commonSearch = { searchLocations: 'ou:6606,ou:6609,ou:1234' };
+		const commonSearch = {};
 		searchStub = Sinon.stub(SearchApi.prototype, 'searchContent');
 		searchStub.withArgs(Sinon.match({ query: '', ...commonSearch })).callsFake(() => {
 			return generateSample(10);
@@ -95,15 +95,14 @@ describe('ContentSelector', async() => {
 		el = await fixture(html`<d2l-content-selector
 			allowExistingObjectSelection
 			allow-upload
-			editPropertiesAfterUpload
-			editTopicPropertiesAfterSelection
-			maxFilesPerUpload="1"
-			tenant-id="0"
+			.canShareTo=${[{ 'id': '6606', 'name': 'Dev' }, { 'id': '6609', 'name': 'Prod' }]}
+			can-manage-all-objects
+			can-select-share-location
 			context="6606"
 			max-file-upload-size="2147483648"
-			canSelectShareLocation="true"
-			.canShareTo=${[{ 'id': '6606', 'name': 'Dev' }, { 'id': '6609', 'name': 'Prod' }]}
 			.searchLocations=${[{ 'id': '6606', 'name': 'Dev' }, { 'id': '6609', 'name': 'Prod' }, { 'id': '1234', 'name': 'Custom' }]}
+			tenant-id="0"
+			user-id="169"
 		></d2l-content-selector>`);
 		const selectorList = el.shadowRoot.querySelector('d2l-content-selector-list');
 		await waitFinishLoading(selectorList);

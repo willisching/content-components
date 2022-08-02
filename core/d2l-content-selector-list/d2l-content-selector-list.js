@@ -21,6 +21,7 @@ class ContentSelectorList extends SkeletonMixin(InternalLocalizeMixin(LitElement
 			allowUpload: { type: Boolean },
 			allowSelection: { type: Boolean },
 			canManageAllObjects: { type: Boolean },
+			canManageSharedObjects: { type: Boolean },
 			contentTypes: { type: Array },
 			searchLocations: { type: Array },
 			serviceUrl: { type: String },
@@ -203,6 +204,14 @@ class ContentSelectorList extends SkeletonMixin(InternalLocalizeMixin(LitElement
 		return this._selectedContent;
 	}
 
+	_canDelete(item) {
+		return this.canManageAllObjects || item?.ownerId === this.userId;
+	}
+
+	_canManage(item) {
+		return this._canDelete(item) || this.canManageSharedObjects;
+	}
+
 	_deleteItem(item) {
 		return () => {
 			if (item === null) return;
@@ -308,9 +317,9 @@ class ContentSelectorList extends SkeletonMixin(InternalLocalizeMixin(LitElement
 						<d2l-dropdown-menu>
 							<d2l-menu>
 								${this.showPreviewAction ? html`<d2l-menu-item class="preview" text=${this.localize('preview')} @click=${this._handleShowPreviewAction(item)}></d2l-menu-item>` : ''}
-								${this.showEditPropertiesAction ? html`<d2l-menu-item class="edit-properties" text=${this.localize('editProperties')} @click=${this._handleEditPropertiesAction(item)}></d2l-menu-item>` : ''}
-								${this.showRevisionUploadAction ? html`<d2l-menu-item class="revision-upload" text=${this.localize('uploadNewVersion')} @click=${this._handleUploadNewRevisionAction(item)}></d2l-menu-item>` : ''}
-								${this.showDeleteAction ? html`<d2l-menu-item class="delete-item" text=${this.localize('delete')} @click=${this._openDialog(item)}></d2l-menu-item>` : ''}
+								${this.showEditPropertiesAction && this._canManage(item) ? html`<d2l-menu-item class="edit-properties" text=${this.localize('editProperties')} @click=${this._handleEditPropertiesAction(item)}></d2l-menu-item>` : ''}
+								${this.showRevisionUploadAction && this._canManage(item) ? html`<d2l-menu-item class="revision-upload" text=${this.localize('uploadNewVersion')} @click=${this._handleUploadNewRevisionAction(item)}></d2l-menu-item>` : ''}
+								${this.showDeleteAction && this._canDelete(item) ? html`<d2l-menu-item class="delete-item" text=${this.localize('delete')} @click=${this._openDialog(item)}></d2l-menu-item>` : ''}
 							</d2l-menu>
 						</d2l-dropdown-menu>
 					</d2l-dropdown-more>

@@ -117,7 +117,7 @@ describe('ContentSelectorList', async() => {
 	beforeEach(async() => {
 		const ou1 = '312';
 		const ou2 = '645';
-		const commonSearch = { searchLocations: `ou:${ou1},ou:${ou2}` };
+		const commonSearch = {};
 		searchStub = Sinon.stub(SearchApi.prototype, 'searchContent');
 		deleteItemStub = Sinon.stub(ContentApi.prototype, 'deleteItem');
 		searchStub.withArgs(Sinon.match({ query: '', ...commonSearch })).callsFake(() => {
@@ -130,6 +130,7 @@ describe('ContentSelectorList', async() => {
 		<d2l-content-selector-list
 			allowUpload
 			allowSelection
+			canManageAllObjects
 			tenantId="0"
 			.searchLocations=${[{ id: ou1 }, { id: ou2 }]}
 			serviceUrl="http://localhost:8000/contentservice"
@@ -137,6 +138,7 @@ describe('ContentSelectorList', async() => {
 			showDeleteAction
 			showRevisionUploadAction
 			showEditPropertiesAction
+			userId="169"
 		></d2l-content-selector-list>`);
 		await waitFinishLoading(el);
 	});
