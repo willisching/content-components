@@ -48,7 +48,6 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 
 			_contentId: { type: String },
 			_hasFailures: { type: Boolean },
-			_maintenanceMode: { type: Boolean },
 			_nextButtonSettingsDisabled: { type: Boolean },
 			_saveButtonPropertiesDisabled: { type: Boolean },
 			_selectedView: { type: String },
