@@ -42,6 +42,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 			serviceUrl: { type: String, attribute: 'service-url' },
 			tenantId: { type: String, attribute: 'tenant-id' },
 			canManageAllObjects: { type: Boolean, attribute: 'can-manage-all-objects' },
+			canManageSharedObjects: { type: Boolean, attribute: 'can-manage-shared-objects' },
 			userId: { type: String, attribute: 'user-id' },
 
 			_hasFailures: { type: Boolean },
@@ -139,6 +140,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 								?allowUpload=${this.allowUpload}
 								allowSelection
 								?canManageAllObjects=${this.canManageAllObjects}
+								?canManageSharedObjects=${this.canManageSharedObjects}
 								.searchLocations=${this.searchLocations}
 								serviceUrl=${this.serviceUrl}
 								showDeleteAction
