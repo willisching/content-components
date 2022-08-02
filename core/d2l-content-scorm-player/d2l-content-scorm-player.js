@@ -103,7 +103,7 @@ class ContentScormPlayer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_handleReviewRetakeClick({ isReview }) {
-		return async() => {
+		return () => {
 			this._showReviewRetakeOptions = false;
 			this._loading = true;
 
