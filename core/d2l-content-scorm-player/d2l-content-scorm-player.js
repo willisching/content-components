@@ -27,10 +27,6 @@ class ContentScormPlayer extends InternalLocalizeMixin(LitElement) {
 
 	static get styles() {
 		return css`
-			:host {
-				min-height: 580px;
-			}
-
 			.container {
 				width: 100%;
 				height: 100%;
