@@ -18,13 +18,11 @@ class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEleme
 
 	static get styles() {
 		return css`
-			:host {
-				display: inline-block;
-			}
 			:host([hidden]) {
 				display: none;
 			}
 			#player {
+				height: 100%;
 				width: 100%;
 			}
 			#status-container {
@@ -43,22 +41,6 @@ class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEleme
 	}
 
 	render() {
-		return this.renderPlayer();
-	}
-
-	get player() {
-		return this.renderRoot.querySelector('#player');
-	}
-
-	reloadResources(reloadRevision = true) {
-		this.player.reloadResources(reloadRevision);
-	}
-
-	renderErrorMessage() {
-		return html`<h1>${this.localize('errorRenderingContent')}</h1>`;
-	}
-
-	renderPlayer() {
 		if (!this.d2lrn && !(this.tenantId && this.contentId)) {
 			return;
 		}
@@ -119,6 +101,18 @@ class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEleme
 			`;
 		}
 		return html`<h1>${this.localize('unsupportedType')}</h1>`;
+	}
+
+	get player() {
+		return this.renderRoot.querySelector('#player');
+	}
+
+	reloadResources(reloadRevision = true) {
+		this.player.reloadResources(reloadRevision);
+	}
+
+	renderErrorMessage() {
+		return html`<h1>${this.localize('errorRenderingContent')}</h1>`;
 	}
 
 	renderStatusMessage(message) {
