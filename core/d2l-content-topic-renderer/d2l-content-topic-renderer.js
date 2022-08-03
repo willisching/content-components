@@ -19,16 +19,13 @@ class ContentTopicRenderer extends LitElement {
 
 	static get styles() {
 		return css`
-			:host {
-				display: inline-block;
-			}
-
 			:host([hidden]) {
 				display: none;
 			}
 			#renderer {
 				width: 100%;
 				height: 100%;
+				display: inline;
 			}
 		`;
 	}

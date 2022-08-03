@@ -18,6 +18,9 @@ class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEleme
 
 	static get styles() {
 		return css`
+			:host {
+				display: inline-block;
+			}
 			:host([hidden]) {
 				display: none;
 			}
