@@ -29,7 +29,7 @@ class ContentScormPlayer extends InternalLocalizeMixin(LitElement) {
 		return css`
 			.container {
 				width: 100%;
-				min-height: 540px;
+				height: 100%;
 				display: flex;
 				align-items: center;
 				justify-content: center;
@@ -67,7 +67,7 @@ class ContentScormPlayer extends InternalLocalizeMixin(LitElement) {
 
 			iframe {
 				width: 100%;
-				height: 580px;
+				height: 100%;
 				border: 0;
 			}
 		`;
