@@ -146,6 +146,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 								allowSelection
 								?canManageAllObjects=${this.canManageAllObjects}
 								?canManageSharedObjects=${this.canManageSharedObjects}
+								orgUnitId=${this.context}
 								.searchLocations=${this.searchLocations}
 								serviceUrl=${this.serviceUrl}
 								showDeleteAction
@@ -246,6 +247,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 								tenantId=${this.tenantId}
 								?canSelectShareLocation=${this.canSelectShareLocation}
 								.canShareTo=${this.canShareTo}
+								orgUnitId=${this.context}
 								totalFiles=${this._uploadSuccessFiles}
 								progress=${this._propertyProgress}
 								embedFeatureEnabled
