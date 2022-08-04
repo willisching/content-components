@@ -319,7 +319,7 @@ class ContentSelectorList extends DependencyRequester(SkeletonMixin(InternalLoca
 						</a>
 					</div>
 					<div class="info-wrapper ${this._skeletize(item, '30')}">
-						${item?.ownerId === this.userId ? html`Shared with me <d2l-icon class="dot" icon="tier1:dot"></d2l-icon>` : ''}
+						${item?.ownerId !== this.userId ? html`${this.localize('sharedWithMe')} <d2l-icon class="dot" icon="tier1:dot"></d2l-icon>` : ''}
 						${this.localize('lastEditedOn', {lastEdited: getFriendlyDate(item?.updatedAt)})}
 					</div>
 				</div>
