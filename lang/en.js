@@ -253,6 +253,7 @@ export default {
 	"selectAllLiveEvents": "Select all live events on the page",
 	"selectOption": "Select {option}",
 	"settings": "Settings",
+	"sharedWithMe": "Shared with me",
 	"show": "Show",
 	"showAdvancedSearch": "Show Advanced Search",
 	"startEndDates": "Start/End times",
