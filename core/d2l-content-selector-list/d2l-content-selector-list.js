@@ -13,9 +13,10 @@ import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-c
 
 import './src/scroller.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
+import { DependencyRequester } from '../../mixins/dependency-injection.js';
 import { getFriendlyDate } from '../../util/date.js';
 
-class ContentSelectorList extends SkeletonMixin(InternalLocalizeMixin(LitElement)) {
+class ContentSelectorList extends DependencyRequester(SkeletonMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
 		return {
 			allowUpload: { type: Boolean },
@@ -71,11 +72,11 @@ class ContentSelectorList extends SkeletonMixin(InternalLocalizeMixin(LitElement
 				cursor: pointer;
 				font-size: 19px;
 				text-decoration: none;
-				color: #494c4e;
+				color: var(--d2l-color-tungsten);
 			}
 
 			.heading .info-wrapper {
-				color: #6e7376;
+				color: var(--d2l-color-galena);
 				font-size: 14px;
 				margin-top: 5px;
 				-webkit-text-size-adjust: 100%;
@@ -98,10 +99,7 @@ class ContentSelectorList extends SkeletonMixin(InternalLocalizeMixin(LitElement
 			.search-result {
 				display: flex;
 				font-size: 14px;
-				border-bottom: 1px solid #e3e9f1;
-				border-bottom-width: 1px;
-				border-bottom-style: solid;
-				border-bottom-color: rgb(227, 233, 241);
+				border-bottom: 1px solid var(--d2l-color-gypsum);
 				padding-top: 10px;
 				padding-bottom: 10px;
 			}
@@ -120,6 +118,12 @@ class ContentSelectorList extends SkeletonMixin(InternalLocalizeMixin(LitElement
 			d2l-scroller {
 				flex: 1;
 				overflow: auto;
+			}
+
+			d2l-icon.dot {
+				color: var(--d2l-color-galena);
+				width: 10px;
+				height: 10px;
 			}
 		`];
 	}
@@ -315,6 +319,7 @@ class ContentSelectorList extends SkeletonMixin(InternalLocalizeMixin(LitElement
 						</a>
 					</div>
 					<div class="info-wrapper ${this._skeletize(item, '30')}">
+						${item?.ownerId === this.userId ? html`Shared with me <d2l-icon class="dot" icon="tier1:dot"></d2l-icon>` : ''}
 						${this.localize('lastEditedOn', {lastEdited: getFriendlyDate(item?.updatedAt)})}
 					</div>
 				</div>
@@ -347,7 +352,8 @@ class ContentSelectorList extends SkeletonMixin(InternalLocalizeMixin(LitElement
 			...!this.canManageAllObjects && { ownerId: this.userId }
 		});
 
-		const newItems = body.hits.hits.map((hit) => hit._source);
+		const contentCache = this.requestDependency('contentCache');
+		const newItems = body.hits.hits.map((hit) => contentCache?.get(hit._source) ?? hit._source);
 		if (newItems.length === 0) {
 			this._hasMore = false;
 		} else {

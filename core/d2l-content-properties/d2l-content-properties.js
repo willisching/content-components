@@ -11,12 +11,14 @@ import '@brightspace-ui/core/components/button/button.js';
 import { ContentServiceApiClient } from '@d2l/content-service-shared-utils';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
+import { DependencyRequester } from '../../mixins/dependency-injection.js';
 import { parse } from '../../util/d2lrn.js';
 import { buildOrgUnitShareLocationStr } from '../../util/sharing.js';
 import PlayerOption from '../../util/player-option.js';
 import ContentType from '../../util/content-type.js';
+import { ContentCacheDependencyKey } from '../../models/content-cache.js';
 
-class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement)) {
+class ContentProperties extends DependencyRequester(SkeletonMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
 		return {
 			d2lrn: { type: String },
@@ -69,7 +71,7 @@ class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement))
 			flex-wrap: wrap;
 			align-items: center;
 			pointer-events: none;
-			color: #6E7477;
+			color: var(--d2l-color-galena);
 			font-size: 14px;
 			line-height: 1rem;
 		}
@@ -94,7 +96,7 @@ class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement))
 			margin-top: 0;
 			margin-bottom: 6px;
 			font-size: 14px;
-			color: #6E7477;
+			color: var(--d2l-color-galena);
 			line-height: 1rem;
 		}
 
@@ -253,7 +255,11 @@ class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement))
 			content: updatedContent,
 		};
 
-		await this.client.content.updateItem(item);
+		const result = await this.client.content.updateItem(item);
+		const contentCache = this.requestDependency(ContentCacheDependencyKey);
+		if (contentCache) {
+			contentCache.add(result);
+		}
 	}
 
 	get _contentId() {
