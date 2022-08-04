@@ -24,6 +24,7 @@ class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement))
 			canShareTo: { type: Array },
 			canSelectShareLocation: { type: Boolean },
 			contentId: { type: String },
+			orgUnitId: { type: String },
 			tenantId: { type: String },
 			revisionTag: { type: String },
 			totalFiles: { type: Number },
@@ -278,7 +279,14 @@ class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement))
 			this.contentId = parsedD2lrn.contentId;
 		}
 		const httpClient = new ContentServiceBrowserHttpClient({ serviceUrl: this.serviceUrl });
-		this.client = new ContentServiceApiClient({ httpClient, tenantId: this.tenantId });
+		this.client = new ContentServiceApiClient({
+			httpClient,
+			tenantId: this.tenantId,
+			...this.orgUnitId && {
+				contextId: this.orgUnitId,
+				contextType: 'sharingOrgUnit',
+			},
+		});
 		const content = await this.client.content.getItem({ id: this.contentId });
 		this.content = content;
 

@@ -23,6 +23,7 @@ class ContentSelectorList extends SkeletonMixin(InternalLocalizeMixin(LitElement
 			canManageAllObjects: { type: Boolean },
 			canManageSharedObjects: { type: Boolean },
 			contentTypes: { type: Array },
+			orgUnitId: { type: String },
 			searchLocations: { type: Array },
 			serviceUrl: { type: String },
 			showDeleteAction: { type: Boolean },
@@ -151,7 +152,12 @@ class ContentSelectorList extends SkeletonMixin(InternalLocalizeMixin(LitElement
 		super.connectedCallback();
 
 		const httpClient = new ContentServiceBrowserHttpClient({ serviceUrl: this.serviceUrl });
-		this.client = new ContentServiceApiClient({ httpClient, tenantId: this.tenantId });
+		this.client = new ContentServiceApiClient({
+			httpClient,
+			tenantId: this.tenantId,
+			contextId: this.orgUnitId,
+			contextType: 'sharingOrgUnit'
+		});
 	}
 
 	render() {
