@@ -75,6 +75,7 @@
     "/core",
     "/lang",
     "/mixins",
+    "/models",
     "/util",
     "content-components.serge.json"
   ],
