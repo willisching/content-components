@@ -142,9 +142,27 @@ class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement))
 	}
 
 	render() {
+		if (this._isLoading) {
+			return '';
+		}
+		// default heading if single package is uploaded
+		let heading = this.localize('configureCoursePackageProperties');
+		if (this.totalFiles > 1) {
+			heading = this.localize('configureCoursePackagePropertiesBulk', { 0: this.progress, 1: this.totalFiles });
+		} else if (this.totalFiles === 0) {
+			// totalFiles is 0 when 'Edit Package' is selected and nothing is uploaded as a result
+			heading = this.localize('editCoursePackageProperties');
+		}
+
+		this.dispatchEvent(new CustomEvent('change-heading', {
+			detail: {
+				heading
+			},
+			bubbles: true,
+			composed: true,
+		}));
 		return html`
 			<div class="settings-container d2l-skeletize-container">
-				<h3 class="heading-org-level d2l-skeletize d2l-skeletize-55">${this.totalFiles > 1 ? this.localize('editCoursePackagePropertiesBulk', { 0: this.progress, 1: this.totalFiles }) : this.localize('editCoursePackageProperties')}</h3>
 				<div class="package-section">
 					<h4 class="package-name d2l-skeletize d2l-skeletize-15">${this.localize('packageName')}</h4>
 					<d2l-input-text

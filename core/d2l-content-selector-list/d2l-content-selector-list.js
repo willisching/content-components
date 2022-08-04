@@ -155,6 +155,13 @@ class ContentSelectorList extends SkeletonMixin(InternalLocalizeMixin(LitElement
 	}
 
 	render() {
+		this.dispatchEvent(new CustomEvent('change-heading', {
+			detail: {
+				heading: this.localize('contentServiceTitle'),
+			},
+			bubbles: true,
+			composed: true,
+		}));
 		return html`
 			<div class='container'>
 				<div class="input-container">

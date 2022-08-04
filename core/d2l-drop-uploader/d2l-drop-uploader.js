@@ -167,6 +167,13 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 	}
 
 	render() {
+		this.dispatchEvent(new CustomEvent('change-heading', {
+			detail: {
+				heading: this.localize('upload'),
+			},
+			bubbles: true,
+			composed: true,
+		}));
 		return html`
 			<div class="upload-container">
 				${this.videoAudioDisplay ? this._renderVideoAudioUI() : this._renderGenericUI()}
