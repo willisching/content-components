@@ -14,7 +14,7 @@ import '../d2l-upload-progress.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 
 import { parse as d2lrnParse, toString as d2lrnToString, build as buildD2lRn } from '../../util/d2lrn.js';
-import { ContentCacheDependencyKey, ContentCache } from '../../models/content-cache';
+import { ContentCacheDependencyKey, ContentCache } from '../../models/content-cache.js';
 import ContentType from '../../util/content-type.js';
 
 const VIEW = Object.freeze({
