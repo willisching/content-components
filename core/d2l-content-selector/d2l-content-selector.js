@@ -1,6 +1,7 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { ContentServiceApiClient, getRegion } from '@d2l/content-service-shared-utils';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
+import { ProviderMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
 import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
 
@@ -11,7 +12,7 @@ import '../d2l-content-properties.js';
 import '../d2l-bulk-complete.js';
 import '../d2l-upload-progress.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
-import { DependencyProvider } from '../../mixins/dependency-injection.js';
+
 import { parse as d2lrnParse, toString as d2lrnToString, build as buildD2lRn } from '../../util/d2lrn.js';
 import { ContentCacheDependencyKey, ContentCache } from '../../models/content-cache';
 import ContentType from '../../util/content-type.js';
@@ -31,7 +32,7 @@ const SPINNER_SIZE = 150;
 const SUPPORTED_TYPES = [ContentType.SCORM];
 const ALLOW_ASYNC = false;
 
-class ContentSelector extends DependencyProvider(InternalLocalizeMixin(LitElement)) {
+class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
 			allowUpload: { type: Boolean, attribute: 'allow-upload' },
@@ -117,7 +118,7 @@ class ContentSelector extends DependencyProvider(InternalLocalizeMixin(LitElemen
 		this._uploadProgress = 0;
 		this._hasFailures = false;
 
-		this.provideDependency(ContentCacheDependencyKey, new ContentCache());
+		this.provideInstance(ContentCacheDependencyKey, new ContentCache());
 	}
 
 	async connectedCallback() {

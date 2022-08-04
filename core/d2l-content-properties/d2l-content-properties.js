@@ -7,18 +7,18 @@ import '@brightspace-ui/core/components/menu/menu.js';
 import '@brightspace-ui/core/components/menu/menu-item.js';
 import { radioStyles } from '@brightspace-ui/core/components/inputs/input-radio-styles.js';
 import { SkeletonMixin } from '@brightspace-ui/core/components/skeleton/skeleton-mixin.js';
+import { RequesterMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
 import '@brightspace-ui/core/components/button/button.js';
 import { ContentServiceApiClient } from '@d2l/content-service-shared-utils';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
-import { DependencyRequester } from '../../mixins/dependency-injection.js';
 import { parse } from '../../util/d2lrn.js';
 import { buildOrgUnitShareLocationStr } from '../../util/sharing.js';
 import PlayerOption from '../../util/player-option.js';
 import ContentType from '../../util/content-type.js';
 import { ContentCacheDependencyKey } from '../../models/content-cache.js';
 
-class ContentProperties extends DependencyRequester(SkeletonMixin(InternalLocalizeMixin(LitElement))) {
+class ContentProperties extends RequesterMixin(SkeletonMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
 		return {
 			d2lrn: { type: String },
@@ -256,7 +256,7 @@ class ContentProperties extends DependencyRequester(SkeletonMixin(InternalLocali
 		};
 
 		const result = await this.client.content.updateItem(item);
-		const contentCache = this.requestDependency(ContentCacheDependencyKey);
+		const contentCache = this.requestInstance(ContentCacheDependencyKey);
 		if (contentCache) {
 			contentCache.add(result);
 		}

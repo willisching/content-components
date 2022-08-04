@@ -1,6 +1,7 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { radioStyles } from '@brightspace-ui/core/components/inputs/input-radio-styles.js';
 import { SkeletonMixin } from '@brightspace-ui/core/components/skeleton/skeleton-mixin.js';
+import { RequesterMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
 import '@brightspace-ui/core/components/inputs/input-search.js';
 import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/dialog/dialog-confirm.js';
@@ -13,10 +14,10 @@ import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-c
 
 import './src/scroller.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
-import { DependencyRequester } from '../../mixins/dependency-injection.js';
 import { getFriendlyDate } from '../../util/date.js';
+import { ContentCacheDependencyKey } from '../../models/content-cache.js';
 
-class ContentSelectorList extends DependencyRequester(SkeletonMixin(InternalLocalizeMixin(LitElement))) {
+class ContentSelectorList extends RequesterMixin(SkeletonMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
 		return {
 			allowUpload: { type: Boolean },
@@ -352,7 +353,7 @@ class ContentSelectorList extends DependencyRequester(SkeletonMixin(InternalLoca
 			...!this.canManageAllObjects && { ownerId: this.userId }
 		});
 
-		const contentCache = this.requestDependency('contentCache');
+		const contentCache = this.requestInstance(ContentCacheDependencyKey);
 		const newItems = body.hits.hits.map((hit) => contentCache?.get(hit._source) ?? hit._source);
 		if (newItems.length === 0) {
 			this._hasMore = false;
