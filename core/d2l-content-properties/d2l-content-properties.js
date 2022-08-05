@@ -142,9 +142,6 @@ class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement))
 	}
 
 	render() {
-		if (this._isLoading) {
-			return '';
-		}
 		// default heading if single package is uploaded
 		let heading = this.localize('configureCoursePackageProperties');
 		if (this.totalFiles > 1) {

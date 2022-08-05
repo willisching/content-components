@@ -151,7 +151,6 @@ class ContentTopicSettings extends SkeletonMixin(InternalLocalizeMixin(LitElemen
 	}
 
 	render() {
-		if (this._isLoading) {return '';}
 		this.dispatchEvent(new CustomEvent('change-heading', {
 			detail: {
 				heading: this.localize('contentItemFormTitle'),
