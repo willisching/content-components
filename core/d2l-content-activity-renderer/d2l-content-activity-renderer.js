@@ -28,8 +28,6 @@ class ContentActivityRenderer extends LitElement {
 				display: none;
 			}
 			#renderer {
-				height: 100%;
-				width: 100%;
 				display: inline;
 			}
 		`;

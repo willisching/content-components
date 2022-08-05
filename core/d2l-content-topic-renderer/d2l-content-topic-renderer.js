@@ -26,8 +26,6 @@ class ContentTopicRenderer extends LitElement {
 				display: none;
 			}
 			#renderer {
-				width: 100%;
-				height: 100%;
 				display: inline;
 			}
 		`;
