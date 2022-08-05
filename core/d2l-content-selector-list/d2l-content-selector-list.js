@@ -390,6 +390,9 @@ class ContentSelectorList extends RequesterMixin(SkeletonMixin(InternalLocalizeM
 			${this._itemRenderer(null)}
 			${this._itemRenderer(null)}
 			${this._itemRenderer(null)}
+			${this._itemRenderer(null)}
+			${this._itemRenderer(null)}
+			${this._itemRenderer(null)}
 		`;
 	}
 
