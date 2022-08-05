@@ -113,13 +113,19 @@ function generateSample(numItems, searchedItem = 'quicktest') {
 
 describe('ContentSelectorList', async() => {
 
-	let deleteItemStub, el, searchStub;
+	let deleteItemStub, el, searchStub, getAssociatedTopicsStub, getItemStub;
 	beforeEach(async() => {
 		const ou1 = '312';
 		const ou2 = '645';
 		const commonSearch = {};
 		searchStub = Sinon.stub(SearchApi.prototype, 'searchContent');
+		getItemStub = Sinon.stub(ContentApi.prototype, 'getItem').returns({
+			revisions: [{
+				id: '1'
+			}]
+		});
 		deleteItemStub = Sinon.stub(ContentApi.prototype, 'deleteItem');
+		getAssociatedTopicsStub = Sinon.stub(ContentApi.prototype, 'getAssociatedTopics').returns([]);
 		searchStub.withArgs(Sinon.match({ query: '', ...commonSearch })).callsFake(() => {
 			return generateSample(10);
 		});
@@ -146,6 +152,8 @@ describe('ContentSelectorList', async() => {
 	afterEach(() => {
 		searchStub.restore();
 		deleteItemStub.restore();
+		getItemStub.restore();
+		getAssociatedTopicsStub.restore();
 		start = 0;
 	});
 
