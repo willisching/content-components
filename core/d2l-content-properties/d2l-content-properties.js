@@ -147,7 +147,6 @@ class ContentProperties extends RequesterMixin(SkeletonMixin(InternalLocalizeMix
 	render() {
 		return html`
 			<div class="settings-container d2l-skeletize-container">
-				<h3 class="heading-org-level d2l-skeletize d2l-skeletize-55">${this.totalFiles > 1 ? this.localize('editCoursePackagePropertiesBulk', { 0: this.progress, 1: this.totalFiles }) : this.localize('editCoursePackageProperties')}</h3>
 				<div class="package-section">
 					<h4 class="package-name d2l-skeletize d2l-skeletize-15">${this.localize('packageName')}</h4>
 					<d2l-input-text

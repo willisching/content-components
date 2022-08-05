@@ -329,6 +329,16 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		this._totalFiles = event.detail.totalFiles;
 	}
 
+	changeHeader(header) {
+		this.dispatchEvent(new CustomEvent('change-heading', {
+			detail: {
+				heading: header,
+			},
+			bubbles: true,
+			composed: true,
+		}));
+	}
+
 	changeView(event) {
 		this._fileName = event.detail.fileName;
 		this._selectedView = VIEW[event.detail.view];
@@ -340,6 +350,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		const d2lrn = this._d2lrnList.shift();
 		this._contentId = d2lrn[0];
 		this.selectedObject = d2lrn[1];
+		this.changeHeader(this.localize('configureCoursePackagePropertiesBulk', { 0: this._propertyProgress, 1: this._totalFiles }));
 		this._selectedView = VIEW.PROPERTIES;
 	}
 
@@ -355,6 +366,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		// if bulk and last file is error, show bulk-complete failure page
 		if (this._progress === this._totalFiles) {
 			this._hasFailures = true;
+			this.changeHeader(this.localize('upload'));
 			this._selectedView = VIEW.BULK;
 		}
 		this.requestUpdate();
@@ -378,12 +390,14 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 
 		if (this._totalFiles === 1) {
 			// go to properties page if single file
+			this.changeHeader(this.localize('configureCoursePackageProperties'));
 			this._selectedView = VIEW.PROPERTIES;
 		} else {
 			// if bulk, add to list of d2lrns for properties later
 			this._d2lrnList.push([this._contentId, this.selectedObject]);
 			if (this._progress === this._totalFiles) {
 				this._hasFailures = this._uploadSuccessFiles !== this._totalFiles;
+				this.changeHeader(this.localize('upload'));
 				this._selectedView = VIEW.BULK;
 			}
 		}
@@ -432,7 +446,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 	_handleListEditProperties({ detail: { selectedItem } }) {
 		this.selectedObject = '';
 		this._contentId = selectedItem.id;
-
+		this.changeHeader(this.localize('editCoursePackageProperties'));
 		this._selectedView = VIEW.PROPERTIES;
 		this.dispatchEvent(new CustomEvent('change-view-properties'));
 	}
@@ -441,7 +455,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		const selectedItem = this._selectorList.selectedContent;
 
 		this._contentId = selectedItem.id;
-
+		this.changeHeader(this.localize('contentItemFormTitle'));
 		this._selectedView = VIEW.SETTINGS;
 		this.dispatchEvent(new CustomEvent('change-view-topic-settings'));
 	}
@@ -485,11 +499,13 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 
 	_navigateToUpload() {
 		this._contentId = null;
+		this.changeHeader(this.localize('upload'));
 		this._selectedView = VIEW.UPLOAD;
 	}
 
 	_navigateToUploadRevision(event) {
 		this._contentId = event.detail.id;
+		this.changeHeader(this.localize('upload'));
 		this._selectedView = VIEW.UPLOAD;
 	}
 
@@ -504,6 +520,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		this._uploadProgress = 0;
 		this._errorMessage = null;
 		this._hasFailures = false;
+		this.changeHeader(this.localize('contentServiceTitle'));
 		this._selectedView = VIEW.LIST;
 	}
 
