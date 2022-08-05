@@ -13,6 +13,7 @@ class D2lCaptureCentral extends DependencyProvider(LitElement) {
 			apiEndpoint: { type: String, attribute: 'content-service-endpoint' },
 			canManageAllVideos: { type: Boolean, attribute: 'can-manage-all-videos' },
 			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
+			canRecord: { type: Boolean, attribute: 'can-record' },
 			contentServiceEndpoint: { type: String, attribute: 'content-service-endpoint' },
 			captureServiceEndpoint: { type: String, attribute: 'capture-service-endpoint' },
 			tenantId: { type: String, attribute: 'tenant-id' }
@@ -73,6 +74,7 @@ class D2lCaptureCentral extends DependencyProvider(LitElement) {
 				class="d2l-body-standard"
 				?can-manage-all-videos="${this.canManageAllVideos}"
 				?can-transfer-ownership="${this.canTransferOwnership}"
+				?can-record="${this.canRecord}"
 				tenant-id="${this.tenantId}"
 			></d2l-capture-central-app>`;
 	}
