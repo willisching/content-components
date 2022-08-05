@@ -1,7 +1,7 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { ContentServiceApiClient, getRegion } from '@d2l/content-service-shared-utils';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
-import { MobxReactionUpdate } from '@adobe/lit-mobx';
+import { ProviderMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
 import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
 
@@ -12,7 +12,9 @@ import '../d2l-content-properties.js';
 import '../d2l-bulk-complete.js';
 import '../d2l-upload-progress.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
+
 import { parse as d2lrnParse, toString as d2lrnToString, build as buildD2lRn } from '../../util/d2lrn.js';
+import { ContentCacheDependencyKey, ContentCache } from '../../models/content-cache.js';
 import ContentType from '../../util/content-type.js';
 
 const VIEW = Object.freeze({
@@ -30,7 +32,7 @@ const SPINNER_SIZE = 150;
 const SUPPORTED_TYPES = [ContentType.SCORM];
 const ALLOW_ASYNC = false;
 
-class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElement)) {
+class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
 			allowUpload: { type: Boolean, attribute: 'allow-upload' },
@@ -115,6 +117,8 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 		this._fileName = null;
 		this._uploadProgress = 0;
 		this._hasFailures = false;
+
+		this.provideInstance(ContentCacheDependencyKey, new ContentCache());
 	}
 
 	async connectedCallback() {
@@ -146,6 +150,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 								allowSelection
 								?canManageAllObjects=${this.canManageAllObjects}
 								?canManageSharedObjects=${this.canManageSharedObjects}
+								orgUnitId=${this.context}
 								.searchLocations=${this.searchLocations}
 								serviceUrl=${this.serviceUrl}
 								showDeleteAction
@@ -246,6 +251,7 @@ class ContentSelector extends InternalLocalizeMixin(MobxReactionUpdate(LitElemen
 								tenantId=${this.tenantId}
 								?canSelectShareLocation=${this.canSelectShareLocation}
 								.canShareTo=${this.canShareTo}
+								orgUnitId=${this.context}
 								totalFiles=${this._uploadSuccessFiles}
 								progress=${this._propertyProgress}
 								embedFeatureEnabled

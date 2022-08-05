@@ -7,6 +7,7 @@ import '@brightspace-ui/core/components/menu/menu.js';
 import '@brightspace-ui/core/components/menu/menu-item.js';
 import { radioStyles } from '@brightspace-ui/core/components/inputs/input-radio-styles.js';
 import { SkeletonMixin } from '@brightspace-ui/core/components/skeleton/skeleton-mixin.js';
+import { RequesterMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
 import '@brightspace-ui/core/components/button/button.js';
 import { ContentServiceApiClient } from '@d2l/content-service-shared-utils';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
@@ -15,8 +16,9 @@ import { parse } from '../../util/d2lrn.js';
 import { buildOrgUnitShareLocationStr } from '../../util/sharing.js';
 import PlayerOption from '../../util/player-option.js';
 import ContentType from '../../util/content-type.js';
+import { ContentCacheDependencyKey } from '../../models/content-cache.js';
 
-class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement)) {
+class ContentProperties extends RequesterMixin(SkeletonMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
 		return {
 			d2lrn: { type: String },
@@ -24,6 +26,7 @@ class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement))
 			canShareTo: { type: Array },
 			canSelectShareLocation: { type: Boolean },
 			contentId: { type: String },
+			orgUnitId: { type: String },
 			tenantId: { type: String },
 			revisionTag: { type: String },
 			totalFiles: { type: Number },
@@ -68,7 +71,7 @@ class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement))
 			flex-wrap: wrap;
 			align-items: center;
 			pointer-events: none;
-			color: #6E7477;
+			color: var(--d2l-color-galena);
 			font-size: 14px;
 			line-height: 1rem;
 		}
@@ -93,7 +96,7 @@ class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement))
 			margin-top: 0;
 			margin-bottom: 6px;
 			font-size: 14px;
-			color: #6E7477;
+			color: var(--d2l-color-galena);
 			line-height: 1rem;
 		}
 
@@ -267,7 +270,11 @@ class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement))
 			content: updatedContent,
 		};
 
-		await this.client.content.updateItem(item);
+		const result = await this.client.content.updateItem(item);
+		const contentCache = this.requestInstance(ContentCacheDependencyKey);
+		if (contentCache) {
+			contentCache.add(result);
+		}
 	}
 
 	get _contentId() {
@@ -293,7 +300,14 @@ class ContentProperties extends SkeletonMixin(InternalLocalizeMixin(LitElement))
 			this.contentId = parsedD2lrn.contentId;
 		}
 		const httpClient = new ContentServiceBrowserHttpClient({ serviceUrl: this.serviceUrl });
-		this.client = new ContentServiceApiClient({ httpClient, tenantId: this.tenantId });
+		this.client = new ContentServiceApiClient({
+			httpClient,
+			tenantId: this.tenantId,
+			...this.orgUnitId && {
+				contextId: this.orgUnitId,
+				contextType: 'sharingOrgUnit',
+			},
+		});
 		const content = await this.client.content.getItem({ id: this.contentId });
 		this.content = content;
 
