@@ -145,22 +145,6 @@ class ContentProperties extends RequesterMixin(SkeletonMixin(InternalLocalizeMix
 	}
 
 	render() {
-		// default heading if single package is uploaded
-		let heading = this.localize('configureCoursePackageProperties');
-		if (this.totalFiles > 1) {
-			heading = this.localize('configureCoursePackagePropertiesBulk', { 0: this.progress, 1: this.totalFiles });
-		} else if (this.totalFiles === 0) {
-			// totalFiles is 0 when 'Edit Package' is selected and nothing is uploaded as a result
-			heading = this.localize('editCoursePackageProperties');
-		}
-
-		this.dispatchEvent(new CustomEvent('change-heading', {
-			detail: {
-				heading
-			},
-			bubbles: true,
-			composed: true,
-		}));
 		return html`
 			<div class="settings-container d2l-skeletize-container">
 				<div class="package-section">

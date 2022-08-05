@@ -96,13 +96,6 @@ export class BulkComplete extends RevisionLoaderMixin(InternalLocalizeMixin(LitE
 	}
 
 	_renderContinue() {
-		this.dispatchEvent(new CustomEvent('change-heading', {
-			detail: {
-				heading: this.localize('upload'),
-			},
-			bubbles: true,
-			composed: true,
-		}));
 		return html`
 			<div id="upload-successful-body">
 				<div id="settings-options">

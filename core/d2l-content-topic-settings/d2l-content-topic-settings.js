@@ -151,13 +151,6 @@ class ContentTopicSettings extends SkeletonMixin(InternalLocalizeMixin(LitElemen
 	}
 
 	render() {
-		this.dispatchEvent(new CustomEvent('change-heading', {
-			detail: {
-				heading: this.localize('contentItemFormTitle'),
-			},
-			bubbles: true,
-			composed: true,
-		}));
 		return html`
 			<div class="settings-container d2l-skeletize-container">
 				<h3 class="package-title d2l-skeletize d2l-skeletize-50">
