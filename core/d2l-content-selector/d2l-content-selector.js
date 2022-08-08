@@ -11,6 +11,7 @@ import '../d2l-drop-uploader.js';
 import '../d2l-content-properties.js';
 import '../d2l-bulk-complete.js';
 import '../d2l-upload-progress.js';
+import { buildOrgUnitShareLocationStr } from '../../util/sharing.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 
 import { parse as d2lrnParse, toString as d2lrnToString, build as buildD2lRn } from '../../util/d2lrn.js';
@@ -549,7 +550,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 	get _shareUploadsWith() {
 		return this.canShareTo && this.canShareTo.length > 0 &&
 			(this.canSelectShareLocation ? [this.canShareTo[0]] : this.canShareTo)
-				.map(({ id }) => `ou:${id}`);
+				.map(({ id }) => buildOrgUnitShareLocationStr(id));
 	}
 
 	get _topicSettings() {
