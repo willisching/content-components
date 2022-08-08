@@ -19,8 +19,10 @@ export class Progress extends InternalLocalizeMixin(LitElement) {
 				display: flex;
 				justify-content: center;
 				align-items: center;
-				border: 2px dashed var(--d2l-color-corundum);
+				border: 2px dashed var(--d2l-color-tungsten);
 				padding: 20px 20px 15px 20px;
+				border-radius: 7px;
+				margin-top: 10px;
 			}
 			#progress-container {
 				margin-top: 15px;

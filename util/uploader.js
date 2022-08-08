@@ -4,8 +4,6 @@ import { S3Uploader } from './s3-uploader.js';
 import { randomizeDelay, sleep } from './delay.js';
 import { getExtension, isAudioType, isVideoType, getType } from './media-type-util.js';
 
-const UPLOAD_FAILED_ERROR = 'workerErrorUploadFailed';
-
 /* eslint-disable no-unused-vars */
 export class Uploader {
 	constructor({ apiClient, onSuccess, onError, waitForProcessing, existingContentId, onProgress = progress => {}, onUploadFinish }) {
@@ -63,7 +61,8 @@ export class Uploader {
 			}
 
 			if (progress.didFail) {
-				this._handleError(lastProgressPosition, UPLOAD_FAILED_ERROR, content.title);
+				const workerErrorType = resolveWorkerError(JSON.parse(progress.details), content.type);
+				this._handleError(lastProgressPosition, workerErrorType, content.title);
 				return;
 			}
 		} catch (error) {

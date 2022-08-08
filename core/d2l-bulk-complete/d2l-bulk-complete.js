@@ -25,8 +25,10 @@ export class BulkComplete extends RevisionLoaderMixin(InternalLocalizeMixin(LitE
 				display: flex;
 				justify-content: center;
 				align-items: center;
-				border: 2px dashed var(--d2l-color-corundum);
+				border: 2px dashed var(--d2l-color-tungsten);
 				padding: 20px 20px 15px 20px;
+				border-radius: 7px;
+				margin-top: 10px;
 			}
 
 			#upload-successful-body {
@@ -81,7 +83,7 @@ export class BulkComplete extends RevisionLoaderMixin(InternalLocalizeMixin(LitE
 	render() {
 		return html`
 			<div id="file-details-container">
-					<p class="d2l-body-standard">${this.completedFiles === this.totalFiles ? this.localize('uploadBulkFinished', { totalFiles: this.totalFiles }) : this.localize('uploadBulkFinishedWithErrors', { totalFiles: this.totalFiles, completedFiles: this.completedFiles })}</p>
+					<p class="d2l-body-standard">${this.completedFiles === this.totalFiles ? this.localize('uploadBulkFinished', { totalFiles: this.totalFiles }) : (this.totalFiles === 1 ? this.fileName : this.localize('uploadBulkFinishedWithErrors', { totalFiles: this.totalFiles, completedFiles: this.completedFiles }))}</p>
 				</div>
 			${this.hasFailures ? this._renderFailures() : this._renderContinue()}
 		`;
