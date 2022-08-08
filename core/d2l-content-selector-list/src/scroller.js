@@ -12,16 +12,16 @@ class Scroller extends InternalLocalizeMixin(LitElement) {
 
 	static get styles() {
 		return [radioStyles, css`
-		.item-container {
-			height: 100%;
-			overflow-y: auto;
-			padding-right: 3px;
-			position: relative;
-		}
+			.item-container {
+				height: 100%;
+				overflow-y: auto;
+				padding-right: 3px;
+				position: relative;
+			}
 
-		.padding {
-			height: 30px;
-		}
+			.padding {
+				height: 30px;
+			}
 		`];
 	}
 
