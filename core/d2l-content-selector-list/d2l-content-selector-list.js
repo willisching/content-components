@@ -361,7 +361,7 @@ class ContentSelectorList extends RequesterMixin(SkeletonMixin(InternalLocalizeM
 				</div>
 				<div class="context-menu">
 					<d2l-dropdown-more text=${this.localize('actionDropdown')} class=${this._skeletize(item)}>
-						<d2l-dropdown-menu no-auto-fit align="end">
+						<d2l-dropdown-menu align="end">
 							<d2l-menu>
 								${this.showPreviewAction ? html`<d2l-menu-item class="preview" text=${this.localize('preview')} @click=${this._handleShowPreviewAction(item)}></d2l-menu-item>` : ''}
 								${this.showEditPropertiesAction && this._canManage(item) ? html`<d2l-menu-item class="edit-properties" text=${this.localize('editProperties')} @click=${this._handleEditPropertiesAction(item)}></d2l-menu-item>` : ''}
