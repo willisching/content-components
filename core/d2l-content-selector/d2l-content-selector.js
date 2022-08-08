@@ -96,7 +96,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		super();
 
 		this.allowUpload = true;
-		this.maxFileUploadSize = 2000000000;
+		this.maxFileUploadSize = 4 * 1024 * 1024 * 1024;
 		this.autoSelectAfterUpload = false;
 		this.editPropertiesAfterUpload = true;
 		this.editTopicPropertiesAfterSelection = false;
