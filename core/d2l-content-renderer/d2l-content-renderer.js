@@ -53,7 +53,7 @@ class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEleme
 		}
 
 		if (this._noRevisionFound) {
-			return this.renderStatusMessage(this.localize('deletedMedia'));
+			return this.renderStatusMessage(this.localize('deletedFile'));
 		}
 
 		if (!this._revision) {
