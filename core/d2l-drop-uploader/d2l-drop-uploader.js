@@ -24,6 +24,8 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 			maxFileSizeInBytes: { type: Number, attribute: 'max-file-size' },
 			enableBulkUpload: { type: Boolean, attribute: 'enable-bulk-upload' },
 			existingContentId: { type: String, attribute: 'existing-content-id' },
+			sharingOrgUnitId: { type: String, attribute: 'sharing-org-unit-id' },
+			shareUploadsWith: { type: Array, attribute: 'share-uploads-with' },
 			allowAsyncProcessing: { type: Boolean },
 			supportedTypes: { type: Array },
 			videoAudioDisplay: { type: Boolean },
@@ -162,7 +164,12 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 	async connectedCallback() {
 		super.connectedCallback();
 		const httpClient = new ContentServiceBrowserHttpClient({ serviceUrl: this.apiEndpoint });
-		this.apiClient = new ContentServiceApiClient({ tenantId: this.tenantId, httpClient });
+		this.apiClient = new ContentServiceApiClient({
+			tenantId: this.tenantId,
+			httpClient,
+			contextType: 'sharingOrgUnit',
+			contextId: this.sharingOrgUnitId
+		});
 		this._initUploader();
 	}
 
@@ -303,6 +310,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 			onProgress: this.onProgress,
 			existingContentId: this.existingContentId,
 			onUploadFinish: this.reactToUploadingSuccess,
+			shareUploadsWith: this.shareUploadsWith,
 		});
 	}
 

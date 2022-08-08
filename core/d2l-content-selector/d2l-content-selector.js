@@ -218,6 +218,8 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 								existing-content-id=${this._contentId}
 								error-message=${this._errorMessage}
 								max-file-size=${this.maxFileUploadSize}
+								sharing-org-unit-id=${this.context}
+								.shareUploadsWith=${this._shareUploadsWith}
 								.supportedTypes=${SUPPORTED_TYPES}
 								@change-view=${this.changeView}
 								@on-uploader-error=${this.reactToUploadError}
@@ -542,6 +544,12 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 
 	get _selectorList() {
 		return this.shadowRoot.querySelector('d2l-content-selector-list');
+	}
+
+	get _shareUploadsWith() {
+		return this.canShareTo && this.canShareTo.length > 0 &&
+			(this.canSelectShareLocation ? [this.canShareTo[0]] : this.canShareTo)
+				.map(({ id }) => `ou:${id}`);
 	}
 
 	get _topicSettings() {
