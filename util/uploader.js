@@ -8,13 +8,14 @@ const UPLOAD_FAILED_ERROR = 'workerErrorUploadFailed';
 
 /* eslint-disable no-unused-vars */
 export class Uploader {
-	constructor({ apiClient, onSuccess, onError, waitForProcessing, existingContentId, onProgress = progress => {}, onUploadFinish }) {
+	constructor({ apiClient, onSuccess, onError, waitForProcessing, existingContentId, shareUploadsWith = [], onProgress = progress => {}, onUploadFinish }) {
 		/* eslint-enable no-unused-vars */
 		this.apiClient = apiClient;
 		this.onProcessingFinish = onSuccess;
 		this.onError = onError;
 		this.waitForProcessing = waitForProcessing;
 		this.existingContentId = existingContentId;
+		this.shareUploadsWith = shareUploadsWith;
 		this.onProgress = onProgress;
 		this.uploadProgress = 0;
 		this.totalFiles = 1;
@@ -85,6 +86,9 @@ export class Uploader {
 			const createContentBody = {
 				title,
 				type,
+				...this.shareUploadsWith
+					&& this.shareUploadsWith.length > 0
+					&& { sharedWith: this.shareUploadsWith },
 			};
 
 			if (isAudioType(file.name) || isVideoType(file.name)) {

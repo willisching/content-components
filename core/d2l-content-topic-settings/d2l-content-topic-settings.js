@@ -137,9 +137,14 @@ class ContentTopicSettings extends SkeletonMixin(InternalLocalizeMixin(LitElemen
 		}
 
 		const httpClient = new ContentServiceBrowserHttpClient({serviceUrl: this.serviceUrl});
-		this.client = new ContentServiceApiClient({ tenantId: this.tenantId, httpClient });
+		this.client = new ContentServiceApiClient({
+			tenantId: this.tenantId,
+			httpClient,
+			contextType: 'sharingOrgUnit',
+			contextId: this.context
+		});
 
-		const content = await this.client.content.getItem({id: this.contentId});
+		const content = await this.client.content.getItem({ id: this.contentId });
 		this.content = content;
 
 		const revision = content.revisions[content.revisions.length - 1];

@@ -32,6 +32,7 @@ export class Main extends InternalLocalizeMixin(MobxReactionUpdate(LitElement)) 
 			topicId: { type: String, attribute: 'topic-id' },
 			maxFileUploadSize: { type: String, attribute: 'max-file-upload-size' },
 			enablePreview: { type: Boolean, attribute: 'enable-preview' },
+			shareUploadsWith: { type: Array, attribute: 'share-uploads-with' },
 			filename: { type: String, reflect: true },
 			value: { type: String, reflect: true },
 
@@ -93,6 +94,8 @@ export class Main extends InternalLocalizeMixin(MobxReactionUpdate(LitElement)) 
 						?allowAsyncProcessing=${this.allowAsyncProcessing}
 						error-message=${this._errorMessage}
 						max-file-size=${this.maxFileUploadSize}
+						sharing-org-unit-id=${this.orgUnitId}
+						.share-uploads-with=${this.shareUploadsWith}
 						.supportedTypes=${SUPPORTED_TYPES}
 						@change-view=${this.changeView}
 						@on-uploader-error=${this.changeView}
