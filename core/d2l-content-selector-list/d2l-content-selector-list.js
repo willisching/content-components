@@ -64,6 +64,9 @@ class ContentSelectorList extends RequesterMixin(SkeletonMixin(InternalLocalizeM
 			}
 
 			.heading .title-wrapper {
+				align-items: center;
+				display: flex;
+				flex-direction: row;
 				height: 25px;
 			}
 
@@ -94,8 +97,9 @@ class ContentSelectorList extends RequesterMixin(SkeletonMixin(InternalLocalizeM
 
 			.heading {
 				display: flex;
-				width: 100%;
 				flex-direction: column;
+				min-width: 0;
+				width: 100%;
 			}
 
 			.search-result {
@@ -145,6 +149,11 @@ class ContentSelectorList extends RequesterMixin(SkeletonMixin(InternalLocalizeM
 				left: 50%;
 				position: absolute;
 				transform: translate(-50%, -50%);
+			}
+
+			.context-menu {
+				margin-left: auto;
+				margin-right: 15px;
 			}
 		`];
 	}
@@ -352,7 +361,7 @@ class ContentSelectorList extends RequesterMixin(SkeletonMixin(InternalLocalizeM
 				</div>
 				<div class="context-menu">
 					<d2l-dropdown-more text=${this.localize('actionDropdown')} class=${this._skeletize(item)}>
-						<d2l-dropdown-menu>
+						<d2l-dropdown-menu no-auto-fit align="end">
 							<d2l-menu>
 								${this.showPreviewAction ? html`<d2l-menu-item class="preview" text=${this.localize('preview')} @click=${this._handleShowPreviewAction(item)}></d2l-menu-item>` : ''}
 								${this.showEditPropertiesAction && this._canManage(item) ? html`<d2l-menu-item class="edit-properties" text=${this.localize('editProperties')} @click=${this._handleEditPropertiesAction(item)}></d2l-menu-item>` : ''}
