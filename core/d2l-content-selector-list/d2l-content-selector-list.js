@@ -155,6 +155,11 @@ class ContentSelectorList extends RequesterMixin(SkeletonMixin(InternalLocalizeM
 				margin-left: auto;
 				margin-right: 15px;
 			}
+
+			d2l-menu-item {
+				font-size: 0.75rem;
+				padding: 0.5rem 0.8rem;
+			}
 		`];
 	}
 
