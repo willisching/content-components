@@ -20,7 +20,7 @@ export default class HypermediaClient {
 			const resourceEntity = SirenParse(resourceResponse);
 			return resourceEntity;
 		} catch (e) {
-			if (e.code === 404) {
+			if (e.cause === 404) {
 				return null;
 			}
 			throw e;
