@@ -24,7 +24,7 @@ export class Progress extends InternalLocalizeMixin(LitElement) {
 				border-radius: 7px;
 				margin-top: 10px;
 			}
-			.d2l-body-standard {
+			.upload-progress-file-details {
 				text-overflow: ellipsis;
 				white-space: nowrap;
 				overflow: hidden;
@@ -39,7 +39,7 @@ export class Progress extends InternalLocalizeMixin(LitElement) {
 	render() {
 		return html`
 			<div id="file-details-container">
-				<p class="d2l-body-standard">${this.totalFiles > 1 ? this.localize('uploadBulkProgress', { completedFiles: this.completedFiles, totalFiles: this.totalFiles }) : this.fileName}</p>
+				<p class="d2l-body-standard upload-progress-file-details">${this.totalFiles > 1 ? this.localize('uploadBulkProgress', { completedFiles: this.completedFiles, totalFiles: this.totalFiles }) : this.fileName}</p>
 			</div>
 			<div id="progress-container">
 				<d2l-meter-linear
