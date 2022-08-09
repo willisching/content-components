@@ -68,7 +68,7 @@ class ContentActivityRenderer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_renderNotFound() {
-		return html`<d2l-renderer-status-message>${this.localize('deletedMedia')}</d2l-renderer-status-message>`;
+		return html`<d2l-renderer-status-message>${this.localize('deletedFile')}</d2l-renderer-status-message>`;
 	}
 
 	_renderPlayer() {
