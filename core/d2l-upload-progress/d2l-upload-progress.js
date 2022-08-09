@@ -24,6 +24,11 @@ export class Progress extends InternalLocalizeMixin(LitElement) {
 				border-radius: 7px;
 				margin-top: 10px;
 			}
+			.d2l-body-standard {
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				overflow: hidden;
+			}
 			#progress-container {
 				margin-top: 15px;
 				padding-bottom: 10px;
