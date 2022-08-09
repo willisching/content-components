@@ -472,7 +472,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 			revisionTag: 'latest',
 		});
 
-		window.open(`/d2l/le/contentservice/launch/preview?d2lrn=${d2lrn}&title=${encodeURIComponent(title)}`, '_blank');
+		window.open(`/d2l/le/contentservice/launch/preview?d2lrn=${d2lrn}&title=${encodeURIComponent(title)}&ou=${this.context}`, '_blank');
 	}
 
 	async _handlePropertiesSaved() {

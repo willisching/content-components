@@ -112,6 +112,10 @@ class ContentScormPlayer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	async _launch(launchType = LaunchType.Standard) {
+		if (this._topicId === null) {
+			throw new Error('Invalid SCORM launch without a topic as context');
+		}
+
 		const result = await this.client.topic.launch({
 			id: this._topicId,
 			locale: this._locale,
@@ -143,11 +147,16 @@ class ContentScormPlayer extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_parseContextId() {
-		const splitContextId = this.contextId.split(':');
-		return {
-			topicId: splitContextId[0],
-			orgUnitId: splitContextId[1]
-		};
+		if (this.contextType === 'sharingOrgUnit') {
+			return { orgUnitId: this.contextId };
+		} else if (this.contextId) {
+			const splitContextId = this.contextId.split(':');
+			return {
+				topicId: splitContextId[0],
+				orgUnitId: splitContextId[1]
+			};
+		}
+		return {};
 	}
 
 	_renderContent() {
@@ -205,13 +214,17 @@ class ContentScormPlayer extends InternalLocalizeMixin(LitElement) {
 		this._contentId = contentId;
 		this._revisionTag = revisionId;
 
+		const { topicId, orgUnitId } = this._parseContextId();
+
 		const httpClient = new ContentServiceBrowserHttpClient({
 			serviceUrl: this.contentServiceEndpoint,
 			framed: this.framed
 		});
 		this.client = new ContentServiceApiClient({
 			httpClient,
-			tenantId
+			tenantId,
+			contextType: 'sharingOrgUnit',
+			contextId: orgUnitId,
 		});
 
 		if (this.preview) {
@@ -230,7 +243,6 @@ class ContentScormPlayer extends InternalLocalizeMixin(LitElement) {
 			throw new Error('Invalid inputs');
 		}
 
-		const { topicId, orgUnitId } = this._parseContextId();
 		this._topicId = createToolItemId({ toolItemType: ToolItemType.Topic, id: topicId });
 		this._orgUnitId = orgUnitId;
 		this._locale = getDocumentLocaleSettings()._language || getDocumentLocaleSettings()._fallbackLanguage;
