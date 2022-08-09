@@ -86,7 +86,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 			}
 
 			.action-group {
-				padding-top: 5px;
+				padding-top: 2px;
 			}
 		`;
 	}
