@@ -1,8 +1,10 @@
-import '../d2l-content-media-player.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
+
+import '../d2l-content-media-player.js';
 import '../d2l-content-scorm-player.js';
+import '../d2l-renderer-status-message.js';
 import { RevisionLoaderMixin } from '../mixins/revision-loader-mixin.js';
 
 class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitElement)) {
@@ -27,18 +29,6 @@ class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEleme
 			#player {
 				height: 100%;
 				width: 100%;
-			}
-			#status-container {
-				aspect-ratio: 16/9;
-				background-color: black;
-				color: white;
-				display: flex;
-				flex-direction: column;
-				justify-content: center;
- 				overflow: hidden;
- 				position: relative;
-				text-align: center;
- 				width: 100%;
 			}
 		`;
 	}
@@ -114,16 +104,8 @@ class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEleme
 		this.player.reloadResources(reloadRevision);
 	}
 
-	renderErrorMessage() {
-		return html`<h1>${this.localize('errorRenderingContent')}</h1>`;
-	}
-
 	renderStatusMessage(message) {
-		return html`
-			<div id="status-container">
-				${message}
-			</div>
-		`;
+		return html`<d2l-renderer-status-message>${message}</d2l-renderer-status-message>`;
 	}
 }
 customElements.define('d2l-content-renderer', ContentRenderer);

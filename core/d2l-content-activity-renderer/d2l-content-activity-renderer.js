@@ -1,21 +1,23 @@
 import '../d2l-content-renderer.js';
+import '../d2l-renderer-status-message.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
-
+import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import HypermediaClient from './src/hypermedia-client.js';
 
-class ContentActivityRenderer extends LitElement {
+class ContentActivityRenderer extends InternalLocalizeMixin(LitElement) {
 
 	static get properties() {
 		return {
-			_contentServiceEndpoint: { type: String, attribute: false },
-			_d2lrn: { type: String, attribute: false },
-			_orgUnitId: { type: String, attribute: false },
-			_topicId: { type: String, attribute: false },
 			activity: { type: String },
 			allowDownload: { type: Boolean, attribute: 'allow-download'},
 			allowDownloadOnError: { type: Boolean, attribute: 'allow-download-on-error' },
 			fullPageView: { type: Boolean, attribute: 'full-page-view' },
-			framed: { type: Boolean, value: false }
+			framed: { type: Boolean, value: false },
+			_contentServiceEndpoint: { type: String, attribute: false },
+			_d2lrn: { type: String, attribute: false },
+			_resourceNotFound: { type: Boolean, attribute: false },
+			_orgUnitId: { type: String, attribute: false },
+			_topicId: { type: String, attribute: false }
 		};
 	}
 
@@ -52,10 +54,24 @@ class ContentActivityRenderer extends LitElement {
 			this._contentServiceEndpoint = this.resourceEntity.properties.contentServiceEndpoint;
 			this._topicId = this.resourceEntity.properties.topicId;
 			this._orgUnitId = this.resourceEntity.properties.orgUnitId;
+		} else {
+			this._resourceNotFound = true;
 		}
 	}
 
 	render() {
+		return this._resourceNotFound ? this._renderNotFound() : this._renderPlayer();
+	}
+
+	_buildContextId() {
+		return `${this._topicId}${this._orgUnitId ? `:${this._orgUnitId}` : ''}`;
+	}
+
+	_renderNotFound() {
+		return html`<d2l-renderer-status-message>${this.localize('deletedMedia')}</d2l-renderer-status-message>`;
+	}
+
+	_renderPlayer() {
 		return html`
 			<d2l-content-renderer
 				id="renderer"
@@ -71,8 +87,5 @@ class ContentActivityRenderer extends LitElement {
 		`;
 	}
 
-	_buildContextId() {
-		return `${this._topicId}${this._orgUnitId ? `:${this._orgUnitId}` : ''}`;
-	}
 }
 customElements.define('d2l-content-activity-renderer', ContentActivityRenderer);
