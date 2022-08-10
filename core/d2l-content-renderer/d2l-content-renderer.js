@@ -6,6 +6,7 @@ import '../d2l-content-media-player.js';
 import '../d2l-content-scorm-player.js';
 import '../d2l-renderer-status-message.js';
 import { RevisionLoaderMixin } from '../mixins/revision-loader-mixin.js';
+import RenderErrors from '../../util/render-errors';
 
 class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
@@ -37,12 +38,21 @@ class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEleme
 			return;
 		}
 
-		if (this._d2lrnParseError) {
-			return this.renderStatusMessage(this.localize('generalErrorMessage'));
-		}
+		if (this._renderError) {
+			let errorTerm;
+			switch (this._renderError) {
+				case RenderErrors.REVISION_NOT_FOUND:
+					errorTerm = 'deletedFile';
+					break;
+				case RenderErrors.FORBIDDEN:
+					errorTerm = 'errorForbidden';
+					break;
+				default:
+					errorTerm = 'generalErrorMessage';
+					break;
+			}
 
-		if (this._noRevisionFound) {
-			return this.renderStatusMessage(this.localize('deletedFile'));
+			return this.renderStatusMessage(this.localize(errorTerm));
 		}
 
 		if (!this._revision) {

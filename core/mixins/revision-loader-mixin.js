@@ -2,6 +2,7 @@ import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-c
 import { ContentServiceApiClient, BrightspaceApiClient } from '@d2l/content-service-shared-utils';
 
 import { parse } from '../../util/d2lrn.js';
+import RenderErrors from '../../util/render-errors.js';
 
 export const RevisionLoaderMixin = (superClass) => class extends superClass {
 	static properties = {
@@ -16,21 +17,9 @@ export const RevisionLoaderMixin = (superClass) => class extends superClass {
 		_contentId: { type: String, attribute: false },
 		_revisionTag: { type: String, attribute: false },
 		_tenantId: { type: String, attribute: false },
-		_d2lrnParseError: { type: Boolean, attribute: false },
-		_noRevisionFound: { type: Boolean, attribute: false },
-		_revision: { type: Object, attribute: false }
+		_revision: { type: Object, attribute: false },
+		_renderError: { type: String, attribute: false }
 	};
-
-	constructor() {
-		super();
-
-		this._contentId = null;
-		this._d2lrnParseError = false;
-		this._noRevisionFound = false;
-		this._revision = null;
-		this._revisionTag = null;
-		this._tenantId = null;
-	}
 
 	async updated(changedProperties) {
 		super.updated(changedProperties);
@@ -61,7 +50,7 @@ export const RevisionLoaderMixin = (superClass) => class extends superClass {
 					this._revisionTag = revisionId;
 					this._tenantId = tenantId;
 				} catch (e) {
-					this._d2lParseError = true;
+					this._renderError = RenderErrors.D2LRN_PARSE_ERROR;
 					console.error('Failed to parse d2lrn - ', this.d2lrn);
 					return;
 				}
@@ -85,7 +74,16 @@ export const RevisionLoaderMixin = (superClass) => class extends superClass {
 		try {
 			revision = await client.content.getRevision({ id: this._contentId, revisionTag: this._revisionTag });
 		} catch (e) {
-			getRevisionFailed = true;
+			switch (e.cause) {
+				case 403:
+					this._renderError = RenderErrors.FORBIDDEN;
+					return;
+				case 404:
+					this._renderError = RenderErrors.REVISION_NOT_FOUND;
+					return;
+				default:
+					getRevisionFailed = true;
+			}
 		}
 
 		if (getRevisionFailed || (revision && !revision.ready)) {
@@ -93,7 +91,7 @@ export const RevisionLoaderMixin = (superClass) => class extends superClass {
 		}
 
 		if (!revision) {
-			this._noRevisionFound = true;
+			this._renderError = RenderErrors.UNKNOWN;
 			return;
 		}
 
