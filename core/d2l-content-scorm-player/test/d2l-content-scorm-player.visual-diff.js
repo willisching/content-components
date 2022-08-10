@@ -11,7 +11,7 @@ describe('d2l-content-scorm-player', () => {
 		page = await visualDiff.createPage(browser);
 		await page.setRequestInterception(true);
 		page.on('request', (request) => {
-			if (request.url() === 'http://localhost:8000/contentservice/api/0/content/2/revisions/latest/preview-url') {
+			if (request.url().startsWith('http://localhost:8000/contentservice/api/0/content/2/revisions/latest/preview-url')) {
 				request.respond({
 					status: 200,
 					content: 'application/json',

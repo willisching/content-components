@@ -100,6 +100,7 @@ describe('ContentSelector', async() => {
 			can-select-share-location
 			context="6606"
 			max-file-upload-size="2147483648"
+			service-url="https://content-service.com"
 			.searchLocations=${[{ 'id': '6606', 'name': 'Dev' }, { 'id': '6609', 'name': 'Prod' }, { 'id': '1234', 'name': 'Custom' }]}
 			tenant-id="0"
 			user-id="169"

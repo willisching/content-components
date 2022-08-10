@@ -41,6 +41,7 @@ class ContentSelectorList extends RequesterMixin(SkeletonMixin(InternalLocalizeM
 			_selectedContent: { type: Object, attribute: false },
 			_isLoading: { type: Boolean, attribute: false },
 			_scrollerHeight: { type: String, attribute: false },
+			_loadingDelete: { type: Boolean, attribute: false },
 		};
 	}
 
@@ -63,6 +64,9 @@ class ContentSelectorList extends RequesterMixin(SkeletonMixin(InternalLocalizeM
 			}
 
 			.heading .title-wrapper {
+				align-items: center;
+				display: flex;
+				flex-direction: row;
 				height: 25px;
 			}
 
@@ -93,8 +97,9 @@ class ContentSelectorList extends RequesterMixin(SkeletonMixin(InternalLocalizeM
 
 			.heading {
 				display: flex;
-				width: 100%;
 				flex-direction: column;
+				min-width: 0;
+				width: 100%;
 			}
 
 			.search-result {
@@ -114,6 +119,7 @@ class ContentSelectorList extends RequesterMixin(SkeletonMixin(InternalLocalizeM
 				display: flex;
 				flex-direction: column;
 				height: 100%;
+				position: relative;
 			}
 
 			d2l-scroller {
@@ -125,6 +131,34 @@ class ContentSelectorList extends RequesterMixin(SkeletonMixin(InternalLocalizeM
 				color: var(--d2l-color-galena);
 				width: 10px;
 				height: 10px;
+			}
+
+			.loading-delete {
+				position: absolute;
+				top: 0;
+				height: 100%;
+				left: 0;
+				background-color: rgba(255,255,255,0.4);
+				width: 100%;
+				margin-left: auto;
+				margin-right: auto;
+			}
+
+			.loading-delete d2l-loading-spinner {
+				top: 50%;
+				left: 50%;
+				position: absolute;
+				transform: translate(-50%, -50%);
+			}
+
+			.context-menu {
+				margin-left: auto;
+				margin-right: 15px;
+			}
+
+			d2l-menu-item {
+				font-size: 0.75rem;
+				padding: 0.5rem 0.8rem;
 			}
 		`];
 	}
@@ -151,6 +185,7 @@ class ContentSelectorList extends RequesterMixin(SkeletonMixin(InternalLocalizeM
 
 		this.start = 0;
 		this.query = '';
+		this._loadingDelete = false;
 	}
 
 	async connectedCallback() {
@@ -185,8 +220,8 @@ class ContentSelectorList extends RequesterMixin(SkeletonMixin(InternalLocalizeM
 				</d2l-scroller>
 				<d2l-dialog-confirm
 					class="d2l-delete-dialog"
-					title-text=${this.localize('deleteThis', {toDelete: this._itemToDelete?.lastRevTitle})}
-					text=${this.localize('confirmDeleteThis', {toDelete: this._itemToDelete?.lastRevTitle})}
+					title-text=${this.localize('deleteConfirmTitleScorm')}
+					text=""
 				>
 					<d2l-button
 						id="delete-button"
@@ -207,6 +242,11 @@ class ContentSelectorList extends RequesterMixin(SkeletonMixin(InternalLocalizeM
 						${this.localize('cancel')}
 					</d2l-button>
 				</d2l-dialog-confirm>
+				${this._loadingDelete ? html`
+					<div class="loading-delete">
+						<d2l-loading-spinner size="150"></d2l-loading-spinner>
+					</div>
+				` : ''}
 			</div>
 		`;
 	}
@@ -326,7 +366,7 @@ class ContentSelectorList extends RequesterMixin(SkeletonMixin(InternalLocalizeM
 				</div>
 				<div class="context-menu">
 					<d2l-dropdown-more text=${this.localize('actionDropdown')} class=${this._skeletize(item)}>
-						<d2l-dropdown-menu>
+						<d2l-dropdown-menu align="end">
 							<d2l-menu>
 								${this.showPreviewAction ? html`<d2l-menu-item class="preview" text=${this.localize('preview')} @click=${this._handleShowPreviewAction(item)}></d2l-menu-item>` : ''}
 								${this.showEditPropertiesAction && this._canManage(item) ? html`<d2l-menu-item class="edit-properties" text=${this.localize('editProperties')} @click=${this._handleEditPropertiesAction(item)}></d2l-menu-item>` : ''}
@@ -368,9 +408,42 @@ class ContentSelectorList extends RequesterMixin(SkeletonMixin(InternalLocalizeM
 	}
 
 	_openDialog(item) {
-		return () => {
+		return async() => {
 			this._itemToDelete = item;
+
+			// Add overlay while we determine how this object is used
+			this._loadingDelete = true;
+
+			// Check to see if and where this object is referenced from Topics
+			const content = await this.client.content.getItem({ id: item.id });
+			const revisionTopicsArr = await Promise.all(
+				content.revisions.map((revision) => this.client.content.getAssociatedTopics(
+					{ id: content.id, revisionTag: revision.id }
+				))
+			);
+			const revisionTopics = [].concat(...revisionTopicsArr);
+
+			let dialogDescription = this.localize('deleteConfirmTextNotUsed');
+			if (revisionTopics?.length > 0) {
+				// Determine how many courses from which this object is referenced
+				const courses = [];
+				for (const revisionTopic of revisionTopics) {
+					if (revisionTopic.contexts) {
+						const course = Object.keys(revisionTopic.contexts)[0];
+						if (!courses.includes(course)) {
+							courses.push(course);
+						}
+					}
+				}
+				if (courses.length) {
+					dialogDescription = this.localize('deleteConfirmTextUsed', {numCourses: courses.length});
+				}
+			}
+
+			// Remove overlay and open dialog
+			this._loadingDelete = false;
 			const dialog = this.shadowRoot.querySelector('.d2l-delete-dialog');
+			dialog.text = dialogDescription;
 			dialog.open();
 		};
 	}
@@ -387,6 +460,9 @@ class ContentSelectorList extends RequesterMixin(SkeletonMixin(InternalLocalizeM
 
 	_renderContentItemsSkeleton() {
 		return html`
+			${this._itemRenderer(null)}
+			${this._itemRenderer(null)}
+			${this._itemRenderer(null)}
 			${this._itemRenderer(null)}
 			${this._itemRenderer(null)}
 			${this._itemRenderer(null)}

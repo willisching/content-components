@@ -12,7 +12,7 @@ describe('d2l-content-topic-settings', () => {
 		page = await visualDiff.createPage(browser);
 		await page.setRequestInterception(true);
 		page.on('request', (request) => {
-			if (request.url() === 'http://localhost:8000/contentservice/api/0/content/0') {
+			if (request.url().startsWith('http://localhost:8000/contentservice/api/0/content/0')) {
 				request.respond({
 					status: 200,
 					content: 'application/json',
@@ -30,7 +30,7 @@ describe('d2l-content-topic-settings', () => {
 						}],
 					})
 				});
-			} else if (request.url() === 'http://localhost:8000/contentservice/api/0/content/1') {
+			} else if (request.url().startsWith('http://localhost:8000/contentservice/api/0/content/1')) {
 				request.respond({
 					status: 200,
 					content: 'application/json',

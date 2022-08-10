@@ -11,6 +11,7 @@ import '../d2l-drop-uploader.js';
 import '../d2l-content-properties.js';
 import '../d2l-bulk-complete.js';
 import '../d2l-upload-progress.js';
+import { buildOrgUnitShareLocationStr } from '../../util/sharing.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 
 import { parse as d2lrnParse, toString as d2lrnToString, build as buildD2lRn } from '../../util/d2lrn.js';
@@ -86,7 +87,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 			}
 
 			.action-group {
-				padding-top: 5px;
+				padding-top: 2px;
 			}
 		`;
 	}
@@ -218,6 +219,8 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 								existing-content-id=${this._contentId}
 								error-message=${this._errorMessage}
 								max-file-size=${this.maxFileUploadSize}
+								sharing-org-unit-id=${this.context}
+								.shareUploadsWith=${this._shareUploadsWith}
 								.supportedTypes=${SUPPORTED_TYPES}
 								@change-view=${this.changeView}
 								@preupload-reset=${this.progressReset}
@@ -477,7 +480,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 			revisionTag: 'latest',
 		});
 
-		window.open(`/d2l/le/contentservice/launch/preview?d2lrn=${d2lrn}&title=${encodeURIComponent(title)}`, '_blank');
+		window.open(`/d2l/le/contentservice/launch/preview?d2lrn=${d2lrn}&title=${encodeURIComponent(title)}&ou=${this.context}`, '_blank');
 	}
 
 	async _handlePropertiesSaved() {
@@ -550,6 +553,12 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 
 	get _selectorList() {
 		return this.shadowRoot.querySelector('d2l-content-selector-list');
+	}
+
+	get _shareUploadsWith() {
+		return this.canShareTo && this.canShareTo.length > 0 &&
+			(this.canSelectShareLocation ? [this.canShareTo[0]] : this.canShareTo)
+				.map(({ id }) => buildOrgUnitShareLocationStr(id));
 	}
 
 	get _topicSettings() {
