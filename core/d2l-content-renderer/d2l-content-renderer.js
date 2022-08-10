@@ -27,8 +27,7 @@ class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEleme
 				display: none;
 			}
 			#player {
-				height: 100%;
-				width: 100%;
+				display: inline;
 			}
 		`;
 	}
