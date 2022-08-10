@@ -42,7 +42,7 @@ export class Uploader {
 		this.onError(...error);
 	}
 
-	async _monitorProgressAsync(content, revision, lastProgressPosition) {
+	async _monitorProgressAsync(content, revision, lastProgressPosition, s3Uploader, title) {
 		// Stop monitoring if the upload was cancelled.
 		if (!content || !revision) {
 			return;
@@ -57,24 +57,31 @@ export class Uploader {
 			lastProgressPosition = progress.percentComplete;
 			this.onProgress(this.uploadProgress, content.id);
 			if (progress.ready) {
+				// only update title of revision after it successfully processes
+				if (this.existingContentId) {
+					await this.apiClient.content.updateItem({ content: { id: this.existingContentId, title } });
+				}
 				this.onProcessingFinish(revision.d2lrn);
 				return;
 			}
 
 			if (progress.didFail) {
+				// undo changes to properties by deleting revision
+				await this.apiClient.content.deleteRevision({ id: content.id, revisionTag: revision.id });
 				const workerErrorType = resolveWorkerError(JSON.parse(progress.details), content.type);
-				this._handleError(lastProgressPosition, workerErrorType, content.title);
+				this._handleError(lastProgressPosition, workerErrorType, title);
 				return;
 			}
 		} catch (error) {
 			if (error.cause > 399 && error.cause < 500) {
+				// unsure if should delete revision here as well
 				this._handleError(lastProgressPosition, resolveWorkerError(error, content.type));
 				return;
 			}
 		}
 
 		await sleep(randomizeDelay(5000, 1000));
-		await this._monitorProgressAsync(content, revision, lastProgressPosition);
+		await this._monitorProgressAsync(content, revision, lastProgressPosition, s3Uploader, title);
 	}
 
 	async _uploadWorkflowAsync(file, title) {
@@ -95,7 +102,7 @@ export class Uploader {
 			}
 
 			const content = this.existingContentId ?
-				await this.apiClient.content.updateItem({ content: { id: this.existingContentId, title } }) :
+				await this.apiClient.content.getItem({ id: this.existingContentId }) :
 				await this.apiClient.content.postItem({ content: createContentBody });
 
 			const revision = await this.apiClient.content.createRevision({
@@ -129,7 +136,7 @@ export class Uploader {
 
 			this.onUploadFinish(revision.d2lrn);
 			if (this.waitForProcessing) {
-				await this._monitorProgressAsync(content, revision, 0);
+				await this._monitorProgressAsync(content, revision, 0, s3Uploader, title);
 			}
 		} catch (error) {
 			this._handleError(lastProgressPosition, resolveWorkerError(error, type));
