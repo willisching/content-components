@@ -7,17 +7,17 @@ import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { InternalLocalizeMixin } from '../../../mixins/internal-localize-mixin';
 import { Uploader } from '../../../util/uploader';
 
-class Recorder extends RtlMixin(InternalLocalizeMixin(LitElement)) {
+class D2LMediaCaptureRecorder extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
+			isAudio: { type: Boolean, attribute: 'is-audio' },
 			recordingDurationLimit: { type: Number, attribute: 'recording-duration-limit' }
 		};
 	}
 
 	static get styles() {
 		return css`
-			.d2l-media-recorder {
-				width: fit-content;
+			.d2l-media-recorder-container {
 				text-align: center;
 			}
 
@@ -41,21 +41,17 @@ class Recorder extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 	constructor() {
 		super();
-		this._videoRecorder = null;
+		this._audioVideoRecorder = null;
 		this._recordingDuration = 0;
 		this._videoRecorded = false;
 		this._mediaBlob = null;
 		this._isRecording = false;
 		this._cancelTimer = false;
+		this._canRecord = true;
 	}
 
-	disconnectedCallback() {
-		super.disconnectedCallback();
-		this._stream = null;
-	}
-
-	async firstUpdated() {
-		super.firstUpdated();
+	connectedCallback() {
+		super.connectedCallback();
 		const apiClient = new ContentServiceApiClient({
 			httpClient: new ContentServiceBrowserHttpClient({ serviceUrl: this.contentServiceEndpoint }),
 			tenantId: this.tenantId
@@ -63,22 +59,40 @@ class Recorder extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		this._uploader = new Uploader({
 			apiClient
 		});
+		const isFirefox = typeof InstallTrigger !== 'undefined';
+		this._extension = this.isAudio ? (isFirefox ? 'ogg' : 'wav') : 'webm';
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		this._stream.getTracks().forEach(track => track.stop());
+	}
+
+	async firstUpdated() {
+		super.firstUpdated();
+
 		try {
-			this._stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+			this._stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: !this.isAudio });
 		} catch (error) {
-			this.shadowRoot.querySelector('#mediaRecorder').style.display = 'none';
-			this.shadowRoot.querySelector('#permissionError').style.display = 'inherit';
+			this.shadowRoot.querySelector('#media-recorder').style.display = 'none';
+			this.shadowRoot.querySelector('#permission-error').style.display = 'inherit';
 		}
-		this._resetPlayer();
+		await this._resetPlayer();
+		this.dispatchEvent(new CustomEvent('user-devices-loaded', {
+			bubbles: true,
+			composed: true
+		}));
 	}
 
 	render() {
 		return html`
-		<div id="mediaRecorder" class="d2l-media-recorder">
-			<div class="d2l-video-container">
-				<video id="mediaPreview">
-				</video>
-			</div>
+		<div id="media-recorder" class="d2l-media-recorder-container">
+			${!this.isAudio ? html`
+				<div class="d2l-video-container">
+					<video id="media-preview">
+					</video>
+				</div>
+			` : ''}
 			<div class="d2l-video-controls">
 				<d2l-button
 					class="d2l-video-controls-button"
@@ -92,13 +106,19 @@ class Recorder extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 						00:00
 					</span>
 					<span>/</span>
-					<span id="recordingLimit">
+					<span id="recording-limit">
 						${this._formatTime(this.recordingDurationLimit * 60)}
 					</span>
 				</div>
 			</div>
+			${this.isAudio ? html`
+				<div id="audio-container" class="d2l-audio-container">
+					<audio id="media-preview" controls>
+					</audio>
+				</div>
+			` : ''}
 		</div>
-		<div id="permissionError" role="alert" style="display:none">
+		<div id="permission-error" role="alert" style="display:none">
 			<span>${this.localize('recorderPermissionError')}</span>
 		</div>
 	`;
@@ -109,7 +129,14 @@ class Recorder extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	get mediaPreview() {
-		return this.shadowRoot.querySelector('#mediaPreview');
+		return this.shadowRoot?.querySelector('#media-preview');
+	}
+
+	_dispatchCaptureClearedEvent() {
+		this.dispatchEvent(new CustomEvent('capture-cleared', {
+			bubbles: true,
+			composed: true
+		}));
 	}
 
 	_dispatchCaptureClipCompletedEvent() {
@@ -117,7 +144,8 @@ class Recorder extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			bubbles: true,
 			composed: true,
 			detail: {
-				message: 'blah'
+				mediaBlob: this._mediaBlob,
+				extension: this._extension
 			}
 		}));
 	}
@@ -143,17 +171,33 @@ class Recorder extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		return timeFormatted;
 	}
 
-	_resetPlayer() {
-		this.mediaPreview.srcObject = this._stream;
-		// do something with url and mediaPreview.src??
+	async _resetPlayer() {
+		try {
+			this.mediaPreview.srcObject = this._stream;
+		} catch (error) {
+			this.mediaPreview.src = URL.createObjectURL(this._stream);
+		}
 		this.mediaPreview.muted = true;
-		this.mediaPreview.controls = false;
-		this.mediaPreview.play();
+		this.mediaPreview.controls = this.isAudio;
+		if (!this.isAudio) {
+			await this.mediaPreview.play();
+		} else {
+			this.shadowRoot.querySelector('#audio-container').style.display = 'none';
+		}
 	}
 
-	_startRecording() {
-		this._resetPlayer();
-		this._videoRecorder = new window.RecordRTCPromisesHandler(this._stream, {
+	async _startRecording() {
+		if (this._mediaBlob) {
+			await this._resetPlayer();
+			this._recordingDuration = 0;
+			this._videoRecorded = false;
+			this._mediaBlob = null;
+			this._dispatchCaptureClearedEvent();
+		}
+		const recorderSettings = this.isAudio ? {
+			type: 'audio',
+			mimetype: this._extension
+		} : {
 			type: 'video',
 			mimetype: 'video/webm',
 			video: {
@@ -162,20 +206,21 @@ class Recorder extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				height: { min: 240, ideal: 480, max: 480 }
 			},
 			bitsPerSecond: 500000
-		});
-		this._recordingDuration = 0;
-		this._videoRecorded = false;
-		this._mediaBlob = null;
-		this._videoRecorder.startRecording();
+		};
+		this._audioVideoRecorder = new window.RecordRTCPromisesHandler(this._stream, recorderSettings);
+		this._audioVideoRecorder.startRecording();
 		this._isRecording = true;
 		this._timer();
 		this.requestUpdate();
 	}
 
 	async _stopRecording() {
-		await this._videoRecorder.stopRecording();
-		const url = this._videoRecorder.recordRTC.toURL();
-		this._mediaBlob = await this._videoRecorder.getBlob();
+		await this._audioVideoRecorder.stopRecording();
+		if (this.isAudio) {
+			this.shadowRoot.querySelector('#audio-container').style.display = 'inline-block';
+		}
+		const url = this._audioVideoRecorder.recordRTC.toURL();
+		this._mediaBlob = await this._audioVideoRecorder.getBlob();
 		this.mediaPreview.muted = false;
 		this.mediaPreview.controls = true;
 		this.mediaPreview.src = url;
@@ -210,4 +255,4 @@ class Recorder extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 }
 
-customElements.define('d2l-recorder', Recorder);
+customElements.define('d2l-media-capture-recorder', D2LMediaCaptureRecorder);

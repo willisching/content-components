@@ -22,7 +22,6 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 		return {
 			canManageAllVideos: { type: Boolean, attribute: 'can-manage-all-videos' },
 			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
-			canRecord: { type: Boolean, attribute: 'can-record' },
 			tenantId: { type: String, attribute: 'tenant-id' },
 			_loading: { type: Boolean, attribute: false },
 			_permissionError: { type: Boolean, attribute: false },
@@ -239,9 +238,6 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			case pageNames.encoder:
 				import('./pages/encoder/d2l-capture-central-encoder.js');
 				return;
-			case pageNames.recorder:
-				import('./pages/recorder/d2l-capture-central-recorder.js');
-				return;
 			case pageNames.recycleBin:
 				import('./pages/recycle-bin/d2l-capture-central-recycle-bin.js');
 				return;
@@ -296,7 +292,6 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				<d2l-capture-central-folders class="page" ?active=${currentPage === pageNames.folders}></d2l-capture-central-folders>
 				<d2l-capture-central-videos class="page" ?active=${currentPage === pageNames.videos}></d2l-capture-central-videos>
 				<d2l-capture-central-encoder class="page" ?active=${currentPage === pageNames.encoder} tenant-id=${this.tenantId}></d2l-capture-central-encoder>
-				${rootStore.permissionStore.getCanRecord() ? html`<d2l-capture-central-recorder class="page" ?active=${currentPage === pageNames.recorder}></d2l-capture-central-recorder>` : ''}
 				<d2l-capture-central-recycle-bin class="page" ?active=${currentPage === pageNames.recycleBin}></d2l-capture-central-recycle-bin>
 				<d2l-capture-central-producer class="page" ?active=${currentPage === pageNames.producer && !!subView}></d2l-capture-central-producer>
 				<d2l-dialog id="preview-dialog" title-text="${this.localize('preview')}">
