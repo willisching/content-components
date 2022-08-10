@@ -2,6 +2,7 @@ import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { radioStyles } from '@brightspace-ui/core/components/inputs/input-radio-styles.js';
 import { SkeletonMixin } from '@brightspace-ui/core/components/skeleton/skeleton-mixin.js';
 import { RequesterMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
+import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import '@brightspace-ui/core/components/inputs/input-search.js';
 import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/dialog/dialog-confirm.js';
@@ -17,7 +18,7 @@ import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { getFriendlyDate } from '../../util/date.js';
 import { ContentCacheDependencyKey } from '../../models/content-cache.js';
 
-class ContentSelectorList extends RequesterMixin(SkeletonMixin(InternalLocalizeMixin(LitElement))) {
+class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(InternalLocalizeMixin(LitElement)))) {
 	static get properties() {
 		return {
 			allowUpload: { type: Boolean },
@@ -47,20 +48,10 @@ class ContentSelectorList extends RequesterMixin(SkeletonMixin(InternalLocalizeM
 
 	static get styles() {
 		return [super.styles, radioStyles, css`
-			d2l-input-search {
-				width: 50%;
-			}
-
 			.input-container {
+				display: flex;
 				padding-top: 20px;
-			}
-
-			.input-container d2l-button {
-				float: right;
-			}
-
-			.input-container d2l-button {
-				float: right;
+				justify-content: space-between;
 			}
 
 			.heading .title-wrapper {
@@ -159,6 +150,22 @@ class ContentSelectorList extends RequesterMixin(SkeletonMixin(InternalLocalizeM
 			d2l-menu-item {
 				font-size: 0.75rem;
 				padding: 0.5rem 0.8rem;
+			}
+
+			@media (max-width: 640px) {
+				d2l-button {
+					padding-left: 1em;
+				}
+				:host([dir="rtl"]) d2l-button {
+					padding-left: 0;
+					padding-right: 1em;
+				}
+			}
+
+			@media (min-width: 641px) {
+				d2l-input-search {
+					width: 50%;
+				}
 			}
 		`];
 	}
