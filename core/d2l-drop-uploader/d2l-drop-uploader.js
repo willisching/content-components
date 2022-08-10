@@ -216,11 +216,11 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 				errorMessage: message,
 			},
 		}));
-		this.reset();
 	}
 
 	preupload() {
 		this.reset();
+		this.dispatchEvent(new CustomEvent('preupload-reset'));
 		this.dispatchEvent(new CustomEvent('change-view', {
 			detail: {
 				view: 'PROGRESS',
@@ -290,6 +290,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 		this.uploader.reset();
 		this.active = 0;
 		this.progress = 0;
+		this.errorMessage = null;
 		// reset upload progress loading bar to 0
 		this.onProgress(this.progress);
 	}

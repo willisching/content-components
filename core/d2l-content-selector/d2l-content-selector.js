@@ -223,6 +223,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 								.shareUploadsWith=${this._shareUploadsWith}
 								.supportedTypes=${SUPPORTED_TYPES}
 								@change-view=${this.changeView}
+								@preupload-reset=${this.progressReset}
 								@on-uploader-error=${this.reactToUploadError}
 								@on-uploader-success=${this.reactToUploaderSuccess}
 								@on-progress=${this.onProgress}
@@ -360,6 +361,13 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 	onProgress(event) {
 		this._uploadProgress = event.detail.progress;
 		this.requestUpdate();
+	}
+
+	progressReset() {
+		this._bulkErrorMessages = {};
+		this._errorMessage = null;
+		this._progress = 0;
+		this._uploadProgress = 0;
 	}
 
 	reactToUploadError(event) {

@@ -53,7 +53,7 @@ export class Uploader {
 				id: content.id,
 				revisionTag: revision.id,
 			});
-			this.uploadProgress += (((progress.percentComplete - lastProgressPosition || 0) / 2) / this.totalFiles);
+			this.uploadProgress += ((Math.max(progress.percentComplete - lastProgressPosition, 0) / 2) / this.totalFiles);
 			lastProgressPosition = progress.percentComplete;
 			this.onProgress(this.uploadProgress, content.id);
 			if (progress.ready) {
