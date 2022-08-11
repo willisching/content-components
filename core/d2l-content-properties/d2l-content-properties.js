@@ -31,6 +31,7 @@ class ContentProperties extends RequesterMixin(SkeletonMixin(InternalLocalizeMix
 			revisionTag: { type: String },
 			totalFiles: { type: Number },
 			progress: { type: Number },
+			userId: { type: String },
 
 			_resourceType: { type: String, attribute: false },
 			_saveButtonDisabled: { type: Boolean, attribute: false },
@@ -184,7 +185,7 @@ class ContentProperties extends RequesterMixin(SkeletonMixin(InternalLocalizeMix
 	}
 
 	canShare() {
-		return this.canShareTo?.length > 0;
+		return this.userId && this.userId === this.content?.ownerId && this.canShareTo?.length > 0;
 	}
 
 	renderSharingItems() {

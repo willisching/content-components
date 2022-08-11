@@ -260,6 +260,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 								orgUnitId=${this.context}
 								totalFiles=${this._uploadSuccessFiles}
 								progress=${this._propertyProgress}
+								userId=${this.userId}
 								embedFeatureEnabled
 							></d2l-content-properties>
 						</div>
