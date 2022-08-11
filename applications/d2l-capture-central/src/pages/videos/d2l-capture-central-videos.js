@@ -10,7 +10,7 @@ import '../../components/content-filter-dropdown.js';
 import '../../components/videos/content-list.js';
 import '../../components/upload-status-management.js';
 import '../../components/unauthorized-message.js';
-import '../../../../../capture/d2l-media-capture/d2l-media-capture-dialog.js';
+import '../../../../../core/d2l-media-capture/d2l-media-capture-dialog.js';
 
 import { css, html } from 'lit-element/lit-element.js';
 import { contentSearchMixin } from '../../mixins/content-search-mixin.js';
