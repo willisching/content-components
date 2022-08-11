@@ -42,7 +42,7 @@ export class Uploader {
 		this.onError(...error);
 	}
 
-	async _monitorProgressAsync(content, revision, lastProgressPosition, s3Uploader, title) {
+	async _monitorProgressAsync(content, revision, lastProgressPosition, title) {
 		// Stop monitoring if the upload was cancelled.
 		if (!content || !revision) {
 			return;
@@ -81,7 +81,7 @@ export class Uploader {
 		}
 
 		await sleep(randomizeDelay(5000, 1000));
-		await this._monitorProgressAsync(content, revision, lastProgressPosition, s3Uploader, title);
+		await this._monitorProgressAsync(content, revision, lastProgressPosition, title);
 	}
 
 	async _uploadWorkflowAsync(file, title) {
@@ -136,7 +136,7 @@ export class Uploader {
 
 			this.onUploadFinish(revision.d2lrn);
 			if (this.waitForProcessing) {
-				await this._monitorProgressAsync(content, revision, 0, s3Uploader, title);
+				await this._monitorProgressAsync(content, revision, 0, title);
 			}
 		} catch (error) {
 			this._handleError(lastProgressPosition, resolveWorkerError(error, type));
