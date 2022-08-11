@@ -243,15 +243,20 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 			return this.onUploadError(this.localize('invalidFileType'));
 		}
 
-		if (this.files.some(file => file.size > this.maxFileSizeInBytes)) {
-			return this.onUploadError(this.localize('fileTooLarge', { localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes) }));
+		if (this.files.some(file => file.size > this.maxFileSizeInBytes || file.size === 0)) {
+			return this.onUploadError(this.localize('invalidFileSize', { localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes) }));
 		}
 
 		for (const file of this.files) {
 			this.preprocess(file);
 		}
-		this.preupload();
-		this.startUpload();
+
+		// on file select cancel (0 files selected), should not proceed with upload steps
+		if (this.files.length !== 0) {
+			this.preupload();
+			this.startUpload();
+		}
+
 	}
 
 	reactToProcessingSuccess(value) {

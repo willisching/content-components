@@ -53,6 +53,7 @@ export default {
 	"highest": "Highest Attempt",
 	"id": "Id",
 	"insertNewCaptionsAtCurrentTime": "Insert new captions at current time",
+	"invalidFileSize": "Desværre har en eller flere filer en ugyldig filstørrelse (maks. {localizedMaxFileSize})",
 	"invalidFileType": "Invalid file type.",
 	"invalidFileTypeSelected": "Invalid file type selected.",
 	"invalidFormat": "Time must be in the following format: HH:MM:SS.sss",
