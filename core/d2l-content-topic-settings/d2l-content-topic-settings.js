@@ -153,6 +153,7 @@ class ContentTopicSettings extends SkeletonMixin(InternalLocalizeMixin(LitElemen
 		this._resourceType = revision.type.toLowerCase();
 		this._title = content.title;
 		this.skeleton = false;
+		this.dispatchEvent(new CustomEvent('topic-settings-loaded'));
 	}
 
 	render() {

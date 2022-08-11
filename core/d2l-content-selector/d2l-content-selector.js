@@ -49,6 +49,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 			canManageSharedObjects: { type: Boolean, attribute: 'can-manage-shared-objects' },
 			userId: { type: String, attribute: 'user-id' },
 
+			_addButtonDisabled: { type: Boolean },
 			_contentId: { type: String },
 			_hasFailures: { type: Boolean },
 			_nextButtonSettingsDisabled: { type: Boolean },
@@ -191,11 +192,13 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 								tenantId=${this.tenantId}
 								serviceUrl=${this.serviceUrl}
 								context=${this.context}
+								@topic-settings-loaded=${this._handleTopicSettingsLoaded}
 							></d2l-content-topic-settings>
 						</div>
 						<div class="action-group">
 							<d2l-button
 								primary
+								?disabled=${this._addButtonDisabled}
 								description=${this.localize('add')}
 								@click=${this._handleAddTopic}
 							>${this.localize('add')}</d2l-button>
@@ -459,6 +462,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 
 		this._contentId = selectedItem.id;
 		this.changeHeader(this.localize('contentItemFormTitle'));
+		this._addButtonDisabled = true;
 		this._selectedView = VIEW.SETTINGS;
 		this.dispatchEvent(new CustomEvent('change-view-topic-settings'));
 	}
@@ -498,6 +502,10 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 
 	_handleSettingsBack() {
 		this._navToList();
+	}
+
+	_handleTopicSettingsLoaded() {
+		this._addButtonDisabled = false;
 	}
 
 	_navigateToUpload() {
