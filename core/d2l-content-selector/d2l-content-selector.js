@@ -357,7 +357,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		const d2lrn = this._d2lrnList.shift();
 		this._contentId = d2lrn[0];
 		this.selectedObject = d2lrn[1];
-		this.changeHeader(this.localize('configureCoursePackagePropertiesBulk', { 0: this._propertyProgress, 1: this._totalFiles }));
+		this.changeHeader(this.localize('configureCoursePackagePropertiesBulk', { 0: this._propertyProgress, 1: this._uploadSuccessFiles }));
 		this._selectedView = VIEW.PROPERTIES;
 	}
 
@@ -371,6 +371,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		this._errorMessage = null;
 		this._progress = 0;
 		this._uploadProgress = 0;
+		this._propertyProgress = 1;
 	}
 
 	reactToUploadError(event) {
@@ -517,6 +518,8 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	_navigateToUpload() {
+		// after returning from bulk upload, progress values are kept so need to reset on new upload
+		this.progressReset();
 		this._contentId = null;
 		this.changeHeader(this.localize('upload'));
 		this._selectedView = VIEW.UPLOAD;
