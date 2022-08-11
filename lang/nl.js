@@ -132,6 +132,7 @@ export default {
 	"highest": "Hoogste poging",
 	"id": "Id",
 	"insertNewCaptionsAtCurrentTime": "Nieuwe ondertiteling invoegen op het huidige tijdstip",
+	"invalidFileSize": "Een of meer bestanden hebben een ongeldige bestandsgrootte (max. {localizedMaxFileSize})",
 	"invalidFileType": "Ongeldig bestandstype.",
 	"invalidFileTypeSelected": "Ongeldig bestandstype geselecteerd.",
 	"invalidFormat": "De tijd moet de volgende notatie hebben: UU:MM:SS.sss",

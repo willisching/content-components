@@ -132,6 +132,7 @@ export default {
 	"highest": "أعلى محاولة",
 	"id": "المعرِّف",
 	"insertNewCaptionsAtCurrentTime": "إدخال تسميات توضيحية جديدة في الوقت الحالي",
+	"invalidFileSize": "Sorry, one or more files have an invalid file size (max. {localizedMaxFileSize})",
 	"invalidFileType": "نوع الملف غير صالح.",
 	"invalidFileTypeSelected": "تم تحديد نوع ملف غير صالح.",
 	"invalidFormat": "يجب أن يكون الوقت بالتنسيق الآتي: HH:MM:SS.sss",

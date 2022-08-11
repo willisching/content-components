@@ -132,6 +132,7 @@ export default {
 	"highest": "Bester Versuch",
 	"id": "ID",
 	"insertNewCaptionsAtCurrentTime": "Zum aktuellen Zeitpunkt neue Untertitel einfügen",
+	"invalidFileSize": "Eine oder mehrere Dateien haben eine ungültige Größe (max. {localizedMaxFileSize})",
 	"invalidFileType": "Ungültiger Dateityp.",
 	"invalidFileTypeSelected": "Ungültiger Dateityp ausgewählt.",
 	"invalidFormat": "Die Uhrzeit muss das folgende Format aufweisen: HH:MM:SS.sss",
