@@ -11,7 +11,8 @@ class D2LMediaCaptureRecorder extends RtlMixin(InternalLocalizeMixin(LitElement)
 	static get properties() {
 		return {
 			isAudio: { type: Boolean, attribute: 'is-audio' },
-			recordingDurationLimit: { type: Number, attribute: 'recording-duration-limit' }
+			recordingDurationLimit: { type: Number, attribute: 'recording-duration-limit' },
+			_canRecord: { type: Boolean, attribute: false }
 		};
 	}
 
@@ -50,7 +51,7 @@ class D2LMediaCaptureRecorder extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this._canRecord = true;
 	}
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 		const apiClient = new ContentServiceApiClient({
 			httpClient: new ContentServiceBrowserHttpClient({ serviceUrl: this.contentServiceEndpoint }),
@@ -65,7 +66,9 @@ class D2LMediaCaptureRecorder extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-		this._stream.getTracks().forEach(track => track.stop());
+		if (this._stream) {
+			this._stream.getTracks().forEach(track => track.stop());
+		}
 	}
 
 	async firstUpdated() {
@@ -73,20 +76,23 @@ class D2LMediaCaptureRecorder extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 		try {
 			this._stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: !this.isAudio });
+			this._resetPlayer();
+			this.dispatchEvent(new CustomEvent('user-devices-loaded', {
+				bubbles: true,
+				composed: true
+			}));
 		} catch (error) {
-			this.shadowRoot.querySelector('#media-recorder').style.display = 'none';
-			this.shadowRoot.querySelector('#permission-error').style.display = 'inherit';
+			this._canRecord = false;
 		}
-		await this._resetPlayer();
-		this.dispatchEvent(new CustomEvent('user-devices-loaded', {
-			bubbles: true,
-			composed: true
-		}));
 	}
 
 	render() {
 		return html`
-		<div id="media-recorder" class="d2l-media-recorder-container">
+		<div
+			id="media-recorder"
+			class="d2l-media-recorder-container"
+			style="${!this._canRecord ? 'display:none' : ''}"
+		>
 			${!this.isAudio ? html`
 				<div class="d2l-video-container">
 					<video id="media-preview">
@@ -118,7 +124,11 @@ class D2LMediaCaptureRecorder extends RtlMixin(InternalLocalizeMixin(LitElement)
 				</div>
 			` : ''}
 		</div>
-		<div id="permission-error" role="alert" style="display:none">
+		<div
+			id="permission-error"
+			role="alert"
+			style="${this._canRecord ? 'display:none' : ''}"
+		>
 			<span>${this.localize('recorderPermissionError')}</span>
 		</div>
 	`;
@@ -150,6 +160,10 @@ class D2LMediaCaptureRecorder extends RtlMixin(InternalLocalizeMixin(LitElement)
 		}));
 	}
 
+	_dispatchCaptureStartedEvent() {
+		this.dispatchEvent(new CustomEvent('capture-started'));
+	}
+
 	_formatTime(time) {
 		let timeFormatted = '';
 
@@ -171,7 +185,7 @@ class D2LMediaCaptureRecorder extends RtlMixin(InternalLocalizeMixin(LitElement)
 		return timeFormatted;
 	}
 
-	async _resetPlayer() {
+	_resetPlayer() {
 		try {
 			this.mediaPreview.srcObject = this._stream;
 		} catch (error) {
@@ -180,15 +194,15 @@ class D2LMediaCaptureRecorder extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this.mediaPreview.muted = true;
 		this.mediaPreview.controls = this.isAudio;
 		if (!this.isAudio) {
-			await this.mediaPreview.play();
+			this.mediaPreview.play();
 		} else {
 			this.shadowRoot.querySelector('#audio-container').style.display = 'none';
 		}
 	}
 
-	async _startRecording() {
+	_startRecording() {
 		if (this._mediaBlob) {
-			await this._resetPlayer();
+			this._resetPlayer();
 			this._recordingDuration = 0;
 			this._videoRecorded = false;
 			this._mediaBlob = null;
@@ -211,6 +225,7 @@ class D2LMediaCaptureRecorder extends RtlMixin(InternalLocalizeMixin(LitElement)
 		this._audioVideoRecorder.startRecording();
 		this._isRecording = true;
 		this._timer();
+		this._dispatchCaptureStartedEvent();
 		this.requestUpdate();
 	}
 

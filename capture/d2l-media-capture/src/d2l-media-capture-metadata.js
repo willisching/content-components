@@ -12,6 +12,8 @@ import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-c
 class D2LMediaCaptureMetadata extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
+			isAudio: { type: Boolean, attribute: 'is-audio' },
+			isVideoNote: { type: Boolean, attribute: 'is-video-note' },
 			_autoGenerateCaptionsDisabled: { type: Boolean, attribute: false },
 			_languages: { type: Array, attribute: false },
 			_selectedLanguageCode: { type: String, attribute: false }
@@ -20,6 +22,10 @@ class D2LMediaCaptureMetadata extends RtlMixin(InternalLocalizeMixin(LitElement)
 
 	static get styles() {
 		return [selectStyles, css`
+			.d2l-media-metadata-help-message {
+				padding: 8px 0 12px 2px;
+			}
+
 			.d2l-metadata-table-label-column {
 				padding-right: 15px;
 			}
@@ -58,6 +64,11 @@ class D2LMediaCaptureMetadata extends RtlMixin(InternalLocalizeMixin(LitElement)
 	render() {
 		return html`
 			<div class="d2l-media-metadata-container">
+				${this.isVideoNote ? html`
+					<div class="d2l-media-metadata-help-message">
+						${this.localize(this.isAudio ? 'audioNoteDescription' : 'videoNoteDescription')}
+					</div>
+				` : ''}
 				<table>
 					<tbody>
 						<tr>

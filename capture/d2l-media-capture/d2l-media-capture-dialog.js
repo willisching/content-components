@@ -10,7 +10,11 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 		return {
 			tenantId: { type: String, attribute: 'tenant-id' },
 			contentServiceEndpoint: { type: String, attribute: 'content-service-endpoint' },
+			isVideoNote: { type: Boolean, attribute: 'is-video-note' },
 			isAudio: { type: Boolean, attribute: 'is-audio' },
+			canCapture: { type: Boolean, attribute: 'can-capture' },
+			canUpload: { type: Boolean, attribute: 'can-upload' },
+			maxFileSizeInBytes: { type: Number, attribute: 'max-file-size' },
 			_primaryButtonDisabled: { type: Boolean, attribute: false }
 		};
 	}
@@ -22,7 +26,7 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 			}
 
 			.d2l-media-capture-container {
-				min-height: 550px;
+				min-height: 560px;
 			}
 		`;
 	}
@@ -30,6 +34,11 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 	constructor() {
 		super();
 		this._primaryButtonDisabled = true;
+	}
+
+	firstUpdated() {
+		super.firstUpdated();
+		this._mediaCapture = this.shadowRoot.querySelector('d2l-media-capture');
 	}
 
 	render() {
@@ -45,12 +54,17 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 					<d2l-media-capture
 							tenant-id="${this.tenantId}"
 							content-service-endpoint="${this.contentServiceEndpoint}"
+							?is-video-note=${this.isVideoNote}
 							?is-audio=${this.isAudio}
+							?can-capture=${this.canCapture}
+							?can-upload=${this.canUpload}
+							max-file-size=${this.maxFileSizeInBytes}
 							recording-duration-limit="3"
 							@user-devices-loaded=${this._handleUserDevicesLoaded}
-							@capture-clip-completed=${this._handleCaptureClipCompletedEvent}
+							@capture-clip-completed=${this._enablePrimaryButton}
+							@file-selected=${this._enablePrimaryButton}
 							@capture-cleared=${this._handleCaptureClearedEvent}
-							@upload-success=${this._handleUploadSuccess}
+							@upload-success=${this._enablePrimaryButton}
 							@processing-started=${this._handleProcessingStarted}
 						>
 					</d2l-media-capture>
@@ -80,32 +94,28 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 	}
 
 	open() {
-		this.recorder.showRecordView();
+		this._mediaCapture.showRecordOrUploadView();
 		this.shadowRoot.querySelector('#media-capture-dialog').open();
 	}
 
-	get recorder() {
-		return this.shadowRoot.querySelector('d2l-media-capture');
+	_enablePrimaryButton() {
+		this._primaryButtonDisabled = false;
 	}
 
 	_handleBackButtonClick() {
-		this.recorder.showRecordView();
+		this._mediaCapture.showRecordOrUploadView();
 	}
 
 	_handleCaptureClearedEvent() {
 		this._primaryButtonDisabled = true;
 	}
 
-	_handleCaptureClipCompletedEvent() {
-		this._primaryButtonDisabled = false;
-	}
-
 	async _handlePrimaryButtonClick() {
 		this._primaryButtonDisabled = true;
-		if (this.recorder.fileSelected && this.recorder.metadataReady) {
-			await this.recorder.processMediaObject();
-		} else if (this.recorder.fileSelected) {
-			await this.recorder.uploadSelectedFile();
+		if (this._mediaCapture.fileSelected && this._mediaCapture.metadataReady) {
+			await this._mediaCapture.processMediaObject();
+		} else if (this._mediaCapture.fileSelected) {
+			await this._mediaCapture.uploadSelectedFile();
 		}
 	}
 
@@ -114,11 +124,7 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_handleRecorderClose() {
-		this.recorder.reset();
-	}
-
-	_handleUploadSuccess() {
-		this._primaryButtonDisabled = false;
+		this._mediaCapture.reset();
 	}
 
 	_handleUserDevicesLoaded() {

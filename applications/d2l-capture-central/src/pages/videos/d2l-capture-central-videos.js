@@ -144,6 +144,9 @@ class D2LCaptureCentralVideos extends contentSearchMixin(DependencyRequester(Pag
 				id="recorder-dialog"
 				tenant-id="${this.tenantId}"
 				content-service-endpoint="${this.contentServiceEndpoint}"
+				max-file-size=${maxFileSizeInBytes}
+				can-capture
+				can-upload
 			>
 			</d2l-media-capture-dialog>
 			<upload-status-management id="upload-status-management"></upload-status-management>

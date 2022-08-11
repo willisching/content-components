@@ -1,18 +1,19 @@
 import './src/d2l-media-capture-recorder';
+import './src/d2l-media-capture-uploader';
 import './src/d2l-media-capture-metadata';
 
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin';
-import { html, LitElement } from 'lit-element/lit-element.js';
+import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin';
 import { ContentServiceApiClient } from '@d2l/content-service-shared-utils';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 import { S3Uploader } from '../../util/s3-uploader';
+import { getExtension } from '../../util/media-type-util';
 
 const VIEW = Object.freeze({
-	RECORD: 'RECORD',
+	RECORD_OR_UPLOAD: 'RECORD_OR_UPLOAD',
 	PROGRESS: 'PROGRESS',
 	METADATA: 'METADATA',
-	LOADING: 'LOADING',
 	ERROR: 'ERROR',
 });
 
@@ -21,11 +22,79 @@ class D2LMediaCapture extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		return {
 			contentServiceEndpoint: { type: String, attribute: 'content-service-endpoint' },
 			tenantId: { type: String, attribute: 'tenant-id' },
+			isVideoNote: { type: Boolean, attribute: 'is-video-note' },
 			isAudio: { type: Boolean, attribute: 'is-audio' },
+			canCapture: { type: Boolean, attribute: 'can-capture' },
 			canUpload: { type: Boolean, attribute: 'can-upload' },
+			maxFileSizeInBytes: { type: Number, attribute: 'max-file-size' },
 			recordingDurationLimit: { type: Number, attribute: 'recording-duration-limit' },
-			_currentView: { type: Number, attribute: false }
+			_currentView: { type: Number, attribute: false },
+			_sourceSelectorLocked: { type: Boolean, attribute: false }
 		};
+	}
+
+	static get styles() {
+		return css`
+			.d2l-media-capture-loading-container {
+				align-items: center;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				padding-top: 100px;
+				width: 100%;
+			}
+
+			.d2l-media-source-selector-container {
+				margin-bottom: 15px;
+			}
+
+			.d2l-media-source-selector-container:after {
+				content: ".";
+				display: block;
+				clear: both;
+				visibility: hidden;
+				line-height: 0;
+				height: 0;
+			}
+
+			.d2l-media-capture-source-selector {
+				display: inline-block;
+				margin-top: 0;
+				border: 1px solid #494c4e;
+				color: black;
+				float: left;
+				padding: 5px;
+				margin-right: 2px;
+				text-decoration: none;
+			}
+			
+			.d2l-media-capture-source-selector:hover {
+				cursor: pointer;
+			}
+
+			.d2l-media-capture-source-selector-active {
+				font-weight: bold;
+			}
+
+			.d2l-media-capture-source-selector-inactive {
+				background-color: #EEEEEE;
+				color: #333;
+			}
+
+			.d2l-media-capture-source-selector-active-locked {
+				color: #999999;	
+			}
+			
+			.d2l-media-capture-source-selector-inactive-locked {
+				color: #cccccc;	
+				background-color: #EEEEEE;
+			}
+
+			.d2l-media-capture-source-selector-active-locked:hover,
+			.d2l-media-capture-source-selector-inactive-locked:hover {
+				cursor: default;
+			}
+		`;
 	}
 
 	constructor() {
@@ -39,42 +108,49 @@ class D2LMediaCapture extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			httpClient: new ContentServiceBrowserHttpClient({ serviceUrl: this.contentServiceEndpoint }),
 			tenantId: this.tenantId
 		});
-		this._canRecord = typeof navigator.mediaDevices?.getUserMedia === 'function';
+		this._canRecord = this.canCapture && typeof navigator.mediaDevices?.getUserMedia === 'function';
+		this._isRecording = this._canRecord;
 	}
 
 	render() {
-		const sourceSelector = html`
-			<div>
-			</div>
-		`;
 		let view;
 		switch (this._currentView) {
 			case VIEW.PROGRESS:
-			case VIEW.LOADING:
-				view = html`<d2l-loading-spinner></d2l-loading-spinner>`;
-				break;
-			case VIEW.RECORD:
 				view = html`
-					${sourceSelector}
-					<d2l-media-capture-recorder
-						?is-audio=${this.isAudio}
-						recording-duration-limit=${this.recordingDurationLimit}
-						@capture-clip-completed=${this._handleCaptureClipCompleted}
-						@capture-cleared=${this._handleCaptureCleared}
-					>
-					</d2l-media-capture-recorder>
+				<div class="d2l-media-capture-loading-container">
+					<d2l-loading-spinner size="150"></d2l-loading-spinner>
+					<div>${this.localize('pleaseWait')}</div>
+				</div>
 				`;
 				break;
-			case VIEW.UPLOAD:
+			case VIEW.RECORD_OR_UPLOAD:
 				view = html`
-					${sourceSelector}
-					<d2l-media-capture-uploader>
-					</d2l-media-capture-uploader>
+					${this._renderSourceSelector()}
+					${this._isRecording ? html`
+						<d2l-media-capture-recorder
+							?is-audio=${this.isAudio}
+							recording-duration-limit=${this.recordingDurationLimit}
+							@capture-started=${this._handleCaptureStarted}
+							@capture-clip-completed=${this._handleCaptureClipCompleted}
+							@capture-cleared=${this._handleCaptureCleared}
+						>
+						</d2l-media-capture-recorder>
+					` : html`
+						<d2l-media-capture-uploader
+							?is-audio=${this.isAudio}
+							max-file-size=${this.maxFileSizeInBytes}
+							@file-selected=${this._handleFileSelected}
+						>
+						</d2l-media-capture-uploader>
+					`}
 				`;
 				break;
 			case VIEW.METADATA:
 				view = html`
-					<d2l-media-capture-metadata>
+					<d2l-media-capture-metadata
+						?is-audio=${this.isAudio}
+						?is-video-note=${this.isVideoNote}
+					>
 					</d2l-media-capture-metadata>
 				`;
 				break;
@@ -90,19 +166,20 @@ class D2LMediaCapture extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	get fileSelected() {
-		return !!this._mediaBlob;
-	}
-
-	get metadata() {
-		return this.shadowRoot.querySelector('d2l-media-capture-metadata');
+		return !!this._file;
 	}
 
 	get metadataReady() {
-		return this.metadata?.ready;
+		return this.shadowRoot?.querySelector('d2l-media-capture-metadata')?.ready;
 	}
 
 	async processMediaObject() {
-		const { title, description, autoCaptions, sourceLanguage } = this.metadata.values;
+		const {
+			title,
+			description,
+			autoCaptions,
+			sourceLanguage
+		} = this.shadowRoot.querySelector('d2l-media-capture-metadata').values;
 		try {
 			await this.apiClient.content.updateItem({
 				content: { id: this._contentId, title, description }
@@ -124,17 +201,13 @@ class D2LMediaCapture extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		}));
 	}
 
-	get recorder() {
-		return this.shadowRoot.querySelector('d2l-media-capture-recorder');
-	}
-
 	reset() {
-		this._currentView = VIEW.LOADING;
+		this._currentView = VIEW.PROGRESS;
 		this._error = null;
-		this._mediaBlob = null;
-		this._extension = null;
+		this._file = null;
 		this._contentId = null;
 		this._revisionId = null;
+		this._sourceSelectorLocked = false;
 	}
 
 	showMetadataView() {
@@ -143,8 +216,8 @@ class D2LMediaCapture extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		}
 	}
 
-	showRecordView() {
-		this._currentView = VIEW.RECORD;
+	showRecordOrUploadView() {
+		this._currentView = VIEW.RECORD_OR_UPLOAD;
 	}
 
 	async uploadSelectedFile() {
@@ -157,13 +230,12 @@ class D2LMediaCapture extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			const revision = await this.apiClient.content.createRevision({
 				id: this._contentId,
 				properties: {
-					extension: this._extension
+					extension: getExtension(this._file.name)
 				}
 			});
 			this._revisionId = revision.id;
-			const file = new File([this._mediaBlob], `temp.${this._extension}`);
 			const s3Uploader = new S3Uploader({
-				file,
+				file: this._file,
 				key: revision.s3Key,
 				signRequest: ({ key }) =>
 					this.apiClient.s3Sign.sign({
@@ -187,12 +259,18 @@ class D2LMediaCapture extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	_handleCaptureCleared() {
-		this._mediaBlob = null;
+		this._file = null;
 	}
 
-	_handleCaptureClipCompleted(e) {
-		this._mediaBlob = e.detail.mediaBlob;
-		this._extension = e.detail.extension;
+	_handleCaptureClipCompleted(event) {
+		this._file = new File(
+			[event.detail.mediaBlob],
+			`temp.${event.detail.extension}`
+		);
+	}
+
+	_handleCaptureStarted() {
+		this._sourceSelectorLocked = true;
 	}
 
 	_handleError(error) {
@@ -202,6 +280,53 @@ class D2LMediaCapture extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		} else {
 			this._error = 'workerErrorUploadFailed';
 		}
+	}
+
+	_handleFileSelected(event) {
+		this._file = event.detail.file;
+		this._sourceSelectorLocked = true;
+	}
+
+	_handleSourceSelectorClick(isRecording) {
+		return () => {
+			if (!this._sourceSelectorLocked) {
+				this._isRecording = isRecording;
+			}
+		};
+	}
+
+	_renderSourceSelector() {
+		if (!(this._canRecord && this.canUpload)) {
+			this._sourceSelectorLocked = true;
+			return;
+		}
+		let sourceSelectorRecordStatus = this._isRecording ? 'active' : 'inactive';
+		let sourceSelectorUploadStatus = !this._isRecording ? 'active' : 'inactive';
+		if (this._sourceSelectorLocked) {
+			sourceSelectorRecordStatus += '-locked';
+			sourceSelectorUploadStatus += '-locked';
+		}
+
+		return html`
+			<div class="d2l-media-source-selector-container">
+				<a
+					id="source-selector-record"
+					title="${this.localize(this.isAudio ? 'recordAudio' : 'recordWebcamVideo')}"
+					class="d2l-media-capture-source-selector d2l-media-capture-source-selector-${sourceSelectorRecordStatus}"
+					@click=${this._handleSourceSelectorClick(true)}
+				>
+					${this.localize(this.isAudio ? 'recordAudio' : 'recordWebcamVideo')}
+				</a>
+				<a
+					id="source-selector-upload"
+					title="${this.localize('uploadFile')}"
+					class="d2l-media-capture-source-selector d2l-media-capture-source-selector-${sourceSelectorUploadStatus}"
+					@click=${this._handleSourceSelectorClick(false)}
+				>
+					${this.localize('uploadFile')}
+				</a>
+			</div>
+		`;
 	}
 }
 
