@@ -30,6 +30,7 @@ describe('ContentProperties', async() => {
 				},
 				type: 'Scorm',
 			}],
+			ownerId: '169'
 		};
 		getItemStub.returns(sampleItem);
 		el = await fixture(html`<d2l-content-properties
@@ -38,6 +39,7 @@ describe('ContentProperties', async() => {
 			.canShareTo=${[{ 'id': '6606', 'name': 'Dev' }, { 'id': '6609', 'name': 'Prod' }]}
 			canSelectShareLocation
 			embedFeatureEnabled
+			userId="169"
 		></d2l-content-properties>`);
 	});
 
