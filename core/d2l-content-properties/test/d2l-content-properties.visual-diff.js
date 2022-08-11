@@ -28,6 +28,7 @@ describe('d2l-content-properties', () => {
 							},
 							type: 'Scorm',
 						}],
+						ownerId: '169'
 					})
 				});
 			} else if (request.url() === 'http://localhost:8000/contentservice/api/97dc5895-cd3b-465f-8d5b-3c8d7e1bb6a7/content/1') {
@@ -46,6 +47,7 @@ describe('d2l-content-properties', () => {
 							},
 							type: 'Audio',
 						}],
+						ownerId: '169'
 					})
 				});
 			} else {
