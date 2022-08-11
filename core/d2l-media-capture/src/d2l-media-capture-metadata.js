@@ -2,14 +2,13 @@ import '@brightspace-ui/core/components/inputs/input-text.js';
 import '@brightspace-ui/core/components/inputs/input-textarea.js';
 import '@brightspace-ui/core/components/inputs/input-checkbox.js';
 
-import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin';
 import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { InternalLocalizeMixin } from '../../../mixins/internal-localize-mixin';
 import { BrightspaceApiClient } from '@d2l/content-service-shared-utils';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 
-class D2LMediaCaptureMetadata extends RtlMixin(InternalLocalizeMixin(LitElement)) {
+class D2LMediaCaptureMetadata extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
 			isAudio: { type: Boolean, attribute: 'is-audio' },

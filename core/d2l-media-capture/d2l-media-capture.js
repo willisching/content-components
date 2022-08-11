@@ -2,7 +2,6 @@ import './src/d2l-media-capture-recorder';
 import './src/d2l-media-capture-uploader';
 import './src/d2l-media-capture-metadata';
 
-import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin';
 import { ContentServiceApiClient } from '@d2l/content-service-shared-utils';
@@ -17,7 +16,7 @@ const VIEW = Object.freeze({
 	ERROR: 'ERROR',
 });
 
-class D2LMediaCapture extends RtlMixin(InternalLocalizeMixin(LitElement)) {
+class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
 			contentServiceEndpoint: { type: String, attribute: 'content-service-endpoint' },

@@ -1,10 +1,9 @@
-import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin';
 import { formatFileSize } from '@brightspace-ui/intl/lib/fileSize';
 import { css, html, LitElement } from 'lit';
 import { InternalLocalizeMixin } from '../../../mixins/internal-localize-mixin';
 import { isAudioType, isVideoType } from '../../../util/media-type-util';
 
-class D2LMediaCaptureUploader extends RtlMixin(InternalLocalizeMixin(LitElement)) {
+class D2LMediaCaptureUploader extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
 			isAudio: { type: Boolean, attribute: 'is-audio' },

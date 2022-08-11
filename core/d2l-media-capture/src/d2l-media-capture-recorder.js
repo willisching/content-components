@@ -1,13 +1,12 @@
 import '@brightspace-ui/core/components/button/button.js';
 
-import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 import { ContentServiceApiClient } from '@d2l/content-service-shared-utils';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { InternalLocalizeMixin } from '../../../mixins/internal-localize-mixin';
 import { Uploader } from '../../../util/uploader';
 
-class D2LMediaCaptureRecorder extends RtlMixin(InternalLocalizeMixin(LitElement)) {
+class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
 			isAudio: { type: Boolean, attribute: 'is-audio' },
