@@ -251,7 +251,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 			this.preprocess(file);
 		}
 
-		// on file select cancel (0 files selected), should proceed with upload steps
+		// on file select cancel (0 files selected), should not proceed with upload steps
 		if (this.files.length !== 0) {
 			this.preupload();
 			this.startUpload();
