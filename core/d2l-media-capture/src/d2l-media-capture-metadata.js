@@ -13,7 +13,8 @@ class D2LMediaCaptureMetadata extends InternalLocalizeMixin(LitElement) {
 		return {
 			isAudio: { type: Boolean, attribute: 'is-audio' },
 			isVideoNote: { type: Boolean, attribute: 'is-video-note' },
-			_autoGenerateCaptionsDisabled: { type: Boolean, attribute: false },
+			autoCaptionsEnabled: { type: Boolean, attribute: 'auto-captions-enabled' },
+			_canAutoCaptionForLocale: { type: Boolean, attribute: false },
 			_languages: { type: Array, attribute: false },
 			_selectedLanguageCode: { type: String, attribute: false }
 		};
@@ -27,6 +28,10 @@ class D2LMediaCaptureMetadata extends InternalLocalizeMixin(LitElement) {
 
 			.d2l-metadata-table-label-column {
 				padding-right: 15px;
+			}
+
+			.d2l-metadata-table-input-column {
+				width: 350px;
 			}
 
 			.d2l-metadata-language-select {
@@ -47,7 +52,6 @@ class D2LMediaCaptureMetadata extends InternalLocalizeMixin(LitElement) {
 
 	constructor() {
 		super();
-		this._autoGenerateCaptionsDisabled = true;
 		this._languages = [];
 	}
 
@@ -66,15 +70,14 @@ class D2LMediaCaptureMetadata extends InternalLocalizeMixin(LitElement) {
 				${this.isVideoNote ? html`
 					<div class="d2l-media-metadata-help-message">
 						${this.localize(this.isAudio ? 'audioNoteDescription' : 'videoNoteDescription')}
-					</div>
-				` : ''}
+					</div>` : ''}
 				<table>
 					<tbody>
 						<tr>
 							<td class="d2l-metadata-table-label-column">
 								<label id="metadata-title-label">${this.localize('title')}</label>
 							</td>
-							<td>
+							<td class="d2l-metadata-table-input-column">
 								<d2l-input-text
 									id="title-field"
 									labelled-by="metadata-title-label"
@@ -86,7 +89,7 @@ class D2LMediaCaptureMetadata extends InternalLocalizeMixin(LitElement) {
 							<td class="d2l-metadata-table-label-column">
 								<label id="metadata-description-label">${this.localize('description')}</label>
 							</td>
-							<td>
+							<td class="d2l-metadata-table-input-column">
 								<d2l-input-textarea
 									id="description-field"
 									labelled-by="metadata-description-label"
@@ -95,42 +98,7 @@ class D2LMediaCaptureMetadata extends InternalLocalizeMixin(LitElement) {
 								</d2l-input-textarea>
 							</td>
 						</tr>
-						<tr>
-							<td class="d2l-metadata-table-label-column">
-								<label id="metadata-source-language-label">
-									${this.localize('audioLanguage')}
-								</label>
-							</td>
-							<td>
-								<select
-									id="language-select"
-									class="d2l-input-select d2l-metadata-language-select"
-									labelled-by="metadata-source-language-label"
-									@change="${this._handleLanguageSelect}"
-								>
-									<option value="">${this.localize('unknown')}</option>
-									${this._languages.map(language => html`
-										<option value="${language.code}">${language.name}</option>
-									`)}
-								</select>
-							</td>
-						</tr>
-						<tr>
-							<td></td>
-							<td>
-								<d2l-input-checkbox
-									id="auto-generate-captions-checkbox"
-									class="d2l-metadata-captions-checkbox"
-									name="Use automatic captioning"
-									?disabled="${this._autoGenerateCaptionsDisabled}"
-								>
-									${this.localize('autoGenerateCaptionsFromAudio')}
-								</d2l-input-checkbox>
-								<div id="captions-not-available" class="d2l-metadata-captions-not-available">
-									${this.localize('autoGenerateNotAvailable')}
-								</div>
-							</td>
-						</tr>
+						${this._renderCaptionsOptions()}
 					</tbody>
 				</table>
 			</div>
@@ -153,9 +121,50 @@ class D2LMediaCaptureMetadata extends InternalLocalizeMixin(LitElement) {
 	_handleLanguageSelect(e) {
 		if (this._languages.length > 0) {
 			const { selectedIndex, value } = e.target;
-			this._autoGenerateCaptionsDisabled = selectedIndex === 0 || !this._languages.at(selectedIndex - 1).autoCaptions;
+			this._canAutoCaptionForLocale = selectedIndex !== 0 || this._languages.at(selectedIndex - 1).autoCaptions;
 			this._selectedLanguage = value;
-			this.shadowRoot.querySelector('#captions-not-available').style.display = this._autoGenerateCaptionsDisabled ? 'inherit' : 'none';
+		}
+	}
+
+	_renderCaptionsOptions() {
+		if (this.autoCaptionsEnabled) {
+			return html`
+				<tr>
+					<td class="d2l-metadata-table-label-column">
+						<label id="metadata-source-language-label">
+							${this.localize('audioLanguage')}
+						</label>
+					</td>
+					<td class="d2l-metadata-table-input-column">
+						<select
+							id="language-select"
+							class="d2l-input-select d2l-metadata-language-select"
+							labelled-by="metadata-source-language-label"
+							@change="${this._handleLanguageSelect}"
+						>
+							<option value="">${this.localize('unknown')}</option>
+							${this._languages.map(language => html`<option value="${language.code}">${language.name}</option>`)}
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td class="d2l-metadata-table-input-column">
+						<d2l-input-checkbox
+							id="auto-generate-captions-checkbox"
+							class="d2l-metadata-captions-checkbox"
+							name="Use automatic captioning"
+							?disabled="${!this._canAutoCaptionForLocale}"
+						>
+							${this.localize('autoGenerateCaptionsFromAudio')}
+						</d2l-input-checkbox>
+						${!this._canAutoCaptionForLocale ? html`
+							<div id="captions-not-available" class="d2l-metadata-captions-not-available">
+								${this.localize('autoGenerateNotAvailable')}
+							</div>` : ''}
+					</td>
+				</tr>
+			`;
 		}
 	}
 

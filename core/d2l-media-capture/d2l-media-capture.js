@@ -25,10 +25,12 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 			isAudio: { type: Boolean, attribute: 'is-audio' },
 			canCapture: { type: Boolean, attribute: 'can-capture' },
 			canUpload: { type: Boolean, attribute: 'can-upload' },
+			autoCaptionsEnabled: { type: Boolean, attribute: 'auto-captions-enabled' },
 			maxFileSizeInBytes: { type: Number, attribute: 'max-file-size' },
 			recordingDurationLimit: { type: Number, attribute: 'recording-duration-limit' },
 			_currentView: { type: Number, attribute: false },
-			_sourceSelectorLocked: { type: Boolean, attribute: false }
+			_sourceSelectorLocked: { type: Boolean, attribute: false },
+			_isRecording: { type: Boolean, attribute: false }
 		};
 	}
 
@@ -93,6 +95,12 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 			.d2l-media-capture-source-selector-inactive-locked:hover {
 				cursor: default;
 			}
+
+			.d2l-media-capture-aria-log {
+				left: -999em;
+				position: absolute;
+				width: 1em;
+			}
 		`;
 	}
 
@@ -116,10 +124,11 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 		switch (this._currentView) {
 			case VIEW.PROGRESS:
 				view = html`
-				<div class="d2l-media-capture-loading-container">
-					<d2l-loading-spinner size="150"></d2l-loading-spinner>
-					<div>${this.localize('pleaseWait')}</div>
-				</div>
+					${this._renderSourceSelector()}
+					<div class="d2l-media-capture-loading-container">
+						<d2l-loading-spinner size="150"></d2l-loading-spinner>
+						<div>${this.localize('pleaseWait')}</div>
+					</div>
 				`;
 				break;
 			case VIEW.RECORD_OR_UPLOAD:
@@ -128,13 +137,12 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 					${this._isRecording ? html`
 						<d2l-media-capture-recorder
 							?is-audio=${this.isAudio}
-							recording-duration-limit=${this.recordingDurationLimit}
+							?can-capture=${this.canCapture}
+							recording-duration-limit=${this.isAudio ? this.recordingDurationLimit / 60 : this.recordingDurationLimit}
 							@capture-started=${this._handleCaptureStarted}
 							@capture-clip-completed=${this._handleCaptureClipCompleted}
-							@capture-cleared=${this._handleCaptureCleared}
 						>
-						</d2l-media-capture-recorder>
-					` : html`
+						</d2l-media-capture-recorder>` : html`
 						<d2l-media-capture-uploader
 							?is-audio=${this.isAudio}
 							max-file-size=${this.maxFileSizeInBytes}
@@ -149,6 +157,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 					<d2l-media-capture-metadata
 						?is-audio=${this.isAudio}
 						?is-video-note=${this.isVideoNote}
+						?auto-captions-enabled=${this.autoCaptionsEnabled}
 					>
 					</d2l-media-capture-metadata>
 				`;
@@ -161,7 +170,16 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 				`;
 				break;
 		}
-		return view;
+
+		return html`
+			${view}
+			<div
+				id="media-capture-aria-log"
+				class="d2l-media-capture-aria-log"
+				role="log"
+				aria-live="assertive"
+			></div>
+		`;
 	}
 
 	get fileSelected() {
@@ -220,6 +238,11 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 	}
 
 	async uploadSelectedFile() {
+		if (!this._file) {
+			this._currentView = VIEW.ERROR;
+			this._error = 'mediaCaptureUploadErrorTryAgain';
+			return;
+		}
 		const contentType = this.isAudio ? 'Audio' : 'Video';
 		this._currentView = VIEW.PROGRESS;
 		try {
@@ -252,13 +275,10 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 					contentId: this._contentId
 				}
 			}));
+			this._updateAriaLog('uploadComplete');
 		} catch (error) {
 			this._handleError(error);
 		}
-	}
-
-	_handleCaptureCleared() {
-		this._file = null;
 	}
 
 	_handleCaptureClipCompleted(event) {
@@ -266,18 +286,21 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 			[event.detail.mediaBlob],
 			`temp.${event.detail.extension}`
 		);
+		this._updateAriaLog('recordingStopped');
 	}
 
 	_handleCaptureStarted() {
+		this._file = null;
 		this._sourceSelectorLocked = true;
+		this._updateAriaLog('captureCleared');
 	}
 
 	_handleError(error) {
 		this._currentView = VIEW.ERROR;
 		if (error.cause === 503) {
-			this._error = error;
+			this._error = 'workerErrorAVCapsExceeded';
 		} else {
-			this._error = 'workerErrorUploadFailed';
+			this._error = 'mediaCaptureUploadErrorTryAgain';
 		}
 	}
 
@@ -326,6 +349,10 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 				</a>
 			</div>
 		`;
+	}
+
+	_updateAriaLog(status) {
+		this.shadowRoot.querySelector('#media-capture-aria-log').textContent = this.localize(status);
 	}
 }
 

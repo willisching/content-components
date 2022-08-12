@@ -34,8 +34,7 @@ class D2LMediaCaptureUploader extends InternalLocalizeMixin(LitElement) {
 				${this._localizedError ? html`
 					<div class="d2l-media-capture-upload-error">
 						${this._localizedError}
-					</div>
-				` : ''}
+					</div>` : ''}
 				<div class="d2l-media-capture-upload-help">
 					${this.localize(this.isAudio ? 'selectAnAudioFile' : 'selectAFile')}
 				</div>

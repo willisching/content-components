@@ -14,7 +14,9 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 			isAudio: { type: Boolean, attribute: 'is-audio' },
 			canCapture: { type: Boolean, attribute: 'can-capture' },
 			canUpload: { type: Boolean, attribute: 'can-upload' },
+			autoCaptionsEnabled: { type: Boolean, attribute: 'auto-captions-enabled' },
 			maxFileSizeInBytes: { type: Number, attribute: 'max-file-size' },
+			recordingDurationLimit: { type: Number, attribute: 'recording-duration-limit' },
 			_primaryButtonDisabled: { type: Boolean, attribute: false }
 		};
 	}
@@ -58,12 +60,13 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 							?is-audio=${this.isAudio}
 							?can-capture=${this.canCapture}
 							?can-upload=${this.canUpload}
+							?auto-captions-enabled=${this.autoCaptionsEnabled}
 							max-file-size=${this.maxFileSizeInBytes}
-							recording-duration-limit="3"
+							recording-duration-limit=${this.recordingDurationLimit}
 							@user-devices-loaded=${this._handleUserDevicesLoaded}
 							@capture-clip-completed=${this._enablePrimaryButton}
 							@file-selected=${this._enablePrimaryButton}
-							@capture-cleared=${this._handleCaptureClearedEvent}
+							@capture-started=${this._handleCaptureStartedEvent}
 							@upload-success=${this._enablePrimaryButton}
 							@processing-started=${this._handleProcessingStarted}
 						>
@@ -106,7 +109,7 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 		this._mediaCapture.showRecordOrUploadView();
 	}
 
-	_handleCaptureClearedEvent() {
+	_handleCaptureStartedEvent() {
 		this._primaryButtonDisabled = true;
 	}
 

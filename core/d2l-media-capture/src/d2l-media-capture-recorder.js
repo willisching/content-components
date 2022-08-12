@@ -10,8 +10,10 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
 			isAudio: { type: Boolean, attribute: 'is-audio' },
+			canCapture: { type: Boolean, attribute: 'can-capture' },
 			recordingDurationLimit: { type: Number, attribute: 'recording-duration-limit' },
-			_canRecord: { type: Boolean, attribute: false }
+			_canRecord: { type: Boolean, attribute: false },
+			_isRecording: { type: Boolean, attribute: false }
 		};
 	}
 
@@ -34,7 +36,24 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 			}
 
 			.d2l-video-controls-duration {
+				display: inline-block;
+				color: #333;
+				font-size: 1.3em;
 				float: right;
+				padding-top: 4px;
+			}
+
+			.d2l-mediaplayer-audio {
+				width: 400px;
+				margin-top: 3px;
+			}
+
+			.hidden {
+				display: none;
+			}
+
+			.visible {
+				display: block;
 			}
 		`;
 	}
@@ -47,7 +66,6 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 		this._mediaBlob = null;
 		this._isRecording = false;
 		this._cancelTimer = false;
-		this._canRecord = true;
 	}
 
 	async connectedCallback() {
@@ -61,6 +79,7 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 		});
 		const isFirefox = typeof InstallTrigger !== 'undefined';
 		this._extension = this.isAudio ? (isFirefox ? 'ogg' : 'wav') : 'webm';
+		this._canRecord = this.canCapture || this.isAudio;
 	}
 
 	disconnectedCallback() {
@@ -73,79 +92,26 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 	async firstUpdated() {
 		super.firstUpdated();
 
-		try {
-			this._stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: !this.isAudio });
-			this._resetPlayer();
-			this.dispatchEvent(new CustomEvent('user-devices-loaded', {
-				bubbles: true,
-				composed: true
-			}));
-		} catch (error) {
-			this._canRecord = false;
+		if (this._canRecord) {
+			try {
+				this._stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: !this.isAudio });
+				this._resetPlayer();
+				this.dispatchEvent(new CustomEvent('user-devices-loaded', {
+					bubbles: true,
+					composed: true
+				}));
+			} catch (error) {
+				this._canRecord = false;
+			}
 		}
 	}
 
 	render() {
-		return html`
-		<div
-			id="media-recorder"
-			class="d2l-media-recorder-container"
-			style="${!this._canRecord ? 'display:none' : ''}"
-		>
-			${!this.isAudio ? html`
-				<div class="d2l-video-container">
-					<video id="media-preview">
-					</video>
-				</div>
-			` : ''}
-			<div class="d2l-video-controls">
-				<d2l-button
-					class="d2l-video-controls-button"
-					@click=${this._toggleStartStop}
-					primary
-				>
-					${this._isRecording ? this.localize('stopRecording') : this.localize('newRecording')}
-				</d2l-button>
-				<div class="d2l-video-controls-duration">
-					<span id="currentTime">
-						00:00
-					</span>
-					<span>/</span>
-					<span id="recording-limit">
-						${this._formatTime(this.recordingDurationLimit * 60)}
-					</span>
-				</div>
-			</div>
-			${this.isAudio ? html`
-				<div id="audio-container" class="d2l-audio-container">
-					<audio id="media-preview" controls>
-					</audio>
-				</div>
-			` : ''}
-		</div>
-		<div
-			id="permission-error"
-			role="alert"
-			style="${this._canRecord ? 'display:none' : ''}"
-		>
-			<span>${this.localize('recorderPermissionError')}</span>
-		</div>
-	`;
-	}
-
-	get currentTimeIndicator() {
-		return this.shadowRoot.querySelector('#currentTime');
+		return this._canRecord ? this._renderRecorder() : this._renderPermissionError();
 	}
 
 	get mediaPreview() {
 		return this.shadowRoot?.querySelector('#media-preview');
-	}
-
-	_dispatchCaptureClearedEvent() {
-		this.dispatchEvent(new CustomEvent('capture-cleared', {
-			bubbles: true,
-			composed: true
-		}));
 	}
 
 	_dispatchCaptureClipCompletedEvent() {
@@ -160,7 +126,10 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_dispatchCaptureStartedEvent() {
-		this.dispatchEvent(new CustomEvent('capture-started'));
+		this.dispatchEvent(new CustomEvent('capture-started', {
+			bubbles: true,
+			composed: true
+		}));
 	}
 
 	_formatTime(time) {
@@ -184,6 +153,55 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 		return timeFormatted;
 	}
 
+	_renderPermissionError() {
+		return html`
+			<div
+				id="permission-error"
+				role="alert"
+			>
+				<span>${this.localize('recorderPermissionError')}</span>
+			</div>
+		`;
+	}
+
+	_renderRecorder() {
+		return html`
+			<div
+				id="media-recorder"
+				class="d2l-media-recorder-container"
+			>
+				${!this.isAudio ? html`
+					<div class="d2l-video-container">
+						<video id="media-preview">
+						</video>
+					</div>` : ''}
+				<div class="d2l-video-controls">
+					<d2l-button
+						class="d2l-video-controls-button"
+						@click=${this._toggleStartStop}
+						primary
+					>
+						${this._isRecording ? this.localize('stopRecording') : this.localize('newRecording')}
+					</d2l-button>
+					<div class="d2l-video-controls-duration">
+						<span id="current-time">
+							00:00
+						</span>
+						<span>/</span>
+						<span id="recording-limit">
+							${this._formatTime(this.recordingDurationLimit * 60)}
+						</span>
+					</div>
+				</div>
+				${this.isAudio ? html`
+					<div id="audio-container" class="d2l-audio-container ${this._mediaBlob ? 'visible' : 'hidden'}">
+						<audio id="media-preview" class="d2l-mediaplayer-audio" controls>
+						</audio>
+					</div>` : ''}
+			</div>
+		`;
+	}
+
 	_resetPlayer() {
 		try {
 			this.mediaPreview.srcObject = this._stream;
@@ -194,8 +212,6 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 		this.mediaPreview.controls = this.isAudio;
 		if (!this.isAudio) {
 			this.mediaPreview.play();
-		} else {
-			this.shadowRoot.querySelector('#audio-container').style.display = 'none';
 		}
 	}
 
@@ -205,7 +221,6 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 			this._recordingDuration = 0;
 			this._videoRecorded = false;
 			this._mediaBlob = null;
-			this._dispatchCaptureClearedEvent();
 		}
 		const recorderSettings = this.isAudio ? {
 			type: 'audio',
@@ -225,14 +240,10 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 		this._isRecording = true;
 		this._timer();
 		this._dispatchCaptureStartedEvent();
-		this.requestUpdate();
 	}
 
 	async _stopRecording() {
 		await this._audioVideoRecorder.stopRecording();
-		if (this.isAudio) {
-			this.shadowRoot.querySelector('#audio-container').style.display = 'inline-block';
-		}
 		const url = this._audioVideoRecorder.recordRTC.toURL();
 		this._mediaBlob = await this._audioVideoRecorder.getBlob();
 		this.mediaPreview.muted = false;
@@ -244,7 +255,6 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 		this._isRecording = false;
 		this._cancelTimer = true;
 		this._dispatchCaptureClipCompletedEvent();
-		this.requestUpdate();
 	}
 
 	async _timer() {
@@ -253,7 +263,7 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 		}
 		if (!this._cancelTimer) {
 			this._recordingDuration += 1;
-			this.currentTimeIndicator.textContent = this._formatTime(this._recordingDuration);
+			this.shadowRoot.querySelector('#current-time').textContent = this._formatTime(this._recordingDuration);
 			window.setTimeout(this._timer.bind(this), 1000);
 		}
 		this._cancelTimer = false;

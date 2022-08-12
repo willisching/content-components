@@ -147,6 +147,7 @@ class D2LCaptureCentralVideos extends contentSearchMixin(DependencyRequester(Pag
 				max-file-size=${maxFileSizeInBytes}
 				can-capture
 				can-upload
+				auto-captions-enabled
 			>
 			</d2l-media-capture-dialog>
 			<upload-status-management id="upload-status-management"></upload-status-management>
@@ -172,8 +173,10 @@ class D2LCaptureCentralVideos extends contentSearchMixin(DependencyRequester(Pag
 			const recorderDialog = this.shadowRoot.querySelector('#recorder-dialog');
 			if (isAudio) {
 				recorderDialog.setAttribute('is-audio', '');
+				recorderDialog.setAttribute('recording-duration-limit', '60');
 			} else {
 				recorderDialog.removeAttribute('is-audio');
+				recorderDialog.setAttribute('recording-duration-limit', '3');
 			}
 			recorderDialog.open();
 		};
