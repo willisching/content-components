@@ -8,6 +8,7 @@
     "lint": "npm run lint:eslint && npm run lint:lit",
     "lint:eslint": "eslint . --ext .js,.html",
     "lint:lit": "lit-analyzer  \"{applications,core,capture,test,demo}/**/*.js\" --strict --rules.no-unknown-tag-name off --rules.no-unknown-attribute off",
+    "rollup": "./node_modules/.bin/rollup -c",
     "start:d2l-capture-producer": "es-dev-server --app-index capture/d2l-capture-producer/demo/index.html --node-resolve --dedupe --open --watch",
     "start:d2l-content-properties": "es-dev-server --config ./core/d2l-content-properties/es-dev-server.config.cjs --app-index core/d2l-content-properties/demo/index.html --node-resolve --dedupe --open --watch",
     "start:d2l-content-selector": "es-dev-server --config ./core/d2l-content-selector/es-dev-server.config.cjs --app-index core/d2l-content-selector/demo/index.html --node-resolve --dedupe --open --watch",
@@ -28,6 +29,8 @@
     "@babel/eslint-parser": "^7",
     "@esm-bundle/chai": "^4.3.4-fix.0",
     "@open-wc/testing": "^3",
+    "@rollup/plugin-commonjs": "^22.0.2",
+    "@rollup/plugin-node-resolve": "^13.3.0",
     "@web/test-runner": "^0.13",
     "@web/test-runner-playwright": "^0.8",
     "@webcomponents/webcomponentsjs": "^2",
@@ -38,6 +41,8 @@
     "eslint-plugin-lit": "^1",
     "eslint-plugin-sort-class-members": "^1",
     "lit-analyzer": "^1",
+    "recordrtc": "^5.6.2",
+    "rollup": "^2.77.3",
     "sinon": "^9.2.4"
   },
   "dependencies": {

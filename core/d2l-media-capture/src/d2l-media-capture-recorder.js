@@ -5,6 +5,7 @@ import { ContentServiceApiClient } from '@d2l/content-service-shared-utils';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { InternalLocalizeMixin } from '../../../mixins/internal-localize-mixin';
 import { Uploader } from '../../../util/uploader';
+import RecordRTC from '../util/recordrtc';
 
 class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
@@ -235,7 +236,7 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 			},
 			bitsPerSecond: 500000
 		};
-		this._audioVideoRecorder = new window.RecordRTCPromisesHandler(this._stream, recorderSettings);
+		this._audioVideoRecorder = new RecordRTC.RecordRTCPromisesHandler(this._stream, recorderSettings);
 		this._audioVideoRecorder.startRecording();
 		this._isRecording = true;
 		this._timer();

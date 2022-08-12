@@ -2,7 +2,8 @@
   "extends": "brightspace/lit-config",
   "ignorePatterns": [
     "coverage/**/*",
-    "capture/d2l-capture-producer/src/node-vtt-compiler.js"
+    "capture/d2l-capture-producer/src/node-vtt-compiler.js",
+    "core/d2l-media-capture/util/recordrtc.js"
   ],
   "parser": "@babel/eslint-parser",
   "parserOptions": {
