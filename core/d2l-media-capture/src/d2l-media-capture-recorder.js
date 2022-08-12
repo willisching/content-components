@@ -111,10 +111,6 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 		return this._canRecord ? this._renderRecorder() : this._renderPermissionError();
 	}
 
-	get mediaPreview() {
-		return this.shadowRoot?.querySelector('#media-preview');
-	}
-
 	_dispatchCaptureClipCompletedEvent() {
 		this.dispatchEvent(new CustomEvent('capture-clip-completed', {
 			bubbles: true,
@@ -152,6 +148,10 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 		timeFormatted += durationSeconds;
 
 		return timeFormatted;
+	}
+
+	get _mediaPreview() {
+		return this.shadowRoot?.querySelector('#media-preview');
 	}
 
 	_renderPermissionError() {
@@ -205,14 +205,14 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 
 	_resetPlayer() {
 		try {
-			this.mediaPreview.srcObject = this._stream;
+			this._mediaPreview.srcObject = this._stream;
 		} catch (error) {
-			this.mediaPreview.src = URL.createObjectURL(this._stream);
+			this._mediaPreview.src = URL.createObjectURL(this._stream);
 		}
-		this.mediaPreview.muted = true;
-		this.mediaPreview.controls = this.isAudio;
+		this._mediaPreview.muted = true;
+		this._mediaPreview.controls = this.isAudio;
 		if (!this.isAudio) {
-			this.mediaPreview.play();
+			this._mediaPreview.play();
 		}
 	}
 
@@ -247,12 +247,12 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 		await this._audioVideoRecorder.stopRecording();
 		const url = this._audioVideoRecorder.recordRTC.toURL();
 		this._mediaBlob = await this._audioVideoRecorder.getBlob();
-		this.mediaPreview.muted = false;
-		this.mediaPreview.controls = true;
-		this.mediaPreview.src = url;
-		this.mediaPreview.srcObject = null;
-		this.mediaPreview.load();
-		this.mediaPreview.play();
+		this._mediaPreview.muted = false;
+		this._mediaPreview.controls = true;
+		this._mediaPreview.src = url;
+		this._mediaPreview.srcObject = null;
+		this._mediaPreview.load();
+		this._mediaPreview.play();
 		this._isRecording = false;
 		this._cancelTimer = true;
 		this._dispatchCaptureClipCompletedEvent();
