@@ -199,7 +199,11 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 		} = this.shadowRoot.querySelector('d2l-media-capture-metadata').values;
 		try {
 			await this.apiClient.content.updateItem({
-				content: { id: this._contentId, title, description }
+				content: {
+					id: this._contentId,
+					...(title.length && { title }),
+					...(description.length && { description })
+				}
 			});
 			await this.apiClient.content.startWorkflow({
 				id: this._contentId,
@@ -336,6 +340,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 					title="${this.localize(this.isAudio ? 'recordAudio' : 'recordWebcamVideo')}"
 					class="d2l-media-capture-source-selector d2l-media-capture-source-selector-${sourceSelectorRecordStatus}"
 					@click=${this._handleSourceSelectorClick(true)}
+					tabindex=0
 				>
 					${this.localize(this.isAudio ? 'recordAudio' : 'recordWebcamVideo')}
 				</a>
@@ -344,6 +349,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 					title="${this.localize('uploadFile')}"
 					class="d2l-media-capture-source-selector d2l-media-capture-source-selector-${sourceSelectorUploadStatus}"
 					@click=${this._handleSourceSelectorClick(false)}
+					tabindex=0
 				>
 					${this.localize('uploadFile')}
 				</a>
