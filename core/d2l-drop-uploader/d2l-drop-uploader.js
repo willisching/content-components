@@ -11,7 +11,7 @@ import { css, html, LitElement } from 'lit-element';
 import { RequesterMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
 import { ContentServiceApiClient } from '@d2l/content-service-shared-utils';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
-import { isSupported, supportedTypeExtensions } from '../../util/media-type-util.js';
+import { isSupported, getSupportedExtensions } from '../../util/media-type-util.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { Uploader } from '../../util/uploader.js';
 
@@ -239,7 +239,8 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 		if (this.enableBulkUpload && this.files.length > this._maxNumberOfFiles) {
 			return this.onUploadError(this.localize('tooManyFiles'));
 		}
-		if (this.files.some(file => !isSupported(file.name))) {
+
+		if (this.files.some(file => !isSupported(file.name, this.supportedTypes))) {
 			return this.onUploadError(this.localize('invalidFileType'));
 		}
 
@@ -332,7 +333,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 						<input
 							id="file-select"
 							type="file"
-							accept=${this.supportedTypes.flatMap(mediaType => supportedTypeExtensions[mediaType])}
+							accept=${getSupportedExtensions(this.supportedTypes).toString()}
 							@change=${this.onFileInputChange}
 							?multiple=${this._isBulkUploadEnabled()}
 						/>
@@ -365,7 +366,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 							<input
 								id="file-select"
 								type="file"
-								accept=${this.supportedTypes.flatMap(mediaType => supportedTypeExtensions[mediaType])}
+								accept=${getSupportedExtensions(this.supportedTypes).toString()}
 								@change=${this.onFileInputChange}
 								?multiple=${this._isBulkUploadEnabled()}
 							/>
