@@ -108,7 +108,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		this._value = null;
 		this._errorMessage = null;
 		this._nextButtonSettingsDisabled = true;
-		this._saveButtonPropertiesDisabled = false;
+		this._saveButtonPropertiesDisabled = true;
 		this._selectedView = VIEW.LIST;
 		this._bulkErrorMessages = {};
 		this._totalFiles = 0;
@@ -263,6 +263,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 								progress=${this._propertyProgress}
 								userId=${this.userId}
 								embedFeatureEnabled
+								@enable-save=${this._enableSaveButton}
 							></d2l-content-properties>
 						</div>
 						<div class="action-group">
@@ -431,6 +432,10 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		this._nextButtonSettingsDisabled = false;
 	}
 
+	_enableSaveButton() {
+		this._saveButtonPropertiesDisabled = false;
+	}
+
 	async _handleAddTopic() {
 		this._selectedView = VIEW.LOADING;
 		const topicSettings = this._topicSettings.getSettings();
@@ -460,6 +465,8 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	_handleListEditProperties({ detail: { selectedItem } }) {
+		// prevent button clicks until everything is fully loaded, event after loading will enable it again
+		this._saveButtonPropertiesDisabled = true;
 		this.selectedObject = '';
 		this._contentId = selectedItem.id;
 		this.changeHeader(this.localize('editCoursePackageProperties'));
@@ -492,7 +499,6 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 	async _handlePropertiesSaved() {
 		this._saveButtonPropertiesDisabled = true;
 		await this._contentProperties.save();
-		this._saveButtonPropertiesDisabled = false;
 		if (this._d2lrnList.length > 0) {
 			this._propertyProgress += 1;
 

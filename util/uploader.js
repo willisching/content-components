@@ -53,8 +53,10 @@ export class Uploader {
 				id: content.id,
 				revisionTag: revision.id,
 			});
-			this.uploadProgress += ((Math.max(progress.percentComplete - lastProgressPosition, 0) / 2) / this.totalFiles);
-			lastProgressPosition = progress.percentComplete;
+			// occasionally progress.percentComplete comes back as NaN (particularly during bulk upload), so treat as 0 when that happens
+			// with broken files, progress.percentComplete may revert back to 0 upon failure leading to adding negative progress, so treat as 0 when that happens
+			this.uploadProgress += (((Math.max(progress.percentComplete - lastProgressPosition, 0) || 0) / 2) / this.totalFiles);
+			lastProgressPosition = progress.percentComplete || lastProgressPosition;
 			this.onProgress(this.uploadProgress, content.id);
 			if (progress.ready) {
 				// only update title of revision after it successfully processes
