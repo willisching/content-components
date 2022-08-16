@@ -157,6 +157,7 @@ class ContentProperties extends RtlMixin(RequesterMixin(SkeletonMixin(InternalLo
 		super.connectedCallback();
 		await this._initProperties();
 		this.skeleton = false;
+		this.dispatchEvent(new CustomEvent('enable-save'));
 	}
 
 	render() {

@@ -51,6 +51,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 
 			_contentId: { type: String },
 			_hasFailures: { type: Boolean },
+			_addButtonPropertiesDisabled: { type: Boolean },
 			_nextButtonSettingsDisabled: { type: Boolean },
 			_saveButtonPropertiesDisabled: { type: Boolean },
 			_selectedView: { type: String },
@@ -107,7 +108,8 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		this._value = null;
 		this._errorMessage = null;
 		this._nextButtonSettingsDisabled = true;
-		this._saveButtonPropertiesDisabled = false;
+		this._addButtonPropertiesDisabled = true;
+		this._saveButtonPropertiesDisabled = true;
 		this._selectedView = VIEW.LIST;
 		this._bulkErrorMessages = {};
 		this._totalFiles = 0;
@@ -191,6 +193,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 								tenantId=${this.tenantId}
 								serviceUrl=${this.serviceUrl}
 								context=${this.context}
+								@enable-add=${this._enableAddButton}
 							></d2l-content-topic-settings>
 						</div>
 						<div class="action-group">
@@ -198,6 +201,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 								primary
 								description=${this.localize('add')}
 								@click=${this._handleAddTopic}
+								?disabled=${this._addButtonPropertiesDisabled}
 							>${this.localize('add')}</d2l-button>
 							<d2l-button
 								id='topic-settings-back'
@@ -259,6 +263,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 								totalFiles=${this._uploadSuccessFiles}
 								progress=${this._propertyProgress}
 								embedFeatureEnabled
+								@enable-save=${this._enableSaveButton}
 							></d2l-content-properties>
 						</div>
 						<div class="action-group">
@@ -423,8 +428,16 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		return this.shadowRoot.querySelector('d2l-content-properties');
 	}
 
+	_enableAddButton() {
+		this._addButtonPropertiesDisabled = false;
+	}
+
 	_enableNextButton() {
 		this._nextButtonSettingsDisabled = false;
+	}
+
+	_enableSaveButton() {
+		this._saveButtonPropertiesDisabled = false;
 	}
 
 	async _handleAddTopic() {
@@ -456,6 +469,8 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	_handleListEditProperties({ detail: { selectedItem } }) {
+		// prevent button clicks until everything is fully loaded, event after loading will enable it again
+		this._saveButtonPropertiesDisabled = true;
 		this.selectedObject = '';
 		this._contentId = selectedItem.id;
 		this.changeHeader(this.localize('editCoursePackageProperties'));
@@ -464,6 +479,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	_handleListNext() {
+		this._addButtonPropertiesDisabled = true;
 		const selectedItem = this._selectorList.selectedContent;
 
 		this._contentId = selectedItem.id;
@@ -487,7 +503,6 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 	async _handlePropertiesSaved() {
 		this._saveButtonPropertiesDisabled = true;
 		await this._contentProperties.save();
-		this._saveButtonPropertiesDisabled = false;
 		if (this._d2lrnList.length > 0) {
 			this._propertyProgress += 1;
 
