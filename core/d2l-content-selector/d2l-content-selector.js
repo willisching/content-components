@@ -49,9 +49,9 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 			canManageSharedObjects: { type: Boolean, attribute: 'can-manage-shared-objects' },
 			userId: { type: String, attribute: 'user-id' },
 
+			_addButtonDisabled: { type: Boolean },
 			_contentId: { type: String },
 			_hasFailures: { type: Boolean },
-			_addButtonPropertiesDisabled: { type: Boolean },
 			_nextButtonSettingsDisabled: { type: Boolean },
 			_saveButtonPropertiesDisabled: { type: Boolean },
 			_selectedView: { type: String },
@@ -108,7 +108,6 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		this._value = null;
 		this._errorMessage = null;
 		this._nextButtonSettingsDisabled = true;
-		this._addButtonPropertiesDisabled = true;
 		this._saveButtonPropertiesDisabled = true;
 		this._selectedView = VIEW.LIST;
 		this._bulkErrorMessages = {};
@@ -193,15 +192,15 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 								tenantId=${this.tenantId}
 								serviceUrl=${this.serviceUrl}
 								context=${this.context}
-								@enable-add=${this._enableAddButton}
+								@topic-settings-loaded=${this._handleTopicSettingsLoaded}
 							></d2l-content-topic-settings>
 						</div>
 						<div class="action-group">
 							<d2l-button
 								primary
+								?disabled=${this._addButtonDisabled}
 								description=${this.localize('add')}
 								@click=${this._handleAddTopic}
-								?disabled=${this._addButtonPropertiesDisabled}
 							>${this.localize('add')}</d2l-button>
 							<d2l-button
 								id='topic-settings-back'
@@ -262,6 +261,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 								orgUnitId=${this.context}
 								totalFiles=${this._uploadSuccessFiles}
 								progress=${this._propertyProgress}
+								userId=${this.userId}
 								embedFeatureEnabled
 								@enable-save=${this._enableSaveButton}
 							></d2l-content-properties>
@@ -428,10 +428,6 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		return this.shadowRoot.querySelector('d2l-content-properties');
 	}
 
-	_enableAddButton() {
-		this._addButtonPropertiesDisabled = false;
-	}
-
 	_enableNextButton() {
 		this._nextButtonSettingsDisabled = false;
 	}
@@ -479,11 +475,11 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	_handleListNext() {
-		this._addButtonPropertiesDisabled = true;
 		const selectedItem = this._selectorList.selectedContent;
 
 		this._contentId = selectedItem.id;
 		this.changeHeader(this.localize('contentItemFormTitle'));
+		this._addButtonDisabled = true;
 		this._selectedView = VIEW.SETTINGS;
 		this.dispatchEvent(new CustomEvent('change-view-topic-settings'));
 	}
@@ -522,6 +518,10 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 
 	_handleSettingsBack() {
 		this._navToList();
+	}
+
+	_handleTopicSettingsLoaded() {
+		this._addButtonDisabled = false;
 	}
 
 	_navigateToUpload() {

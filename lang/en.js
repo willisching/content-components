@@ -102,6 +102,7 @@ export default {
 	"editProperties": "Edit Properties",
 	"enableChat": "Enable Chat",
 	"enterAnItemName": "Enter an item name",
+	"errorForbidden": "You are not allowed to view this object.",
 	"errorRenderingContent": "Error when trying to load this content.",
 	"everyonesMedia": "Everyone's Media",
 	"export": "Export",

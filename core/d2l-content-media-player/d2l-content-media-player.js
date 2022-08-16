@@ -120,7 +120,7 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 		await this._loadMedia();
 		await this._loadCaptions();
 
-		if (!this._noRevisionFound && this._revision.type === 'Video') {
+		if (!this._renderError && this._revision.type === 'Video') {
 			await this._loadMetadata();
 			await this._loadPoster();
 			await this._loadThumbnails();

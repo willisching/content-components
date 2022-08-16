@@ -32,6 +32,7 @@ class ContentProperties extends RtlMixin(RequesterMixin(SkeletonMixin(InternalLo
 			revisionTag: { type: String },
 			totalFiles: { type: Number },
 			progress: { type: Number },
+			userId: { type: String },
 
 			_resourceType: { type: String, attribute: false },
 			_saveButtonDisabled: { type: Boolean, attribute: false },
@@ -200,7 +201,7 @@ class ContentProperties extends RtlMixin(RequesterMixin(SkeletonMixin(InternalLo
 	}
 
 	canShare() {
-		return this.canShareTo?.length > 0;
+		return this.userId && this.userId === this.content?.ownerId && this.canShareTo?.length > 0;
 	}
 
 	renderSharingItems() {
