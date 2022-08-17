@@ -124,7 +124,6 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 			// Since it's not a Capture permission, it is passed down from the LMS to Capture Central as a Lit attribute.
 			permissions.canManageAllVideos = this.canManageAllVideos ? 'true' : 'false';
 			permissions.canTransferOwnership = this.canTransferOwnership ? 'true' : 'false';
-			permissions.canRecord = this.canRecord ? 'true' : 'false';
 
 			rootStore.permissionStore.setPermissions(permissions);
 		} catch (error) {

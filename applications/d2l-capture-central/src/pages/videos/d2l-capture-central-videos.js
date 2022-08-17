@@ -10,7 +10,6 @@ import '../../components/content-filter-dropdown.js';
 import '../../components/videos/content-list.js';
 import '../../components/upload-status-management.js';
 import '../../components/unauthorized-message.js';
-import '../../../../../core/d2l-media-capture/d2l-media-capture-dialog.js';
 
 import { css, html } from 'lit-element/lit-element.js';
 import { contentSearchMixin } from '../../mixins/content-search-mixin.js';
@@ -97,8 +96,6 @@ class D2LCaptureCentralVideos extends contentSearchMixin(DependencyRequester(Pag
 	connectedCallback() {
 		super.connectedCallback();
 		this.uploader = this.requestDependency('uploader');
-		this.contentServiceEndpoint = this.requestDependency('content-service-endpoint');
-		this.tenantId = this.requestDependency('tenant-id');
 	}
 
 	render() {
@@ -112,18 +109,6 @@ class D2LCaptureCentralVideos extends contentSearchMixin(DependencyRequester(Pag
 						@click=${this._handleFileUploadClick}
 						primary
 					>${this.localize('upload')}
-					</d2l-button>
-					<d2l-button
-						class="d2l-capture-central-videos-upload-button"
-						@click=${this.openRecordDialog()}
-						primary
-					>Record Video
-					</d2l-button>
-					<d2l-button
-						class="d2l-capture-central-videos-upload-button"
-						@click=${this.openRecordDialog(true)}
-						primary
-					>Record Audio
 					</d2l-button>
 					<content-filter-dropdown
 						@change-filter-cleared=${this._handleFilterCleared}
@@ -140,17 +125,6 @@ class D2LCaptureCentralVideos extends contentSearchMixin(DependencyRequester(Pag
 				</div>
 				<content-list></content-list>
 			</div>
-			<d2l-media-capture-dialog
-				id="recorder-dialog"
-				tenant-id="${this.tenantId}"
-				content-service-endpoint="${this.contentServiceEndpoint}"
-				max-file-size=${maxFileSizeInBytes}
-				can-capture-video
-				can-capture-audio
-				can-upload
-				auto-captions-enabled
-			>
-			</d2l-media-capture-dialog>
 			<upload-status-management id="upload-status-management"></upload-status-management>
 			<input
 				type="file"
@@ -167,20 +141,6 @@ class D2LCaptureCentralVideos extends contentSearchMixin(DependencyRequester(Pag
 				${this.uploadErrorMessage}
 			</d2l-alert-toast>
 		`;
-	}
-
-	openRecordDialog(isAudio) {
-		return () => {
-			const recorderDialog = this.shadowRoot.querySelector('#recorder-dialog');
-			if (isAudio) {
-				recorderDialog.setAttribute('is-audio', '');
-				recorderDialog.setAttribute('audio-recording-duration-limit', '60');
-			} else {
-				recorderDialog.removeAttribute('is-audio');
-				recorderDialog.setAttribute('video-recording-duration-limit', '3');
-			}
-			recorderDialog.open();
-		};
 	}
 
 	_handleFileChange(event) {

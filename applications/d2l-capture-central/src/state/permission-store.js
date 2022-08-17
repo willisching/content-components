@@ -20,10 +20,6 @@ export class PermissionStore {
 			this.permissions.canManageLiveEvents === 'true';
 	}
 
-	getCanRecord() {
-		return this.permissions.canRecord === 'true';
-	}
-
 	getCanTransferOwnership() {
 		return this.permissions.canTransferOwnership === 'true';
 	}
