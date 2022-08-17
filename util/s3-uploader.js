@@ -104,7 +104,8 @@ export class S3Uploader {
 					PartNumber: i + 1
 				};
 			}).catch(err => {
-				console.log(err);
+				this.abort();
+				throw err;
 			}));
 		}
 		const uploadResponses = await Promise.all(uploadPromises);
