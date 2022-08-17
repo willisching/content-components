@@ -32,9 +32,7 @@ export class S3Uploader {
 	}
 
 	abort() {
-		console.log('abort');
 		if (this.isMultipart && this.uploadId) {
-			console.log('multipart abort');
 			this.abortMultipartUpload({key: this.key, uploadId: this.uploadId});
 		}
 		for (let i = 0; i < this.httprequests.length; i++) {
