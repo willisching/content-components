@@ -145,7 +145,8 @@ class D2LCaptureCentralVideos extends contentSearchMixin(DependencyRequester(Pag
 				tenant-id="${this.tenantId}"
 				content-service-endpoint="${this.contentServiceEndpoint}"
 				max-file-size=${maxFileSizeInBytes}
-				can-capture
+				can-capture-video
+				can-capture-audio
 				can-upload
 				auto-captions-enabled
 			>
@@ -173,10 +174,10 @@ class D2LCaptureCentralVideos extends contentSearchMixin(DependencyRequester(Pag
 			const recorderDialog = this.shadowRoot.querySelector('#recorder-dialog');
 			if (isAudio) {
 				recorderDialog.setAttribute('is-audio', '');
-				recorderDialog.setAttribute('recording-duration-limit', '60');
+				recorderDialog.setAttribute('audio-recording-duration-limit', '60');
 			} else {
 				recorderDialog.removeAttribute('is-audio');
-				recorderDialog.setAttribute('recording-duration-limit', '3');
+				recorderDialog.setAttribute('video-recording-duration-limit', '3');
 			}
 			recorderDialog.open();
 		};

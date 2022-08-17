@@ -12,6 +12,7 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 		return {
 			isAudio: { type: Boolean, attribute: 'is-audio' },
 			canCapture: { type: Boolean, attribute: 'can-capture' },
+			canUpload: { type: Boolean, attribute: 'can-upload' },
 			recordingDurationLimit: { type: Number, attribute: 'recording-duration-limit' },
 			_canRecord: { type: Boolean, attribute: false },
 			_isRecording: { type: Boolean, attribute: false }
@@ -47,6 +48,10 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 			.d2l-mediaplayer-audio {
 				width: 400px;
 				margin-top: 3px;
+			}
+
+			.small-video-preview {
+				max-height: 425px;
 			}
 
 			.hidden {
@@ -173,7 +178,7 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 			>
 				${!this.isAudio ? html`
 					<div class="d2l-video-container">
-						<video id="media-preview">
+						<video class="${this.canUpload ? 'small-video-preview' : ''}" id="media-preview">
 						</video>
 					</div>` : ''}
 				<div class="d2l-video-controls">

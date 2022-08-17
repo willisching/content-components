@@ -114,14 +114,14 @@ class D2LMediaCaptureMetadata extends InternalLocalizeMixin(LitElement) {
 			title: this.shadowRoot.querySelector('#title-field').value,
 			description: this.shadowRoot.querySelector('#description-field').value,
 			sourceLanguage: this._selectedLanguage,
-			autoCaptions: this.shadowRoot.querySelector('#auto-generate-captions-checkbox').checked
+			autoCaptions: this.autoCaptionsEnabled && this.shadowRoot.querySelector('#auto-generate-captions-checkbox').checked
 		};
 	}
 
 	_handleLanguageSelect(e) {
 		if (this._languages.length > 0) {
 			const { selectedIndex, value } = e.target;
-			this._canAutoCaptionForLocale = selectedIndex !== 0 || this._languages.at(selectedIndex - 1).autoCaptions;
+			this._canAutoCaptionForLocale = selectedIndex !== 0 && this._languages.at(selectedIndex - 1).autoCaptions;
 			this._selectedLanguage = value;
 		}
 	}

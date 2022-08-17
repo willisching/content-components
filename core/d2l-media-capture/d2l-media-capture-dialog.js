@@ -12,11 +12,13 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 			contentServiceEndpoint: { type: String, attribute: 'content-service-endpoint' },
 			isVideoNote: { type: Boolean, attribute: 'is-video-note' },
 			isAudio: { type: Boolean, attribute: 'is-audio' },
-			canCapture: { type: Boolean, attribute: 'can-capture' },
+			canCaptureVideo: { type: Boolean, attribute: 'can-capture-video' },
+			canCaptureAudio: { type: Boolean, attribute: 'can-capture-audio' },
 			canUpload: { type: Boolean, attribute: 'can-upload' },
 			autoCaptionsEnabled: { type: Boolean, attribute: 'auto-captions-enabled' },
 			maxFileSizeInBytes: { type: Number, attribute: 'max-file-size' },
-			recordingDurationLimit: { type: Number, attribute: 'recording-duration-limit' },
+			audioRecordingDurationLimit: { type: Number, attribute: 'audio-recording-duration-limit' },
+			videoRecordingDurationLimit: { type: Number, attribute: 'video-recording-duration-limit' },
 			_primaryButtonDisabled: { type: Boolean, attribute: false },
 			_isRecordOrUploadView: { type: Boolean, attribute: false },
 		};
@@ -24,10 +26,6 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 
 	static get styles() {
 		return css`
-			.d2l-media-capture-dialog {
-				padding-top: 25px;
-			}
-
 			.d2l-media-capture-container {
 				min-height: 560px;
 			}
@@ -59,11 +57,11 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 							content-service-endpoint="${this.contentServiceEndpoint}"
 							?is-video-note=${this.isVideoNote}
 							?is-audio=${this.isAudio}
-							?can-capture=${this.canCapture}
+							?can-capture=${this.isAudio ? this.canCaptureAudio : this.canCaptureVideo}
 							?can-upload=${this.canUpload}
 							?auto-captions-enabled=${this.autoCaptionsEnabled}
 							max-file-size=${this.maxFileSizeInBytes}
-							recording-duration-limit=${this.recordingDurationLimit}
+							recording-duration-limit=${this.isAudio ? this.audioRecordingDurationLimit : this.videoRecordingDurationLimit}
 							@user-devices-loaded=${this._handleUserDevicesLoaded}
 							@capture-clip-completed=${this._enablePrimaryButton}
 							@file-selected=${this._enablePrimaryButton}

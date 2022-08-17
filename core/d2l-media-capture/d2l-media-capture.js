@@ -121,6 +121,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 
 	render() {
 		let view;
+		let recordOrUploadView;
 		switch (this._currentView) {
 			case VIEW.PROGRESS:
 				view = html`
@@ -132,24 +133,31 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 				`;
 				break;
 			case VIEW.RECORD_OR_UPLOAD:
-				view = html`
-					${this._renderSourceSelector()}
-					${this._isRecording ? html`
+				if (this._isRecording) {
+					recordOrUploadView = html`
 						<d2l-media-capture-recorder
 							?is-audio=${this.isAudio}
 							?can-capture=${this.canCapture}
+							?can-upload=${this.canUpload}
 							recording-duration-limit=${this.isAudio ? this.recordingDurationLimit / 60 : this.recordingDurationLimit}
 							@capture-started=${this._handleCaptureStarted}
 							@capture-clip-completed=${this._handleCaptureClipCompleted}
 						>
-						</d2l-media-capture-recorder>` : html`
+						</d2l-media-capture-recorder>
+					`;
+				} else if (this.canUpload) {
+					recordOrUploadView = html`
 						<d2l-media-capture-uploader
 							?is-audio=${this.isAudio}
 							max-file-size=${this.maxFileSizeInBytes}
 							@file-selected=${this._handleFileSelected}
 						>
 						</d2l-media-capture-uploader>
-					`}
+					`;
+				}
+				view = html`
+					${this._renderSourceSelector()}
+					${recordOrUploadView}
 				`;
 				break;
 			case VIEW.METADATA:
@@ -322,8 +330,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_renderSourceSelector() {
-		if (!(this._canRecord && this.canUpload)) {
-			this._sourceSelectorLocked = true;
+		if (!(this.canCapture && this.canUpload)) {
 			return;
 		}
 		let sourceSelectorRecordStatus = this._isRecording ? 'active' : 'inactive';
