@@ -8,10 +8,10 @@ export class S3Uploader {
 		file,
 		key,
 		isMultipart = false,
-		abortMultipartUpload = async({key, uploadId}) => {},
-		batchSign = async ({key, uploadId, numParts} = {}) => {},
-		completeMultipartUpload = async ({key, uploadId, parts} = {}) => {},
-		createMultipartUpload = async ({key} = {}) => {},
+		abortMultipartUpload = async() => {},
+		batchSign = async() => {},
+		completeMultipartUpload = async() => {},
+		createMultipartUpload = async() => {},
 		signRequest = () => {},
 		onProgress = () => {}
 	} = {}) {
@@ -33,12 +33,12 @@ export class S3Uploader {
 
 	abort() {
 		console.log('abort');
-		if(this.isMultipart && this.uploadId) {
+		if (this.isMultipart && this.uploadId) {
 			console.log('multipart abort');
 			this.abortMultipartUpload({key: this.key, uploadId: this.uploadId});
 		}
-		for(let i = 0; i < this.httprequests.length; i++) {
-			if(this.httprequests[i]) {
+		for (let i = 0; i < this.httprequests.length; i++) {
+			if (this.httprequests[i]) {
 				this.httprequests[i].abort();
 			}
 		}
@@ -54,16 +54,64 @@ export class S3Uploader {
 		return xhr;
 	}
 
+	getChunks() {
+		if (this.file.size === 0 || !this.isMultipart) {
+			return [this.file];
+		}
+		const chunkSize = Math.max(5 * MB, Math.ceil(this.file.size / 10000));
+
+		const chunks = [];
+		for (let start = 0; start < this.file.size; start += chunkSize) {
+			const end = Math.min(start + chunkSize, this.file.size);
+			chunks.push(this.file.slice(start, end));
+		}
+		return chunks;
+	}
+
+	resetProgress(index) {
+		const lastProgress = this.lastProgress[index];
+		this.totalProgress -= lastProgress;
+		this.lastProgress[index] = 0;
+	}
+
+	updateProgress(value, index) {
+		const progressDiff = value - this.lastProgress[index];
+		this.lastProgress[index] = value;
+		this.totalProgress += progressDiff;
+	}
+
 	async upload() {
 		this.totalProgress = 0;
 		this.lastProgress = new Array(this.chunks.length).fill(0);
 		this.httprequests = new Array(this.chunks.length).fill(null);
-		if(this.isMultipart) {
+		if (this.isMultipart) {
 			return await this.uploadMultipart();
 		}
 		const { file, key } = this;
 		const signResult = await this.signRequest({ file, key });
 		return this._uploadWithRetries(file, signResult);
+	}
+
+	async uploadMultipart() {
+		const { UploadId } = await this.createMultipartUpload({key: this.key});
+		this.uploadId = UploadId;
+		const signedUrls = await this.batchSign({key: this.key, uploadId: UploadId, numParts: this.chunks.length});
+		const uploadPromises = [];
+		for (let i = 0; i < signedUrls.length; i++) {
+			const url = signedUrls[i];
+			uploadPromises.push(this._uploadWithRetries(this.chunks[i], {signedUrl: url}, RETRIES, i).then((response) => {
+				const etag = response.getResponseHeader('ETag');
+				return {
+					ETag: etag,
+					PartNumber: i + 1
+				};
+			}).catch(err => {
+				console.log(err);
+			}));
+		}
+		const uploadResponses = await Promise.all(uploadPromises);
+
+		await this.completeMultipartUpload({key: this.key, uploadId: UploadId, parts: { Parts: uploadResponses }});
 	}
 
 	_getErrorRequestContext(xhr) {
@@ -73,12 +121,6 @@ export class S3Uploader {
 			statusText: xhr.statusText,
 			readyState: xhr.readyState
 		};
-	}
-
-	updateProgress(value, index) {
-		const progressDiff = value - this.lastProgress[index];
-		this.lastProgress[index] = value;
-		this.totalProgress += progressDiff;
 	}
 
 	async _startUpload(file, signResult, progressIndex) {
@@ -113,17 +155,11 @@ export class S3Uploader {
 				});
 			}
 
-			if(!this.isMultipart) xhr.setRequestHeader('x-amz-acl', 'private');
+			if (!this.isMultipart) xhr.setRequestHeader('x-amz-acl', 'private');
 
 			this.httprequests[progressIndex] = xhr;
 			xhr.send(file);
 		});
-	}
-
-	resetProgress(index) {
-		const lastProgress = this.lastProgress[index];
-		this.totalProgress -= lastProgress;
-		this.lastProgress[index] = 0;
 	}
 
 	async _uploadWithRetries(file, signResult, retries = RETRIES, progressIndex = 0) {
@@ -139,39 +175,4 @@ export class S3Uploader {
 		}
 	}
 
-	getChunks() {
-		if(this.file.size === 0 || !this.isMultipart) {
-			return [this.file];
-		}
-		const chunkSize = Math.max(5 * MB, Math.ceil(this.file.size / 10000));
-		
-		const chunks = [];
-		for(let start = 0; start < this.file.size; start += chunkSize) {
-			const end = Math.min(start + chunkSize, this.file.size);
-			chunks.push(this.file.slice(start, end));
-		}
-		return chunks;
-	}
-
-	async uploadMultipart() {
-		const { UploadId } = await this.createMultipartUpload({key: this.key});
-		this.uploadId = UploadId;
-		const signedUrls = await this.batchSign({key: this.key, uploadId: UploadId, numParts: this.chunks.length});
-		const uploadPromises = [];
-		for(let i = 0; i < signedUrls.length; i++) {
-			const url = signedUrls[i];
-			uploadPromises.push(this._uploadWithRetries(this.chunks[i], {signedUrl: url}, RETRIES, i).then((response) => {
-				const etag = response.getResponseHeader('ETag');
-				return {
-					ETag: etag,
-					PartNumber: i + 1
-				}
-			}).catch(err => {
-				console.log(err);
-			}));
-		}
-		const uploadResponses = await Promise.all(uploadPromises);
-
-		await this.completeMultipartUpload({key: this.key, uploadId: UploadId, parts: { Parts: uploadResponses }});
-	}
 }
