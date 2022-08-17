@@ -116,6 +116,7 @@ export class Uploader {
 			const s3Uploader = new S3Uploader({
 				file,
 				key: revision.s3Key,
+				isMultipart: true,
 				signRequest: ({ file, key }) =>
 					this.apiClient.s3Sign.sign({
 						fileName: key,
@@ -127,6 +128,10 @@ export class Uploader {
 					lastProgressPosition = progress;
 					this.onProgress(this.uploadProgress);
 				},
+				abortMultipartUpload: async ({key, uploadId}) => this.apiClient.s3.abortMultipartUpload({key, uploadId}),
+				batchSign: async ({key, uploadId, numParts}) => this.apiClient.s3.batchSign({key, uploadId, numParts}),
+				completeMultipartUpload: async ({key, uploadId, parts}) => this.apiClient.s3.completeMultipartUpload({key, uploadId, parts}),
+				createMultipartUpload: async ({key}) => this.apiClient.s3.initializeMultipartUpload({key})
 			});
 
 			await s3Uploader.upload();
