@@ -12,7 +12,7 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 		return {
 			isAudio: { type: Boolean, attribute: 'is-audio' },
 			canCapture: { type: Boolean, attribute: 'can-capture' },
-			canUpload: { type: Boolean, attribute: 'can-upload' },
+			smallPreview: { type: Boolean, attribute: 'can-upload' },
 			recordingDurationLimit: { type: Number, attribute: 'recording-duration-limit' },
 			_canRecord: { type: Boolean, attribute: false },
 			_isRecording: { type: Boolean, attribute: false }
@@ -85,7 +85,7 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 		});
 		const isFirefox = typeof InstallTrigger !== 'undefined';
 		this._extension = this.isAudio ? (isFirefox ? 'ogg' : 'wav') : 'webm';
-		this._canRecord = this.canCapture || this.isAudio;
+		this._canRecord = this.canCapture;
 	}
 
 	disconnectedCallback() {
@@ -102,10 +102,6 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 			try {
 				this._stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: !this.isAudio });
 				this._resetPlayer();
-				this.dispatchEvent(new CustomEvent('user-devices-loaded', {
-					bubbles: true,
-					composed: true
-				}));
 			} catch (error) {
 				this._canRecord = false;
 			}
@@ -156,7 +152,7 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 	}
 
 	get _mediaPreview() {
-		return this.shadowRoot?.querySelector('#media-preview');
+		return this.shadowRoot?.getElementById('media-preview');
 	}
 
 	_renderPermissionError() {
@@ -178,7 +174,7 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 			>
 				${!this.isAudio ? html`
 					<div class="d2l-video-container">
-						<video class="${this.canUpload ? 'small-video-preview' : ''}" id="media-preview">
+						<video class="${this.smallPreview ? 'small-video-preview' : ''}" id="media-preview">
 						</video>
 					</div>` : ''}
 				<div class="d2l-video-controls">
@@ -209,6 +205,9 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_resetPlayer() {
+		if (!this._mediaPreview) {
+			return;
+		}
 		try {
 			this._mediaPreview.srcObject = this._stream;
 		} catch (error) {
@@ -249,6 +248,9 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 	}
 
 	async _stopRecording() {
+		this._cancelTimer = true;
+		this._isRecording = false;
+
 		await this._audioVideoRecorder.stopRecording();
 		const url = this._audioVideoRecorder.recordRTC.toURL();
 		this._mediaBlob = await this._audioVideoRecorder.getBlob();
@@ -258,8 +260,7 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 		this._mediaPreview.srcObject = null;
 		this._mediaPreview.load();
 		this._mediaPreview.play();
-		this._isRecording = false;
-		this._cancelTimer = true;
+
 		this._dispatchCaptureClipCompletedEvent();
 	}
 
@@ -269,7 +270,7 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 		}
 		if (!this._cancelTimer) {
 			this._recordingDuration += 1;
-			this.shadowRoot.querySelector('#current-time').textContent = this._formatTime(this._recordingDuration);
+			this.shadowRoot.getElementById('current-time').textContent = this._formatTime(this._recordingDuration);
 			window.setTimeout(this._timer.bind(this), 1000);
 		}
 		this._cancelTimer = false;

@@ -138,7 +138,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 						<d2l-media-capture-recorder
 							?is-audio=${this.isAudio}
 							?can-capture=${this.canCapture}
-							?can-upload=${this.canUpload}
+							?small-preview=${this.canUpload}
 							recording-duration-limit=${this.isAudio ? this.recordingDurationLimit / 60 : this.recordingDurationLimit}
 							@capture-started=${this._handleCaptureStarted}
 							@capture-clip-completed=${this._handleCaptureClipCompleted}
@@ -365,7 +365,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_updateAriaLog(status) {
-		this.shadowRoot.querySelector('#media-capture-aria-log').textContent = this.localize(status);
+		this.shadowRoot.getElementById('media-capture-aria-log').textContent = this.localize(status);
 	}
 }
 

@@ -62,10 +62,10 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 							?auto-captions-enabled=${this.autoCaptionsEnabled}
 							max-file-size=${this.maxFileSizeInBytes}
 							recording-duration-limit=${this.isAudio ? this.audioRecordingDurationLimit : this.videoRecordingDurationLimit}
-							@user-devices-loaded=${this._handleUserDevicesLoaded}
 							@capture-clip-completed=${this._enablePrimaryButton}
 							@file-selected=${this._enablePrimaryButton}
 							@capture-started=${this._handleCaptureStartedEvent}
+							@metadata-input=${this._handleMetadataInputChangedEvent}
 							@upload-success=${this._handleUploadSuccess}
 							@processing-started=${this._handleProcessingStarted}
 						>
@@ -98,7 +98,7 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 
 	open() {
 		this._showRecordOrUploadView();
-		this.shadowRoot.querySelector('#media-capture-dialog').open();
+		this.shadowRoot.getElementById('media-capture-dialog').open();
 	}
 
 	_enablePrimaryButton() {
@@ -109,17 +109,21 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 		this._primaryButtonDisabled = true;
 	}
 
+	_handleMetadataInputChangedEvent(event) {
+		this._primaryButtonDisabled = !event.detail.valid;
+	}
+
 	async _handlePrimaryButtonClick() {
 		this._primaryButtonDisabled = true;
 		if (this._mediaCapture.fileSelected && this._mediaCapture.metadataReady) {
 			await this._mediaCapture.processMediaObject();
-		} else if (this._mediaCapture.fileSelected) {
+		} else if (this._mediaCapture.fileSelected && !this._fileUploaded) {
 			await this._mediaCapture.uploadSelectedFile();
 		}
 	}
 
 	_handleProcessingStarted() {
-		this.shadowRoot.querySelector('#media-capture-dialog').removeAttribute('opened');
+		this.shadowRoot.getElementById('media-capture-dialog').removeAttribute('opened');
 	}
 
 	_handleRecorderClose() {
@@ -127,13 +131,9 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_handleUploadSuccess() {
-		this._primaryButtonDisabled = false;
+		this._primaryButtonDisabled = !this._mediaCapture.metadataReady;
+		this._fileUploaded = true;
 		this._isRecordOrUploadView = false;
-	}
-
-	_handleUserDevicesLoaded() {
-		this.shadowRoot.querySelector('#media-capture-dialog').resize();
-		this.requestUpdate();
 	}
 
 	_showRecordOrUploadView() {

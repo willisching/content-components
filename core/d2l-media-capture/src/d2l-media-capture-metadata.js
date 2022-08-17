@@ -15,8 +15,8 @@ class D2LMediaCaptureMetadata extends InternalLocalizeMixin(LitElement) {
 			isVideoNote: { type: Boolean, attribute: 'is-video-note' },
 			autoCaptionsEnabled: { type: Boolean, attribute: 'auto-captions-enabled' },
 			_canAutoCaptionForLocale: { type: Boolean, attribute: false },
-			_languages: { type: Array, attribute: false },
-			_selectedLanguageCode: { type: String, attribute: false }
+			_locales: { type: Array, attribute: false },
+			_selectedLocaleCode: { type: String, attribute: false }
 		};
 	}
 
@@ -52,7 +52,7 @@ class D2LMediaCaptureMetadata extends InternalLocalizeMixin(LitElement) {
 
 	constructor() {
 		super();
-		this._languages = [];
+		this._locales = [];
 	}
 
 	async connectedCallback() {
@@ -81,6 +81,8 @@ class D2LMediaCaptureMetadata extends InternalLocalizeMixin(LitElement) {
 								<d2l-input-text
 									id="title-field"
 									labelled-by="metadata-title-label"
+									?required=${!this.isVideoNote}
+									@input=${this._handleTitleInputChange}
 								>
 								</d2l-input-text>
 							</td>
@@ -106,23 +108,37 @@ class D2LMediaCaptureMetadata extends InternalLocalizeMixin(LitElement) {
 	}
 
 	get ready() {
-		return true;
+		return this.isVideoNote || this._valid;
 	}
 
 	get values() {
 		return {
-			title: this.shadowRoot.querySelector('#title-field').value,
-			description: this.shadowRoot.querySelector('#description-field').value,
+			title: this.shadowRoot.getElementById('title-field').value,
+			description: this.shadowRoot.getElementById('description-field').value,
 			sourceLanguage: this._selectedLanguage,
-			autoCaptions: this.autoCaptionsEnabled && this.shadowRoot.querySelector('#auto-generate-captions-checkbox').checked
+			autoCaptions: this.autoCaptionsEnabled && this.shadowRoot.getElementById('auto-generate-captions-checkbox').checked
 		};
 	}
 
-	_handleLanguageSelect(e) {
-		if (this._languages.length > 0) {
-			const { selectedIndex, value } = e.target;
-			this._canAutoCaptionForLocale = selectedIndex !== 0 && this._languages.at(selectedIndex - 1).autoCaptions;
+	_handleLanguageSelect(event) {
+		if (this._locales.length > 0) {
+			const { selectedIndex, value } = event.target;
+			this._canAutoCaptionForLocale = selectedIndex !== 0 && this._locales.at(selectedIndex - 1).autoCaptions;
 			this._selectedLanguage = value;
+		}
+	}
+
+	_handleTitleInputChange(event) {
+		if (!this.isVideoNote) {
+			const titleInputValue = event.target.value;
+			this._valid = titleInputValue && titleInputValue.trim().length > 0;
+			this.dispatchEvent(new CustomEvent('metadata-input', {
+				bubbles: true,
+				composed: true,
+				detail: {
+					valid: this._valid
+				}
+			}));
 		}
 	}
 
@@ -143,7 +159,7 @@ class D2LMediaCaptureMetadata extends InternalLocalizeMixin(LitElement) {
 							@change="${this._handleLanguageSelect}"
 						>
 							<option value="">${this.localize('unknown')}</option>
-							${this._languages.map(language => html`<option value="${language.code}">${language.name}</option>`)}
+							${this._locales.map(language => html`<option value="${language.code}">${language.name}</option>`)}
 						</select>
 					</td>
 				</tr>
@@ -170,13 +186,11 @@ class D2LMediaCaptureMetadata extends InternalLocalizeMixin(LitElement) {
 
 	async _setupLanguages() {
 		const Items = await this.brightspaceClient.getLocales();
-		this._languages = Items.map(({ LocaleName, CultureCode, IsDefault, AutoCaptions }) => {
+		this._locales = Items.map(({ LocaleName, CultureCode, IsDefault, AutoCaptions }) => {
 			const code = CultureCode.toLowerCase();
 			return { name: LocaleName, code, isDefault: IsDefault, autoCaptions: AutoCaptions };
 		});
-		this.requestUpdate();
 	}
-
 }
 
 customElements.define('d2l-media-capture-metadata', D2LMediaCaptureMetadata);
