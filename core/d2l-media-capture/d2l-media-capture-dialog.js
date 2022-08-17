@@ -128,6 +128,7 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 
 	_handleRecorderClose() {
 		this._mediaCapture.reset();
+		this._fileUploaded = false;
 	}
 
 	_handleUploadSuccess() {

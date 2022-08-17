@@ -12,7 +12,7 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 		return {
 			isAudio: { type: Boolean, attribute: 'is-audio' },
 			canCapture: { type: Boolean, attribute: 'can-capture' },
-			smallPreview: { type: Boolean, attribute: 'can-upload' },
+			smallPreview: { type: Boolean, attribute: 'small-preview' },
 			recordingDurationLimit: { type: Number, attribute: 'recording-duration-limit' },
 			_canRecord: { type: Boolean, attribute: false },
 			_isRecording: { type: Boolean, attribute: false }
@@ -248,7 +248,6 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 
 	async _stopRecording() {
 		this._cancelTimer = true;
-		this._isRecording = false;
 
 		await this._audioVideoRecorder.stopRecording();
 		const url = this._audioVideoRecorder.recordRTC.toURL();
@@ -260,6 +259,7 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 		this._mediaPreview.load();
 		this._mediaPreview.play();
 
+		this._isRecording = false;
 		this._dispatchCaptureClipCompletedEvent();
 	}
 
