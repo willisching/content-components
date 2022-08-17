@@ -38,7 +38,6 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 			}
 
 			.d2l-video-controls-duration {
-				display: inline-block;
 				color: #333;
 				font-size: 1.3em;
 				float: right;

@@ -59,7 +59,6 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 			}
 
 			.d2l-media-capture-source-selector {
-				display: inline-block;
 				margin-top: 0;
 				border: 1px solid #494c4e;
 				color: black;

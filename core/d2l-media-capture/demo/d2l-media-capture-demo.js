@@ -3,6 +3,7 @@ import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/inputs/input-text.js';
 import '@brightspace-ui/core/components/inputs/input-number.js';
 import '@brightspace-ui/core/components/inputs/input-checkbox.js';
+import '../d2l-media-capture-dialog';
 
 import { css, html, LitElement } from 'lit';
 
