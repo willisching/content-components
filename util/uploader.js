@@ -113,6 +113,10 @@ export class Uploader {
 					extension,
 				},
 			});
+
+			const contentId = content.id;
+			const revisionId = revision.id;
+
 			const s3Uploader = new S3Uploader({
 				file,
 				key: revision.s3Key,
@@ -128,10 +132,10 @@ export class Uploader {
 					lastProgressPosition = progress;
 					this.onProgress(this.uploadProgress);
 				},
-				abortMultipartUpload: async({key, uploadId}) => this.apiClient.content.abortMultipartUpload({key, uploadId}),
-				batchSign: async({key, uploadId, numParts}) => this.apiClient.content.batchSign({key, uploadId, numParts}),
-				completeMultipartUpload: async({key, uploadId, parts}) => this.apiClient.content.completeMultipartUpload({key, uploadId, parts}),
-				createMultipartUpload: async({key}) => this.apiClient.content.initializeMultipartUpload({key})
+				abortMultipartUpload: async({key, uploadId}) => this.apiClient.content.abortMultipartUpload({key, uploadId, contentId, revisionId}),
+				batchSign: async({key, uploadId, numParts}) => this.apiClient.content.batchSign({key, uploadId, numParts, contentId, revisionId}),
+				completeMultipartUpload: async({key, uploadId, parts}) => this.apiClient.content.completeMultipartUpload({key, uploadId, parts, contentId, revisionId}),
+				createMultipartUpload: async({key}) => this.apiClient.content.initializeMultipartUpload({key, contentId, revisionId})
 			});
 
 			await s3Uploader.upload();
