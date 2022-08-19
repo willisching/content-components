@@ -25,12 +25,12 @@ export class S3Uploader {
 		this.createMultipartUpload = createMultipartUpload;
 		this.isMultipart = isMultipart;
 		this.onProgress = onProgress;
+		this.minChunkSize = minChunkSize ? minChunkSize : 50 * MB;
 		this.chunks = this.getChunks();
 		this.lastProgress = null;
 		this.totalProgress = 0;
 		this.httprequests = [];
 		this.uploadId = null;
-		this.minChunkSize = minChunkSize ? minChunkSize : 50 * MB;
 	}
 
 	abort() {
