@@ -124,7 +124,7 @@ export default {
 	"formatMP3": "MP3",
 	"formatSD": "SD",
 	"formatSource": "Source",
-	"generalErrorMessage": "An error occured while trying to load this resource.",
+	"generalErrorMessage": "An error occurred while trying to load this resource.",
 	"getLiveEventError": "Unable to get {numEvents, plural, =1 {the live event.} other {live events.}}",
 	"getProcessingProgressError": "Failed to load processing status for this media file.",
 	"goBackToHomePage": "Go back to the home page.",
@@ -318,7 +318,7 @@ export default {
 	"workerErrorZipFileCorrupted": "The package zip file is corrupted",
 	"yes": "Yes",
 	"yesShareFileWith": "Yes, share this file with ",
-	"yesShareFileWithAll": "Yes, share this file with everyone.",
+	"yesShareFileWithAll": "Yes, share this file with everyone",
 	"yesShareFileWithX": "Yes, share this file with {name}",
 	"yesterday": "Yesterday"
 };

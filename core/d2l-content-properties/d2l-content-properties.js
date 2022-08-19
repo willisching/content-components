@@ -306,12 +306,13 @@ class ContentProperties extends RequesterMixin(SkeletonMixin(InternalLocalizeMix
 		if (!this.content.sharedWith || this.content.sharedWith.length === 0 || !this.canShareTo) {
 			this._shared = false;
 		} else {
-			this._shared = true;
-			this._selectedSharingIndex = this.canShareTo.findIndex(canShareLocation =>
-				this.content.sharedWith.includes(buildOrgUnitShareLocationStr(String(canShareLocation.id))));
-			if (this._selectedSharingIndex === -1) {
-				this._selectedSharingIndex = 0;
-			}
+			const firstAllowedCurrentShareLocationIndex = this.canShareTo.findIndex(canShareLocation =>
+				this.content.sharedWith.includes(buildOrgUnitShareLocationStr(canShareLocation.id)));
+
+			this._selectedSharingIndex = firstAllowedCurrentShareLocationIndex === -1 ? 0 : firstAllowedCurrentShareLocationIndex;
+			this._shared = this.canSelectShareLocation ?
+				firstAllowedCurrentShareLocationIndex !== -1 :
+				this._isSharingToAllAllowedShareLocations();
 		}
 
 		this._playerShowNavBar = revision.options ? revision.options.playerShowNavBar : null;
@@ -321,6 +322,12 @@ class ContentProperties extends RequesterMixin(SkeletonMixin(InternalLocalizeMix
 		if (this._recommendedPlayer === undefined) {
 			this._recommendedPlayer = PlayerOption.EMBEDDED;
 		}
+	}
+
+	_isSharingToAllAllowedShareLocations() {
+		return this.canShareTo.every(canShareLocation =>
+			this.content.sharedWith.find(sharedWithLocation =>
+				buildOrgUnitShareLocationStr(canShareLocation.id) === sharedWithLocation));
 	}
 
 	_renderNavBarOptions() {
