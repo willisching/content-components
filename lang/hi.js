@@ -135,6 +135,7 @@ export default {
 	"highest": "उच्चतम प्रयास",
 	"id": "ID",
 	"insertNewCaptionsAtCurrentTime": "वर्तमान समय पर नए कैप्शन सम्मिलित करें",
+	"invalidFileSize": "क्षमा करें, एक या अधिक फ़ाइलों का एक अमान्य फ़ाइल आकार (अधिकतम {localizedMaxFileSize}) है",
 	"invalidFileType": "अमान्य फ़ाइल प्रकार।",
 	"invalidFileTypeSelected": "अमान्य फाइल प्रकार चयनित किया गया।",
 	"invalidFormat": "समय निम्न स्वरूप में होना आवश्यक है: HH:MM:SS.sss",

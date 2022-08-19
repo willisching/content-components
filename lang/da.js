@@ -135,6 +135,7 @@ export default {
 	"highest": "Højeste forsøg",
 	"id": "Id",
 	"insertNewCaptionsAtCurrentTime": "Indsæt nye billedtekster på nuværende tidspunkt",
+	"invalidFileSize": "Desværre har en eller flere filer en ugyldig filstørrelse (maks. {localizedMaxFileSize})",
 	"invalidFileType": "Ugyldig filtype.",
 	"invalidFileTypeSelected": "Ugyldig filtype valgt.",
 	"invalidFormat": "Tiden skal være i følgende format: TT:MM:SS.sss",

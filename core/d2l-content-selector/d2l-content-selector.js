@@ -108,7 +108,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		this._value = null;
 		this._errorMessage = null;
 		this._nextButtonSettingsDisabled = true;
-		this._saveButtonPropertiesDisabled = false;
+		this._saveButtonPropertiesDisabled = true;
 		this._selectedView = VIEW.LIST;
 		this._bulkErrorMessages = {};
 		this._totalFiles = 0;
@@ -226,6 +226,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 								.shareUploadsWith=${this._shareUploadsWith}
 								.supportedTypes=${SUPPORTED_TYPES}
 								@change-view=${this.changeView}
+								@preupload-reset=${this.progressReset}
 								@on-uploader-error=${this.reactToUploadError}
 								@on-uploader-success=${this.reactToUploaderSuccess}
 								@on-progress=${this.onProgress}
@@ -262,6 +263,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 								progress=${this._propertyProgress}
 								userId=${this.userId}
 								embedFeatureEnabled
+								@enable-save=${this._enableSaveButton}
 							></d2l-content-properties>
 						</div>
 						<div class="action-group">
@@ -357,13 +359,21 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		const d2lrn = this._d2lrnList.shift();
 		this._contentId = d2lrn[0];
 		this.selectedObject = d2lrn[1];
-		this.changeHeader(this.localize('configureCoursePackagePropertiesBulk', { 0: this._propertyProgress, 1: this._totalFiles }));
+		this.changeHeader(this.localize('configureCoursePackagePropertiesBulk', { 0: this._propertyProgress, 1: this._uploadSuccessFiles }));
 		this._selectedView = VIEW.PROPERTIES;
 	}
 
 	onProgress(event) {
 		this._uploadProgress = event.detail.progress;
 		this.requestUpdate();
+	}
+
+	progressReset() {
+		this._bulkErrorMessages = {};
+		this._errorMessage = null;
+		this._progress = 0;
+		this._uploadProgress = 0;
+		this._propertyProgress = 1;
 	}
 
 	reactToUploadError(event) {
@@ -422,6 +432,10 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		this._nextButtonSettingsDisabled = false;
 	}
 
+	_enableSaveButton() {
+		this._saveButtonPropertiesDisabled = false;
+	}
+
 	async _handleAddTopic() {
 		this._selectedView = VIEW.LOADING;
 		const topicSettings = this._topicSettings.getSettings();
@@ -451,6 +465,8 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	_handleListEditProperties({ detail: { selectedItem } }) {
+		// prevent button clicks until everything is fully loaded, event after loading will enable it again
+		this._saveButtonPropertiesDisabled = true;
 		this.selectedObject = '';
 		this._contentId = selectedItem.id;
 		this.changeHeader(this.localize('editCoursePackageProperties'));
@@ -483,7 +499,6 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 	async _handlePropertiesSaved() {
 		this._saveButtonPropertiesDisabled = true;
 		await this._contentProperties.save();
-		this._saveButtonPropertiesDisabled = false;
 		if (this._d2lrnList.length > 0) {
 			this._propertyProgress += 1;
 
@@ -510,6 +525,8 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	_navigateToUpload() {
+		// after returning from bulk upload, progress values are kept so need to reset on new upload
+		this.progressReset();
 		this._contentId = null;
 		this.changeHeader(this.localize('upload'));
 		this._selectedView = VIEW.UPLOAD;

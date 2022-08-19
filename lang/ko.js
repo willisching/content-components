@@ -135,6 +135,7 @@ export default {
 	"highest": "최고 시도",
 	"id": "Id",
 	"insertNewCaptionsAtCurrentTime": "현재 시간에 새 캡션을 삽입하십시오.",
+	"invalidFileSize": "죄송합니다. 유효하지 않은 크기의 파일이 하나 이상 있습니다(최대 {localizedMaxFileSize}).",
 	"invalidFileType": "파일 유형이 유효하지 않습니다.",
 	"invalidFileTypeSelected": "선택한 파일 유형이 유효하지 않습니다.",
 	"invalidFormat": "시간은 HH:MM:SS.sss 형식이어야 합니다.",

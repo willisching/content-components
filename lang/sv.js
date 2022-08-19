@@ -135,6 +135,7 @@ export default {
 	"highest": "Högsta försök",
 	"id": "ID",
 	"insertNewCaptionsAtCurrentTime": "Infoga nya undertexter vid den aktuella tidpunkten",
+	"invalidFileSize": "Tyvärr har en eller flera filer ogiltig filstorlek (max. {localizedMaxFileSize})",
 	"invalidFileType": "Ogiltig filtyp.",
 	"invalidFileTypeSelected": "Ogiltig filtyp vald.",
 	"invalidFormat": "Tiden måste ha följande format: HH:MM:SS.sss",

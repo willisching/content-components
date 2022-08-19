@@ -12,12 +12,12 @@ export function getExtension(filePath) {
 	return pathParts.length > 1 ? `.${pathParts.pop().toLowerCase()}` : null;
 }
 
-export function getSupportedExtensions() {
-	return Object.values(supportedTypeExtensions).flat(1);
+export function getSupportedExtensions(contentType = Object.keys(supportedTypeExtensions).flat(1)) {
+	return contentType.flatMap(mediaType => supportedTypeExtensions[mediaType]);
 }
 
-export function isSupported(filePath) {
-	return getSupportedExtensions().includes(getExtension(filePath));
+export function isSupported(filePath, contentType) {
+	return getSupportedExtensions(contentType).includes(getExtension(filePath));
 }
 
 export function isAudioType(filePath) {

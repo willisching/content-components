@@ -135,6 +135,7 @@ export default {
 	"highest": "最高嘗試",
 	"id": "ID",
 	"insertNewCaptionsAtCurrentTime": "在目前時間插入新字幕",
+	"invalidFileSize": "很抱歉，一或多個檔案的檔案大小無效 (上限 {localizedMaxFileSize})",
 	"invalidFileType": "檔案類型無效。",
 	"invalidFileTypeSelected": "所選檔案類型無效。",
 	"invalidFormat": "時間必須使用下列格式：HH:MM:SS.sss (時時:分分:秒秒.秒秒秒，秒數到小數點後第三位)",

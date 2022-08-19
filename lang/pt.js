@@ -135,6 +135,7 @@ export default {
 	"highest": "Maior tentativa",
 	"id": "Id",
 	"insertNewCaptionsAtCurrentTime": "Inserir novas legendas na hora atual",
+	"invalidFileSize": "Lamentamos, mas um ou mais arquivos têm tamanho inválido (máx. {localizedMaxFileSize})",
 	"invalidFileType": "Tipo de arquivo inválido.",
 	"invalidFileTypeSelected": "O tipo de arquivo selecionado é inválido.",
 	"invalidFormat": "A hora deve estar no seguinte formato: HH:MM:SS.sss",

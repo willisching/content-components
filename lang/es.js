@@ -135,6 +135,7 @@ export default {
 	"highest": "Intento más alto",
 	"id": "ID",
 	"insertNewCaptionsAtCurrentTime": "Inserte nuevos subtítulos en el momento actual",
+	"invalidFileSize": "Lo sentimos, uno o más archivos tienen un tamaño no válido (máx. {localizedMaxFileSize})",
 	"invalidFileType": "Tipo de archivo no válido.",
 	"invalidFileTypeSelected": "Tipo de archivo seleccionado no válido.",
 	"invalidFormat": "El tiempo debe tener el siguiente formato: HH:MM:SS.sss",

@@ -135,6 +135,7 @@ export default {
 	"highest": "En Yüksek Deneme",
 	"id": "Kimlik",
 	"insertNewCaptionsAtCurrentTime": "Geçerli zamana yeni altyazı yerleştir",
+	"invalidFileSize": "Maalesef bir veya birden çok dosyanın boyutu geçersiz (Dosya boyutu en fazla {localizedMaxFileSize} olabilir)",
 	"invalidFileType": "Geçersiz dosya türü.",
 	"invalidFileTypeSelected": "Geçersiz dosya türü seçildi.",
 	"invalidFormat": "Süre şu biçimde olmalıdır: SS:DD:SS.sss",

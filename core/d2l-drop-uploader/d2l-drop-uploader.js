@@ -11,7 +11,7 @@ import { css, html, LitElement } from 'lit-element';
 import { RequesterMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
 import { ContentServiceApiClient } from '@d2l/content-service-shared-utils';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
-import { isSupported, supportedTypeExtensions } from '../../util/media-type-util.js';
+import { isSupported, getSupportedExtensions } from '../../util/media-type-util.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { Uploader } from '../../util/uploader.js';
 
@@ -216,11 +216,11 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 				errorMessage: message,
 			},
 		}));
-		this.reset();
 	}
 
 	preupload() {
 		this.reset();
+		this.dispatchEvent(new CustomEvent('preupload-reset'));
 		this.dispatchEvent(new CustomEvent('change-view', {
 			detail: {
 				view: 'PROGRESS',
@@ -239,19 +239,25 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 		if (this.enableBulkUpload && this.files.length > this._maxNumberOfFiles) {
 			return this.onUploadError(this.localize('tooManyFiles'));
 		}
-		if (this.files.some(file => !isSupported(file.name))) {
+
+		if (this.files.some(file => !isSupported(file.name, this.supportedTypes))) {
 			return this.onUploadError(this.localize('invalidFileType'));
 		}
 
-		if (this.files.some(file => file.size > this.maxFileSizeInBytes)) {
-			return this.onUploadError(this.localize('fileTooLarge', { localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes) }));
+		if (this.files.some(file => file.size > this.maxFileSizeInBytes || file.size === 0)) {
+			return this.onUploadError(this.localize('invalidFileSize', { localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes) }));
 		}
 
 		for (const file of this.files) {
 			this.preprocess(file);
 		}
-		this.preupload();
-		this.startUpload();
+
+		// on file select cancel (0 files selected), should not proceed with upload steps
+		if (this.files.length !== 0) {
+			this.preupload();
+			this.startUpload();
+		}
+
 	}
 
 	reactToProcessingSuccess(value) {
@@ -290,6 +296,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 		this.uploader.reset();
 		this.active = 0;
 		this.progress = 0;
+		this.errorMessage = null;
 		// reset upload progress loading bar to 0
 		this.onProgress(this.progress);
 	}
@@ -326,7 +333,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 						<input
 							id="file-select"
 							type="file"
-							accept=${this.supportedTypes.flatMap(mediaType => supportedTypeExtensions[mediaType])}
+							accept=${getSupportedExtensions(this.supportedTypes).toString()}
 							@change=${this.onFileInputChange}
 							?multiple=${this._isBulkUploadEnabled()}
 						/>
@@ -359,7 +366,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 							<input
 								id="file-select"
 								type="file"
-								accept=${this.supportedTypes.flatMap(mediaType => supportedTypeExtensions[mediaType])}
+								accept=${getSupportedExtensions(this.supportedTypes).toString()}
 								@change=${this.onFileInputChange}
 								?multiple=${this._isBulkUploadEnabled()}
 							/>

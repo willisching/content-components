@@ -135,6 +135,7 @@ export default {
 	"highest": "Cais Uchaf",
 	"id": "ID",
 	"insertNewCaptionsAtCurrentTime": "Mewnosod capsiynau newydd ar hyn o bryd",
+	"invalidFileSize": "Mae’n ddrwg gennym, mae un neu ragor o ffeiliau o faint ffeil annilys (hyd at {localizedMaxFileSize})",
 	"invalidFileType": "Math ffeil annilys.",
 	"invalidFileTypeSelected": "Dewisir math ffeil annilys.",
 	"invalidFormat": "Rhaid i'r amser fod yn y fformat a ganlyn: AA:MM:EE.milieiliadau",

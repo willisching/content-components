@@ -1,4 +1,5 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
+import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/inputs/input-text.js';
 import '@brightspace-ui/core/components/dropdown/dropdown.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-button.js';
@@ -8,7 +9,7 @@ import '@brightspace-ui/core/components/menu/menu-item.js';
 import { radioStyles } from '@brightspace-ui/core/components/inputs/input-radio-styles.js';
 import { SkeletonMixin } from '@brightspace-ui/core/components/skeleton/skeleton-mixin.js';
 import { RequesterMixin } from '@brightspace-ui/core/mixins/provider-mixin.js';
-import '@brightspace-ui/core/components/button/button.js';
+import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { ContentServiceApiClient } from '@d2l/content-service-shared-utils';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
@@ -18,7 +19,7 @@ import PlayerOption from '../../util/player-option.js';
 import ContentType from '../../util/content-type.js';
 import { ContentCacheDependencyKey } from '../../models/content-cache.js';
 
-class ContentProperties extends RequesterMixin(SkeletonMixin(InternalLocalizeMixin(LitElement))) {
+class ContentProperties extends RtlMixin(RequesterMixin(SkeletonMixin(InternalLocalizeMixin(LitElement)))) {
 	static get properties() {
 		return {
 			d2lrn: { type: String },
@@ -41,85 +42,99 @@ class ContentProperties extends RequesterMixin(SkeletonMixin(InternalLocalizeMix
 
 	static get styles() {
 		return [super.styles, radioStyles, css`
-		.label-body {
-			display: inline-block;
-			flex-wrap: wrap;
-			align-items: center;
-			line-height: 1.5rem;
-			pointer-events: none;
-			height: 30px;
-		}
+			.label-body {
+				display: inline-block;
+				flex-wrap: wrap;
+				align-items: center;
+				line-height: 1.5rem;
+				pointer-events: none;
+			}
 
-		.setting-section .setting-option {
-			display: flex;
-			font-size: 16px;
-			margin-bottom: 5px;
-		}
+			.setting-section {
+				display: inline-block;
+			}
 
-		.radio-container {
-			width: 26px;
-			height: 26px;
-			margin-top: 3px;
-			margin-right: 10px;
-		}
+			.setting-section .setting-option {
+				align-items: baseline;
+				display: flex;
+				font-size: 16px;
+				margin-bottom: 5px;
+			}
 
-		.radio-container input[type="radio"] {
-			margin-top: -6px;
-		}
+			.radio-container {
+				width: 26px;
+				height: 26px;
+				margin-top: 3px;
+				margin-right: 10px;
+			}
 
-		.label-description {
-			display: flex;
-			flex-wrap: wrap;
-			align-items: center;
-			pointer-events: none;
-			color: var(--d2l-color-galena);
-			font-size: 14px;
-			line-height: 1rem;
-		}
+			.radio-container input[type="radio"] {
+				margin-top: -6px;
+			}
 
-		.input-container #add-sharing {
-			margin-right: 15px;
-		}
+			.label-description {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				pointer-events: none;
+				color: var(--d2l-color-galena);
+				font-size: 14px;
+				line-height: 1rem;
+			}
 
-		.sharing-dropdown-container {
-			margin-left: 10px;
-			margin-top: -4px;
-		}
+			.input-container #add-sharing {
+				margin-right: 15px;
+			}
 
-		h4.section-heading {
-			font-size: 16px;
-			margin-bottom: 10px;
-			margin-top: 20px;
-			-webkit-text-size-adjust: 100%;
-		}
+			h4.section-heading {
+				font-size: 16px;
+				margin-bottom: 10px;
+				margin-top: 20px;
+				-webkit-text-size-adjust: 100%;
+			}
 
-		.section-description {
-			margin-top: 0;
-			margin-bottom: 6px;
-			font-size: 14px;
-			color: var(--d2l-color-galena);
-			line-height: 1rem;
-		}
+			.section-description {
+				margin-top: 0;
+				margin-bottom: 6px;
+				font-size: 14px;
+				color: var(--d2l-color-galena);
+				line-height: 1rem;
+			}
 
-		.setting-section.navigation .section-heading {
-			margin-bottom: 0;
-		}
+			.setting-section.navigation .section-heading {
+				margin-bottom: 0;
+			}
 
-		.package-section .package-name {
-			margin-bottom: 10px;
-			margin-top: 0;
-			font-size: 16px;
-		}
+			.package-section .package-name {
+				margin-bottom: 10px;
+				margin-top: 0;
+				font-size: 16px;
+			}
 
-		.package-section .package-description {
-			margin-bottom: 10px;
-			margin-top: 10px;
-			font-size: 16px;
-		}
+			.package-section .package-description {
+				margin-bottom: 10px;
+				margin-top: 10px;
+				font-size: 16px;
+			}
 
-		.settings-container {
-			margin-bottom: 20px;
-		}
+			.settings-container {
+				height: 100%;
+				margin-bottom: 20px;
+			}
+
+			.add-sharing-container {
+				align-items: baseline;
+				display: flex;
+				flex-wrap: wrap;
+			}
+
+			.add-sharing-label {
+				margin-right: 10px;
+			}
+			:host([dir="rtl"]) .add-sharing-label {
+				margin-left: 10px;
+				margin-right: 0;
+			}
 		`];
 	}
 
@@ -143,6 +158,7 @@ class ContentProperties extends RequesterMixin(SkeletonMixin(InternalLocalizeMix
 		super.connectedCallback();
 		await this._initProperties();
 		this.skeleton = false;
+		this.dispatchEvent(new CustomEvent('enable-save'));
 	}
 
 	render() {
@@ -449,14 +465,14 @@ class ContentProperties extends RequesterMixin(SkeletonMixin(InternalLocalizeMix
 
 	_renderShareLabel() {
 		if (!this.canSelectShareLocation) {
-			return html`<label for="add-sharing" class="label-body d2l-skeletize">${this.localize('yesShareFileWithAll')}</label>`;
+			return html`<label for="add-sharing" class="label-body d2l-skeletize add-sharing-label">${this.localize('yesShareFileWithAll')}</label>`;
 		}
 
 		if (this.canShareTo.length === 1) {
-			return html`<label for="add-sharing" class="label-body d2l-skeletize">${this.localize('yesShareFileWithX', { name: this.canShareTo[0].name })}</label>`;
+			return html`<label for="add-sharing" class="label-body d2l-skeletize add-sharing-label">${this.localize('yesShareFileWithX', { name: this.canShareTo[0].name })}</label>`;
 		}
 
-		return html`<label for="add-sharing" class="label-body d2l-skeletize">${this.localize('yesShareFileWith')}</label>`;
+		return html`<label for="add-sharing" class="label-body d2l-skeletize add-sharing-label">${this.localize('yesShareFileWith')}</label>`;
 	}
 
 	_renderSharingDropdown() {
@@ -492,8 +508,10 @@ class ContentProperties extends RequesterMixin(SkeletonMixin(InternalLocalizeMix
 						?checked="${this._shared !== null && this._shared}"
 					/>
 				</div>
-				${this._renderShareLabel()}
-				${this._renderSharingDropdown()}
+				<div class="add-sharing-container">
+					${this._renderShareLabel()}
+					${this._renderSharingDropdown()}
+				</div>
 			</div>
 			<div class="setting-option">
 				<div class="radio-container d2l-skeletize">

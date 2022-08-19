@@ -1,7 +1,7 @@
 {
   "name": "@d2l/content-components",
   "description": "Web components for content in Brightspace",
-  "version": "3.40.8",
+  "version": "3.41.5",
   "type": "module",
   "scripts": {
     "eslint-fix": "eslint . --ext .js,.html,.cjs --fix",
@@ -51,8 +51,8 @@
     "@brightspace-ui/resize-aware": "^1.4.0",
     "@chaitin/querystring": "^1.1.0",
     "@createjs/easeljs": "^2.0.0-beta.4",
-    "@d2l/content-service-shared-utils": "^7.16.4",
-    "@d2l/content-service-browser-http-client": "^7.16.4",
+    "@d2l/content-service-shared-utils": "^7.16.5",
+    "@d2l/content-service-browser-http-client": "^7.16.5",
     "@polymer/polymer": "^3",
     "d2l-fetch": "^2",
     "d2l-fetch-auth": "^1",

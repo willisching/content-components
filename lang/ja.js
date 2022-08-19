@@ -135,6 +135,7 @@ export default {
 	"highest": "最高の試行",
 	"id": "ID",
 	"insertNewCaptionsAtCurrentTime": "現在の時刻に新規キャプションを挿入",
+	"invalidFileSize": "申し訳ありません。サイズが無効なファイルがあります（上限: {localizedMaxFileSize}）",
 	"invalidFileType": "ファイルタイプが無効です。",
 	"invalidFileTypeSelected": "選択されたファイルタイプが無効です。",
 	"invalidFormat": "時間は HH:MM:SS.sss の形式である必要があります",
