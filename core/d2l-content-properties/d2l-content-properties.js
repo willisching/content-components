@@ -322,12 +322,20 @@ class ContentProperties extends RtlMixin(RequesterMixin(SkeletonMixin(InternalLo
 		if (!this.content.sharedWith || this.content.sharedWith.length === 0 || !this.canShareTo) {
 			this._shared = false;
 		} else {
-			this._shared = true;
-			this._selectedSharingIndex = this.canShareTo.findIndex(canShareLocation =>
-				this.content.sharedWith.includes(buildOrgUnitShareLocationStr(String(canShareLocation.id))));
-			if (this._selectedSharingIndex === -1) {
-				this._selectedSharingIndex = 0;
-			}
+			const firstAllowedCurrentShareLocationIndex = this.canShareTo.findIndex(canShareLocation =>
+				this.content.sharedWith.includes(buildOrgUnitShareLocationStr(canShareLocation.id)));
+
+			this._selectedSharingIndex = firstAllowedCurrentShareLocationIndex === -1 ? 0 : firstAllowedCurrentShareLocationIndex;
+
+			// The content being shared in some location doesn't necessarily
+			// mean we should show it as shared in the context of org unit
+			// the selector is being launched in. Example: share in course A,
+			// launch selector in course B. In the context of course B, it's
+			// not shared, and this is what needs to be displayed in the
+			// dialog.
+			this._shared = this.canSelectShareLocation ?
+				firstAllowedCurrentShareLocationIndex !== -1 :
+				this._isSharingToAllAllowedShareLocations();
 		}
 
 		this._playerShowNavBar = revision.options ? revision.options.playerShowNavBar : null;
@@ -337,6 +345,12 @@ class ContentProperties extends RtlMixin(RequesterMixin(SkeletonMixin(InternalLo
 		if (this._recommendedPlayer === undefined) {
 			this._recommendedPlayer = PlayerOption.EMBEDDED;
 		}
+	}
+
+	_isSharingToAllAllowedShareLocations() {
+		return this.canShareTo.every(canShareLocation =>
+			this.content.sharedWith.find(sharedWithLocation =>
+				buildOrgUnitShareLocationStr(canShareLocation.id) === sharedWithLocation));
 	}
 
 	_renderNavBarOptions() {

@@ -1,6 +1,6 @@
 const buildShareLocationStr = (type, id) => `${type}:${id}`;
 
-export const buildOrgUnitShareLocationStr = id => buildShareLocationStr('ou', id);
+export const buildOrgUnitShareLocationStr = id => buildShareLocationStr('ou', String(id));
 
 const isSame = (shareLocationObj, shareLocationStr) =>
 	shareLocationObj.id.toString() === shareLocationStr.slice(Math.max(0, shareLocationStr.indexOf(':') + 1));
