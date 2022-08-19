@@ -7,6 +7,7 @@ export class S3Uploader {
 	constructor({
 		file,
 		key,
+		minChunkSize,
 		isMultipart = false,
 		abortMultipartUpload = async() => {},
 		batchSign = async() => {},
@@ -29,6 +30,7 @@ export class S3Uploader {
 		this.totalProgress = 0;
 		this.httprequests = [];
 		this.uploadId = null;
+		this.minChunkSize = minChunkSize ? minChunkSize : 50 * MB;
 	}
 
 	abort() {
@@ -56,7 +58,7 @@ export class S3Uploader {
 		if (this.file.size === 0 || !this.isMultipart) {
 			return [this.file];
 		}
-		const chunkSize = Math.max(5 * MB, Math.ceil(this.file.size / 10000));
+		const chunkSize = Math.max(this.minChunkSize, Math.ceil(this.file.size / 10000));
 
 		const chunks = [];
 		for (let start = 0; start < this.file.size; start += chunkSize) {
