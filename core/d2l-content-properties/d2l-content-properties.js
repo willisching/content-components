@@ -326,6 +326,13 @@ class ContentProperties extends RtlMixin(RequesterMixin(SkeletonMixin(InternalLo
 				this.content.sharedWith.includes(buildOrgUnitShareLocationStr(canShareLocation.id)));
 
 			this._selectedSharingIndex = firstAllowedCurrentShareLocationIndex === -1 ? 0 : firstAllowedCurrentShareLocationIndex;
+
+			// The content being shared in some location doesn't necessarily
+			// mean we should show it as shared in the context of org unit
+			// the selector is being launched in. Example: share in course A,
+			// launch selector in course B. In the context of course B, it's
+			// not shared, and this is what needs to be displayed in the
+			// dialog.
 			this._shared = this.canSelectShareLocation ?
 				firstAllowedCurrentShareLocationIndex !== -1 :
 				this._isSharingToAllAllowedShareLocations();
