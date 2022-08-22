@@ -5,7 +5,7 @@ A collection of components used for content in Brightspace.
 ## Components
 
 ### Applications
-* [d2l-capture-central](applications/d2l-capture-central)
+* [d2l-content-library](applications/d2l-content-library)
 
 
 ### Core
