@@ -1,4 +1,5 @@
 import './components/two-column-layout.js';
+import '../../../core/d2l-media-capture/d2l-media-capture-dialog.js';
 import '@brightspace-ui/core/components/list/list-item-content.js';
 import '@brightspace-ui/core/components/list/list-item.js';
 import '@brightspace-ui/core/components/list/list.js';
@@ -115,6 +116,13 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 	async connectedCallback() {
 		await super.connectedCallback();
 		this.userBrightspaceClient = this.requestDependency('user-brightspace-client');
+		this.contentServiceEndpoint = this.requestDependency('content-service-endpoint');
+		this._canRecord = this.requestDependency('can-record');
+		if (this._canRecord) {
+			this._audioRecordingDurationLimit = this.requestDependency('audio-recording-duration-limit');
+			this._videoRecordingDurationLimit = this.requestDependency('video-recording-duration-limit');
+			this._autoCaptionsEnabled = this.requestDependency('auto-captions-enabled');
+		}
 
 		try {
 			const permissions = await this.userBrightspaceClient.getCapturePermissions({
@@ -165,6 +173,18 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 							${this._renderPrimary()}
 						</div>
 					</two-column-layout>
+					${this._canRecord ? html`
+						<d2l-media-capture-dialog
+							id="media-capture-dialog"
+							tenant-id="${this.tenantId}"
+							content-service-endpoint="${this.contentServiceEndpoint}"
+							client-app="LmsCapture"
+							audio-recording-duration-limit="${this._audioRecordingDurationLimit}"
+							video-recording-duration-limit="${this._videoRecordingDurationLimit}"
+							can-capture-video
+							can-capture-audio
+							?auto-captions-enabled=${this._autoCaptionsEnabled}
+						></d2l-media-capture-dialog>` : ''}
 				`;
 			} else {
 				return html`${this._renderPrimary()}`;
@@ -270,6 +290,18 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 				this._navigate('/404');
 				return;
 		}
+	}
+
+	_openMediaCaptureDialog(isAudio) {
+		return () => {
+			const mediaCaptureDialog = this.shadowRoot.getElementById('media-capture-dialog');
+			if (isAudio) {
+				mediaCaptureDialog.setAttribute('is-audio', '');
+			} else {
+				mediaCaptureDialog.removeAttribute('is-audio');
+			}
+			mediaCaptureDialog.open();
+		};
 	}
 
 	_renderPrimary() {

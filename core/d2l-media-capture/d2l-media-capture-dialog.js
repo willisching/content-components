@@ -26,8 +26,12 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 
 	static get styles() {
 		return css`
-			.d2l-media-capture-container {
+			.d2l-media-capture-container-video {
 				min-height: 560px;
+			}
+
+			.d2l-media-capture-container-audio {
+				min-height: 470px;
 			}
 		`;
 	}
@@ -51,11 +55,11 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 				width="800"
 				@d2l-dialog-close=${this._handleRecorderClose}
 			>
-				<div class="d2l-media-capture-container">
+				<div class="d2l-media-capture-container-${this.isAudio ? 'audio' : 'video'}">
 					<d2l-media-capture
 							tenant-id="${this.tenantId}"
 							content-service-endpoint="${this.contentServiceEndpoint}"
-							clientApp=${this.clientApp}
+							client-app=${this.clientApp}
 							?is-audio=${this.isAudio}
 							?can-capture=${this.isAudio ? this.canCaptureAudio : this.canCaptureVideo}
 							?can-upload=${this.canUpload}

@@ -283,7 +283,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 		this._currentView = VIEW.PROGRESS;
 		try {
 			this._contentId = (await this.apiClient.content.postItem({
-				content: { type: contentType }
+				content: { type: contentType, clientApp: this.clientApp }
 			})).id;
 			const revision = await this.apiClient.content.createRevision({
 				id: this._contentId,
