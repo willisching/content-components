@@ -1,7 +1,7 @@
 {
   "name": "@d2l/content-components",
   "description": "Web components for content in Brightspace",
-  "version": "3.41.6",
+  "version": "3.42.0",
   "type": "module",
   "scripts": {
     "eslint-fix": "eslint . --ext .js,.html,.cjs --fix",
