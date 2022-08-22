@@ -10,7 +10,7 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 		return {
 			tenantId: { type: String, attribute: 'tenant-id' },
 			contentServiceEndpoint: { type: String, attribute: 'content-service-endpoint' },
-			isVideoNote: { type: Boolean, attribute: 'is-video-note' },
+			clientApp: { type: String, attribute: 'client-app' },
 			isAudio: { type: Boolean, attribute: 'is-audio' },
 			canCaptureVideo: { type: Boolean, attribute: 'can-capture-video' },
 			canCaptureAudio: { type: Boolean, attribute: 'can-capture-audio' },
@@ -55,7 +55,7 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 					<d2l-media-capture
 							tenant-id="${this.tenantId}"
 							content-service-endpoint="${this.contentServiceEndpoint}"
-							?is-video-note=${this.isVideoNote}
+							clientApp=${this.clientApp}
 							?is-audio=${this.isAudio}
 							?can-capture=${this.isAudio ? this.canCaptureAudio : this.canCaptureVideo}
 							?can-upload=${this.canUpload}

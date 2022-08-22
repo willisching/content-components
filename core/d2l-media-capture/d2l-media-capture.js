@@ -1,3 +1,4 @@
+import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
 import './src/d2l-media-capture-recorder';
 import './src/d2l-media-capture-uploader';
 import './src/d2l-media-capture-metadata';
@@ -21,7 +22,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 		return {
 			contentServiceEndpoint: { type: String, attribute: 'content-service-endpoint' },
 			tenantId: { type: String, attribute: 'tenant-id' },
-			isVideoNote: { type: Boolean, attribute: 'is-video-note' },
+			clientApp: { type: String, attribute: 'client-app' },
 			isAudio: { type: Boolean, attribute: 'is-audio' },
 			canCapture: { type: Boolean, attribute: 'can-capture' },
 			canUpload: { type: Boolean, attribute: 'can-upload' },
@@ -163,7 +164,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 				view = html`
 					<d2l-media-capture-metadata
 						?is-audio=${this.isAudio}
-						?is-video-note=${this.isVideoNote}
+						?client-app=${this.clientApp}
 						?auto-captions-enabled=${this.autoCaptionsEnabled}
 					>
 					</d2l-media-capture-metadata>
@@ -205,28 +206,52 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 			sourceLanguage
 		} = this.shadowRoot.querySelector('d2l-media-capture-metadata').values;
 		try {
-			await this.apiClient.content.updateItem({
-				content: {
+			if (this.clientApp === 'VideoNote') {
+				const callback = (rpcResponse) => {
+					if (rpcResponse.GetResponseType() === D2L.Rpc.ResponseType.Success) {
+						this.dispatchEvent(new CustomEvent('processing-started', {
+							bubbles: true,
+							composed: true,
+							detail: {
+								contentId: this._contentId
+							}
+						}));
+					} else {
+						this._handleError();
+					}
+				};
+				D2L.Rpc.Create('AddMediaObject', callback, '/d2l/wcs/mp/platform.d2l').Call(
+					`${this._contentId}:${this._revisionId}`,
+					title,
+					description,
+					!!this.isAudio,
+					sourceLanguage,
+					!!autoCaptions
+				);
+			} else {
+				await this.apiClient.content.updateItem({
+					content: {
+						id: this._contentId,
+						...(title.length && { title }),
+						...(description.length && { description })
+					}
+				});
+				await this.apiClient.content.startWorkflow({
 					id: this._contentId,
-					...(title.length && { title }),
-					...(description.length && { description })
-				}
-			});
-			await this.apiClient.content.startWorkflow({
-				id: this._contentId,
-				revisionTag: this._revisionId,
-				processOptions: { ...(autoCaptions && { captionLanguages: [sourceLanguage] }) }
-			});
+					revisionTag: this._revisionId,
+					processOptions: { ...(autoCaptions && { captionLanguages: [sourceLanguage] }) }
+				});
+				this.dispatchEvent(new CustomEvent('processing-started', {
+					bubbles: true,
+					composed: true,
+					detail: {
+						contentId: this._contentId
+					}
+				}));
+			}
 		} catch (error) {
 			this._handleError(error);
 		}
-		this.dispatchEvent(new CustomEvent('processing-started', {
-			bubbles: true,
-			composed: true,
-			detail: {
-				contentId: this._contentId
-			}
-		}));
 	}
 
 	reset() {
