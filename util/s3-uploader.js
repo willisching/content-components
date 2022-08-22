@@ -35,7 +35,7 @@ export class S3Uploader {
 
 	abort() {
 		if (this.isMultipart && this.uploadId) {
-			this.abortMultipartUpload({key: this.key, uploadId: this.uploadId});
+			this.abortMultipartUpload({uploadId: this.uploadId});
 		}
 		for (let i = 0; i < this.httprequests.length; i++) {
 			if (this.httprequests[i]) {
@@ -93,9 +93,9 @@ export class S3Uploader {
 	}
 
 	async uploadMultipart() {
-		const { UploadId } = await this.createMultipartUpload({key: this.key});
+		const { UploadId } = await this.createMultipartUpload();
 		this.uploadId = UploadId;
-		const signedUrls = await this.batchSign({key: this.key, uploadId: UploadId, numParts: this.chunks.length});
+		const signedUrls = await this.batchSign({uploadId: UploadId, numParts: this.chunks.length});
 		const uploadPromises = [];
 		for (let i = 0; i < signedUrls.length; i++) {
 			const url = signedUrls[i];
@@ -112,7 +112,7 @@ export class S3Uploader {
 		}
 		const uploadResponses = await Promise.all(uploadPromises);
 
-		await this.completeMultipartUpload({key: this.key, uploadId: UploadId, parts: { Parts: uploadResponses }});
+		await this.completeMultipartUpload({ uploadId: UploadId, parts: { Parts: uploadResponses }});
 	}
 
 	_getErrorRequestContext(xhr) {

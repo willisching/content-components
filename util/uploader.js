@@ -132,10 +132,10 @@ export class Uploader {
 					lastProgressPosition = progress;
 					this.onProgress(this.uploadProgress);
 				},
-				abortMultipartUpload: async({key, uploadId}) => this.apiClient.content.abortMultipartUpload({key, uploadId, contentId, revisionId}),
-				batchSign: async({key, uploadId, numParts}) => this.apiClient.content.batchSign({key, uploadId, numParts, contentId, revisionId}),
-				completeMultipartUpload: async({key, uploadId, parts}) => this.apiClient.content.completeMultipartUpload({key, uploadId, parts, contentId, revisionId}),
-				createMultipartUpload: async({key}) => this.apiClient.content.initializeMultipartUpload({key, contentId, revisionId})
+				abortMultipartUpload: async({uploadId}) => this.apiClient.content.abortMultipartUpload({uploadId, contentId, revisionId}),
+				batchSign: async({uploadId, numParts}) => this.apiClient.content.batchSign({uploadId, numParts, contentId, revisionId}),
+				completeMultipartUpload: async({uploadId, parts}) => this.apiClient.content.completeMultipartUpload({uploadId, parts, contentId, revisionId}),
+				createMultipartUpload: async() => this.apiClient.content.initializeMultipartUpload({contentId, revisionId})
 			});
 
 			await s3Uploader.upload();
