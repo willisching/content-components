@@ -93,12 +93,12 @@ export class S3Uploader {
 	}
 
 	async uploadMultipart() {
-		const { UploadId } = await this.createMultipartUpload();
-		this.uploadId = UploadId;
-		const signedUrls = await this.batchSign({uploadId: UploadId, numParts: this.chunks.length});
+		const { uploadId } = await this.createMultipartUpload();
+		this.uploadId = uploadId;
+		const signedUrls = await this.batchSign({uploadId: uploadId, numParts: this.chunks.length});
 		const uploadPromises = [];
 		for (let i = 0; i < signedUrls.length; i++) {
-			const url = signedUrls[i];
+			const url = signedUrls[i].value;
 			uploadPromises.push(this._uploadWithRetries(this.chunks[i], {signedUrl: url}, RETRIES, i).then((response) => {
 				const etag = response.getResponseHeader('ETag');
 				return {
@@ -112,7 +112,7 @@ export class S3Uploader {
 		}
 		const uploadResponses = await Promise.all(uploadPromises);
 
-		await this.completeMultipartUpload({ uploadId: UploadId, parts: { Parts: uploadResponses }});
+		await this.completeMultipartUpload({ uploadId, parts: { parts: uploadResponses }});
 	}
 
 	_getErrorRequestContext(xhr) {
