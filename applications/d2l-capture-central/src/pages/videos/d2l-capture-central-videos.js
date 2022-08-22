@@ -136,8 +136,7 @@ class D2LCaptureCentralVideos extends contentSearchMixin(DependencyRequester(Pag
 			/>
 			<d2l-alert-toast
 				id="upload-toast"
-				type="error"
-				announce-text=${this.uploadErrorMessage}>
+				type="error">
 				${this.uploadErrorMessage}
 			</d2l-alert-toast>
 		`;

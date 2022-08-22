@@ -38,8 +38,7 @@ class RecycleBinList extends CaptureCentralList {
 			<d2l-alert-toast
 				id="recycle-bin-toast"
 				type="default"
-				button-text=${this.alertToastButtonText}
-				announce-text=${this.alertToastMessage}>
+				button-text=${this.alertToastButtonText}>
 				${this.alertToastMessage}
 			</d2l-alert-toast>
 		`;
