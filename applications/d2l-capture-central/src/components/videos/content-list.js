@@ -60,7 +60,7 @@ class ContentList extends CaptureCentralList {
 				id="delete-toast"
 				type="default"
 				button-text=${this.alertToastButtonText}
-				@d2l-alert-button-press=${this.undoDeleteHandler}>
+				@d2l-alert-toast-button-press=${this.undoDeleteHandler}>
 				${this.alertToastMessage}
 			</d2l-alert-toast>
 
