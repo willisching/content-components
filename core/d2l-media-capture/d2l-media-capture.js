@@ -164,7 +164,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 				view = html`
 					<d2l-media-capture-metadata
 						?is-audio=${this.isAudio}
-						?client-app=${this.clientApp}
+						client-app=${this.clientApp}
 						?auto-captions-enabled=${this.autoCaptionsEnabled}
 					>
 					</d2l-media-capture-metadata>
