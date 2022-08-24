@@ -292,15 +292,9 @@ class D2lCaptureCentralApp extends DependencyRequester(NavigationMixin(InternalL
 		}
 	}
 
-	_openMediaCaptureDialog(isAudio) {
+	_openMediaCaptureDialog() {
 		return () => {
-			const mediaCaptureDialog = this.shadowRoot.getElementById('media-capture-dialog');
-			if (isAudio) {
-				mediaCaptureDialog.setAttribute('is-audio', '');
-			} else {
-				mediaCaptureDialog.removeAttribute('is-audio');
-			}
-			mediaCaptureDialog.open();
+			this.shadowRoot.getElementById('media-capture-dialog').open();
 		};
 	}
 

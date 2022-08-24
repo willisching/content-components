@@ -16,6 +16,8 @@ const VIEW = Object.freeze({
 	METADATA: 'METADATA',
 	ERROR: 'ERROR',
 });
+const AUDIO = 'Audio';
+const VIDEO_NOTE = 'VideoNote';
 
 class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
@@ -23,12 +25,13 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 			contentServiceEndpoint: { type: String, attribute: 'content-service-endpoint' },
 			tenantId: { type: String, attribute: 'tenant-id' },
 			clientApp: { type: String, attribute: 'client-app' },
-			isAudio: { type: Boolean, attribute: 'is-audio' },
-			canCapture: { type: Boolean, attribute: 'can-capture' },
+			canCaptureAudio: { type: Boolean, attribute: 'can-capture-audio' },
+			canCaptureVideo: { type: Boolean, attribute: 'can-capture-video' },
 			canUpload: { type: Boolean, attribute: 'can-upload' },
 			autoCaptionsEnabled: { type: Boolean, attribute: 'auto-captions-enabled' },
 			maxFileSizeInBytes: { type: Number, attribute: 'max-file-size' },
-			recordingDurationLimit: { type: Number, attribute: 'recording-duration-limit' },
+			audioRecordingDurationLimit: { type: Number, attribute: 'audio-recording-duration-limit' },
+			videoRecordingDurationLimit: { type: Number, attribute: 'video-recording-duration-limit' },
 			_currentView: { type: Number, attribute: false },
 			_sourceSelectorLocked: { type: Boolean, attribute: false },
 			_isRecording: { type: Boolean, attribute: false }
@@ -115,7 +118,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 			httpClient: new ContentServiceBrowserHttpClient({ serviceUrl: this.contentServiceEndpoint }),
 			tenantId: this.tenantId
 		});
-		this._canRecord = this.canCapture && typeof navigator.mediaDevices?.getUserMedia === 'function';
+		this._canRecord = (this.canCaptureVideo || this.canCaptureAudio) && typeof navigator.mediaDevices?.getUserMedia === 'function';
 		this._isRecording = this._canRecord;
 	}
 
@@ -136,10 +139,11 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 				if (this._isRecording) {
 					recordOrUploadView = html`
 						<d2l-media-capture-recorder
-							?is-audio=${this.isAudio}
-							?can-capture=${this.canCapture}
-							?small-preview=${this.canUpload}
-							recording-duration-limit=${this.isAudio ? this.recordingDurationLimit / 60 : this.recordingDurationLimit}
+							?can-capture-audio=${this._canRecord && this.canCaptureAudio}
+							?can-capture-video=${this._canRecord && this.canCaptureVideo}
+							?small-preview=${this.clientApp === VIDEO_NOTE}
+							audio-recording-duration-limit=${this.audioRecordingDurationLimit}
+							video-recording-duration-limit=${this.videoRecordingDurationLimit}
 							@capture-started=${this._handleCaptureStarted}
 							@capture-clip-completed=${this._handleCaptureClipCompleted}
 						>
@@ -148,7 +152,8 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 				} else if (this.canUpload) {
 					recordOrUploadView = html`
 						<d2l-media-capture-uploader
-							?is-audio=${this.isAudio}
+							?can-upload-audio=${this.canCaptureAudio}
+							?can-upload-video=${this.canCaptureVideo}
 							max-file-size=${this.maxFileSizeInBytes}
 							@file-selected=${this._handleFileSelected}
 						>
@@ -163,7 +168,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 			case VIEW.METADATA:
 				view = html`
 					<d2l-media-capture-metadata
-						?is-audio=${this.isAudio}
+						?is-audio=${this._contentType === AUDIO}
 						client-app=${this.clientApp}
 						?auto-captions-enabled=${this.autoCaptionsEnabled}
 					>
@@ -206,7 +211,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 			sourceLanguage
 		} = this.shadowRoot.querySelector('d2l-media-capture-metadata').values;
 		try {
-			if (this.clientApp === 'VideoNote') {
+			if (this.clientApp === VIDEO_NOTE) {
 				const callback = (rpcResponse) => {
 					if (rpcResponse.GetResponseType() === D2L.Rpc.ResponseType.Success) {
 						this.dispatchEvent(new CustomEvent('processing-started', {
@@ -224,7 +229,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 					`${this._contentId}:${this._revisionId}`,
 					title,
 					description,
-					!!this.isAudio,
+					this._contentType === AUDIO,
 					sourceLanguage,
 					!!autoCaptions
 				);
@@ -279,11 +284,10 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 			this._error = 'mediaCaptureUploadErrorTryAgain';
 			return;
 		}
-		const contentType = this.isAudio ? 'Audio' : 'Video';
 		this._currentView = VIEW.PROGRESS;
 		try {
 			this._contentId = (await this.apiClient.content.postItem({
-				content: { type: contentType, clientApp: this.clientApp }
+				content: { type: this._contentType, clientApp: this.clientApp }
 			})).id;
 			const revision = await this.apiClient.content.createRevision({
 				id: this._contentId,
@@ -298,7 +302,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 				signRequest: ({ key }) =>
 					this.apiClient.s3Sign.sign({
 						fileName: key,
-						contentType,
+						contentType: this._contentType,
 						contentDisposition: 'auto',
 					})
 			});
@@ -322,6 +326,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 			[event.detail.mediaBlob],
 			`temp.${event.detail.extension}`
 		);
+		this._contentType = event.detail.contentType;
 		this._updateAriaLog('recordingStopped');
 	}
 
@@ -342,6 +347,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 
 	_handleFileSelected(event) {
 		this._file = event.detail.file;
+		this._contentType = event.detail.contentType;
 		this._sourceSelectorLocked = true;
 	}
 
@@ -354,7 +360,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_renderSourceSelector() {
-		if (!(this.canCapture && this.canUpload)) {
+		if (!(this._canRecord && this.canUpload)) {
 			return;
 		}
 		let sourceSelectorRecordStatus = this._isRecording ? 'active' : 'inactive';
@@ -363,17 +369,18 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 			sourceSelectorRecordStatus += '-locked';
 			sourceSelectorUploadStatus += '-locked';
 		}
+		const recordLangterm = this.canCaptureAudio ? (this.canCaptureVideo ? 'record' : 'recordAudio') : 'recordWebcamVideo';
 
 		return html`
 			<div class="d2l-media-source-selector-container">
 				<a
 					id="source-selector-record"
-					title="${this.localize(this.isAudio ? 'recordAudio' : 'recordWebcamVideo')}"
+					title="${this.localize(recordLangterm)}"
 					class="d2l-media-capture-source-selector d2l-media-capture-source-selector-${sourceSelectorRecordStatus}"
 					@click=${this._handleSourceSelectorClick(true)}
 					tabindex=0
 				>
-					${this.localize(this.isAudio ? 'recordAudio' : 'recordWebcamVideo')}
+					${this.localize(recordLangterm)}
 				</a>
 				<a
 					id="source-selector-upload"

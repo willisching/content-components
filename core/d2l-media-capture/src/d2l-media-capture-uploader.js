@@ -3,10 +3,17 @@ import { css, html, LitElement } from 'lit';
 import { InternalLocalizeMixin } from '../../../mixins/internal-localize-mixin';
 import { isAudioType, isVideoType } from '../../../util/media-type-util';
 
+const ALLOWED_TYPES = Object.freeze({
+	AUDIO: 'AUDIO',
+	VIDEO: 'VIDEO',
+	AUDIO_AND_VIDEO: 'AUDIO_AND_VIDEO'
+});
+
 class D2LMediaCaptureUploader extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
-			isAudio: { type: Boolean, attribute: 'is-audio' },
+			canUploadAudio: { type: Boolean, attribute: 'can-upload-audio' },
+			canUploadVideo: { type: Boolean, attribute: 'can-upload-video' },
 			maxFileSizeInBytes: { type: Number, attribute: 'max-file-size' },
 			_localizedError: { type: String, attribute: false }
 		};
@@ -28,6 +35,13 @@ class D2LMediaCaptureUploader extends InternalLocalizeMixin(LitElement) {
 		`;
 	}
 
+	connectedCallback() {
+		super.connectedCallback();
+		this._allowedType = this.canUploadAudio ?
+			(this.canUploadVideo ? ALLOWED_TYPES.AUDIO_AND_VIDEO : ALLOWED_TYPES.AUDIO) :
+			ALLOWED_TYPES.VIDEO;
+	}
+
 	render() {
 		return html`
 			<div>
@@ -36,7 +50,7 @@ class D2LMediaCaptureUploader extends InternalLocalizeMixin(LitElement) {
 						${this._localizedError}
 					</div>` : ''}
 				<div class="d2l-media-capture-upload-help">
-					${this.localize(this.isAudio ? 'selectAnAudioFile' : 'selectAFile')}
+					${this._getHelpText()}
 				</div>
 				<div>
 					<input
@@ -49,25 +63,45 @@ class D2LMediaCaptureUploader extends InternalLocalizeMixin(LitElement) {
 		`;
 	}
 
+	_getHelpText() {
+		switch (this._allowedType) {
+			case ALLOWED_TYPES.AUDIO:
+				return this.localize('selectAnAudioFile');
+			case ALLOWED_TYPES.VIDEO:
+				return this.localize('selectAVideoFile');
+			case ALLOWED_TYPES.AUDIO_AND_VIDEO:
+				return this.localize('selectAFile');
+		}
+	}
+
 	_handleFileChange(event) {
 		const { files } = event.target;
 		if (files.length > 0) {
 			const file = files[0];
+			const contentType = isAudioType(file.name) ? 'Audio' : 'Video';
 			if (file.size > this.maxFileSizeInBytes) {
 				this._localizedError = this.localize(
-					this.isAudio ? 'mediaCaptureUploadFailedAudio' : 'mediaCaptureUploadFailed',
+					'mediaCaptureFileSizeError',
 					{ localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes) }
 				);
-			} else if (this.isAudio && !isAudioType(file.name)) {
+			} else if (
+				this._allowedType === ALLOWED_TYPES.AUDIO_AND_VIDEO &&
+				!isAudioType(file.name) && !isVideoType(file.name)
+			) {
+				this._localizedError = this.localize('notSupportedAudioOrVideo');
+			} else if (this._allowedType === ALLOWED_TYPES.AUDIO && !isAudioType(file.name)) {
 				this._localizedError = this.localize('notSupportedAudio');
-			} else if (!(this.isAudio || isVideoType(file.name))) {
+			} else if (this._allowedType === ALLOWED_TYPES.VIDEO && !isVideoType(file.name)) {
 				this._localizedError = this.localize('notSupportedVideo');
 			} else {
 				this._localizedError = null;
 				this.dispatchEvent(new CustomEvent('file-selected', {
 					bubbles: true,
 					composed: true,
-					detail: { file }
+					detail: {
+						file,
+						contentType
+					}
 				}));
 			}
 		}

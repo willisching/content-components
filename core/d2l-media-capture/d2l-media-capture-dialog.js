@@ -11,7 +11,6 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 			tenantId: { type: String, attribute: 'tenant-id' },
 			contentServiceEndpoint: { type: String, attribute: 'content-service-endpoint' },
 			clientApp: { type: String, attribute: 'client-app' },
-			isAudio: { type: Boolean, attribute: 'is-audio' },
 			canCaptureVideo: { type: Boolean, attribute: 'can-capture-video' },
 			canCaptureAudio: { type: Boolean, attribute: 'can-capture-audio' },
 			canUpload: { type: Boolean, attribute: 'can-upload' },
@@ -26,12 +25,8 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 
 	static get styles() {
 		return css`
-			.d2l-media-capture-container-video {
-				min-height: 560px;
-			}
-
-			.d2l-media-capture-container-audio {
-				min-height: 470px;
+			.d2l-media-capture-container {
+				height: 560px;
 			}
 		`;
 	}
@@ -55,17 +50,18 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 				width="800"
 				@d2l-dialog-close=${this._handleRecorderClose}
 			>
-				<div class="d2l-media-capture-container-${this.isAudio ? 'audio' : 'video'}">
+				<div class="d2l-media-capture-container">
 					<d2l-media-capture
 							tenant-id="${this.tenantId}"
 							content-service-endpoint="${this.contentServiceEndpoint}"
 							client-app=${this.clientApp}
-							?is-audio=${this.isAudio}
-							?can-capture=${this.isAudio ? this.canCaptureAudio : this.canCaptureVideo}
+							?can-capture-audio=${this.canCaptureAudio}
+							?can-capture-video=${this.canCaptureVideo}
 							?can-upload=${this.canUpload}
 							?auto-captions-enabled=${this.autoCaptionsEnabled}
 							max-file-size=${this.maxFileSizeInBytes}
-							recording-duration-limit=${this.isAudio ? this.audioRecordingDurationLimit : this.videoRecordingDurationLimit}
+							audio-recording-duration-limit=${this.audioRecordingDurationLimit}
+							video-recording-duration-limit=${this.videoRecordingDurationLimit}
 							@capture-clip-completed=${this._enablePrimaryButton}
 							@file-selected=${this._enablePrimaryButton}
 							@capture-started=${this._handleCaptureStartedEvent}
