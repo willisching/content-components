@@ -96,10 +96,10 @@ export class S3Uploader {
 		const { uploadId } = await this.createMultipartUpload();
 		this.uploadId = uploadId;
 		const signedUrls = await this.batchSign({uploadId, numParts: this.chunks.length});
-		const uploadPromises = [];
+		const uploadResponses = [];
 		for (let i = 0; i < signedUrls.length; i++) {
 			const url = signedUrls[i].value;
-			uploadPromises.push(this._uploadWithRetries(this.chunks[i], {signedUrl: url}, RETRIES, i).then((response) => {
+			uploadResponses.push(await this._uploadWithRetries(this.chunks[i], {signedUrl: url}, RETRIES, i).then((response) => {
 				const etag = response.getResponseHeader('ETag');
 				return {
 					ETag: etag,
@@ -110,7 +110,6 @@ export class S3Uploader {
 				throw err;
 			}));
 		}
-		const uploadResponses = await Promise.all(uploadPromises);
 
 		await this.completeMultipartUpload({ uploadId, parts: { parts: uploadResponses }});
 	}
