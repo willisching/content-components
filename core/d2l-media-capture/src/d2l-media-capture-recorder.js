@@ -297,7 +297,7 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 		};
 		this._audioVideoRecorder = new RecordRTC.RecordRTCPromisesHandler(this._stream, recorderSettings);
 		this._audioVideoRecorder.startRecording();
-		this._timer();
+		this._timer(true);
 		this._dispatchCaptureStartedEvent();
 	}
 
@@ -325,12 +325,14 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 		}
 	}
 
-	async _timer() {
+	async _timer(init) {
 		if (this._recordingDuration >= this.recordingDurationLimit * 60) {
 			await this._stopRecording();
 		}
 		if (!this._cancelTimer) {
-			this._recordingDuration += 1;
+			if (!init) {
+				this._recordingDuration += 1;
+			}
 			this.shadowRoot.getElementById('current-time').textContent = this._formatTime(this._recordingDuration);
 			window.setTimeout(this._timer.bind(this), 1000);
 		}
