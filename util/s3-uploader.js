@@ -95,7 +95,7 @@ export class S3Uploader {
 	async uploadMultipart() {
 		const { uploadId } = await this.createMultipartUpload();
 		this.uploadId = uploadId;
-		const signedUrls = await this.batchSign({uploadId: uploadId, numParts: this.chunks.length});
+		const signedUrls = await this.batchSign({uploadId, numParts: this.chunks.length});
 		const uploadPromises = [];
 		for (let i = 0; i < signedUrls.length; i++) {
 			const url = signedUrls[i].value;
