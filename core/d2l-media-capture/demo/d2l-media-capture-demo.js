@@ -13,7 +13,8 @@ class DemoMediaCapture extends LitElement {
 			_maxFileSizeInBytes: { type: Number, attribute: false },
 			_audioRecordingDurationLimit: { type: Number, attribute: false },
 			_videoRecordingDurationLimit: { type: Number, attribute: false },
-			_canCapture: { type: Boolean, attribute: false },
+			_canCaptureAudio: { type: Boolean, attribute: false },
+			_canCaptureVideo: { type: Boolean, attribute: false },
 			_canUpload: { type: Boolean, attribute: false },
 			_autoCaptionsEnabled: { type: Boolean, attribute: false },
 			_alertMessage: { type: String, attribute: false }
@@ -33,7 +34,8 @@ class DemoMediaCapture extends LitElement {
 		this._maxFileSizeInBytes = 5 * 1024 * 1024 * 1024;
 		this._audioRecordingDurationLimit = 60;
 		this._videoRecordingDurationLimit = 3;
-		this._canCapture = true;
+		this._canCaptureAudio = true;
+		this._canCaptureVideo = true;
 		this._canUpload = true;
 		this._autoCaptionsEnabled = true;
 	}
@@ -94,9 +96,13 @@ class DemoMediaCapture extends LitElement {
 						</tbody>
 					</table>
 					<d2l-input-checkbox
-						?checked=${this._canCapture}
-						@change=${this._handleCanCaptureCheckbox}
-					>Can capture</d2l-input-checkbox>
+						?checked=${this._canCaptureAudio}
+						@change=${this._handleCanCaptureAudioCheckbox}
+					>Can capture audio</d2l-input-checkbox>
+					<d2l-input-checkbox
+						?checked=${this._canCaptureVideo}
+						@change=${this._handleCanCaptureVideoCheckbox}
+					>Can capture video</d2l-input-checkbox>
 					<d2l-input-checkbox
 						?checked=${this._canUpload}
 						@change=${this._handleCanUploadCheckbox}
@@ -110,11 +116,7 @@ class DemoMediaCapture extends LitElement {
 					<d2l-button
 						@click=${this._openMediaCaptureDialog()}
 						primary
-					>Record Video</d2l-button>
-					<d2l-button
-						@click=${this._openMediaCaptureDialog(true)}
-						primary
-					>Record Audio</d2l-button>
+					>Record</d2l-button>
 				</div>
 				<d2l-media-capture-dialog
 					id="can-capture-dialog"
@@ -123,8 +125,8 @@ class DemoMediaCapture extends LitElement {
 					max-file-size=${this._maxFileSizeInBytes}
 					audio-recording-duration-limit="${this._audioRecordingDurationLimit}"
 					video-recording-duration-limit="${this._videoRecordingDurationLimit}"
-					can-capture-video
-					can-capture-audio
+					?can-capture-video=${this._canCaptureVideo}
+					?can-capture-audio=${this._canCaptureAudio}
 					?can-upload=${this._canUpload}
 					?auto-captions-enabled=${this._autoCaptionsEnabled}
 					@processing-started=${this._handleProcessingStarted}
@@ -153,8 +155,12 @@ class DemoMediaCapture extends LitElement {
 		this._audioRecordingDurationLimit = event.target.value;
 	}
 
-	_handleCanCaptureCheckbox(event) {
-		this._canCapture = event.target.checked;
+	_handleCanCaptureAudioCheckbox(event) {
+		this._canCaptureAudio = event.target.checked;
+	}
+
+	_handleCanCaptureVideoCheckbox(event) {
+		this._canCaptureVideo = event.target.checked;
 	}
 
 	_handleCanUploadCheckbox(event) {
@@ -178,18 +184,13 @@ class DemoMediaCapture extends LitElement {
 		this._videoRecordingDurationLimit = event.target.value;
 	}
 
-	_openMediaCaptureDialog(isAudio) {
+	_openMediaCaptureDialog() {
 		return () => {
 			let mediaCaptureDialog;
-			if (this._canCapture) {
+			if (this._canCaptureAudio || this._canCaptureVideo) {
 				mediaCaptureDialog = this.shadowRoot.getElementById('can-capture-dialog');
 			} else {
 				mediaCaptureDialog = this.shadowRoot.getElementById('no-capture-dialog');
-			}
-			if (isAudio) {
-				mediaCaptureDialog.setAttribute('is-audio', '');
-			} else {
-				mediaCaptureDialog.removeAttribute('is-audio');
 			}
 			mediaCaptureDialog.open();
 		};
