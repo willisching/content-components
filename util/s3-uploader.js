@@ -1,4 +1,4 @@
-import { randomizeDelay, sleep } from './delay';
+import { sleep } from './delay';
 
 const MAX_RETRIES = 5;
 const MB = 1024 * 1024;
@@ -111,12 +111,12 @@ export class S3Uploader {
 			}));
 		}
 
-		for(let retries = 0; retries < MAX_RETRIES; retries++) {
+		for (let retries = 0; retries < MAX_RETRIES; retries++) {
 			try {
 				await this.completeMultipartUpload({ uploadId, parts: { parts: uploadResponses }});
 				break;
 			} catch (err) {
-				if(retries === MAX_RETRIES - 1) {
+				if (retries === MAX_RETRIES - 1) {
 					this.abort();
 					break;
 				}
