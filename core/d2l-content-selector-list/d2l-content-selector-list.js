@@ -274,7 +274,8 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 		return () => {
 			if (item === null) return;
 			this.client.content.deleteItem({id: item.id});
-			this._contentItems = this._contentItems.filter(contentItem => item.id !== contentItem.id);
+			const itemIndex = this._contentItems.findIndex((contentItem) => item.id === contentItem.id);
+			this._contentItems.splice(itemIndex, 1);
 		};
 	}
 
