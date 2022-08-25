@@ -3,11 +3,11 @@ import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/inputs/input-text.js';
 import '@brightspace-ui/core/components/inputs/input-number.js';
 import '@brightspace-ui/core/components/inputs/input-checkbox.js';
-import '../d2l-media-capture-dialog';
+import '../d2l-media-web-recording-dialog.js';
 
 import { css, html, LitElement } from 'lit';
 
-class DemoMediaCapture extends LitElement {
+class DemoMediaWebRecording extends LitElement {
 	static get properties() {
 		return {
 			_maxFileSizeInBytes: { type: Number, attribute: false },
@@ -42,7 +42,7 @@ class DemoMediaCapture extends LitElement {
 
 	render() {
 		return html`
-			<div class="demo-media-capture">
+			<div class="demo-media-web-recording">
 				<div>
 					<table>
 						<tbody>
@@ -114,11 +114,11 @@ class DemoMediaCapture extends LitElement {
 				</div>
 				<div>
 					<d2l-button
-						@click=${this._openMediaCaptureDialog()}
+						@click=${this._openMediaWebRecordingDialog()}
 						primary
 					>Record</d2l-button>
 				</div>
-				<d2l-media-capture-dialog
+				<d2l-media-web-recording-dialog
 					id="can-capture-dialog"
 					tenant-id="0"
 					content-service-endpoint="http://localhost:8000/contentservice"
@@ -131,8 +131,8 @@ class DemoMediaCapture extends LitElement {
 					?auto-captions-enabled=${this._autoCaptionsEnabled}
 					@processing-started=${this._handleProcessingStarted}
 				>
-				</d2l-media-capture-dialog>
-				<d2l-media-capture-dialog
+				</d2l-media-web-recording-dialog>
+				<d2l-media-web-recording-dialog
 					id="no-capture-dialog"
 					tenant-id="0"
 					content-service-endpoint="http://localhost:8000/contentservice"
@@ -143,7 +143,7 @@ class DemoMediaCapture extends LitElement {
 					?auto-captions-enabled=${this._autoCaptionsEnabled}
 					@processing-started=${this._handleProcessingStarted}
 				>
-				</d2l-media-capture-dialog>
+				</d2l-media-web-recording-dialog>
 				<d2l-alert-toast type="default">
 					${this._alertMessage}
 				</d2l-alert-toast>
@@ -184,18 +184,18 @@ class DemoMediaCapture extends LitElement {
 		this._videoRecordingDurationLimit = event.target.value;
 	}
 
-	_openMediaCaptureDialog() {
+	_openMediaWebRecordingDialog() {
 		return () => {
-			let mediaCaptureDialog;
+			let mediaWebRecordingDialog;
 			if (this._canCaptureAudio || this._canCaptureVideo) {
-				mediaCaptureDialog = this.shadowRoot.getElementById('can-capture-dialog');
+				mediaWebRecordingDialog = this.shadowRoot.getElementById('can-capture-dialog');
 			} else {
-				mediaCaptureDialog = this.shadowRoot.getElementById('no-capture-dialog');
+				mediaWebRecordingDialog = this.shadowRoot.getElementById('no-capture-dialog');
 			}
-			mediaCaptureDialog.open();
+			mediaWebRecordingDialog.open();
 		};
 	}
 
 }
 
-customElements.define('d2l-media-capture-demo', DemoMediaCapture);
+customElements.define('d2l-media-web-recording', DemoMediaWebRecording);

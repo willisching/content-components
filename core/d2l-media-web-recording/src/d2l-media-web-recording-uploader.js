@@ -9,7 +9,7 @@ const ALLOWED_TYPES = Object.freeze({
 	AUDIO_AND_VIDEO: 'AUDIO_AND_VIDEO'
 });
 
-class D2LMediaCaptureUploader extends InternalLocalizeMixin(LitElement) {
+class D2LMediaWebRecordingUploader extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
 			canUploadAudio: { type: Boolean, attribute: 'can-upload-audio' },
@@ -21,12 +21,12 @@ class D2LMediaCaptureUploader extends InternalLocalizeMixin(LitElement) {
 
 	static get styles() {
 		return css`
-			.d2l-media-capture-upload-help {
+			.d2l-media-web-recording-upload-help {
 				padding: 8px 0 12px 2px;
 				max-width: 485px;
 			}
 
-			.d2l-media-capture-upload-error {
+			.d2l-media-web-recording-upload-error {
 				color: #D00;
 				margin-top: 8px;    
 				padding: 5px;
@@ -46,10 +46,10 @@ class D2LMediaCaptureUploader extends InternalLocalizeMixin(LitElement) {
 		return html`
 			<div>
 				${this._localizedError ? html`
-					<div class="d2l-media-capture-upload-error">
+					<div class="d2l-media-web-recording-upload-error">
 						${this._localizedError}
 					</div>` : ''}
-				<div class="d2l-media-capture-upload-help">
+				<div class="d2l-media-web-recording-upload-help">
 					${this._getHelpText()}
 				</div>
 				<div>
@@ -108,4 +108,4 @@ class D2LMediaCaptureUploader extends InternalLocalizeMixin(LitElement) {
 	}
 }
 
-customElements.define('d2l-media-capture-uploader', D2LMediaCaptureUploader);
+customElements.define('d2l-media-web-recording-uploader', D2LMediaWebRecordingUploader);

@@ -8,7 +8,7 @@ import { InternalLocalizeMixin } from '../../../mixins/internal-localize-mixin';
 import { BrightspaceApiClient } from '@d2l/content-service-shared-utils';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 
-class D2LMediaCaptureMetadata extends InternalLocalizeMixin(LitElement) {
+class D2LMediaWebRecordingMetadata extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
 			isAudio: { type: Boolean, attribute: 'is-audio' },
@@ -194,4 +194,4 @@ class D2LMediaCaptureMetadata extends InternalLocalizeMixin(LitElement) {
 	}
 }
 
-customElements.define('d2l-media-capture-metadata', D2LMediaCaptureMetadata);
+customElements.define('d2l-media-web-recording-metadata', D2LMediaWebRecordingMetadata);

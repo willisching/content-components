@@ -8,12 +8,13 @@ import { InternalLocalizeMixin } from '../../../mixins/internal-localize-mixin';
 import { Uploader } from '../../../util/uploader';
 import RecordRTC from '../util/recordrtc';
 
-class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
+class D2LMediaWebRecordingRecorder extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
 			canCaptureAudio: { type: Boolean, attribute: 'can-capture-audio' },
 			canCaptureVideo: { type: Boolean, attribute: 'can-capture-video' },
 			smallPreview: { type: Boolean, attribute: 'small-preview' },
+			maxPreviewHeight: { type: Number, attribute: 'max-preview-height' },
 			audioRecordingDurationLimit: { type: Number, attribute: 'audio-recording-duration-limit' },
 			videoRecordingDurationLimit: { type: Number, attribute: 'video-recording-duration-limit' },
 			_audioOnly: { type: Number, attribute: false },
@@ -215,7 +216,7 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 				id="media-recorder"
 				class="d2l-media-recorder-container"
 			>
-				<div class="d2l-preview-container">
+				<div class="d2l-preview-container" style="height: ${this.maxPreviewHeight}px;">
 					<video id="video-preview" class="${videoPreviewStyles.join(' ')}">
 					</video>
 					<div></div>
@@ -357,4 +358,4 @@ class D2LMediaCaptureRecorder extends InternalLocalizeMixin(LitElement) {
 	}
 }
 
-customElements.define('d2l-media-capture-recorder', D2LMediaCaptureRecorder);
+customElements.define('d2l-media-web-recording-recorder', D2LMediaWebRecordingRecorder);

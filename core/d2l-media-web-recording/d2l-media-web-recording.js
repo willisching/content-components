@@ -1,7 +1,7 @@
 import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
-import './src/d2l-media-capture-recorder';
-import './src/d2l-media-capture-uploader';
-import './src/d2l-media-capture-metadata';
+import './src/d2l-media-web-recording-recorder';
+import './src/d2l-media-web-recording-uploader';
+import './src/d2l-media-web-recording-metadata';
 
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin';
@@ -19,7 +19,7 @@ const VIEW = Object.freeze({
 const AUDIO = 'Audio';
 const VIDEO_NOTE = 'VideoNote';
 
-class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
+class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
 			contentServiceEndpoint: { type: String, attribute: 'content-service-endpoint' },
@@ -40,7 +40,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 
 	static get styles() {
 		return css`
-			.d2l-media-capture-loading-container {
+			.d2l-media-web-recording-loading-container {
 				align-items: center;
 				display: flex;
 				flex-direction: column;
@@ -62,7 +62,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 				height: 0;
 			}
 
-			.d2l-media-capture-source-selector {
+			.d2l-media-web-recording-source-selector {
 				margin-top: 0;
 				border: 1px solid #494c4e;
 				color: black;
@@ -72,34 +72,34 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 				text-decoration: none;
 			}
 			
-			.d2l-media-capture-source-selector:hover {
+			.d2l-media-web-recording-source-selector:hover {
 				cursor: pointer;
 			}
 
-			.d2l-media-capture-source-selector-active {
+			.d2l-media-web-recording-source-selector-active {
 				font-weight: bold;
 			}
 
-			.d2l-media-capture-source-selector-inactive {
+			.d2l-media-web-recording-source-selector-inactive {
 				background-color: #EEEEEE;
 				color: #333;
 			}
 
-			.d2l-media-capture-source-selector-active-locked {
+			.d2l-media-web-recording-source-selector-active-locked {
 				color: #999999;	
 			}
 			
-			.d2l-media-capture-source-selector-inactive-locked {
+			.d2l-media-web-recording-source-selector-inactive-locked {
 				color: #cccccc;	
 				background-color: #EEEEEE;
 			}
 
-			.d2l-media-capture-source-selector-active-locked:hover,
-			.d2l-media-capture-source-selector-inactive-locked:hover {
+			.d2l-media-web-recording-source-selector-active-locked:hover,
+			.d2l-media-web-recording-source-selector-inactive-locked:hover {
 				cursor: default;
 			}
 
-			.d2l-media-capture-aria-log {
+			.d2l-media-web-recording-aria-log {
 				left: -999em;
 				position: absolute;
 				width: 1em;
@@ -129,7 +129,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 			case VIEW.PROGRESS:
 				view = html`
 					${this._renderSourceSelector()}
-					<div class="d2l-media-capture-loading-container">
+					<div class="d2l-media-web-recording-loading-container">
 						<d2l-loading-spinner size="150"></d2l-loading-spinner>
 						<div>${this.localize('pleaseWait')}</div>
 					</div>
@@ -138,26 +138,27 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 			case VIEW.RECORD_OR_UPLOAD:
 				if (this._isRecording) {
 					recordOrUploadView = html`
-						<d2l-media-capture-recorder
+						<d2l-media-web-recording-recorder
 							?can-capture-audio=${this._canRecord && this.canCaptureAudio}
 							?can-capture-video=${this._canRecord && this.canCaptureVideo}
 							?small-preview=${this.clientApp === VIDEO_NOTE}
+							max-preview-height=${this.canUpload ? 320 : 380}
 							audio-recording-duration-limit=${this.audioRecordingDurationLimit}
 							video-recording-duration-limit=${this.videoRecordingDurationLimit}
 							@capture-started=${this._handleCaptureStarted}
 							@capture-clip-completed=${this._handleCaptureClipCompleted}
 						>
-						</d2l-media-capture-recorder>
+						</d2l-media-web-recording-recorder>
 					`;
 				} else if (this.canUpload) {
 					recordOrUploadView = html`
-						<d2l-media-capture-uploader
+						<d2l-media-web-recording-uploader
 							?can-upload-audio=${this.canCaptureAudio}
 							?can-upload-video=${this.canCaptureVideo}
 							max-file-size=${this.maxFileSizeInBytes}
 							@file-selected=${this._handleFileSelected}
 						>
-						</d2l-media-capture-uploader>
+						</d2l-media-web-recording-uploader>
 					`;
 				}
 				view = html`
@@ -167,17 +168,17 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 				break;
 			case VIEW.METADATA:
 				view = html`
-					<d2l-media-capture-metadata
+					<d2l-media-web-recording-metadata
 						?is-audio=${this._contentType === AUDIO}
 						client-app=${this.clientApp}
 						?auto-captions-enabled=${this.autoCaptionsEnabled}
 					>
-					</d2l-media-capture-metadata>
+					</d2l-media-web-recording-metadata>
 				`;
 				break;
 			case VIEW.ERROR:
 				view = html`
-					<div class="d2l-media-capture-error">
+					<div class="d2l-media-web-recording-error">
 						${this.localize(this._error)}
 					</div>
 				`;
@@ -187,8 +188,8 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 		return html`
 			${view}
 			<div
-				id="media-capture-aria-log"
-				class="d2l-media-capture-aria-log"
+				id="media-web-recording-aria-log"
+				class="d2l-media-web-recording-aria-log"
 				role="log"
 				aria-live="assertive"
 			></div>
@@ -200,7 +201,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 	}
 
 	get metadataReady() {
-		return this.shadowRoot?.querySelector('d2l-media-capture-metadata')?.ready;
+		return this.shadowRoot?.querySelector('d2l-media-web-recording-metadata')?.ready;
 	}
 
 	async processMediaObject() {
@@ -209,7 +210,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 			description,
 			autoCaptions,
 			sourceLanguage
-		} = this.shadowRoot.querySelector('d2l-media-capture-metadata').values;
+		} = this.shadowRoot.querySelector('d2l-media-web-recording-metadata').values;
 		try {
 			if (this.clientApp === VIDEO_NOTE) {
 				const callback = (rpcResponse) => {
@@ -376,7 +377,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 				<a
 					id="source-selector-record"
 					title="${this.localize(recordLangterm)}"
-					class="d2l-media-capture-source-selector d2l-media-capture-source-selector-${sourceSelectorRecordStatus}"
+					class="d2l-media-web-recording-source-selector d2l-media-web-recording-source-selector-${sourceSelectorRecordStatus}"
 					@click=${this._handleSourceSelectorClick(true)}
 					tabindex=0
 				>
@@ -385,7 +386,7 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 				<a
 					id="source-selector-upload"
 					title="${this.localize('uploadFile')}"
-					class="d2l-media-capture-source-selector d2l-media-capture-source-selector-${sourceSelectorUploadStatus}"
+					class="d2l-media-web-recording-source-selector d2l-media-web-recording-source-selector-${sourceSelectorUploadStatus}"
 					@click=${this._handleSourceSelectorClick(false)}
 					tabindex=0
 				>
@@ -396,8 +397,8 @@ class D2LMediaCapture extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_updateAriaLog(status) {
-		this.shadowRoot.getElementById('media-capture-aria-log').textContent = this.localize(status);
+		this.shadowRoot.getElementById('media-web-recording-aria-log').textContent = this.localize(status);
 	}
 }
 
-customElements.define('d2l-media-capture', D2LMediaCapture);
+customElements.define('d2l-media-web-recording', D2LMediaWebRecording);

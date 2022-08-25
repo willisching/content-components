@@ -23,7 +23,7 @@ const mockRequestMap = {
 		body: {},
 		status: 200
 	},
-	'/core/d2l-media-capture/demo/test-signed-url': {
+	'/core/d2l-media-web-recording/demo/test-signed-url': {
 		body: {},
 		status: 200
 	},

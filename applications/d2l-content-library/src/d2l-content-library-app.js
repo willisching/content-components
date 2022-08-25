@@ -1,5 +1,5 @@
 import './components/two-column-layout.js';
-import '../../../core/d2l-media-capture/d2l-media-capture-dialog.js';
+import '../../../core/d2l-media-web-recording/d2l-media-web-recording-dialog.js';
 import '@brightspace-ui/core/components/list/list-item-content.js';
 import '@brightspace-ui/core/components/list/list-item.js';
 import '@brightspace-ui/core/components/list/list.js';
@@ -159,8 +159,8 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 						</div>
 					</two-column-layout>
 					${this._canRecord ? html`
-						<d2l-media-capture-dialog
-							id="media-capture-dialog"
+						<d2l-media-web-recording-dialog
+							id="media-web-recording-dialog"
 							tenant-id="${this.tenantId}"
 							content-service-endpoint="${this.contentServiceEndpoint}"
 							client-app="LmsCapture"
@@ -169,7 +169,7 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 							can-capture-video
 							can-capture-audio
 							?auto-captions-enabled=${this._autoCaptionsEnabled}
-						></d2l-media-capture-dialog>` : ''}
+						></d2l-media-web-recording-dialog>` : ''}
 				`;
 			} else {
 				return html`${this._renderPrimary()}`;
@@ -237,9 +237,9 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 		}
 	}
 
-	_openMediaCaptureDialog() {
+	_openMediaWebRecordingDialog() {
 		return () => {
-			this.shadowRoot.getElementById('media-capture-dialog').open();
+			this.shadowRoot.getElementById('media-web-recording-dialog').open();
 		};
 	}
 

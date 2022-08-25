@@ -8,7 +8,7 @@ export default {
 		commonjs()
 	],
 	output: {
-		file: 'core/d2l-media-capture/util/recordrtc.js',
+		file: 'core/d2l-media-web-recording/util/recordrtc.js',
 		format: 'es',
 		compact: true,
 	}

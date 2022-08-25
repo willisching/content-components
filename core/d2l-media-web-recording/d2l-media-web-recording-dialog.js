@@ -3,9 +3,9 @@ import '@brightspace-ui/core/components/dialog/dialog.js';
 
 import { css, html, LitElement } from 'lit';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
-import './d2l-media-capture.js';
+import './d2l-media-web-recording.js';
 
-class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
+class D2LMediaWebRecordingDialog extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
 			tenantId: { type: String, attribute: 'tenant-id' },
@@ -25,8 +25,8 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 
 	static get styles() {
 		return css`
-			.d2l-media-capture-container {
-				height: 560px;
+			.d2l-media-web-recording-container {
+				height: 450px;
 			}
 		`;
 	}
@@ -38,20 +38,20 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 
 	firstUpdated() {
 		super.firstUpdated();
-		this._mediaCapture = this.shadowRoot.querySelector('d2l-media-capture');
+		this._mediaWebRecorder = this.shadowRoot.querySelector('d2l-media-web-recording');
 	}
 
 	render() {
 		return html`
 			<d2l-dialog
-				id="media-capture-dialog"
-				class="d2l-media-capture-dialog"
+				id="media-web-recording-dialog"
+				class="d2l-media-web-recording-dialog"
 				title-text="${this.localize('mediaCapture')}"
 				width="800"
 				@d2l-dialog-close=${this._handleRecorderClose}
 			>
-				<div class="d2l-media-capture-container">
-					<d2l-media-capture
+				<div class="d2l-media-web-recording-container">
+					<d2l-media-web-recording
 							tenant-id="${this.tenantId}"
 							content-service-endpoint="${this.contentServiceEndpoint}"
 							client-app=${this.clientApp}
@@ -69,7 +69,7 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 							@upload-success=${this._handleUploadSuccess}
 							@processing-started=${this._handleProcessingStarted}
 						>
-					</d2l-media-capture>
+					</d2l-media-web-recording>
 				</div>
 				<d2l-button
 					slot="footer"
@@ -98,7 +98,7 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 
 	open() {
 		this._showRecordOrUploadView();
-		this.shadowRoot.getElementById('media-capture-dialog').open();
+		this.shadowRoot.getElementById('media-web-recording-dialog').open();
 	}
 
 	_enablePrimaryButton() {
@@ -115,33 +115,33 @@ class D2LMediaCaptureDialog extends InternalLocalizeMixin(LitElement) {
 
 	async _handlePrimaryButtonClick() {
 		this._primaryButtonDisabled = true;
-		if (this._mediaCapture.fileSelected && this._mediaCapture.metadataReady) {
-			await this._mediaCapture.processMediaObject();
-		} else if (this._mediaCapture.fileSelected && !this._fileUploaded) {
-			await this._mediaCapture.uploadSelectedFile();
+		if (this._mediaWebRecorder.fileSelected && this._mediaWebRecorder.metadataReady) {
+			await this._mediaWebRecorder.processMediaObject();
+		} else if (this._mediaWebRecorder.fileSelected && !this._fileUploaded) {
+			await this._mediaWebRecorder.uploadSelectedFile();
 		}
 	}
 
 	_handleProcessingStarted() {
-		this.shadowRoot.getElementById('media-capture-dialog').removeAttribute('opened');
+		this.shadowRoot.getElementById('media-web-recording-dialog').removeAttribute('opened');
 	}
 
 	_handleRecorderClose() {
-		this._mediaCapture.reset();
+		this._mediaWebRecorder.reset();
 		this._fileUploaded = false;
 	}
 
 	_handleUploadSuccess() {
-		this._primaryButtonDisabled = !this._mediaCapture.metadataReady;
+		this._primaryButtonDisabled = !this._mediaWebRecorder.metadataReady;
 		this._fileUploaded = true;
 		this._isRecordOrUploadView = false;
 	}
 
 	_showRecordOrUploadView() {
-		this._mediaCapture.showRecordOrUploadView();
+		this._mediaWebRecorder.showRecordOrUploadView();
 		this._isRecordOrUploadView = true;
 		this._primaryButtonDisabled = true;
 	}
 }
 
-customElements.define('d2l-media-capture-dialog', D2LMediaCaptureDialog);
+customElements.define('d2l-media-web-recording-dialog', D2LMediaWebRecordingDialog);
