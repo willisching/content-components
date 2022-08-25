@@ -142,7 +142,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 							?can-capture-audio=${this._canRecord && this.canCaptureAudio}
 							?can-capture-video=${this._canRecord && this.canCaptureVideo}
 							max-video-preview-width=${this.clientApp === VIDEO_NOTE ? 400 : 500}
-							max-preview-height=${this.canUpload ? 320 : 380}
+							max-preview-height=${this.canUpload ? 320 : 375}
 							audio-recording-duration-limit=${this.audioRecordingDurationLimit}
 							video-recording-duration-limit=${this.videoRecordingDurationLimit}
 							@capture-started=${this._handleCaptureStarted}
