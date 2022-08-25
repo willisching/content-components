@@ -1,6 +1,6 @@
 import { randomizeDelay, sleep } from './delay';
 
-const RETRIES = 5;
+const MAX_RETRIES = 5;
 const MB = 1024 * 1024;
 
 export class S3Uploader {
@@ -99,7 +99,7 @@ export class S3Uploader {
 		const uploadResponses = [];
 		for (let i = 0; i < signedUrls.length; i++) {
 			const url = signedUrls[i].value;
-			uploadResponses.push(await this._uploadWithRetries(this.chunks[i], {signedUrl: url}, RETRIES, i).then((response) => {
+			uploadResponses.push(await this._uploadWithRetries(this.chunks[i], {signedUrl: url}, 0, i).then((response) => {
 				const etag = response.getResponseHeader('ETag');
 				return {
 					ETag: etag,
@@ -111,7 +111,18 @@ export class S3Uploader {
 			}));
 		}
 
-		await this.completeMultipartUpload({ uploadId, parts: { parts: uploadResponses }});
+		for(let retries = 0; retries < MAX_RETRIES; retries++) {
+			try {
+				await this.completeMultipartUpload({ uploadId, parts: { parts: uploadResponses }});
+				break;
+			} catch (err) {
+				if(retries === MAX_RETRIES - 1) {
+					this.abort();
+					break;
+				}
+				await sleep(2 ** (retries + 1) * 1000);
+			}
+		}
 	}
 
 	_getErrorRequestContext(xhr) {
@@ -162,16 +173,16 @@ export class S3Uploader {
 		});
 	}
 
-	async _uploadWithRetries(file, signResult, retries = RETRIES, progressIndex = 0) {
+	async _uploadWithRetries(file, signResult, retries = 0, progressIndex = 0) {
 		try {
 			return await this._startUpload(file, signResult, progressIndex);
 		} catch (error) {
-			if (error.name !== 'XHRError' || retries <= 0) {
+			if (error.name !== 'XHRError' || retries >= MAX_RETRIES) {
 				throw error;
 			}
-			await sleep(randomizeDelay(5000, 1000));
+			await sleep(2 ** (retries + 1) * 1000);
 			this.resetProgress(progressIndex);
-			return this._uploadWithRetries(file, signResult, --retries, progressIndex);
+			return this._uploadWithRetries(file, signResult, retries + 1, progressIndex);
 		}
 	}
 
