@@ -136,8 +136,7 @@ class D2LContentLibraryFiles extends contentSearchMixin(DependencyRequester(Page
 			/>
 			<d2l-alert-toast
 				id="upload-toast"
-				type="error"
-				announce-text=${this.uploadErrorMessage}>
+				type="error">
 				${this.uploadErrorMessage}
 			</d2l-alert-toast>
 		`;

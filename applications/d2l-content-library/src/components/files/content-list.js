@@ -60,15 +60,13 @@ class ContentList extends ContentLibraryList {
 				id="delete-toast"
 				type="default"
 				button-text=${this.alertToastButtonText}
-				announce-text=${this.alertToastMessage}
-				@d2l-alert-button-pressed=${this.undoDeleteHandler}>
+				@d2l-alert-toast-button-press=${this.undoDeleteHandler}>
 				${this.alertToastMessage}
 			</d2l-alert-toast>
 
 			<d2l-alert-toast
 				id="file-drop-toast"
-				type="error"
-				announce-text=${this.fileDropErrorMessage}>
+				type="error">
 				${this.fileDropErrorMessage}
 			</d2l-alert-toast>
 		`;
