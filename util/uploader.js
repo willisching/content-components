@@ -120,7 +120,7 @@ export class Uploader {
 			const s3Uploader = new S3Uploader({
 				file,
 				key: revision.s3Key,
-				isMultipart: true,
+				isMultipart: false,
 				signRequest: ({ file, key }) =>
 					this.apiClient.s3Sign.sign({
 						fileName: key,
