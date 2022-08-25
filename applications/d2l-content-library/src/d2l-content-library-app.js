@@ -1,19 +1,26 @@
 import './components/two-column-layout.js';
+import '@brightspace-ui/core/components/dropdown/dropdown.js';
+import '@brightspace-ui/core/components/dropdown/dropdown-button.js';
+import '@brightspace-ui/core/components/dropdown/dropdown-menu.js';
 import '@brightspace-ui/core/components/list/list-item-content.js';
 import '@brightspace-ui/core/components/list/list-item.js';
 import '@brightspace-ui/core/components/list/list.js';
+import '@brightspace-ui/core/components/menu/menu.js';
+import '@brightspace-ui/core/components/menu/menu-item.js';
 import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
 import '@brightspace-ui/core/components/dialog/dialog.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { BASE_PATH } from './state/routing-store.js';
 
 import { DependencyRequester } from './mixins/dependency-requester-mixin.js';
+import { formatFileSize } from '@brightspace-ui/intl/lib/fileSize';
 import { InternalLocalizeMixin } from '../../../mixins/internal-localize-mixin.js';
+import { getSupportedExtensions, isSupported } from './util/media-type-util.js';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { NavigationMixin } from './mixins/navigation-mixin.js';
 import { navigationSharedStyle } from './style/d2l-navigation-shared-styles.js';
 import page from 'page/page.mjs';
-import { pageNames } from './util/constants.js';
+import { maxFileSizeInBytes, pageNames } from './util/constants.js';
 import { ResizeObserver } from '@brightspace-ui/resize-aware/resize-observer-module.js';
 import { rootStore } from './state/root-store.js';
 
@@ -24,6 +31,7 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 			canManageAllObjects: { type: Boolean, attribute: 'can-manage-all-videos' },
 			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
 			tenantId: { type: String, attribute: 'tenant-id' },
+			_errorMessage: { type: String, attribute: false },
 			_loading: { type: Boolean, attribute: false },
 			_shouldRenderSidebar: { type: Boolean, attribute: false },
 		};
@@ -45,6 +53,17 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 
 			.d2l-content-library-primary {
 				width: 100%;
+			}
+
+			#d2l-content-library-sidebar-header-content {
+				align-items: center;
+				display: flex;
+				flex-direction: column;
+				width: 100%;
+			}
+
+			#d2l-content-library-add-menu-button {
+				width: 90%;
 			}
 
 			.d2l-content-library-primary.sidebar {
@@ -70,10 +89,6 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 				font-weight: bolder;
 			}
 
-			.d2l-content-library-sidebar-container {
-				margin-top: 25px;
-			}
-
 			#d2l-content-library-preview {
 				display: flex;
 				height: 100%;
@@ -87,6 +102,15 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 				}
 			}
 
+			@media (min-width: 769px) {
+				#d2l-content-library-add-menu-button {
+					display: block;
+				}
+				#d2l-content-library-add-menu-icon-button {
+					display: none;
+				}
+			}
+
 			@media (max-width: 768px) {
 				two-column-layout {
 					--sidebar-width: 65px;
@@ -97,6 +121,12 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 				.d2l-content-library-primary {
 					position: absolute;
 				}
+				#d2l-content-library-add-menu-button {
+					display: none;
+				}
+				#d2l-content-library-add-menu-icon-button {
+					display: block;
+				}
 			}
 		`];
 	}
@@ -106,13 +136,19 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 		const documentObserver = new ResizeObserver(this._resized.bind(this));
 		documentObserver.observe(document.body, { attributes: true });
 
+		this._errorMessage = '';
 		this._loading = true;
 		this._shouldRenderSidebar = null;
 		this._setupPageNavigation();
+
+		this._supportedTypes = getSupportedExtensions();
 	}
 
 	async connectedCallback() {
 		await super.connectedCallback();
+
+		this.uploader = this.requestDependency('uploader');
+
 		const permissions = {
 			canAccessCreatorPlus: this.canAccessCreatorPlus ? 'true' : 'false',
 			canManageAllObjects: this.canManageAllVideos ? 'true' : 'false',
@@ -143,6 +179,9 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 			} else if (this._shouldRenderSidebar) {
 				return html`
 					<two-column-layout>
+						<div slot="sidebar-header" id="d2l-content-library-sidebar-header-content">
+							${this._renderAddContextMenu()}
+						</div>
 						<div slot="sidebar">
 							${this._renderSidebar()}
 						</div>
@@ -159,6 +198,12 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 			<div class="d2l-content-library">
 				${renderContent()}
 			</div>
+			<d2l-alert-toast
+				id="error-toast"
+				type="error"
+				announce-text=${this._errorMessage}>
+				${this._errorMessage}
+			</d2l-alert-toast>
 		`;
 	}
 
@@ -214,6 +259,57 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 		}
 	}
 
+	_handleFileChange(event) {
+		const { files } = event.target;
+		for (const file of files) {
+			if (file.size > maxFileSizeInBytes) {
+				this._showErrorToast(this.localize(
+					'fileTooLarge',
+					{ localizedMaxFileSize: formatFileSize(maxFileSizeInBytes) }
+				));
+				event.target.value = '';
+				return;
+			}
+			if (!isSupported(file.name)) {
+				this._showErrorToast(this.localize('invalidFileTypeSelected'));
+				event.target.value = '';
+				return;
+			}
+		}
+		this.uploader.uploadFiles(files);
+
+		const { page: currentPage } = rootStore.routingStore;
+		if (currentPage !== pageNames.files) {
+			this._navigate(`/${pageNames.files}`);
+		}
+
+		event.target.value = '';
+	}
+
+	_handleUploadFileClick() {
+		this.shadowRoot.querySelector('#fileInput').click();
+	}
+
+	_renderAddContextMenu() {
+		const menu = html`
+			<d2l-dropdown-menu>
+				<d2l-menu label="${this.localize('add')}">
+					<d2l-menu-item text="${this.localize('uploadFile')}" @click=${this._handleUploadFileClick}></d2l-menu-item>
+				</d2l-menu>
+			</d2l-dropdown-menu>
+		`;
+
+		return html`
+			<d2l-dropdown-button primary id="d2l-content-library-add-menu-button" text="${this.localize('add')}">
+				${menu}
+			</d2l-dropdown-button>
+			<d2l-dropdown id="d2l-content-library-add-menu-icon-button">
+				<d2l-button-icon class="d2l-dropdown-opener" icon="tier2:add" text="${this.localize('add')}"></d2l-button-icon>
+				${menu}
+			</d2l-dropdown>
+		`;
+	}
+
 	_renderPrimary() {
 		const { page: currentPage, subView } = rootStore.routingStore;
 		return html`
@@ -267,6 +363,14 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 				<d2l-list separators="between">
 					${sidebarListItems}
 				</d2l-list>
+				<input
+					type="file"
+					id="fileInput"
+					accept=${this._supportedTypes.join(',')}
+					@change=${this._handleFileChange}
+					style="display:none"
+					multiple
+				/>
 			</div>
 		`;
 	}
@@ -288,6 +392,15 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 		];
 		routes.forEach(route => page(route, this.setupPage.bind(this)));
 		page();
+	}
+
+	_showErrorToast(errorMessage) {
+		const errorToastElement = this.shadowRoot.querySelector('#error-toast');
+		if (errorToastElement) {
+			this._errorMessage = errorMessage;
+			this.requestUpdate();
+			errorToastElement.setAttribute('open', true);
+		}
 	}
 }
 

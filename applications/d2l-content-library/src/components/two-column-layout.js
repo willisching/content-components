@@ -29,8 +29,13 @@ class TwoColumnLayout extends RtlMixin(LitElement) {
 				height: 100%;
 			}
 			.sidebar-header {
+				align-items: center;
+				display: flex;
+				flex-direction: column;
 				flex-shrink: 0;
 				height: var(--primary-header-height, auto);
+				margin-top: 25px;
+				margin-bottom: 25px;
 			}
 			.sidebar {
 				background-color: var(--sidebar-background-color, transparent);
@@ -40,6 +45,8 @@ class TwoColumnLayout extends RtlMixin(LitElement) {
 				flex-grow: 0;
 				position: fixed;
 				width: var(--sidebar-width, 300px);
+				/* Sidebar needs to be stacked on top of the Primary column in order to prevent the "Add" dropdown menu from being covered by other page elements on mobile. */
+				z-index: 1;
 			}
 			:host([dir="rtl"]) .sidebar {
 				border-left: 1px solid var(--d2l-color-gypsum);
@@ -56,6 +63,7 @@ class TwoColumnLayout extends RtlMixin(LitElement) {
 				margin-left: var(--sidebar-width, 300px);
 				max-width: 930px;
 				width: 100%;
+				z-index: 0;
 			}
 			:host([dir="rtl"]) .primary {
 				margin-left: 0px;

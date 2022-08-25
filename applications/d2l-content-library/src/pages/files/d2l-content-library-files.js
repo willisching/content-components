@@ -108,12 +108,6 @@ class D2LContentLibraryFiles extends contentSearchMixin(DependencyRequester(Page
 				<content-list></content-list>
 			</div>
 			<upload-status-management id="upload-status-management"></upload-status-management>
-			<d2l-alert-toast
-				id="upload-toast"
-				type="error"
-				announce-text=${this.uploadErrorMessage}>
-				${this.uploadErrorMessage}
-			</d2l-alert-toast>
 		`;
 	}
 
@@ -138,15 +132,6 @@ class D2LContentLibraryFiles extends contentSearchMixin(DependencyRequester(Page
 			...this.rootStore.routingStore.getQueryParams(),
 			searchQuery: value
 		});
-	}
-
-	_showUploadErrorToast(errorMessage) {
-		const errorToastElement = this.shadowRoot.querySelector('#upload-toast');
-		if (errorToastElement) {
-			this.uploadErrorMessage = errorMessage;
-			this.requestUpdate();
-			errorToastElement.setAttribute('open', true);
-		}
 	}
 }
 customElements.define('d2l-content-library-files', D2LContentLibraryFiles);
