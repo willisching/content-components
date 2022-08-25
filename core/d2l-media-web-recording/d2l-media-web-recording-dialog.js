@@ -47,7 +47,7 @@ class D2LMediaWebRecordingDialog extends InternalLocalizeMixin(LitElement) {
 				id="media-web-recording-dialog"
 				class="d2l-media-web-recording-dialog"
 				title-text="${this.localize('mediaCapture')}"
-				width="800"
+				width="700"
 				@d2l-dialog-close=${this._handleRecorderClose}
 			>
 				<div class="d2l-media-web-recording-container">

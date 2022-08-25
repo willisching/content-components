@@ -14,6 +14,7 @@ class D2LMediaWebRecordingRecorder extends InternalLocalizeMixin(LitElement) {
 			canCaptureAudio: { type: Boolean, attribute: 'can-capture-audio' },
 			canCaptureVideo: { type: Boolean, attribute: 'can-capture-video' },
 			smallPreview: { type: Boolean, attribute: 'small-preview' },
+			maxVideoPreviewWidth: { type: Number, attribute: 'max-video-preview-width' },
 			maxPreviewHeight: { type: Number, attribute: 'max-preview-height' },
 			audioRecordingDurationLimit: { type: Number, attribute: 'audio-recording-duration-limit' },
 			videoRecordingDurationLimit: { type: Number, attribute: 'video-recording-duration-limit' },
@@ -202,9 +203,6 @@ class D2LMediaWebRecordingRecorder extends InternalLocalizeMixin(LitElement) {
 	_renderRecorder() {
 		const videoPreviewStyles = ['d2l-preview'];
 		const audioPreviewStyles = ['d2l-preview', 'd2l-audio-preview'];
-		if (this.smallPreview) {
-			videoPreviewStyles.push('small-video-preview');
-		}
 		if (!(this._audioOnly && this._mediaBlob)) {
 			audioPreviewStyles.push('hidden');
 		}
@@ -216,8 +214,8 @@ class D2LMediaWebRecordingRecorder extends InternalLocalizeMixin(LitElement) {
 				id="media-recorder"
 				class="d2l-media-recorder-container"
 			>
-				<div class="d2l-preview-container" style="height: ${this.maxPreviewHeight}px;">
-					<video id="video-preview" class="${videoPreviewStyles.join(' ')}">
+				<div class="d2l-preview-container" style="height:${this.maxPreviewHeight}px;">
+					<video id="video-preview" class="${videoPreviewStyles.join(' ')}" style="max-width:${this.maxVideoPreviewWidth}px">
 					</video>
 					<div></div>
 					<audio id="audio-preview" class="${audioPreviewStyles.join(' ')}" controls>
