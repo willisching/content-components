@@ -19,9 +19,6 @@ import { navigationSharedStyle } from '../../style/d2l-navigation-shared-styles.
 import { PageViewElement } from '../../components/page-view-element';
 import { rootStore } from '../../state/root-store.js';
 import { sharedManageStyles } from '../../style/shared-styles.js';
-import { getSupportedExtensions, isSupported } from '../../util/media-type-util.js';
-import { maxFileSizeInBytes } from '../../util/constants.js';
-import { formatFileSize } from '@brightspace-ui/intl/lib/fileSize';
 
 class D2LContentLibraryFiles extends contentSearchMixin(DependencyRequester(PageViewElement)) {
 	static get properties() {
@@ -38,10 +35,6 @@ class D2LContentLibraryFiles extends contentSearchMixin(DependencyRequester(Page
 			.d2l-content-library-files-controls {
 				display: flex;
 				margin: 25px 0;
-			}
-
-			.d2l-content-library-files-upload-button {
-				margin-right: 10px;
 			}
 
 			content-filter-dropdown {
@@ -88,11 +81,6 @@ class D2LContentLibraryFiles extends contentSearchMixin(DependencyRequester(Page
 		`];
 	}
 
-	constructor() {
-		super();
-		this._supportedTypes = getSupportedExtensions();
-	}
-
 	connectedCallback() {
 		super.connectedCallback();
 		this.uploader = this.requestDependency('uploader');
@@ -104,12 +92,6 @@ class D2LContentLibraryFiles extends contentSearchMixin(DependencyRequester(Page
 			<div class="d2l-content-library-manage-container">
 				<h2 class="d2l-content-library-files-heading d2l-heading-2">${heading}</h2>
 				<div class="d2l-content-library-files-controls">
-					<d2l-button
-						class="d2l-content-library-files-upload-button"
-						@click=${this._handleFileUploadClick}
-						primary
-					>${this.localize('upload')}
-					</d2l-button>
 					<content-filter-dropdown
 						@change-filter-cleared=${this._handleFilterCleared}
 						@change-filter=${this._handleFilterChange}
@@ -126,14 +108,6 @@ class D2LContentLibraryFiles extends contentSearchMixin(DependencyRequester(Page
 				<content-list></content-list>
 			</div>
 			<upload-status-management id="upload-status-management"></upload-status-management>
-			<input
-				type="file"
-				id="fileInput"
-				accept=${this._supportedTypes.join(',')}
-				@change=${this._handleFileChange}
-				style="display:none"
-				multiple
-			/>
 			<d2l-alert-toast
 				id="upload-toast"
 				type="error"
@@ -141,31 +115,6 @@ class D2LContentLibraryFiles extends contentSearchMixin(DependencyRequester(Page
 				${this.uploadErrorMessage}
 			</d2l-alert-toast>
 		`;
-	}
-
-	_handleFileChange(event) {
-		const { files } = event.target;
-		for (const file of files) {
-			if (file.size > maxFileSizeInBytes) {
-				this._showUploadErrorToast(this.localize(
-					'fileTooLarge',
-					{ localizedMaxFileSize: formatFileSize(maxFileSizeInBytes) }
-				));
-				event.target.value = '';
-				return;
-			}
-			if (!isSupported(file.name)) {
-				this._showUploadErrorToast(this.localize('invalidFileTypeSelected'));
-				event.target.value = '';
-				return;
-			}
-		}
-		this.uploader.uploadFiles(files);
-		event.target.value = '';
-	}
-
-	_handleFileUploadClick() {
-		this.shadowRoot.querySelector('#fileInput').click();
 	}
 
 	_handleFilterChange({ detail = {} }) {
