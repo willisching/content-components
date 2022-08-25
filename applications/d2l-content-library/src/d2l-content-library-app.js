@@ -190,9 +190,6 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 					this.requestUpdate();
 				}
 				return;
-			case pageNames.captureApp:
-				import('./pages/capture-app/d2l-content-library-capture-app.js');
-				return;
 			case pageNames.recycleBin:
 				import('./pages/recycle-bin/d2l-content-library-recycle-bin.js');
 				return;
@@ -223,7 +220,6 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 			<div class="d2l-content-library-primary d2l-navigation-gutters ${this._shouldRenderSidebar ? 'sidebar' : ''}">
 				<d2l-content-library-landing class="page" ?active=${currentPage === pageNames.landing}></d2l-content-library-landing>
 				<d2l-content-library-files class="page" ?active=${currentPage === pageNames.files}></d2l-content-library-files>
-				<d2l-content-library-capture-app class="page" ?active=${currentPage === pageNames.captureApp} tenant-id=${this.tenantId}></d2l-content-library-capture-app>
 				<d2l-content-library-recycle-bin class="page" ?active=${currentPage === pageNames.recycleBin}></d2l-content-library-recycle-bin>
 				<d2l-content-library-editor class="page" ?active=${currentPage === pageNames.editor && !!subView}></d2l-content-library-editor>
 				<d2l-dialog id="preview-dialog" title-text="${this.localize('preview')}">
@@ -241,11 +237,6 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 			langterm: rootStore.permissionStore.getCanManageAllVideos() ? 'everyonesMedia' : 'myMedia',
 			location: `/${pageNames.files}`,
 			icon: rootStore.permissionStore.getCanManageAllVideos() ? 'tier2:browser' : 'tier2:folder',
-		},
-		{
-			langterm: 'captureEncoder',
-			location: `/${pageNames.captureApp}`,
-			icon: 'tier2:capture',
 		},
 		{
 			langterm: 'recycleBin',
@@ -290,7 +281,6 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 		const routes = [
 			`/${pageNames.page404}`,
 			`/${pageNames.files}`,
-			`/${pageNames.captureApp}`,
 			`/${pageNames.recycleBin}`,
 			`/${pageNames.editor}/:id`,
 			`/${pageNames.preview}/:id`,

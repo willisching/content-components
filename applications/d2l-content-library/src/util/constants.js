@@ -1,5 +1,4 @@
 export const pageNames = {
-	captureApp: 'capture-app',
 	editor: 'editor',
 	files: 'files',
 	landing: '',
