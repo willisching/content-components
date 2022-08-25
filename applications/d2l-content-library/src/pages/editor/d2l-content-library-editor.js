@@ -78,7 +78,7 @@ class D2LContentLibraryEditor extends DependencyRequester(PageViewElement) {
 		return html`
 			<d2l-breadcrumbs>
 				<d2l-breadcrumb
-					@click=${this._goTo(`/${pageNames.videos}`)}
+					@click=${this._goTo(`/${pageNames.files}`)}
 					href=""
 					text="${this.localize('mediaLibrary')}"
 				></d2l-breadcrumb>
