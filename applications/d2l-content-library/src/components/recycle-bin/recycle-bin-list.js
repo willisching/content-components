@@ -37,7 +37,7 @@ class RecycleBinList extends ContentLibraryList {
 
 			<d2l-alert-toast
 				id="recycle-bin-toast"
-				type="default"></d2l-alert-toast>
+				type="default">
 				${this.alertToastMessage}
 			</d2l-alert-toast>
 		`;
