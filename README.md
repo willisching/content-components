@@ -6,7 +6,7 @@ A collection of components used for content in Brightspace.
 
 ### Applications
 * [d2l-content-library](applications/d2l-content-library)
-
+* [d2l-producer](applications/d2l-producer)
 
 ### Core
 * [d2l-captions-manager](core/d2l-captions-manager)
@@ -25,8 +25,6 @@ A collection of components used for content in Brightspace.
 * [d2l-content-topic-settings](core/d2l-content-topic-settings)
 * [d2l-content-uploader](core/d2l-content-uploader)
 
-### Capture
-* [d2l-capture-producer](capture/d2l-capture-producer)
 
 ## Developing, Testing and Contributing
 

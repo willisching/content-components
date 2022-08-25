@@ -20,11 +20,11 @@ import { rootStore } from './state/root-store.js';
 class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalLocalizeMixin(MobxReactionUpdate(LitElement)))) {
 	static get properties() {
 		return {
-			canManageAllVideos: { type: Boolean, attribute: 'can-manage-all-videos' },
+			canAccessCreatorPlus: { type: Boolean, attribute: 'can-access-creator-plus' },
+			canManageAllObjects: { type: Boolean, attribute: 'can-manage-all-videos' },
 			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
 			tenantId: { type: String, attribute: 'tenant-id' },
 			_loading: { type: Boolean, attribute: false },
-			_permissionError: { type: Boolean, attribute: false },
 			_shouldRenderSidebar: { type: Boolean, attribute: false },
 		};
 	}
@@ -108,28 +108,18 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 
 		this._loading = true;
 		this._shouldRenderSidebar = null;
-		this._permissionError = false;
 		this._setupPageNavigation();
 	}
 
 	async connectedCallback() {
 		await super.connectedCallback();
-		this.userBrightspaceClient = this.requestDependency('user-brightspace-client');
+		const permissions = {
+			canAccessCreatorPlus: this.canAccessCreatorPlus ? 'true' : 'false',
+			canManageAllObjects: this.canManageAllVideos ? 'true' : 'false',
+			canTransferOwnership: this.canTransferOwnership ? 'true' : 'false'
+		};
 
-		try {
-			const permissions = await this.userBrightspaceClient.getCapturePermissions({
-				orgUnitId: rootStore.routingStore.orgUnitId
-			});
-			// "Can Manage All Videos" is mapped from the "Can Manage All Content" permission in Content Service.
-			// Since it's not a Capture permission, it is passed down from the LMS to Capture Central as a Lit attribute.
-			permissions.canManageAllVideos = this.canManageAllVideos ? 'true' : 'false';
-			permissions.canTransferOwnership = this.canTransferOwnership ? 'true' : 'false';
-
-			rootStore.permissionStore.setPermissions(permissions);
-		} catch (error) {
-			this._permissionError = true;
-		}
-
+		rootStore.permissionStore.setPermissions(permissions);
 		this._loading = false;
 	}
 
@@ -145,11 +135,6 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 					class="d2l-content-library-loading-spinner"
 					size="150"
 				></d2l-loading-spinner>
-			`;
-		}
-		if (this._permissionError) {
-			return html `
-				${this.localize('unableToGetPermissions')}
 			`;
 		}
 		const renderContent = () => {

@@ -226,7 +226,6 @@ export default {
 	"tooManyFiles": "Too many files selected.",
 	"transferOwnership": "Transfer Ownership",
 	"transferOwnershipWarning": "Do you want to change ownership of the file {fileName} to {user}?",
-	"unableToGetPermissions": "Unable to get permissions.",
 	"unauthorized": "Unauthorized.",
 	"undo": "Undo",
 	"unsaved": "Unsaved",

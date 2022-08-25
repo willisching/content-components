@@ -1,6 +1,3 @@
-// Taken from node-webvtt by Ólafur Sverrir Kjartansson and contributors.
-// https://github.com/osk/node-webvtt/blob/bf144fac333a7f87612c41c5b315d330c867d99e/lib/compiler.js
-
 /**
  * See spec: https://www.w3.org/TR/webvtt1/#file-structure
  */

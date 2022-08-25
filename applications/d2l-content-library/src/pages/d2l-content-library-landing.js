@@ -21,11 +21,7 @@ class D2lContentLibraryLanding extends DependencyRequester(navigationMixin(PageV
 			return;
 		}
 
-		if (rootStore.permissionStore.getCanAccessContentLibrary()) {
-			this._navigate('/files');
-		} else {
-			this._navigate('/404');
-		}
+		this._navigate('/files');
 	}
 }
 

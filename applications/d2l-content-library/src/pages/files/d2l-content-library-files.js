@@ -169,7 +169,7 @@ class D2LContentLibraryFiles extends contentSearchMixin(DependencyRequester(Page
 	}
 
 	_handleFilterChange({ detail = {} }) {
-		this._navigate('/videos', {
+		this._navigate('/files', {
 			...this.rootStore.routingStore.getQueryParams(),
 			...detail
 		});
@@ -179,13 +179,13 @@ class D2LContentLibraryFiles extends contentSearchMixin(DependencyRequester(Page
 		const queryParams = this.rootStore.routingStore.getQueryParams();
 		delete queryParams.dateCreated;
 		delete queryParams.dateModified;
-		this._navigate('/videos', queryParams);
+		this._navigate('/files', queryParams);
 	}
 
 	_handleSearch(event) {
 		const { value } = event.detail;
 
-		this._navigate('/videos', {
+		this._navigate('/files', {
 			...this.rootStore.routingStore.getQueryParams(),
 			searchQuery: value
 		});

@@ -2,7 +2,7 @@ import { playwrightLauncher } from '@web/test-runner-playwright';
 
 function getPattern(type) {
 	return [
-		`+(applications|core|capture)/**/*.${type}.js`
+		`+(applications|core)/**/*.${type}.js`
 	];
 }
 

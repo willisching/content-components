@@ -1,8 +1,8 @@
 import * as querystring from '@chaitin/querystring';
 import { action, decorate, observable, toJS } from 'mobx';
 
-export const BASE_PATH = '/d2l/wcs/content-library';
-const stripBasePath = path => path.replace(/^\/(d2l\/wcs\/content-library\/)?/, '');
+export const BASE_PATH = '/d2l/wcs/media-library';
+const stripBasePath = path => path.replace(/^\/(d2l\/wcs\/media-library\/)?/, '');
 
 export class RoutingStore {
 	constructor(rootStore) {

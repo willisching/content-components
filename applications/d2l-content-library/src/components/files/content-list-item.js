@@ -143,7 +143,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 							<d2l-menu label="${this.localize('moreActions')}">
 								<d2l-menu-item text="${this.localize('preview')}" @click=${this.dispatchPreviewEvent}></d2l-menu-item>
 								<d2l-menu-item text="${this.localize('download')}" @click="${this.download}"></d2l-menu-item>
-								<d2l-menu-item text="${this.localize('edit')}" @click=${this._goTo(`/${pageNames.producer}/${this.id}`)}></d2l-menu-item>
+								<d2l-menu-item text="${this.localize('edit')}" @click=${this._goTo(`/${pageNames.editor}/${this.id}`)}></d2l-menu-item>
 								<d2l-menu-item id="rename-initiator" text="${this.localize('rename')}" @click="${this.openRenameDialog()}"></d2l-menu-item>
 								<d2l-menu-item id="edit-description-initiator" text="${this.localize('editDescription')}" @click="${this.openEditDescriptionDialog()}"></d2l-menu-item>
 								${this.canTransferOwnership ? html`
