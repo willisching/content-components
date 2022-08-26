@@ -1,7 +1,7 @@
 import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/dialog/dialog.js';
 
-import { css, html, LitElement } from 'lit';
+import { html, LitElement } from 'lit';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import './d2l-media-web-recording.js';
 
@@ -23,14 +23,6 @@ class D2LMediaWebRecordingDialog extends InternalLocalizeMixin(LitElement) {
 		};
 	}
 
-	static get styles() {
-		return css`
-			.d2l-media-web-recording-container {
-				height: 450px;
-			}
-		`;
-	}
-
 	constructor() {
 		super();
 		this._primaryButtonDisabled = true;
@@ -50,7 +42,7 @@ class D2LMediaWebRecordingDialog extends InternalLocalizeMixin(LitElement) {
 				width="700"
 				@d2l-dialog-close=${this._handleRecorderClose}
 			>
-				<div class="d2l-media-web-recording-container">
+				<div id="media-web-recording-container">
 					<d2l-media-web-recording
 							tenant-id="${this.tenantId}"
 							content-service-endpoint="${this.contentServiceEndpoint}"
@@ -62,6 +54,7 @@ class D2LMediaWebRecordingDialog extends InternalLocalizeMixin(LitElement) {
 							max-file-size=${this.maxFileSizeInBytes}
 							audio-recording-duration-limit=${this.audioRecordingDurationLimit}
 							video-recording-duration-limit=${this.videoRecordingDurationLimit}
+							@user-media-loaded=${this._handleUserMediaLoaded}
 							@capture-clip-completed=${this._enablePrimaryButton}
 							@file-selected=${this._enablePrimaryButton}
 							@capture-started=${this._handleCaptureStartedEvent}
@@ -135,6 +128,14 @@ class D2LMediaWebRecordingDialog extends InternalLocalizeMixin(LitElement) {
 		this._primaryButtonDisabled = !this._mediaWebRecorder.metadataReady;
 		this._fileUploaded = true;
 		this._isRecordOrUploadView = false;
+	}
+
+	_handleUserMediaLoaded(event) {
+		if (this.shadowRoot) {
+			const height = event.detail.isAudio ? 380 : 455;
+			this.shadowRoot.getElementById('media-web-recording-container').style.height = `${height}px`;
+			this.shadowRoot.getElementById('media-web-recording-dialog').resize();
+		}
 	}
 
 	_showRecordOrUploadView() {

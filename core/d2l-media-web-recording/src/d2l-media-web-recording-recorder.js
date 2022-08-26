@@ -13,7 +13,6 @@ class D2LMediaWebRecordingRecorder extends InternalLocalizeMixin(LitElement) {
 		return {
 			canCaptureAudio: { type: Boolean, attribute: 'can-capture-audio' },
 			canCaptureVideo: { type: Boolean, attribute: 'can-capture-video' },
-			smallPreview: { type: Boolean, attribute: 'small-preview' },
 			maxVideoPreviewWidth: { type: Number, attribute: 'max-video-preview-width' },
 			maxPreviewHeight: { type: Number, attribute: 'max-preview-height' },
 			audioRecordingDurationLimit: { type: Number, attribute: 'audio-recording-duration-limit' },
@@ -33,7 +32,6 @@ class D2LMediaWebRecordingRecorder extends InternalLocalizeMixin(LitElement) {
 
 			.d2l-preview-container {
 				display: flex;
-				min-height: 300px;
 			}
 
 			.d2l-preview-controls {
@@ -69,8 +67,8 @@ class D2LMediaWebRecordingRecorder extends InternalLocalizeMixin(LitElement) {
 				align-self: flex-end;
 			}
 
-			.small-video-preview {
-				max-width: 400px;
+			.d2l-audio-spacer {
+				height: 250px;
 			}
 
 			.hidden {
@@ -175,6 +173,13 @@ class D2LMediaWebRecordingRecorder extends InternalLocalizeMixin(LitElement) {
 				this._canRecord = true;
 				this._setExtension();
 				this._resetPreview();
+				this.dispatchEvent(new CustomEvent('user-media-loaded', {
+					bubbles: true,
+					composed: true,
+					detail: {
+						isAudio: this._audioOnly
+					}
+				}));
 			} catch (error) {
 				// only display the permission error if the recorder can't fallback to audio
 				if (fallbackToAudio) {
@@ -203,21 +208,24 @@ class D2LMediaWebRecordingRecorder extends InternalLocalizeMixin(LitElement) {
 	_renderRecorder() {
 		const videoPreviewStyles = ['d2l-preview'];
 		const audioPreviewStyles = ['d2l-preview', 'd2l-audio-preview'];
+		const audioSpacerStyles = ['d2l-audio-spacer'];
 		if (!(this._audioOnly && this._mediaBlob)) {
 			audioPreviewStyles.push('hidden');
 		}
 		if (this._audioOnly) {
 			videoPreviewStyles.push('hidden');
+		} else {
+			audioSpacerStyles.push('hidden');
 		}
 		return html`
 			<div
 				id="media-recorder"
 				class="d2l-media-recorder-container"
 			>
-				<div class="d2l-preview-container" style="height:${this.maxPreviewHeight}px;">
-					<video id="video-preview" class="${videoPreviewStyles.join(' ')}" style="max-width:${this.maxVideoPreviewWidth}px">
+				<div class="d2l-preview-container">
+					<video id="video-preview" class="${videoPreviewStyles.join(' ')}" style="max-width:${this.maxVideoPreviewWidth}px;height:${this.maxPreviewHeight}px;">
 					</video>
-					<div></div>
+					<div class="${audioSpacerStyles.join(' ')}"></div>
 					<audio id="audio-preview" class="${audioPreviewStyles.join(' ')}" controls>
 					</audio>
 				</div>
