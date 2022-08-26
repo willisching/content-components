@@ -1,5 +1,6 @@
 import './components/create-presentation-dialog.js';
 import './components/two-column-layout.js';
+import '../../../core/d2l-media-web-recording/d2l-media-web-recording-dialog.js';
 import '@brightspace-ui/core/components/dropdown/dropdown.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-button.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-menu.js';
@@ -147,8 +148,15 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 
 	async connectedCallback() {
 		await super.connectedCallback();
-
 		this.uploader = this.requestDependency('uploader');
+
+		this.contentServiceEndpoint = this.requestDependency('content-service-endpoint');
+		this._canRecord = this.requestDependency('can-record');
+		if (this._canRecord) {
+			this._audioRecordingDurationLimit = this.requestDependency('audio-recording-duration-limit');
+			this._videoRecordingDurationLimit = this.requestDependency('video-recording-duration-limit');
+			this._autoCaptionsEnabled = this.requestDependency('auto-captions-enabled');
+		}
 
 		const permissions = {
 			canAccessCreatorPlus: this.canAccessCreatorPlus ? 'true' : 'false',
@@ -190,6 +198,18 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 							${this._renderPrimary()}
 						</div>
 					</two-column-layout>
+					${this._canRecord ? html`
+						<d2l-media-web-recording-dialog
+							id="media-web-recording-dialog"
+							tenant-id="${this.tenantId}"
+							content-service-endpoint="${this.contentServiceEndpoint}"
+							client-app="LmsCapture"
+							audio-recording-duration-limit="${this._audioRecordingDurationLimit}"
+							video-recording-duration-limit="${this._videoRecordingDurationLimit}"
+							can-capture-video
+							can-capture-audio
+							?auto-captions-enabled=${this._autoCaptionsEnabled}
+						></d2l-media-web-recording-dialog>` : ''}
 					<d2l-content-library-create-presentation-dialog
 						id="create-presentation-dialog"
 						tenant-id="${this.tenantId}"
@@ -207,7 +227,7 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 			<d2l-alert-toast
 				id="error-toast"
 				type="error"
-				announce-text=${this._errorMessage}>
+			>
 				${this._errorMessage}
 			</d2l-alert-toast>
 		`;
@@ -298,6 +318,12 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 
 	_openCreatePresentationDialog() {
 		this.shadowRoot.getElementById('create-presentation-dialog').open();
+	}
+
+	_openMediaWebRecordingDialog() {
+		return () => {
+			this.shadowRoot.getElementById('media-web-recording-dialog').open();
+		};
 	}
 
 	_renderAddContextMenu() {

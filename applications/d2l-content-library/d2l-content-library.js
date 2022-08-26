@@ -15,7 +15,11 @@ class D2lContentLibrary extends DependencyProvider(LitElement) {
 			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
 			contentServiceEndpoint: { type: String, attribute: 'content-service-endpoint' },
 			captureServiceEndpoint: { type: String, attribute: 'capture-service-endpoint' },
-			tenantId: { type: String, attribute: 'tenant-id' }
+			tenantId: { type: String, attribute: 'tenant-id' },
+			canRecord: { type: Boolean, attribute: 'can-record' },
+			videoRecordingDurationLimit: { type: Number, attribute: 'video-recording-duration-limit' },
+			audioRecordingDurationLimit: { type: Number, attribute: 'audio-recording-duration-limit' },
+			autoCaptionsEnabled: { type: Boolean, attribute: 'auto-captions-enabled' }
 		};
 	}
 
@@ -43,6 +47,10 @@ class D2lContentLibrary extends DependencyProvider(LitElement) {
 
 		this.provideDependency('content-service-endpoint', this.contentServiceEndpoint);
 		this.provideDependency('tenant-id', this.tenantId);
+		this.provideDependency('can-record', this.canRecord);
+		this.provideDependency('video-recording-duration-limit', this.videoRecordingDurationLimit);
+		this.provideDependency('audio-recording-duration-limit', this.audioRecordingDurationLimit);
+		this.provideDependency('auto-captions-enabled', this.autoCaptionsEnabled);
 
 		const apiClient = new ContentServiceApiClient({
 			httpClient: new ContentServiceBrowserHttpClient({ serviceUrl: this.contentServiceEndpoint }),
