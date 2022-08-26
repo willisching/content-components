@@ -1,3 +1,4 @@
+import './components/create-presentation-dialog.js';
 import './components/two-column-layout.js';
 import '@brightspace-ui/core/components/dropdown/dropdown.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-button.js';
@@ -189,6 +190,11 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 							${this._renderPrimary()}
 						</div>
 					</two-column-layout>
+					<d2l-content-library-create-presentation-dialog
+						id="create-presentation-dialog"
+						tenant-id="${this.tenantId}"
+					>
+					</d2l-content-library-create-presentation-dialog>
 				`;
 			} else {
 				return html`${this._renderPrimary()}`;
@@ -290,11 +296,16 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 		this.shadowRoot.querySelector('#fileInput').click();
 	}
 
+	_openCreatePresentationDialog() {
+		this.shadowRoot.getElementById('create-presentation-dialog').open();
+	}
+
 	_renderAddContextMenu() {
 		const menu = html`
 			<d2l-dropdown-menu>
 				<d2l-menu label="${this.localize('add')}">
 					<d2l-menu-item text="${this.localize('uploadFile')}" @click=${this._handleUploadFileClick}></d2l-menu-item>
+					<d2l-menu-item text="${this.localize('captureEncoder')}" @click=${this._openCreatePresentationDialog}></d2l-menu-item>
 				</d2l-menu>
 			</d2l-dropdown-menu>
 		`;
