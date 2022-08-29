@@ -8,7 +8,6 @@ import '@brightspace-ui/core/components/list/list-item.js';
 import '@brightspace-ui/core/components/list/list.js';
 import '../../components/content-filter-dropdown.js';
 import '../../components/files/content-list.js';
-import '../../components/upload-status-management.js';
 import '../../components/unauthorized-message.js';
 
 import { css, html } from 'lit-element/lit-element.js';
@@ -107,7 +106,6 @@ class D2LContentLibraryFiles extends contentSearchMixin(DependencyRequester(Page
 				</div>
 				<content-list></content-list>
 			</div>
-			<upload-status-management id="upload-status-management"></upload-status-management>
 		`;
 	}
 

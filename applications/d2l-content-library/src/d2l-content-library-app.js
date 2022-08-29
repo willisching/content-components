@@ -1,5 +1,6 @@
 import './components/create-presentation-dialog.js';
 import './components/two-column-layout.js';
+import './components/upload-status-management.js';
 import '../../../core/d2l-media-web-recording/d2l-media-web-recording-dialog.js';
 import '@brightspace-ui/core/components/dropdown/dropdown.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-button.js';
@@ -198,6 +199,7 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 							${this._renderPrimary()}
 						</div>
 					</two-column-layout>
+					<upload-status-management id="upload-status-management"></upload-status-management>
 					<d2l-dialog id="preview-dialog" title-text="${this.localize('preview')}">
 						<div id="d2l-preview-div">
 							<d2l-content-library-preview id="d2l-content-library-preview" active></d2l-content-library-preview>
@@ -214,6 +216,7 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 							can-capture-video
 							can-capture-audio
 							?auto-captions-enabled=${this._autoCaptionsEnabled}
+							@processing-started="${this._handleRecordingProcessingStarted}"
 						></d2l-media-web-recording-dialog>` : ''}
 					<d2l-content-library-create-presentation-dialog
 						id="create-presentation-dialog"
@@ -317,6 +320,20 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 		event.target.value = '';
 	}
 
+	_handleRecordingProcessingStarted(event) {
+		const extension = event.detail.contentType === 'audio' ? '.mp3' : '.mp4';
+		this.uploader.monitorExistingUpload({
+			contentId: event.detail.contentId,
+			revisionId: event.detail.revisionId,
+			extension
+		});
+
+		const { page: currentPage } = rootStore.routingStore;
+		if (currentPage !== pageNames.files) {
+			this._navigate(`/${pageNames.files}`);
+		}
+	}
+
 	_handleUploadFileClick() {
 		this.shadowRoot.querySelector('#fileInput').click();
 	}
@@ -326,9 +343,7 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 	}
 
 	_openMediaWebRecordingDialog() {
-		return () => {
-			this.shadowRoot.getElementById('media-web-recording-dialog').open();
-		};
+		this.shadowRoot.getElementById('media-web-recording-dialog').open();
 	}
 
 	_renderAddContextMenu() {
@@ -336,6 +351,7 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 			<d2l-dropdown-menu>
 				<d2l-menu label="${this.localize('add')}">
 					<d2l-menu-item text="${this.localize('uploadFile')}" @click=${this._handleUploadFileClick}></d2l-menu-item>
+					${this._canRecord ? html`<d2l-menu-item text="${this.localize('recordWebcamOrMicrophone')}" @click=${this._openMediaWebRecordingDialog}></d2l-menu-item>` : ''}
 					<d2l-menu-item text="${this.localize('captureEncoder')}" @click=${this._openCreatePresentationDialog}></d2l-menu-item>
 				</d2l-menu>
 			</d2l-dropdown-menu>

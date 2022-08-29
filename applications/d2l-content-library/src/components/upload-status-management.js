@@ -208,14 +208,14 @@ class UploadStatusManagement extends InternalLocalizeMixin(RtlMixin(MobxReaction
 	renderUploadError(upload) {
 		return html`
 			<div class="upload-file-name-container">
-				<div class="upload-file-name error">${upload.file.name}</div>
+				<div class="upload-file-name error">${upload.title}</div>
 			</div>
 			<d2l-icon class="upload-file-error" icon="tier2:alert"></d2l-icon>
 
 		`;
 	}
 
-	renderUploadProgress({ progress, file }) {
+	renderUploadProgress({ progress, title }) {
 		let progressIndicator = html``;
 		if (progress === 100) {
 			progressIndicator = html`
@@ -229,7 +229,7 @@ class UploadStatusManagement extends InternalLocalizeMixin(RtlMixin(MobxReaction
 
 		return html`
 			<div class="upload-file-name-container">
-				<span class="upload-file-name">${file.name}</span>
+				<span class="upload-file-name">${title}</span>
 			</div>
 			${progressIndicator}
 		`;

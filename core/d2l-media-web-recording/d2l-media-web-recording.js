@@ -71,7 +71,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 				margin-right: 2px;
 				text-decoration: none;
 			}
-			
+
 			.d2l-media-web-recording-source-selector:hover {
 				cursor: pointer;
 			}
@@ -86,11 +86,11 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 			}
 
 			.d2l-media-web-recording-source-selector-active-locked {
-				color: #999999;	
+				color: #999999;
 			}
-			
+
 			.d2l-media-web-recording-source-selector-inactive-locked {
-				color: #cccccc;	
+				color: #cccccc;
 				background-color: #EEEEEE;
 			}
 
@@ -219,7 +219,9 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 							bubbles: true,
 							composed: true,
 							detail: {
-								contentId: this._contentId
+								contentId: this._contentId,
+								revisionId: this._revisionId,
+								contentType: this._contentType === AUDIO ? 'audio' : 'video'
 							}
 						}));
 					} else {
@@ -251,7 +253,9 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 					bubbles: true,
 					composed: true,
 					detail: {
-						contentId: this._contentId
+						contentId: this._contentId,
+						revisionId: this._revisionId,
+						contentType: this._contentType === AUDIO ? 'audio' : 'video'
 					}
 				}));
 			}
