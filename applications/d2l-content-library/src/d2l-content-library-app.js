@@ -198,6 +198,11 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 							${this._renderPrimary()}
 						</div>
 					</two-column-layout>
+					<d2l-dialog id="preview-dialog" title-text="${this.localize('preview')}">
+						<div id="d2l-preview-div">
+							<d2l-content-library-preview id="d2l-content-library-preview" active></d2l-content-library-preview>
+						</div>
+					</d2l-dialog>
 					${this._canRecord ? html`
 						<d2l-media-web-recording-dialog
 							id="media-web-recording-dialog"
@@ -355,11 +360,6 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 				<d2l-content-library-files class="page" ?active=${currentPage === pageNames.files}></d2l-content-library-files>
 				<d2l-content-library-recycle-bin class="page" ?active=${currentPage === pageNames.recycleBin}></d2l-content-library-recycle-bin>
 				<d2l-content-library-editor class="page" ?active=${currentPage === pageNames.editor && !!subView}></d2l-content-library-editor>
-				<d2l-dialog id="preview-dialog" title-text="${this.localize('preview')}">
-					<div id="d2l-preview-div">
-						<d2l-content-library-preview id="d2l-content-library-preview" active></d2l-content-library-preview>
-					</div>
-				</d2l-dialog>
 				<d2l-content-library-404 class="page" ?active=${currentPage === pageNames.page404}></d2l-content-library-404>
 			</div>
 		`;
