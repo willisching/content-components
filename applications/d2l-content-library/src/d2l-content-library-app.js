@@ -351,7 +351,7 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 			<d2l-dropdown-menu>
 				<d2l-menu label="${this.localize('add')}">
 					<d2l-menu-item text="${this.localize('uploadFile')}" @click=${this._handleUploadFileClick}></d2l-menu-item>
-					${this._canRecord ? html`<d2l-menu-item text="${this.localize('recordWebcamOrMicrophone')}" @click=${this._openMediaWebRecordingDialog}></d2l-menu-item>` : ''}
+					${this._canRecord ? html`<d2l-menu-item text="${this.localize('recordWebcam')}" @click=${this._openMediaWebRecordingDialog}></d2l-menu-item>` : ''}
 					<d2l-menu-item text="${this.localize('captureEncoder')}" @click=${this._openCreatePresentationDialog}></d2l-menu-item>
 				</d2l-menu>
 			</d2l-dropdown-menu>

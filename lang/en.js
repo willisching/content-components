@@ -196,7 +196,7 @@ export default {
 	"publishWarning": "If you proceed, all references to this media file throughout the LMS will receive your changes.",
 	"record": "Record",
 	"recordAudio": "Record Audio",
-	"recordWebcamOrMicrophone": "Record Webcam/Microphone",
+	"recordWebcam": "Record Webcam",
 	"recordWebcamVideo": "Record Webcam Video",
 	"recorderPermissionError": "Cannot access video and audio. Please allow access to your recording device using the browser",
 	"recordingStopped": "Recording Stopped",
