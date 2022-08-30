@@ -82,7 +82,6 @@ class D2LContentLibraryFiles extends contentSearchMixin(DependencyRequester(Page
 
 	connectedCallback() {
 		super.connectedCallback();
-		this.uploader = this.requestDependency('uploader');
 	}
 
 	render() {
