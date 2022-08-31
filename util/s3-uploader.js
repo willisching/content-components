@@ -26,7 +26,6 @@ export class S3Uploader {
 		this.isMultipart = isMultipart;
 		this.onProgress = onProgress;
 		this.minChunkSize = minChunkSize ? minChunkSize : 50 * MB;
-		this.chunks = this.getChunks();
 		this.lastProgress = null;
 		this.totalProgress = 0;
 		this.httprequests = [];
@@ -54,7 +53,7 @@ export class S3Uploader {
 		return xhr;
 	}
 
-	getChunks() {
+	_getChunks() {
 		if (this.file.size === 0 || !this.isMultipart) {
 			return [this.file];
 		}
@@ -68,13 +67,13 @@ export class S3Uploader {
 		return chunks;
 	}
 
-	resetProgress(index) {
+	_resetProgress(index) {
 		const lastProgress = this.lastProgress[index];
 		this.totalProgress -= lastProgress;
 		this.lastProgress[index] = 0;
 	}
 
-	updateProgress(value, index) {
+	_updateProgress(value, index) {
 		const progressDiff = value - this.lastProgress[index];
 		this.lastProgress[index] = value;
 		this.totalProgress += progressDiff;
@@ -82,17 +81,18 @@ export class S3Uploader {
 
 	async upload() {
 		this.totalProgress = 0;
+		this.chunks = this._getChunks();
 		this.lastProgress = new Array(this.chunks.length).fill(0);
 		this.httprequests = new Array(this.chunks.length).fill(null);
 		if (this.isMultipart) {
-			return await this.uploadMultipart();
+			return await this._uploadMultipart();
 		}
 		const { file, key } = this;
 		const signResult = await this.signRequest({ file, key });
 		return this._uploadWithRetries(file, signResult);
 	}
 
-	async uploadMultipart() {
+	async _uploadMultipart() {
 		const { uploadId } = await this.createMultipartUpload();
 		this.uploadId = uploadId;
 		const signedUrls = await this.batchSign({uploadId, numParts: this.chunks.length});
@@ -139,7 +139,7 @@ export class S3Uploader {
 			const xhr = this.createRequest('PUT', signResult.signedUrl);
 			xhr.addEventListener('load', (ev) => {
 				if (xhr.status >= 200 && xhr.status <= 299) {
-					this.updateProgress(this.chunks[progressIndex].size, progressIndex);
+					this._updateProgress(this.chunks[progressIndex].size, progressIndex);
 					this.onProgress(this.totalProgress / this.file.size * 100);
 					resolve(ev.target);
 				} else {
@@ -153,7 +153,7 @@ export class S3Uploader {
 			});
 			xhr.upload.addEventListener('progress', event => {
 				if (event.lengthComputable) {
-					this.updateProgress(event.loaded, progressIndex);
+					this._updateProgress(event.loaded, progressIndex);
 					return this.onProgress(this.totalProgress / this.file.size * 100);
 				}
 			});
@@ -181,7 +181,7 @@ export class S3Uploader {
 				throw error;
 			}
 			await sleep(2 ** (retries + 1) * 1000);
-			this.resetProgress(progressIndex);
+			this._resetProgress(progressIndex);
 			return this._uploadWithRetries(file, signResult, retries + 1, progressIndex);
 		}
 	}
