@@ -34,7 +34,6 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 			canAccessCreatorPlus: { type: Boolean, attribute: 'can-access-creator-plus' },
 			canManageAllObjects: { type: Boolean, attribute: 'can-manage-all-videos' },
 			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
-			captureClientId: { type: String, attribute: 'capture-client-id' },
 			tenantId: { type: String, attribute: 'tenant-id' },
 			_errorMessage: { type: String, attribute: false },
 			_loading: { type: Boolean, attribute: false },
@@ -223,7 +222,6 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 					<d2l-content-library-create-presentation-dialog
 						id="create-presentation-dialog"
 						auth-service-endpoint="${this.authServiceEndpoint}"
-						capture-client-id="${this.captureClientId}"
 						tenant-id="${this.tenantId}"
 					>
 					</d2l-content-library-create-presentation-dialog>

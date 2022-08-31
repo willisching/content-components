@@ -15,7 +15,6 @@ class D2lContentLibrary extends DependencyProvider(LitElement) {
 			canManageAllVideos: { type: Boolean, attribute: 'can-manage-all-videos' },
 			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
 			contentServiceEndpoint: { type: String, attribute: 'content-service-endpoint' },
-			captureClientId: { type: String, attribute: 'capture-client-id' },
 			captureServiceEndpoint: { type: String, attribute: 'capture-service-endpoint' },
 			tenantId: { type: String, attribute: 'tenant-id' },
 			canRecord: { type: Boolean, attribute: 'can-record' },
@@ -84,7 +83,6 @@ class D2lContentLibrary extends DependencyProvider(LitElement) {
 				class="d2l-body-standard"
 				?can-manage-all-videos="${this.canManageAllVideos}"
 				?can-transfer-ownership="${this.canTransferOwnership}"
-				capture-client-id="${this.captureClientId}"
 				tenant-id="${this.tenantId}"
 			></d2l-content-library-app>`;
 	}

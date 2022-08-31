@@ -14,7 +14,6 @@ class D2LContentLibraryCreatePresentationDialog extends DependencyRequester(Inte
 	static get properties() {
 		return {
 			authServiceEndpoint: { type: String, attribute: 'auth-service-endpoint' },
-			captureClientId: { type: String, attribute: 'capture-client-id' },
 			tenantId: { type: String, attribute: 'tenant-id' },
 			_encoderDownloads: { type: Array, attribute: false },
 		};
@@ -144,9 +143,13 @@ class D2LContentLibraryCreatePresentationDialog extends DependencyRequester(Inte
 
 	_launchEncoder() {
 		const [, baseUrl] = this.authServiceEndpoint.match(/^\s*(.*?)(?:\/core\/?)?\s*$/);
+		const isDevAuth = /\bdev\b/i.test(baseUrl);
+		const captureClientId = isDevAuth ?
+			'2dae89b4-bd42-44a0-bf73-c53b65292108' :
+			'940b1d68-d09e-4e09-88f9-c73e4e26cb02';
 		const launchUrl = `${baseUrl}/oauth2/auth?${querystring.stringify({
 			response_type: 'code',
-			client_id: this.captureClientId,
+			client_id: captureClientId,
 			scope: 'core:*:* content-service:content:*',
 			state: this.tenantId,
 			redirect_url: 'd2lce://auth',
