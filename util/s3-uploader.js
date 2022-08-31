@@ -1,4 +1,7 @@
 import { sleep } from './delay';
+import pLimit from 'p-limit';
+
+const limit = pLimit(2);
 
 const MAX_RETRIES = 5;
 const MB = 1024 * 1024;
@@ -144,10 +147,12 @@ export class S3Uploader {
 		const { uploadId } = await this.createMultipartUpload();
 		this.uploadId = uploadId;
 		const signedUrls = await this.batchSign({uploadId, numParts: this.chunks.length});
-		const uploadResponses = [];
+		const uploadPromises = [];
 		for (let i = 0; i < signedUrls.length; i++) {
 			const url = signedUrls[i].value;
-			uploadResponses.push(await this._uploadWithRetries(this.chunks[i], {signedUrl: url}, 0, i).then((response) => {
+			uploadPromises.push(limit(() =>
+			this._uploadWithRetries(this.chunks[i], {signedUrl: url}, 0, i)
+			.then((response) => {
 				const etag = response.getResponseHeader('ETag');
 				return {
 					ETag: etag,
@@ -156,8 +161,10 @@ export class S3Uploader {
 			}).catch(err => {
 				this.abort();
 				throw err;
-			}));
+			})));
 		}
+
+		const uploadResponses = await Promise.all(uploadPromises);
 
 		for (let retries = 0; retries < MAX_RETRIES; retries++) {
 			try {
