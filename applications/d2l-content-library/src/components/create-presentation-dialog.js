@@ -109,6 +109,7 @@ class D2LContentLibraryCreatePresentationDialog extends DependencyRequester(Inte
 				id="containing-dialog"
 				title-text="${this.localize('captureEncoder')}"
 				width="700"
+				@d2l-dialog-close="${this._handleDialogClose}"
 			>
 				<div id="d2l-content-library-create-presentation-dialog-content">
 					${content}
@@ -136,6 +137,13 @@ class D2LContentLibraryCreatePresentationDialog extends DependencyRequester(Inte
 				return this.localize('downloadForWindows');
 			default:
 				throw new Error(`Invalid platform name: ${platform}`);
+		}
+	}
+
+	_handleDialogClose() {
+		if (this.reloadEncoderDownloadsTimeout) {
+			clearTimeout(this.reloadEncoderDownloadsTimeout);
+			this._encoderDownloads = null;
 		}
 	}
 
@@ -169,7 +177,7 @@ class D2LContentLibraryCreatePresentationDialog extends DependencyRequester(Inte
 		const earliestExpiryTimeSeconds = Math.min(...expiryTimes);
 		const timeUntilExpiry = (earliestExpiryTimeSeconds * 1000) - Date.now();
 
-		setTimeout(() => {
+		this.reloadEncoderDownloadsTimeout = setTimeout(() => {
 			this._loadEncoderDownloads()
 				.then(() => {
 					this._reloadEncoderDownloadsOnExpiry();
