@@ -10,8 +10,9 @@ export class S3Uploader {
 	constructor({
 		file,
 		key,
-		minChunkSize,
+		minChunkSize = 50 * MB,
 		isMultipart = false,
+		concurrency = 5,
 		abortMultipartUpload = async() => {},
 		batchSign = async() => {},
 		completeMultipartUpload = async() => {},
@@ -28,11 +29,12 @@ export class S3Uploader {
 		this.createMultipartUpload = createMultipartUpload;
 		this.isMultipart = isMultipart;
 		this.onProgress = onProgress;
-		this.minChunkSize = minChunkSize ? minChunkSize : 50 * MB;
+		this.minChunkSize = minChunkSize;
 		this.lastProgress = null;
 		this.totalProgress = 0;
 		this.httprequests = [];
 		this.uploadId = null;
+		this.limit = pLimit(concurrency);
 	}
 
 	abort() {
@@ -150,7 +152,7 @@ export class S3Uploader {
 		const uploadPromises = [];
 		for (let i = 0; i < signedUrls.length; i++) {
 			const url = signedUrls[i].value;
-			uploadPromises.push(limit(() =>
+			uploadPromises.push(this.limit(() =>
 				this._uploadWithRetries(this.chunks[i], {signedUrl: url}, 0, i)
 					.then((response) => {
 						const etag = response.getResponseHeader('ETag');
