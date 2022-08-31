@@ -53,6 +53,19 @@ export class S3Uploader {
 		return xhr;
 	}
 
+	async upload() {
+		this.totalProgress = 0;
+		this.chunks = this._getChunks();
+		this.lastProgress = new Array(this.chunks.length).fill(0);
+		this.httprequests = new Array(this.chunks.length).fill(null);
+		if (this.isMultipart) {
+			return await this._uploadMultipart();
+		}
+		const { file, key } = this;
+		const signResult = await this.signRequest({ file, key });
+		return this._uploadWithRetries(file, signResult);
+	}
+
 	_getChunks() {
 		if (this.file.size === 0 || !this.isMultipart) {
 			return [this.file];
@@ -67,64 +80,6 @@ export class S3Uploader {
 		return chunks;
 	}
 
-	_resetProgress(index) {
-		const lastProgress = this.lastProgress[index];
-		this.totalProgress -= lastProgress;
-		this.lastProgress[index] = 0;
-	}
-
-	_updateProgress(value, index) {
-		const progressDiff = value - this.lastProgress[index];
-		this.lastProgress[index] = value;
-		this.totalProgress += progressDiff;
-	}
-
-	async upload() {
-		this.totalProgress = 0;
-		this.chunks = this._getChunks();
-		this.lastProgress = new Array(this.chunks.length).fill(0);
-		this.httprequests = new Array(this.chunks.length).fill(null);
-		if (this.isMultipart) {
-			return await this._uploadMultipart();
-		}
-		const { file, key } = this;
-		const signResult = await this.signRequest({ file, key });
-		return this._uploadWithRetries(file, signResult);
-	}
-
-	async _uploadMultipart() {
-		const { uploadId } = await this.createMultipartUpload();
-		this.uploadId = uploadId;
-		const signedUrls = await this.batchSign({uploadId, numParts: this.chunks.length});
-		const uploadResponses = [];
-		for (let i = 0; i < signedUrls.length; i++) {
-			const url = signedUrls[i].value;
-			uploadResponses.push(await this._uploadWithRetries(this.chunks[i], {signedUrl: url}, 0, i).then((response) => {
-				const etag = response.getResponseHeader('ETag');
-				return {
-					ETag: etag,
-					PartNumber: i + 1
-				};
-			}).catch(err => {
-				this.abort();
-				throw err;
-			}));
-		}
-
-		for (let retries = 0; retries < MAX_RETRIES; retries++) {
-			try {
-				await this.completeMultipartUpload({ uploadId, parts: { parts: uploadResponses }});
-				break;
-			} catch (err) {
-				if (retries === MAX_RETRIES - 1) {
-					this.abort();
-					break;
-				}
-				await sleep(2 ** (retries + 1) * 1000);
-			}
-		}
-	}
-
 	_getErrorRequestContext(xhr) {
 		return {
 			response: xhr.responseText,
@@ -132,6 +87,12 @@ export class S3Uploader {
 			statusText: xhr.statusText,
 			readyState: xhr.readyState
 		};
+	}
+
+	_resetProgress(index) {
+		const lastProgress = this.lastProgress[index];
+		this.totalProgress -= lastProgress;
+		this.lastProgress[index] = 0;
 	}
 
 	async _startUpload(file, signResult, progressIndex) {
@@ -171,6 +132,45 @@ export class S3Uploader {
 			this.httprequests[progressIndex] = xhr;
 			xhr.send(file);
 		});
+	}
+
+	_updateProgress(value, index) {
+		const progressDiff = value - this.lastProgress[index];
+		this.lastProgress[index] = value;
+		this.totalProgress += progressDiff;
+	}
+
+	async _uploadMultipart() {
+		const { uploadId } = await this.createMultipartUpload();
+		this.uploadId = uploadId;
+		const signedUrls = await this.batchSign({uploadId, numParts: this.chunks.length});
+		const uploadResponses = [];
+		for (let i = 0; i < signedUrls.length; i++) {
+			const url = signedUrls[i].value;
+			uploadResponses.push(await this._uploadWithRetries(this.chunks[i], {signedUrl: url}, 0, i).then((response) => {
+				const etag = response.getResponseHeader('ETag');
+				return {
+					ETag: etag,
+					PartNumber: i + 1
+				};
+			}).catch(err => {
+				this.abort();
+				throw err;
+			}));
+		}
+
+		for (let retries = 0; retries < MAX_RETRIES; retries++) {
+			try {
+				await this.completeMultipartUpload({ uploadId, parts: { parts: uploadResponses }});
+				break;
+			} catch (err) {
+				if (retries === MAX_RETRIES - 1) {
+					this.abort();
+					break;
+				}
+				await sleep(2 ** (retries + 1) * 1000);
+			}
+		}
 	}
 
 	async _uploadWithRetries(file, signResult, retries = 0, progressIndex = 0) {
