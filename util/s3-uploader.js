@@ -151,17 +151,17 @@ export class S3Uploader {
 		for (let i = 0; i < signedUrls.length; i++) {
 			const url = signedUrls[i].value;
 			uploadPromises.push(limit(() =>
-			this._uploadWithRetries(this.chunks[i], {signedUrl: url}, 0, i)
-			.then((response) => {
-				const etag = response.getResponseHeader('ETag');
-				return {
-					ETag: etag,
-					PartNumber: i + 1
-				};
-			}).catch(err => {
-				this.abort();
-				throw err;
-			})));
+				this._uploadWithRetries(this.chunks[i], {signedUrl: url}, 0, i)
+					.then((response) => {
+						const etag = response.getResponseHeader('ETag');
+						return {
+							ETag: etag,
+							PartNumber: i + 1
+						};
+					}).catch(err => {
+						this.abort();
+						throw err;
+					})));
 		}
 
 		const uploadResponses = await Promise.all(uploadPromises);
