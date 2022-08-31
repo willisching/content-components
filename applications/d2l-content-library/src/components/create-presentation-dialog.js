@@ -1,15 +1,15 @@
 import '@brightspace-ui/core/components/alert/alert-toast.js';
 import '@brightspace-ui/core/components/button/button.js';
+import '@brightspace-ui/core/components/dialog/dialog.js';
 import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
 
-import { css, html } from 'lit-element/lit-element.js';
-import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js';
+import { css, html, LitElement } from 'lit-element/lit-element.js';
+import { DependencyRequester } from '../mixins/dependency-requester-mixin.js';
 import { heading2Styles, bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
-import { InternalLocalizeMixin } from '../../../../../mixins/internal-localize-mixin.js';
+import { InternalLocalizeMixin } from '../../../../mixins/internal-localize-mixin.js';
 import isMobile from 'ismobilejs';
-import { PageViewElement } from '../../components/page-view-element';
 
-class D2LContentLibraryCaptureApp extends InternalLocalizeMixin(DependencyRequester(PageViewElement)) {
+class D2LContentLibraryCreatePresentationDialog extends DependencyRequester(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
 			tenantId: { type: String, attribute: 'tenant-id' },
@@ -19,24 +19,26 @@ class D2LContentLibraryCaptureApp extends InternalLocalizeMixin(DependencyReques
 
 	static get styles() {
 		return [bodyStandardStyles, heading2Styles, css`
-			#d2l-content-library-capture-app-page {
+			#d2l-content-library-create-presentation-dialog-content {
 				margin-top: 30px;
+				min-height: 264px;
+				padding-bottom: 25px;
 				width: 100%;
 			}
 
-			#d2l-content-library-capture-app-loading-container {
+			#d2l-content-library-create-presentation-loading-container {
 				display: flex;
 				justify-content: center;
 				width: 100%;
 			}
 
-			#d2l-content-library-capture-app-buttons-container {
+			#d2l-content-library-create-presentation-buttons-container {
 				display: flex;
 				flex-direction: row;
 				margin-top: 35px;
 			}
 
-			.d2l-content-library-capture-app-button {
+			.d2l-content-library-create-presentation-button {
 				margin-right: 10px;
 			}
 		`];
@@ -56,20 +58,13 @@ class D2LContentLibraryCaptureApp extends InternalLocalizeMixin(DependencyReques
 		} else {
 			this._userPlatform = 'unknown';
 		}
-
-		if (this._userPlatform !== 'mobile') {
-			await this._loadEncoderDownloads();
-			if (this._encoderDownloads && this._encoderDownloads.length > 0) {
-				this._reloadEncoderDownloadsOnExpiry();
-			}
-		}
 	}
 
 	render() {
 		let content;
 		if (!this._encoderDownloads && this._userPlatform !== 'mobile') {
 			content = html`
-				<div id='d2l-content-library-capture-app-loading-container'>
+				<div id='d2l-content-library-create-presentation-loading-container'>
 					<d2l-loading-spinner size="100"></d2l-loading-spinner>
 				</div>
 			`;
@@ -78,9 +73,8 @@ class D2LContentLibraryCaptureApp extends InternalLocalizeMixin(DependencyReques
 				<p class="d2l-body-standard">${this.localize('noCaptureEncoderDownloadsAvailable')}</p>
 			`;
 		} else if (this._userPlatform === 'mobile') {
-			return html`
-				<div id='d2l-content-library-capture-app-downloads-container'>
-					<h2 class="d2l-heading-2">${this.localize('captureEncoder')}</h2>
+			content = html`
+				<div id='d2l-content-library-create-presentation-downloads-container'>
 					<p class="d2l-body-standard">${this.localize('captureEncoderDescription')}</p>
 					<p class="d2l-body-standard"><b>${this.localize('captureEncoderDesktopOnly')}</b></p>
 				</div>
@@ -92,13 +86,12 @@ class D2LContentLibraryCaptureApp extends InternalLocalizeMixin(DependencyReques
 				<p class="d2l-body-standard">${this.localize('captureEncoderLaunchInstructions')}</p>
 			`;
 			content = html`
-				<div id='d2l-content-library-capture-app-downloads-container'></div>
-					<h2 class="d2l-heading-2">${this.localize('captureEncoder')}</h2>
+				<div id='d2l-content-library-create-presentation-downloads-container'></div>
 					<p class="d2l-body-standard">${this.localize('captureEncoderDescription')}</p>
 					${instructionsText}
-					<div id="d2l-content-library-capture-app-buttons-container">
+					<div id="d2l-content-library-create-presentation-buttons-container">
 						<d2l-button
-							class="d2l-content-library-capture-app-button"
+							class="d2l-content-library-create-presentation-button"
 							@click="${this._launchEncoder}"
 							?disabled="${this._userPlatform === 'unknown'}"
 							primary
@@ -112,10 +105,28 @@ class D2LContentLibraryCaptureApp extends InternalLocalizeMixin(DependencyReques
 		}
 
 		return html`
-			<div id="d2l-content-library-capture-app-page">
-				${content}
-			</div>
+			<d2l-dialog
+				id="containing-dialog"
+				title-text="${this.localize('captureEncoder')}"
+				width="700"
+				@d2l-dialog-close="${this._handleDialogClose}"
+			>
+				<div id="d2l-content-library-create-presentation-dialog-content">
+					${content}
+				</div>
+			</d2l-dialog>
 		`;
+	}
+
+	async open() {
+		this.shadowRoot.getElementById('containing-dialog').open();
+
+		if (!this._encoderDownloads && this._userPlatform !== 'mobile') {
+			await this._loadEncoderDownloads();
+			if (this._encoderDownloads && this._encoderDownloads.length > 0) {
+				this._reloadEncoderDownloadsOnExpiry();
+			}
+		}
 	}
 
 	_getEncoderDownloadText(platform) {
@@ -126,6 +137,13 @@ class D2LContentLibraryCaptureApp extends InternalLocalizeMixin(DependencyReques
 				return this.localize('downloadForWindows');
 			default:
 				throw new Error(`Invalid platform name: ${platform}`);
+		}
+	}
+
+	_handleDialogClose() {
+		if (this.reloadEncoderDownloadsTimeout) {
+			clearTimeout(this.reloadEncoderDownloadsTimeout);
+			this._encoderDownloads = null;
 		}
 	}
 
@@ -159,7 +177,7 @@ class D2LContentLibraryCaptureApp extends InternalLocalizeMixin(DependencyReques
 		const earliestExpiryTimeSeconds = Math.min(...expiryTimes);
 		const timeUntilExpiry = (earliestExpiryTimeSeconds * 1000) - Date.now();
 
-		setTimeout(() => {
+		this.reloadEncoderDownloadsTimeout = setTimeout(() => {
 			this._loadEncoderDownloads()
 				.then(() => {
 					this._reloadEncoderDownloadsOnExpiry();
@@ -181,7 +199,7 @@ class D2LContentLibraryCaptureApp extends InternalLocalizeMixin(DependencyReques
 		};
 		return html`
 			<d2l-button
-				class="d2l-content-library-capture-app-button"
+				class="d2l-content-library-create-presentation-button"
 				@click="${downloadEncoderFromUrl}"
 				size="tier3"
 			>
@@ -191,4 +209,4 @@ class D2LContentLibraryCaptureApp extends InternalLocalizeMixin(DependencyReques
 	}
 }
 
-customElements.define('d2l-content-library-capture-app', D2LContentLibraryCaptureApp);
+customElements.define('d2l-content-library-create-presentation-dialog', D2LContentLibraryCreatePresentationDialog);

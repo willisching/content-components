@@ -20,6 +20,7 @@ const sleep = async(delay = 0) => {
 
 export class Uploader {
 	constructor({ apiClient }) {
+		this.nextUploadId = 0;
 		this.uploads = [];
 		this.apiClient = apiClient;
 		this.uploadsInProgress = 0;
@@ -30,10 +31,21 @@ export class Uploader {
 		this._batch = 0;
 		this.successfulUpload = {};
 
+		this._monitorProgressCallback = this._monitorProgressCallback.bind(this);
+
 		this.uploadFile = flow(function * (file, batch) {
 			/* eslint-disable no-invalid-this */
 			this.uploadsInProgress += 1;
-			const uploadInfo = { file, progress: 0, extension: file.name.split('.').pop(), err: null, batch };
+			const uploadInfo = {
+				id: this.nextUploadId,
+				file,
+				title: file.name,
+				progress: 0,
+				extension: file.name.split('.').pop(),
+				err: null,
+				batch
+			};
+			this.nextUploadId += 1;
 			let count = 0;
 			this.uploads.forEach(ui => {
 				if (ui.batch === batch) {
@@ -55,6 +67,39 @@ export class Uploader {
 			}
 			/* eslint-enable no-invalid-this */
 		});
+
+		this.monitorNewUploadInfo = flow(function * (contentId, revisionId, extension) {
+			/* eslint-disable no-invalid-this */
+			this.uploadsInProgress += 1;
+			console.log(this.uploadsInProgress);
+
+			let content;
+			let revision;
+			let loadError;
+			try {
+				content = yield this.apiClient.content.getItem({ id: contentId });
+				revision = content.revisions.find(r => r.id === revisionId);
+			} catch (error) {
+				loadError = 'workerErrorUploadDataNotRetrieved';
+			}
+
+			const uploadInfo = {
+				id: this.nextUploadId,
+				file: null,
+				title: content.title,
+				progress: 0,
+				extension,
+				err: loadError ?? null,
+				batch: this._batch
+			};
+			this.nextUploadId += 1;
+			this.uploads.unshift(uploadInfo);
+
+			if (!loadError) {
+				yield this._monitorProgressAsync(uploadInfo.id, content, revision, this._monitorProgressCallback);
+			}
+			/* eslint-enable no-invalid-this */
+		});
 	}
 
 	clearCompletedUploads() {
@@ -67,6 +112,11 @@ export class Uploader {
 
 	getUploads() {
 		return toJS(this.uploads);
+	}
+
+	monitorExistingUpload({ contentId, revisionId, extension }) {
+		this.monitorNewUploadInfo(contentId, revisionId, extension);
+		this.statusWindowVisible = true;
 	}
 
 	showStatusWindow(show) {
@@ -85,6 +135,7 @@ export class Uploader {
 	}
 
 	async _monitorProgressAsync(
+		uploadId,
 		content,
 		revision,
 		progressCallback
@@ -105,8 +156,9 @@ export class Uploader {
 				}
 
 				progressCallback({
-					contentId: content.id,
-					revisionId: revision.id,
+					uploadId,
+					content,
+					revision,
 					error: err
 				});
 				try {
@@ -122,8 +174,9 @@ export class Uploader {
 			}
 
 			progressCallback({
-				contentId: content.id,
-				revisionId: revision.id,
+				uploadId,
+				content,
+				revision,
 				percentComplete: progress.percentComplete,
 				ready: progress.ready
 			});
@@ -134,6 +187,7 @@ export class Uploader {
 			if (error.status && error.status === 404) {
 				err = resolveWorkerError(error);
 				progressCallback({
+					uploadId,
 					contentId: content.id,
 					revisionId: revision.id,
 					error: err
@@ -143,10 +197,36 @@ export class Uploader {
 		}
 
 		await sleep(randomizeDelay(5000, 1000));
-		await this._monitorProgressAsync(content, revision, progressCallback);
+		await this._monitorProgressAsync(uploadId, content, revision, progressCallback);
 	}
 
-	async _uploadWorkflowAsync({ file, extension }) {
+	async _monitorProgressCallback({ uploadId, content, revision, percentComplete = 0, ready, error }) {
+		const upload = this.uploads.find(
+			upload => upload.id === uploadId
+		);
+		if (upload) {
+			upload.progress = 50 + (percentComplete / 2);
+			upload.error = error;
+		}
+
+		if (ready && upload.progress === 100) {
+			let poster;
+			try {
+				poster = (await this.apiClient.content.getResource({
+					id: content.id,
+					revisionTag: revision.id,
+					resource: 'poster',
+					outputFormat: 'signed-url'
+				})).value;
+			} catch (error) {
+				// Ignore if the poster can't be retrieved. An icon will be shown instead of the poster image.
+			}
+			this.successfulUpload = { upload, content, revision, poster };
+			this.uploadsInProgress -= 1;
+		}
+	}
+
+	async _uploadWorkflowAsync({ id: uploadId, file, extension }) {
 		const type = getType(file.name);
 		try {
 			this.runningJobs += 1;
@@ -187,33 +267,10 @@ export class Uploader {
 				id: content.id,
 				revisionTag: revision.id
 			});
-			await this._monitorProgressAsync(content, revision, async({ percentComplete = 0, ready, error }) => {
-				const upload = this.uploads.find(
-					upload => upload.file === file
-				);
-				if (upload) {
-					upload.progress = 50 + (percentComplete / 2);
-					upload.error = error;
-				}
-
-				if (ready && upload.progress === 100) {
-					let poster;
-					try {
-						poster = (await this.apiClient.content.getResource({
-							id: content.id,
-							revisionTag: revision.id,
-							resource: 'poster',
-							outputFormat: 'signed-url'
-						})).value;
-					} catch (error) {
-						// Ignore if the poster can't be retrieved. An icon will be shown instead of the poster image.
-					}
-					this.successfulUpload = { upload, content, revision, poster };
-				}
-			});
+			await this._monitorProgressAsync(uploadId, content, revision, this._monitorProgressCallback);
 		} catch (error) {
 			const upload = this.uploads.find(
-				upload => upload.file === file
+				upload => upload.id === uploadId
 			);
 			upload.error = resolveWorkerError(error, type);
 		} finally {
