@@ -39,7 +39,7 @@ class D2LMediaWebRecordingDialog extends InternalLocalizeMixin(LitElement) {
 				id="media-web-recording-dialog"
 				class="d2l-media-web-recording-dialog"
 				title-text="${this.localize('mediaCapture')}"
-				width="700"
+				width="675"
 				@d2l-dialog-close=${this._handleRecorderClose}
 			>
 				<div id="media-web-recording-container">
@@ -132,7 +132,10 @@ class D2LMediaWebRecordingDialog extends InternalLocalizeMixin(LitElement) {
 
 	_handleUserMediaLoaded(event) {
 		if (this.shadowRoot) {
-			const height = event.detail.isAudio ? 380 : 455;
+			let height = event.detail.isAudio ? 290 : 380;
+			if ((this.canCaptureAudio || this.canCaptureVideo) && this.canUpload) {
+				height += 55;
+			}
 			this.shadowRoot.getElementById('media-web-recording-container').style.height = `${height}px`;
 			this.shadowRoot.getElementById('media-web-recording-dialog').resize();
 		}

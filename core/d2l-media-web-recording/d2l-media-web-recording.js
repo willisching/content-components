@@ -141,8 +141,6 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 						<d2l-media-web-recording-recorder
 							?can-capture-audio=${this._canRecord && this.canCaptureAudio}
 							?can-capture-video=${this._canRecord && this.canCaptureVideo}
-							max-video-preview-width=${this.clientApp === VIDEO_NOTE ? 400 : 500}
-							max-preview-height=${this.canUpload ? 315 : 375}
 							audio-recording-duration-limit=${this.audioRecordingDurationLimit}
 							video-recording-duration-limit=${this.videoRecordingDurationLimit}
 							@capture-started=${this._handleCaptureStarted}
@@ -211,24 +209,27 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 			autoCaptions,
 			sourceLanguage
 		} = this.shadowRoot.querySelector('d2l-media-web-recording-metadata').values;
+		const dispatchProcessingStarted = () => {
+			this.dispatchEvent(new CustomEvent('processing-started', {
+				bubbles: true,
+				composed: true,
+				detail: {
+					contentId: this._contentId,
+					revisionId: this._revisionId,
+					contentType: this._contentType === AUDIO ? 'audio' : 'video'
+				}
+			}));
+		};
 		try {
 			if (this.clientApp === VIDEO_NOTE) {
 				const callback = (rpcResponse) => {
 					if (rpcResponse.GetResponseType() === D2L.Rpc.ResponseType.Success) {
-						this.dispatchEvent(new CustomEvent('processing-started', {
-							bubbles: true,
-							composed: true,
-							detail: {
-								contentId: this._contentId,
-								revisionId: this._revisionId,
-								contentType: this._contentType === AUDIO ? 'audio' : 'video'
-							}
-						}));
+						dispatchProcessingStarted();
 					} else {
-						this._handleError();
+						this._handleError(rpcResponse.result);
 					}
 				};
-				D2L.Rpc.Create('AddMediaObject', callback, '/d2l/wcs/mp/platform.d2l').Call(
+				D2L.Rpc.Create('AddMediaObject', callback, this._rpcAddress).Call(
 					`${this._contentId}:${this._revisionId}`,
 					title,
 					description,
@@ -249,15 +250,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 					revisionTag: this._revisionId,
 					processOptions: { ...(autoCaptions && { captionLanguages: [sourceLanguage] }) }
 				});
-				this.dispatchEvent(new CustomEvent('processing-started', {
-					bubbles: true,
-					composed: true,
-					detail: {
-						contentId: this._contentId,
-						revisionId: this._revisionId,
-						contentType: this._contentType === AUDIO ? 'audio' : 'video'
-					}
-				}));
+				dispatchProcessingStarted();
 			}
 		} catch (error) {
 			this._handleError(error);
@@ -271,6 +264,8 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 		this._contentId = null;
 		this._revisionId = null;
 		this._sourceSelectorLocked = false;
+		this._maxRetryAttempts = 1;
+		this._rpcAddress = '/d2l/wcs/mp/platform.d2l';
 	}
 
 	showMetadataView() {
@@ -290,28 +285,8 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 			return;
 		}
 		this._currentView = VIEW.PROGRESS;
-		try {
-			this._contentId = (await this.apiClient.content.postItem({
-				content: { type: this._contentType, clientApp: this.clientApp }
-			})).id;
-			const revision = await this.apiClient.content.createRevision({
-				id: this._contentId,
-				properties: {
-					extension: getExtension(this._file.name)
-				}
-			});
-			this._revisionId = revision.id;
-			const s3Uploader = new S3Uploader({
-				file: this._file,
-				key: revision.s3Key,
-				signRequest: ({ key }) =>
-					this.apiClient.s3Sign.sign({
-						fileName: key,
-						contentType: this._contentType,
-						contentDisposition: 'auto',
-					})
-			});
-			await s3Uploader.upload();
+
+		const onUploadSuccess = () => {
 			this._currentView = VIEW.METADATA;
 			this.dispatchEvent(new CustomEvent('upload-success', {
 				bubbles: true,
@@ -321,6 +296,35 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 				}
 			}));
 			this._updateAriaLog('uploadComplete');
+		};
+
+		try {
+			if (this.clientApp === VIDEO_NOTE) {
+				this._uploadVideoNote(1, onUploadSuccess);
+			} else {
+				this._contentId = (await this.apiClient.content.postItem({
+					content: { type: this._contentType, clientApp: this.clientApp }
+				})).id;
+				const revision = await this.apiClient.content.createRevision({
+					id: this._contentId,
+					properties: {
+						extension: getExtension(this._file.name)
+					}
+				});
+				this._revisionId = revision.id;
+				const s3Uploader = new S3Uploader({
+					file: this._file,
+					key: revision.s3Key,
+					signRequest: ({ key }) =>
+						this.apiClient.s3Sign.sign({
+							fileName: key,
+							contentType: this._contentType,
+							contentDisposition: 'auto',
+						})
+				});
+				await s3Uploader.upload();
+				onUploadSuccess();
+			}
 		} catch (error) {
 			this._handleError(error);
 		}
@@ -343,7 +347,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 
 	_handleError(error) {
 		this._currentView = VIEW.ERROR;
-		if (error.cause === 503) {
+		if (error && (error.cause === 503 || error.DataCapsExceeded)) {
 			this._error = 'workerErrorAVCapsExceeded';
 		} else {
 			this._error = 'mediaCaptureUploadErrorTryAgain';
@@ -402,6 +406,51 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 
 	_updateAriaLog(status) {
 		this.shadowRoot.getElementById('media-web-recording-aria-log').textContent = this.localize(status);
+	}
+
+	_uploadVideoNote(retryAttempt, onUploadSuccess) {
+		const callback = (rpcResponse) => {
+			const result = rpcResponse.GetResult();
+			if (rpcResponse.GetResponseType() === D2L.Rpc.ResponseType.Success) {
+				[this._contentId, this._revisionId] = result.ContentRevision.split(':');
+				const formData = new FormData();
+				formData.append('key', result.Key);
+				formData.append('acl', result.Acl);
+				formData.append('policy', result.Policy);
+				formData.append('Content-Type', result.ContentType);
+				formData.append('success_action_status', result.SuccessActionStatus);
+				formData.append('success_action_redirect', result.SuccessActionRedirect);
+				formData.append('x-amz-algorithm', result.Algorithm);
+				formData.append('x-amz-credential', result.Credential);
+				if (result.SessionToken) {
+					formData.append('x-amz-security-token', result.SessionToken);
+				}
+				formData.append('x-amz-date', result.Date);
+				formData.append('x-amz-signature', result.Signature);
+				formData.append('file', this._file);
+
+				const xhr = new XMLHttpRequest();
+				xhr.addEventListener('load', (loaded) => {
+					if (loaded.target.status === 200) {
+						onUploadSuccess();
+					} else {
+						if (retryAttempt < this._maxRetryAttempts) {
+							this._uploadVideoNote(retryAttempt + 1);
+						} else {
+							this._handleError();
+						}
+					}
+				});
+				xhr.addEventListener('error', () => {
+					this._handleError();
+				});
+				xhr.open('POST', result.ActionUrl, true);
+				xhr.send(formData);
+			} else {
+				this._handleError(result);
+			}
+		};
+		D2L.Rpc.Create('GetUploadForm', callback, this._rpcAddress).Call(getExtension(this._file.name), 'null', this._contentType === AUDIO);
 	}
 }
 
