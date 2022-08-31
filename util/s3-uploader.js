@@ -1,8 +1,6 @@
 import { sleep } from './delay';
 import pLimit from 'p-limit';
 
-const limit = pLimit(5);
-
 const MAX_RETRIES = 5;
 const MB = 1024 * 1024;
 
