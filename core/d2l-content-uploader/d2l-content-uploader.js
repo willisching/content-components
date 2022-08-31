@@ -96,7 +96,7 @@ export class Main extends InternalLocalizeMixin(MobxReactionUpdate(LitElement)) 
 						error-message=${this._errorMessage}
 						max-file-size=${this.maxFileUploadSize}
 						sharing-org-unit-id=${this.orgUnitId}
-						.share-uploads-with=${this.shareUploadsWith}
+						.shareUploadsWith=${this.shareUploadsWith}
 						.supportedTypes=${SUPPORTED_TYPES}
 						@change-view=${this.changeView}
 						@on-uploader-error=${this.changeView}

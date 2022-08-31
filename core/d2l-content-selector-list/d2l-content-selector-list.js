@@ -15,7 +15,7 @@ import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-c
 
 import './src/scroller.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
-import { getFriendlyDate } from '../../util/date.js';
+import { formatDate } from '@brightspace-ui/intl/lib/dateTime.js';
 import { ContentCacheDependencyKey } from '../../models/content-cache.js';
 
 class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(InternalLocalizeMixin(LitElement)))) {
@@ -274,7 +274,8 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 		return () => {
 			if (item === null) return;
 			this.client.content.deleteItem({id: item.id});
-			this._contentItems = this._contentItems.filter(contentItem => item.id !== contentItem.id);
+			const itemIndex = this._contentItems.findIndex((contentItem) => item.id === contentItem.id);
+			this._contentItems.splice(itemIndex, 1);
 		};
 	}
 
@@ -368,7 +369,7 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 					</div>
 					<div class="info-wrapper ${this._skeletize(item, '30')}">
 						${item?.ownerId !== this.userId ? html`${this.localize('sharedWithMe')} <d2l-icon class="dot" icon="tier1:dot"></d2l-icon>` : ''}
-						${this.localize('lastEditedOn', {lastEdited: getFriendlyDate(item?.updatedAt)})}
+						${this.localize('lastEditedOn', {lastEdited: formatDate(new Date(item?.updatedAt), {format: 'medium'})})}
 					</div>
 				</div>
 				<div class="context-menu">

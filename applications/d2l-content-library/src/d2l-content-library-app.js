@@ -1,0 +1,330 @@
+import './components/two-column-layout.js';
+import '../../../core/d2l-media-web-recording/d2l-media-web-recording-dialog.js';
+import '@brightspace-ui/core/components/list/list-item-content.js';
+import '@brightspace-ui/core/components/list/list-item.js';
+import '@brightspace-ui/core/components/list/list.js';
+import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
+import '@brightspace-ui/core/components/dialog/dialog.js';
+import { css, html, LitElement } from 'lit-element/lit-element.js';
+import { BASE_PATH } from './state/routing-store.js';
+
+import { DependencyRequester } from './mixins/dependency-requester-mixin.js';
+import { InternalLocalizeMixin } from '../../../mixins/internal-localize-mixin.js';
+import { MobxReactionUpdate } from '@adobe/lit-mobx';
+import { NavigationMixin } from './mixins/navigation-mixin.js';
+import { navigationSharedStyle } from './style/d2l-navigation-shared-styles.js';
+import page from 'page/page.mjs';
+import { pageNames } from './util/constants.js';
+import { ResizeObserver } from '@brightspace-ui/resize-aware/resize-observer-module.js';
+import { rootStore } from './state/root-store.js';
+
+class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalLocalizeMixin(MobxReactionUpdate(LitElement)))) {
+	static get properties() {
+		return {
+			canAccessCreatorPlus: { type: Boolean, attribute: 'can-access-creator-plus' },
+			canManageAllObjects: { type: Boolean, attribute: 'can-manage-all-videos' },
+			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
+			tenantId: { type: String, attribute: 'tenant-id' },
+			_loading: { type: Boolean, attribute: false },
+			_shouldRenderSidebar: { type: Boolean, attribute: false },
+		};
+	}
+
+	static get styles() {
+		return [navigationSharedStyle, css`
+			.d2l-content-library {
+				display: flex;
+				height: 100%;
+				margin: 0 auto;
+				max-width: 1230px;
+			}
+
+			.d2l-content-library-loading-spinner {
+				display: block;
+				margin-top: 20px;
+			}
+
+			.d2l-content-library-primary {
+				width: 100%;
+			}
+
+			.d2l-content-library-primary.sidebar {
+				width: auto;
+			}
+
+			.page {
+				display: none;
+				min-height: 500px;
+			}
+
+			.page[active] {
+				display: flex;
+				flex-direction:column;
+				width: 100%;
+			}
+
+			.d2l-content-library-sidebar-icon {
+				margin-right: 10px;
+			}
+
+			.d2l-content-library-sidebar-active {
+				font-weight: bolder;
+			}
+
+			.d2l-content-library-sidebar-container {
+				margin-top: 25px;
+			}
+
+			#d2l-content-library-preview {
+				display: flex;
+				height: 100%;
+				min-height: 400px;
+				flex-direction: column;
+			}
+
+			@media (max-width: 1056px) {
+				two-column-layout {
+					--sidebar-width: 200px;
+				}
+			}
+
+			@media (max-width: 768px) {
+				two-column-layout {
+					--sidebar-width: 65px;
+				}
+				d2l-list-item-content d2l-link {
+					display: none;
+				}
+				.d2l-content-library-primary {
+					position: absolute;
+				}
+			}
+		`];
+	}
+
+	constructor() {
+		super();
+		const documentObserver = new ResizeObserver(this._resized.bind(this));
+		documentObserver.observe(document.body, { attributes: true });
+
+		this._loading = true;
+		this._shouldRenderSidebar = null;
+		this._setupPageNavigation();
+	}
+
+	async connectedCallback() {
+		await super.connectedCallback();
+		this.contentServiceEndpoint = this.requestDependency('content-service-endpoint');
+		this._canRecord = this.requestDependency('can-record');
+		if (this._canRecord) {
+			this._audioRecordingDurationLimit = this.requestDependency('audio-recording-duration-limit');
+			this._videoRecordingDurationLimit = this.requestDependency('video-recording-duration-limit');
+			this._autoCaptionsEnabled = this.requestDependency('auto-captions-enabled');
+		}
+		const permissions = {
+			canAccessCreatorPlus: this.canAccessCreatorPlus ? 'true' : 'false',
+			canManageAllObjects: this.canManageAllVideos ? 'true' : 'false',
+			canTransferOwnership: this.canTransferOwnership ? 'true' : 'false'
+		};
+
+		rootStore.permissionStore.setPermissions(permissions);
+		this._loading = false;
+	}
+
+	firstUpdated() {
+		super.firstUpdated();
+		this.addEventListener('preview', this.onPreviewClick);
+	}
+
+	render() {
+		if (this._loading) {
+			return html`
+				<d2l-loading-spinner
+					class="d2l-content-library-loading-spinner"
+					size="150"
+				></d2l-loading-spinner>
+			`;
+		}
+		const renderContent = () => {
+			if (this._shouldRenderSidebar === null) {
+				return;
+			} else if (this._shouldRenderSidebar) {
+				return html`
+					<two-column-layout>
+						<div slot="sidebar">
+							${this._renderSidebar()}
+						</div>
+						<div slot="primary">
+							${this._renderPrimary()}
+						</div>
+					</two-column-layout>
+					${this._canRecord ? html`
+						<d2l-media-web-recording-dialog
+							id="media-web-recording-dialog"
+							tenant-id="${this.tenantId}"
+							content-service-endpoint="${this.contentServiceEndpoint}"
+							client-app="LmsCapture"
+							audio-recording-duration-limit="${this._audioRecordingDurationLimit}"
+							video-recording-duration-limit="${this._videoRecordingDurationLimit}"
+							can-capture-video
+							can-capture-audio
+							?auto-captions-enabled=${this._autoCaptionsEnabled}
+						></d2l-media-web-recording-dialog>` : ''}
+				`;
+			} else {
+				return html`${this._renderPrimary()}`;
+			}
+		};
+		return html`
+			<div class="d2l-content-library">
+				${renderContent()}
+			</div>
+		`;
+	}
+
+	onPreviewClick(event) {
+		const previewDialog = this.shadowRoot.querySelector('#preview-dialog');
+		previewDialog.opened = true;
+		const preview = this.shadowRoot.getElementById('d2l-content-library-preview');
+		preview.contentId = event.detail.id;
+		previewDialog.addEventListener('d2l-dialog-close', () => {
+			preview.loading = true;
+		});
+		preview.firstUpdated?.();
+	}
+
+	setupPage(ctx) {
+		rootStore.routingStore.setRouteCtx(ctx);
+		const { page: currentPage, subView } = rootStore.routingStore;
+		this._shouldRenderSidebar = true;
+
+		switch (currentPage) {
+			case '':
+				import('./pages/d2l-content-library-landing.js');
+				return;
+			case pageNames.files:
+				import('./pages/files/d2l-content-library-files.js');
+				import('./pages/preview/d2l-content-library-preview.js');
+				if (rootStore.routingStore.previousPage === '') {
+					// Ensures the DOM updates when redirecting from the initial landing page. Otherwise, the app shows a blank page.
+					this.requestUpdate();
+				}
+				return;
+			case pageNames.captureApp:
+				import('./pages/capture-app/d2l-content-library-capture-app.js');
+				return;
+			case pageNames.recycleBin:
+				import('./pages/recycle-bin/d2l-content-library-recycle-bin.js');
+				return;
+			case pageNames.editor:
+				this._shouldRenderSidebar = false;
+				if (subView) {
+					import('./pages/editor/d2l-content-library-editor.js');
+					return;
+				}
+				this._navigate('/404');
+				return;
+			case pageNames.preview:
+				import('./pages/preview/d2l-content-library-preview.js');
+				return;
+			case '404':
+				rootStore.routingStore.setPage('404');
+				import('./pages/404/d2l-content-library-404.js');
+				return;
+			default:
+				this._navigate('/404');
+				return;
+		}
+	}
+
+	_openMediaWebRecordingDialog() {
+		return () => {
+			this.shadowRoot.getElementById('media-web-recording-dialog').open();
+		};
+	}
+
+	_renderPrimary() {
+		const { page: currentPage, subView } = rootStore.routingStore;
+		return html`
+			<div class="d2l-content-library-primary d2l-navigation-gutters ${this._shouldRenderSidebar ? 'sidebar' : ''}">
+				<d2l-content-library-landing class="page" ?active=${currentPage === pageNames.landing}></d2l-content-library-landing>
+				<d2l-content-library-files class="page" ?active=${currentPage === pageNames.files}></d2l-content-library-files>
+				<d2l-content-library-capture-app class="page" ?active=${currentPage === pageNames.captureApp} tenant-id=${this.tenantId}></d2l-content-library-capture-app>
+				<d2l-content-library-recycle-bin class="page" ?active=${currentPage === pageNames.recycleBin}></d2l-content-library-recycle-bin>
+				<d2l-content-library-editor class="page" ?active=${currentPage === pageNames.editor && !!subView}></d2l-content-library-editor>
+				<d2l-dialog id="preview-dialog" title-text="${this.localize('preview')}">
+					<div id="d2l-preview-div">
+						<d2l-content-library-preview id="d2l-content-library-preview" active></d2l-content-library-preview>
+					</div>
+				</d2l-dialog>
+				<d2l-content-library-404 class="page" ?active=${currentPage === pageNames.page404}></d2l-content-library-404>
+			</div>
+		`;
+	}
+
+	_renderSidebar() {
+		const sidebarItems = [ {
+			langterm: rootStore.permissionStore.getCanManageAllVideos() ? 'everyonesMedia' : 'myMedia',
+			location: `/${pageNames.files}`,
+			icon: rootStore.permissionStore.getCanManageAllVideos() ? 'tier2:browser' : 'tier2:folder',
+		},
+		{
+			langterm: 'captureEncoder',
+			location: `/${pageNames.captureApp}`,
+			icon: 'tier2:capture',
+		},
+		{
+			langterm: 'recycleBin',
+			location: `/${pageNames.recycleBin}`,
+			icon: 'tier2:delete',
+		}];
+
+		const { page: currentPage } = rootStore.routingStore;
+		const sidebarListItems = sidebarItems.map(item => {
+			const activeItem = currentPage === item.location.split('/')[1];
+			return html`
+				<d2l-list-item href="javascript:void(0)" @click=${this._goTo(item.location)}>
+					<d2l-list-item-content>
+						<d2l-icon
+							style="${activeItem ? 'color: var(--d2l-color-celestine)' : ''}"
+							class="d2l-content-library-sidebar-icon"
+							icon="${item.icon}"
+						></d2l-icon><d2l-link
+							class="${activeItem ? 'd2l-content-library-sidebar-active' : ''}"
+						>${this.localize(item.langterm)}</d2l-link>
+					</d2l-list-item-content>
+				</d2l-list-item>
+			`;
+		});
+
+		return html`
+			<div class="d2l-content-library-sidebar-container d2l-navigation-gutters">
+				<d2l-list separators="between">
+					${sidebarListItems}
+				</d2l-list>
+			</div>
+		`;
+	}
+
+	_resized() {
+		rootStore.appTop = this.offsetTop;
+	}
+
+	_setupPageNavigation() {
+		page.base(BASE_PATH);
+
+		const routes = [
+			`/${pageNames.page404}`,
+			`/${pageNames.files}`,
+			`/${pageNames.captureApp}`,
+			`/${pageNames.recycleBin}`,
+			`/${pageNames.editor}/:id`,
+			`/${pageNames.preview}/:id`,
+			'/*',
+		];
+		routes.forEach(route => page(route, this.setupPage.bind(this)));
+		page();
+	}
+}
+
+customElements.define('d2l-content-library-app', D2lContentLibraryApp);
