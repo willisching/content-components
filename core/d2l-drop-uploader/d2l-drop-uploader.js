@@ -29,6 +29,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 			allowAsyncProcessing: { type: Boolean },
 			supportedTypes: { type: Array },
 			videoAudioDisplay: { type: Boolean },
+			isMultipart: { type: Boolean, attribute: 'is-multipart' }
 		};
 	}
 
@@ -318,6 +319,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 			existingContentId: this.existingContentId,
 			onUploadFinish: this.reactToUploadingSuccess,
 			shareUploadsWith: this.shareUploadsWith,
+			isMultipart: this.isMultipart
 		});
 	}
 

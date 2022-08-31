@@ -6,7 +6,7 @@ import { getExtension, isAudioType, isVideoType, getType } from './media-type-ut
 
 /* eslint-disable no-unused-vars */
 export class Uploader {
-	constructor({ apiClient, onSuccess, onError, waitForProcessing, existingContentId, shareUploadsWith = [], onProgress = progress => {}, onUploadFinish }) {
+	constructor({ apiClient, onSuccess, onError, waitForProcessing, existingContentId, shareUploadsWith = [], onProgress = progress => {}, onUploadFinish, isMultipart = false }) {
 		/* eslint-enable no-unused-vars */
 		this.apiClient = apiClient;
 		this.onProcessingFinish = onSuccess;
@@ -18,6 +18,7 @@ export class Uploader {
 		this.uploadProgress = 0;
 		this.totalFiles = 1;
 		this.onUploadFinish = onUploadFinish ? onUploadFinish : onSuccess;
+		this.isMultipart = isMultipart;
 
 		this.uploadFile = flow((function * (file, title, fileType, totalFiles = 1) {
 			/* eslint-disable no-invalid-this */
@@ -120,7 +121,7 @@ export class Uploader {
 			const s3Uploader = new S3Uploader({
 				file,
 				key: revision.s3Key,
-				isMultipart: false,
+				isMultipart: this.isMultipart,
 				signRequest: ({ file, key }) =>
 					this.apiClient.s3Sign.sign({
 						fileName: key,
