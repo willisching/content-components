@@ -5,7 +5,11 @@ const MAX_RETRIES = 5;
 const MB = 1024 * 1024;
 const retryOptions = {
 	retries: MAX_RETRIES,
-	delay: (tries) => this.exponentialBackoff(tries, 2)
+	delay: (tries) => exponentialBackoff(tries, 2)
+};
+
+function exponentialBackoff(tries, base) {
+	return base ** (tries + 1) * 1000;
 }
 
 export class S3Uploader {
@@ -147,6 +151,13 @@ export class S3Uploader {
 		this.totalProgress += progressDiff;
 	}
 
+	async _uploadChunk({file, signResult, retries = MAX_RETRIES, progressIndex = 0}) {
+		return retry(async() => await this._startUpload(file, signResult, progressIndex), {
+			...retryOptions,
+			retries
+		});
+	}
+
 	async _uploadMultipart() {
 		const { uploadId } = await retry(() => this.createMultipartUpload(), retryOptions);
 		this.uploadId = uploadId;
@@ -171,17 +182,6 @@ export class S3Uploader {
 		const uploadResponses = await Promise.all(uploadPromises);
 
 		await retry(async() => await this.completeMultipartUpload({ uploadId, parts: { parts: uploadResponses }}), retryOptions);
-	}
-
-	exponentialBackoff(tries, base) {
-		return base ** (tries + 1) * 1000;
-	}
-
-	async _uploadChunk({file, signResult, retries = MAX_RETRIES, progressIndex = 0}) {
-		return retry(async() => await this._startUpload(file, signResult, progressIndex), {
-			...retryOptions,
-			retries
-		})
 	}
 
 }

@@ -1,27 +1,16 @@
 import { sleep } from './delay';
 
-export async function retry(run, { retries, delay = () => 0, onFailedRetry = () => {} }) {
-	return new Promise(async (resolve, reject) => {
-		for(let tries = 0; tries < retries; tries++) {
-			let result;
-			let done = false;
-			await run()
-			.then(val => {
-				result = val;
-				done = true;
-			})
+export async function retry(run, { tries = 0, retries, delay = () => 0, onFailedRetry = () => {} }) {
+	return new Promise((resolve, reject) => {
+		return run()
+			.then(val => resolve(val))
 			.catch(async err => {
-				onFailedRetry({ tries, ...err });
-				if(tries === retries - 1) {
+				if (tries >= retries) {
 					reject(err);
+					return;
 				}
-				console.log(delay(tries));
 				await sleep(delay(tries));
+				retry(run, {tries: tries + 1, delay, onFailedRetry}).then(resolve, reject);
 			});
-			if(done) {
-				resolve(result);
-				return;
-			}
-		}
-	})
+	});
 }
