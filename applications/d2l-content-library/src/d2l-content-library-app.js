@@ -30,6 +30,7 @@ import { rootStore } from './state/root-store.js';
 class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalLocalizeMixin(MobxReactionUpdate(LitElement)))) {
 	static get properties() {
 		return {
+			authServiceEndpoint: { type: String, attribute: 'auth-service-endpoint' },
 			canAccessCreatorPlus: { type: Boolean, attribute: 'can-access-creator-plus' },
 			canManageAllObjects: { type: Boolean, attribute: 'can-manage-all-videos' },
 			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
@@ -220,6 +221,7 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 						></d2l-media-web-recording-dialog>` : ''}
 					<d2l-content-library-create-presentation-dialog
 						id="create-presentation-dialog"
+						auth-service-endpoint="${this.authServiceEndpoint}"
 						tenant-id="${this.tenantId}"
 					>
 					</d2l-content-library-create-presentation-dialog>

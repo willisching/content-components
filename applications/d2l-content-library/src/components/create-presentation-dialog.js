@@ -3,6 +3,7 @@ import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/dialog/dialog.js';
 import '@brightspace-ui/core/components/loading-spinner/loading-spinner.js';
 
+import * as querystring from '@chaitin/querystring';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { DependencyRequester } from '../mixins/dependency-requester-mixin.js';
 import { heading2Styles, bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
@@ -12,6 +13,7 @@ import isMobile from 'ismobilejs';
 class D2LContentLibraryCreatePresentationDialog extends DependencyRequester(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
+			authServiceEndpoint: { type: String, attribute: 'auth-service-endpoint' },
 			tenantId: { type: String, attribute: 'tenant-id' },
 			_encoderDownloads: { type: Array, attribute: false },
 		};
@@ -148,7 +150,20 @@ class D2LContentLibraryCreatePresentationDialog extends DependencyRequester(Inte
 	}
 
 	_launchEncoder() {
-		window.location.href = `d2lce://configure?tenantId=${this.tenantId}`;
+		const [, baseUrl] = this.authServiceEndpoint.match(/^\s*(.*?)(?:\/core\/?)?\s*$/);
+		const isDevAuth = /\bdev\b/i.test(baseUrl);
+		const captureClientId = isDevAuth ?
+			'2dae89b4-bd42-44a0-bf73-c53b65292108' :
+			'940b1d68-d09e-4e09-88f9-c73e4e26cb02';
+		const launchUrl = `${baseUrl}/oauth2/auth?${querystring.stringify({
+			response_type: 'code',
+			client_id: captureClientId,
+			scope: 'core:*:* content-service:content:*',
+			state: this.tenantId,
+			redirect_url: 'd2lce://auth',
+			tenant_id: this.tenantId
+		})}`;
+		window.location.href = launchUrl;
 	}
 
 	async _loadEncoderDownloads() {
