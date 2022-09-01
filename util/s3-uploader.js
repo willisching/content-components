@@ -43,9 +43,9 @@ export class S3Uploader {
 		this.concurrentUploadLimit = pLimit(concurrency);
 	}
 
-	abort() {
+	async abort() {
 		if (this.isMultipart && this.uploadId) {
-			retry(() => this.abortMultipartUpload({uploadId: this.uploadId}), retryOptions);
+			await retry(() => this.abortMultipartUpload({uploadId: this.uploadId}), retryOptions);
 		}
 		for (let i = 0; i < this.httprequests.length; i++) {
 			if (this.httprequests[i]) {
@@ -74,7 +74,7 @@ export class S3Uploader {
 		}
 		const { file, key } = this;
 		const signResult = await this.signRequest({ file, key });
-		return this._uploadChunk({file, signResult});
+		return this._uploadChunk({chunk: file, signResult});
 	}
 
 	_getChunks() {
@@ -151,8 +151,8 @@ export class S3Uploader {
 		this.totalProgress += progressDiff;
 	}
 
-	async _uploadChunk({file, signResult, retries = MAX_RETRIES, progressIndex = 0}) {
-		return retry(async() => await this._startUpload(file, signResult, progressIndex), {
+	async _uploadChunk({chunk, signResult, retries = MAX_RETRIES, progressIndex = 0}) {
+		return retry(async() => await this._startUpload(chunk, signResult, progressIndex), {
 			...retryOptions,
 			retries
 		});
@@ -166,15 +166,15 @@ export class S3Uploader {
 		for (let i = 0; i < signedUrls.length; i++) {
 			const url = signedUrls[i].value;
 			uploadPromises.push(this.concurrentUploadLimit(() =>
-				this._uploadChunk({ file: this.chunks[i], signResult: {signedUrl: url}, progressIndex: i})
+				this._uploadChunk({ chunk: this.chunks[i], signResult: {signedUrl: url}, progressIndex: i})
 					.then((response) => {
 						const etag = response.getResponseHeader('ETag');
 						return {
 							ETag: etag,
 							PartNumber: i + 1
 						};
-					}).catch(err => {
-						this.abort();
+					}).catch(async err => {
+						await this.abort();
 						throw err;
 					})));
 		}
