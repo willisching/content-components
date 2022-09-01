@@ -10,7 +10,7 @@ export async function retry(run, { tries = 0, retries, delay = () => 0, onFailed
 					return;
 				}
 				await sleep(delay(tries));
-				retry(run, {tries: tries + 1, delay, onFailedRetry}).then(resolve, reject);
+				retry(run, {tries: tries + 1, retries, delay, onFailedRetry}).then(resolve, reject);
 			});
 	});
 }
