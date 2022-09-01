@@ -143,6 +143,7 @@ class D2LMediaWebRecordingDialog extends InternalLocalizeMixin(LitElement) {
 
 	_showRecordOrUploadView() {
 		this._mediaWebRecorder.showRecordOrUploadView();
+		this._fileUploaded = false;
 		this._isRecordOrUploadView = true;
 		this._primaryButtonDisabled = true;
 	}
