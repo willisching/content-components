@@ -237,7 +237,7 @@ class D2LMediaWebRecordingRecorder extends InternalLocalizeMixin(LitElement) {
 						</span>
 						<span>/</span>
 						<span id="recording-limit">
-							${this._formatTime(this._audioOnly ? this.audioRecordingDurationLimit : this.videoRecordingDurationLimit * 60)}
+							${this._formatTime(this._audioOnly ? this.audioRecordingDurationLimit : this.videoRecordingDurationLimit)}
 						</span>
 					</div>
 				</div>
@@ -321,7 +321,7 @@ class D2LMediaWebRecordingRecorder extends InternalLocalizeMixin(LitElement) {
 	}
 
 	async _timer(init) {
-		const recordingDurationLimit = this._audioOnly ? this.audioRecordingDurationLimit : this.videoRecordingDurationLimit * 60;
+		const recordingDurationLimit = this._audioOnly ? this.audioRecordingDurationLimit : this.videoRecordingDurationLimit;
 		if (this._recordingDuration >= recordingDurationLimit) {
 			await this._stopRecording();
 		}
