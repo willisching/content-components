@@ -12,7 +12,7 @@ class D2lContentLibrary extends DependencyProvider(LitElement) {
 		return {
 			apiEndpoint: { type: String, attribute: 'content-service-endpoint' },
 			authServiceEndpoint: { type: String, attribute: 'auth-service-endpoint' },
-			canManageAllVideos: { type: Boolean, attribute: 'can-manage-all-videos' },
+			canManageAllObjects: { type: Boolean, attribute: 'can-manage-all-objects' },
 			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
 			contentServiceEndpoint: { type: String, attribute: 'content-service-endpoint' },
 			captureServiceEndpoint: { type: String, attribute: 'capture-service-endpoint' },
@@ -81,7 +81,7 @@ class D2lContentLibrary extends DependencyProvider(LitElement) {
 			<d2l-content-library-app
 				auth-service-endpoint="${this.authServiceEndpoint}"
 				class="d2l-body-standard"
-				?can-manage-all-videos="${this.canManageAllVideos}"
+				?can-manage-all-objects="${this.canManageAllObjects}"
 				?can-transfer-ownership="${this.canTransferOwnership}"
 				tenant-id="${this.tenantId}"
 			></d2l-content-library-app>`;

@@ -11,8 +11,8 @@ export class PermissionStore {
 		return this.permissions.canAccessContentLibrary === 'true';
 	}
 
-	getCanManageAllVideos() {
-		return this.permissions.canManageAllVideos === 'true';
+	getCanManageAllObjects() {
+		return this.permissions.canManageAllObjects === 'true';
 	}
 
 	getCanTransferOwnership() {
