@@ -30,7 +30,7 @@ export class Uploader {
 	}
 
 	async cancelUpload(content, s3Uploader) {
-		s3Uploader.abort();
+		await s3Uploader.abort();
 		await this.apiClient.content.deleteItem({ id: content.id });
 	}
 
