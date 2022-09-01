@@ -198,7 +198,7 @@ export default {
 	"recordAudio": "Record Audio",
 	"recordWebcam": "Record Webcam",
 	"recordWebcamVideo": "Record Webcam Video",
-	"recorderPermissionError": "Cannot access video and audio. Please allow access to your recording device using the browser",
+	"recorderPermissionError": "Cannot access video and audio. Please allow access to your recording device using the browser.",
 	"recordingStopped": "Recording Stopped",
 	"recycleBin": "Recycle Bin",
 	"removedFile": "Removed 1 file.",
