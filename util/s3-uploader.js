@@ -3,6 +3,10 @@ import pLimit from 'p-limit';
 
 const MAX_RETRIES = 5;
 const MB = 1024 * 1024;
+const retryOptions = {
+	retries: MAX_RETRIES,
+	delay: (tries) => this.exponentialBackoff(tries, 2)
+}
 
 export class S3Uploader {
 	constructor({
@@ -37,7 +41,7 @@ export class S3Uploader {
 
 	abort() {
 		if (this.isMultipart && this.uploadId) {
-			this.abortMultipartUpload({uploadId: this.uploadId});
+			retry(() => this.abortMultipartUpload({uploadId: this.uploadId}), retryOptions);
 		}
 		for (let i = 0; i < this.httprequests.length; i++) {
 			if (this.httprequests[i]) {
@@ -66,7 +70,7 @@ export class S3Uploader {
 		}
 		const { file, key } = this;
 		const signResult = await this.signRequest({ file, key });
-		return this._uploadWithRetries({file, signResult});
+		return this._uploadChunk({file, signResult});
 	}
 
 	_getChunks() {
@@ -144,14 +148,14 @@ export class S3Uploader {
 	}
 
 	async _uploadMultipart() {
-		const { uploadId } = await this.createMultipartUpload();
+		const { uploadId } = await retry(() => this.createMultipartUpload(), retryOptions);
 		this.uploadId = uploadId;
-		const signedUrls = await this.batchSign({uploadId, numParts: this.chunks.length});
+		const signedUrls = await retry(() => this.batchSign({uploadId, numParts: this.chunks.length}), retryOptions);
 		const uploadPromises = [];
 		for (let i = 0; i < signedUrls.length; i++) {
 			const url = signedUrls[i].value;
 			uploadPromises.push(this.concurrentUploadLimit(() =>
-				this._uploadWithRetries({ file: this.chunks[i], signResult: {signedUrl: url}, progressIndex: i})
+				this._uploadChunk({ file: this.chunks[i], signResult: {signedUrl: url}, progressIndex: i})
 					.then((response) => {
 						const etag = response.getResponseHeader('ETag');
 						return {
@@ -166,20 +170,17 @@ export class S3Uploader {
 
 		const uploadResponses = await Promise.all(uploadPromises);
 
-		await retry(async() => await this.completeMultipartUpload({ uploadId, parts: { parts: uploadResponses }}), {
-			retries: MAX_RETRIES,
-			delay: (tries) => this.exponentialBackoff(tries, 2)
-		})
+		await retry(async() => await this.completeMultipartUpload({ uploadId, parts: { parts: uploadResponses }}), retryOptions);
 	}
 
 	exponentialBackoff(tries, base) {
 		return base ** (tries + 1) * 1000;
 	}
 
-	async _uploadWithRetries({file, signResult, retries = MAX_RETRIES, progressIndex = 0}) {
+	async _uploadChunk({file, signResult, retries = MAX_RETRIES, progressIndex = 0}) {
 		return retry(async() => await this._startUpload(file, signResult, progressIndex), {
-			retries,
-			delay: (tries) => this.exponentialBackoff(tries, 2)
+			...retryOptions,
+			retries
 		})
 	}
 
