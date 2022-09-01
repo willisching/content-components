@@ -17,7 +17,6 @@ const VIEW = Object.freeze({
 	ERROR: 'ERROR',
 });
 const AUDIO = 'Audio';
-const VIDEO_NOTE = 'VideoNote';
 
 class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
@@ -32,6 +31,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 			maxFileSizeInBytes: { type: Number, attribute: 'max-file-size' },
 			audioRecordingDurationLimit: { type: Number, attribute: 'audio-recording-duration-limit' },
 			videoRecordingDurationLimit: { type: Number, attribute: 'video-recording-duration-limit' },
+			isMediaPlatform: { type: Boolean, attribute: 'is-media-platform' },
 			_currentView: { type: Number, attribute: false },
 			_sourceSelectorLocked: { type: Boolean, attribute: false },
 			_isRecording: { type: Boolean, attribute: false }
@@ -141,6 +141,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 						<d2l-media-web-recording-recorder
 							?can-capture-audio=${this._canRecord && this.canCaptureAudio}
 							?can-capture-video=${this._canRecord && this.canCaptureVideo}
+							?is-media-platform=${this.isMediaPlatform}
 							audio-recording-duration-limit=${this.audioRecordingDurationLimit}
 							video-recording-duration-limit=${this.videoRecordingDurationLimit}
 							@capture-started=${this._handleCaptureStarted}
@@ -168,7 +169,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 				view = html`
 					<d2l-media-web-recording-metadata
 						?is-audio=${this._contentType === AUDIO}
-						client-app=${this.clientApp}
+						?is-media-platform=${this.isMediaPlatform}
 						?auto-captions-enabled=${this.autoCaptionsEnabled}
 					>
 					</d2l-media-web-recording-metadata>
@@ -221,7 +222,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 			}));
 		};
 		try {
-			if (this.clientApp === VIDEO_NOTE) {
+			if (this.isMediaPlatform) {
 				const callback = (rpcResponse) => {
 					if (rpcResponse.GetResponseType() === D2L.Rpc.ResponseType.Success) {
 						dispatchProcessingStarted();
@@ -299,7 +300,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 		};
 
 		try {
-			if (this.clientApp === VIDEO_NOTE) {
+			if (this.isMediaPlatform) {
 				this._uploadVideoNote(1, onUploadSuccess);
 			} else {
 				this._contentId = (await this.apiClient.content.postItem({
@@ -308,7 +309,8 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 				const revision = await this.apiClient.content.createRevision({
 					id: this._contentId,
 					properties: {
-						extension: getExtension(this._file.name)
+						extension: getExtension(this._file.name),
+						...(this._contentType !== AUDIO && { formats: ['sd'] })
 					}
 				});
 				this._revisionId = revision.id;

@@ -12,7 +12,7 @@ class D2LMediaWebRecordingMetadata extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
 			isAudio: { type: Boolean, attribute: 'is-audio' },
-			clientApp: { type: String, attribute: 'client-app' },
+			isMediaPlatform: { type: Boolean, attribute: 'is-media-platform' },
 			autoCaptionsEnabled: { type: Boolean, attribute: 'auto-captions-enabled' },
 			_canAutoCaptionForLocale: { type: Boolean, attribute: false },
 			_locales: { type: Array, attribute: false },
@@ -58,7 +58,6 @@ class D2LMediaWebRecordingMetadata extends InternalLocalizeMixin(LitElement) {
 	async connectedCallback() {
 		super.connectedCallback();
 
-		this._isVideoNote = this.clientApp === 'VideoNote';
 		this.brightspaceClient = new BrightspaceApiClient({
 			httpClient: new ContentServiceBrowserHttpClient()
 		});
@@ -68,7 +67,7 @@ class D2LMediaWebRecordingMetadata extends InternalLocalizeMixin(LitElement) {
 	render() {
 		return html`
 			<div class="d2l-media-metadata-container">
-				${this._isVideoNote ? html`
+				${this.isMediaPlatform ? html`
 					<div class="d2l-media-metadata-help-message">
 						${this.localize(this.isAudio ? 'audioNoteDescription' : 'videoNoteDescription')}
 					</div>` : ''}
@@ -82,7 +81,7 @@ class D2LMediaWebRecordingMetadata extends InternalLocalizeMixin(LitElement) {
 								<d2l-input-text
 									id="title-field"
 									labelled-by="metadata-title-label"
-									?required=${!this._isVideoNote}
+									?required=${!this.isMediaPlatform}
 									@input=${this._handleTitleInputChange}
 								>
 								</d2l-input-text>
@@ -109,7 +108,7 @@ class D2LMediaWebRecordingMetadata extends InternalLocalizeMixin(LitElement) {
 	}
 
 	get ready() {
-		return this._isVideoNote || this._valid;
+		return this.isMediaPlatform || this._valid;
 	}
 
 	get values() {
@@ -130,7 +129,7 @@ class D2LMediaWebRecordingMetadata extends InternalLocalizeMixin(LitElement) {
 	}
 
 	_handleTitleInputChange(event) {
-		if (!this._isVideoNote) {
+		if (!this.isMediaPlatform) {
 			const titleInputValue = event.target.value;
 			this._valid = titleInputValue && titleInputValue.trim().length > 0;
 			this.dispatchEvent(new CustomEvent('metadata-input', {

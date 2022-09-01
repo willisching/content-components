@@ -13,6 +13,7 @@ class D2LMediaWebRecordingRecorder extends InternalLocalizeMixin(LitElement) {
 		return {
 			canCaptureAudio: { type: Boolean, attribute: 'can-capture-audio' },
 			canCaptureVideo: { type: Boolean, attribute: 'can-capture-video' },
+			isMediaPlatform: { type: Boolean, attribute: 'is-media-platform' },
 			audioRecordingDurationLimit: { type: Number, attribute: 'audio-recording-duration-limit' },
 			videoRecordingDurationLimit: { type: Number, attribute: 'video-recording-duration-limit' },
 			_audioOnly: { type: Number, attribute: false },
@@ -287,7 +288,7 @@ class D2LMediaWebRecordingRecorder extends InternalLocalizeMixin(LitElement) {
 				width: { min: 320, ideal: 640, max: 640 },
 				height: { min: 240, ideal: 480, max: 480 }
 			},
-			bitsPerSecond: 1500000
+			bitsPerSecond: this.isMediaPlatform ? 500000 : 1500000
 		};
 		this._audioVideoRecorder = new RecordRTC.RecordRTCPromisesHandler(this._stream, recorderSettings);
 		this._audioVideoRecorder.startRecording();
