@@ -6,7 +6,7 @@ import { getExtension, isAudioType, isVideoType, getType } from './media-type-ut
 
 /* eslint-disable no-unused-vars */
 export class Uploader {
-	constructor({ apiClient, onSuccess, onError, waitForProcessing, existingContentId, shareUploadsWith = [], onProgress = progress => {}, onUploadFinish }) {
+	constructor({ apiClient, onSuccess, onError, waitForProcessing, existingContentId, shareUploadsWith = [], onProgress = progress => {}, onUploadFinish, isMultipart = false }) {
 		/* eslint-enable no-unused-vars */
 		this.apiClient = apiClient;
 		this.onProcessingFinish = onSuccess;
@@ -18,6 +18,7 @@ export class Uploader {
 		this.uploadProgress = 0;
 		this.totalFiles = 1;
 		this.onUploadFinish = onUploadFinish ? onUploadFinish : onSuccess;
+		this.isMultipart = isMultipart;
 		this.maxAttempts = 10;
 
 		this.uploadFile = flow((function * (file, title, fileType, totalFiles = 1) {
@@ -29,7 +30,7 @@ export class Uploader {
 	}
 
 	async cancelUpload(content, s3Uploader) {
-		s3Uploader.abort();
+		await s3Uploader.abort();
 		await this.apiClient.content.deleteItem({ id: content.id });
 	}
 
@@ -117,9 +118,14 @@ export class Uploader {
 					extension,
 				},
 			});
+
+			const contentId = content.id;
+			const revisionId = revision.id;
+
 			const s3Uploader = new S3Uploader({
 				file,
 				key: revision.s3Key,
+				isMultipart: this.isMultipart,
 				signRequest: ({ file, key }) =>
 					this.apiClient.s3Sign.sign({
 						fileName: key,
@@ -131,6 +137,10 @@ export class Uploader {
 					lastProgressPosition = progress;
 					this.onProgress(this.uploadProgress);
 				},
+				abortMultipartUpload: async({uploadId}) => this.apiClient.content.abortMultipartUpload({uploadId, contentId, revisionId}),
+				batchSign: async({uploadId, numParts}) => this.apiClient.content.batchSign({uploadId, numParts, contentId, revisionId}),
+				completeMultipartUpload: async({uploadId, parts}) => this.apiClient.content.completeMultipartUpload({uploadId, parts, contentId, revisionId}),
+				createMultipartUpload: async() => this.apiClient.content.initializeMultipartUpload({contentId, revisionId})
 			});
 			await s3Uploader.upload();
 			await this.apiClient.content.startWorkflow({
