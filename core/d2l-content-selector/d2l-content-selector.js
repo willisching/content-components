@@ -302,7 +302,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 							>${this.localize('back')}</d2l-button>
 							<d2l-button
 								description=${this.localize('cancel')}
-								@click=${this._handleCancel}
+								@click=${this._handleCancelUpload}
 							>${this.localize('cancel')}</d2l-button>
 						</div>
 					</div>
@@ -354,6 +354,10 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		this._fileName = event.detail.fileName;
 		this._selectedView = VIEW[event.detail.view];
 		this._errorMessage = event.detail.errorMessage;
+		// keep a reference to the uploader so that can call to cancel uploads
+		if (this._dropUploader) {
+			this.uploader = this._dropUploader;
+		}
 	}
 
 	editBulkProperties() {
@@ -430,6 +434,10 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		return this.shadowRoot.querySelector('d2l-content-properties');
 	}
 
+	get _dropUploader() {
+		return this.shadowRoot.querySelector('d2l-drop-uploader');
+	}
+
 	_enableNextButton() {
 		this._nextButtonSettingsDisabled = false;
 	}
@@ -463,6 +471,11 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	_handleCancel() {
+		this.dispatchEvent(new CustomEvent('cancel'));
+	}
+
+	async _handleCancelUpload() {
+		await this.uploader.cancelUpload();
 		this.dispatchEvent(new CustomEvent('cancel'));
 	}
 
