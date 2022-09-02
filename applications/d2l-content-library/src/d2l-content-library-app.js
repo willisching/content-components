@@ -211,7 +211,7 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 							id="media-web-recording-dialog"
 							tenant-id="${this.tenantId}"
 							content-service-endpoint="${this.contentServiceEndpoint}"
-							client-app="LmsCapture"
+							client-app="VideoNote"
 							audio-recording-duration-limit="${this._audioRecordingDurationLimit}"
 							video-recording-duration-limit="${this._videoRecordingDurationLimit}"
 							can-capture-video
