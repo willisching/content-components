@@ -85,7 +85,7 @@ class D2LContentLibraryFiles extends contentSearchMixin(DependencyRequester(Page
 	}
 
 	render() {
-		const heading = rootStore.permissionStore.getCanManageAllVideos() ? this.localize('everyonesMedia') : this.localize('myMedia');
+		const heading = rootStore.permissionStore.getCanManageAllObjects() ? this.localize('everyonesMedia') : this.localize('myMedia');
 		return html`
 			<div class="d2l-content-library-manage-container">
 				<h2 class="d2l-content-library-files-heading d2l-heading-2">${heading}</h2>

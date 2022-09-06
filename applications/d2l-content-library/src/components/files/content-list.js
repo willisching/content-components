@@ -8,7 +8,7 @@ import '../relative-date.js';
 import './content-list-header.js';
 import './content-list-item-ghost.js';
 import './content-list-item.js';
-import { ContentLibraryList, videosPage } from '../content-library-list.js';
+import { ContentLibraryList, filesPage } from '../content-library-list.js';
 
 import { html } from 'lit-element/lit-element.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
@@ -19,7 +19,7 @@ import { rootStore } from '../../state/root-store.js';
 class ContentList extends ContentLibraryList {
 	constructor() {
 		super();
-		this.page = videosPage;
+		this.page = filesPage;
 	}
 
 	connectedCallback() {
@@ -50,7 +50,7 @@ class ContentList extends ContentLibraryList {
 			<d2l-list>
 				<div id="d2l-content-library-list">
 					${this.renderNotFound()}
-					${this._videos.map(item => this.renderContentItem(item))}
+					${this._files.map(item => this.renderContentItem(item))}
 					${this.renderGhosts()}
 				</div>
 			</d2l-list>
@@ -75,15 +75,15 @@ class ContentList extends ContentLibraryList {
 	contentListItemDeletedHandler(e) {
 		if (e && e.detail && e.detail.id) {
 			const { id } = e.detail;
-			const index = this._videos.findIndex(c => c.id === id);
+			const index = this._files.findIndex(c => c.id === id);
 
-			if (index >= 0 && index < this._videos.length) {
-				this.undoDeleteObject = this._videos[index];
-				this._videos.splice(index, 1);
+			if (index >= 0 && index < this._files.length) {
+				this.undoDeleteObject = this._files[index];
+				this._files.splice(index, 1);
 				this.requestUpdate();
 				this.showUndoDeleteToast();
 
-				if (this._videos.length < this._resultSize && this._moreResultsAvailable && !this.loading) {
+				if (this._files.length < this._resultSize && this._moreResultsAvailable && !this.loading) {
 					this.loadNext();
 				}
 			}
@@ -100,10 +100,10 @@ class ContentList extends ContentLibraryList {
 		const { id, description } = detail;
 
 		if (id && description) {
-			const index = this._videos.findIndex(c => c.id === id);
-			if (index >= 0 && index < this._videos.length) {
-				this._videos[index].description = description;
-				this._videos[index][this.dateField] = (new Date()).toISOString();
+			const index = this._files.findIndex(c => c.id === id);
+			if (index >= 0 && index < this._files.length) {
+				this._files[index].description = description;
+				this._files[index][this.dateField] = (new Date()).toISOString();
 				this.requestUpdate();
 			}
 		}
@@ -119,11 +119,11 @@ class ContentList extends ContentLibraryList {
 		const { id, userId, displayName } = detail;
 
 		if (id && displayName) {
-			const index = this._videos.findIndex(c => c.id === id);
-			if (index >= 0 && index < this._videos.length) {
-				this._videos[index].ownerId = userId;
-				this._videos[index].ownerDisplayName = displayName;
-				this._videos[index][this.dateField] = (new Date()).toISOString();
+			const index = this._files.findIndex(c => c.id === id);
+			if (index >= 0 && index < this._files.length) {
+				this._files[index].ownerId = userId;
+				this._files[index].ownerDisplayName = displayName;
+				this._files[index][this.dateField] = (new Date()).toISOString();
 				this.requestUpdate();
 			}
 		}
@@ -139,10 +139,10 @@ class ContentList extends ContentLibraryList {
 		const { id, title } = detail;
 
 		if (id && title) {
-			const index = this._videos.findIndex(c => c.id === id);
-			if (index >= 0 && index < this._videos.length) {
-				this._videos[index].title = title;
-				this._videos[index][this.dateField] = (new Date()).toISOString();
+			const index = this._files.findIndex(c => c.id === id);
+			if (index >= 0 && index < this._files.length) {
+				this._files[index].title = title;
+				this._files[index][this.dateField] = (new Date()).toISOString();
 				this.requestUpdate();
 			}
 		}
@@ -249,8 +249,8 @@ class ContentList extends ContentLibraryList {
 		if (!(contentId && processingStatus)) {
 			return;
 		}
-		const index = this._videos.findIndex(c => c.id === contentId);
-		const item = this._videos[index];
+		const index = this._files.findIndex(c => c.id === contentId);
+		const item = this._files[index];
 		item && (item.processingStatus = processingStatus);
 		this.requestUpdate();
 	}

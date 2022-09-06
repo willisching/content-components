@@ -16,7 +16,7 @@ import { InternalLocalizeMixin } from '../../../../mixins/internal-localize-mixi
 import { NavigationMixin } from '../mixins/navigation-mixin.js';
 import { navigationSharedStyle } from '../style/d2l-navigation-shared-styles.js';
 import { rootStore } from '../state/root-store.js';
-export const videosPage = '/files';
+export const filesPage = '/files';
 export const recycleBinPage = '/recycle-bin';
 
 export class ContentLibraryList extends DependencyRequester(InternalLocalizeMixin(NavigationMixin(contentSearchMixin(LitElement)))) {
@@ -143,13 +143,13 @@ export class ContentLibraryList extends DependencyRequester(InternalLocalizeMixi
 	}
 
 	async insertIntoContentItemsBasedOnSort(item) {
-		let indexToInsertAt = this._videos.findIndex(this.getCompareBasedOnSort(item));
+		let indexToInsertAt = this._files.findIndex(this.getCompareBasedOnSort(item));
 		if (indexToInsertAt === -1) {
-			indexToInsertAt = this._videos.length;
+			indexToInsertAt = this._files.length;
 		}
 
-		if (!this._moreResultsAvailable || indexToInsertAt !== this._videos.length) {
-			this._videos.splice(indexToInsertAt, 0, item);
+		if (!this._moreResultsAvailable || indexToInsertAt !== this._files.length) {
+			this._files.splice(indexToInsertAt, 0, item);
 			this.requestUpdate();
 			await this.updateComplete;
 		}
@@ -159,7 +159,7 @@ export class ContentLibraryList extends DependencyRequester(InternalLocalizeMixi
 		this.loading = true;
 		const { sortQuery, searchQuery, dateModified, dateCreated } = this.queryParams;
 
-		const searchFunc = this.page === recycleBinPage ? this._handleDeletedVideoSearch : this._handleVideoSearch;
+		const searchFunc = this.page === recycleBinPage ? this._handleDeletedFileSearch : this._handleFileSearch;
 		await searchFunc.bind(this)({
 			append,
 			createdAt: dateCreated,
@@ -223,7 +223,7 @@ export class ContentLibraryList extends DependencyRequester(InternalLocalizeMixi
 
 	async reloadPage() {
 		this.loading = true;
-		this._videos = [];
+		this._files = [];
 		this._start = 0;
 		this._navigate(this.page, this.queryParams);
 
@@ -231,13 +231,13 @@ export class ContentLibraryList extends DependencyRequester(InternalLocalizeMixi
 			await this.loadNext({ append: false });
 		} catch (error) {
 			this.loading = false;
-			this._videos = [];
+			this._files = [];
 			this._start = 0;
 		}
 	}
 
 	renderNotFound() {
-		return !this.loading && this._videos.length === 0 ? html`
+		return !this.loading && this._files.length === 0 ? html`
 			<div class="d2l-content-library-content-list-no-results">
 				${this.localize('noResults')}
 			</div>

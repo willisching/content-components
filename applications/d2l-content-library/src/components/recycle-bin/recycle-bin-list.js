@@ -30,7 +30,7 @@ class RecycleBinList extends ContentLibraryList {
 			<d2l-list>
 				<div id="d2l-content-library-list">
 					${this.renderNotFound()}
-					${this._videos.map(item => this.renderRecycleBinItem(item))}
+					${this._files.map(item => this.renderRecycleBinItem(item))}
 					${this.renderGhosts()}
 				</div>
 			</d2l-list>
@@ -83,11 +83,11 @@ class RecycleBinList extends ContentLibraryList {
 			return;
 		}
 
-		const index = this._videos.findIndex(c => c.id === detail.id);
-		if (index >= 0 && index < this._videos.length) {
-			this._videos.splice(index, 1);
+		const index = this._files.findIndex(c => c.id === detail.id);
+		if (index >= 0 && index < this._files.length) {
+			this._files.splice(index, 1);
 
-			if (this._videos.length < this._resultSize && this._moreResultsAvailable && !this.loading) {
+			if (this._files.length < this._resultSize && this._moreResultsAvailable && !this.loading) {
 				this.loadNext();
 			}
 		}

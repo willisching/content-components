@@ -32,7 +32,7 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 		return {
 			authServiceEndpoint: { type: String, attribute: 'auth-service-endpoint' },
 			canAccessCreatorPlus: { type: Boolean, attribute: 'can-access-creator-plus' },
-			canManageAllObjects: { type: Boolean, attribute: 'can-manage-all-videos' },
+			canManageAllObjects: { type: Boolean, attribute: 'can-manage-all-objects' },
 			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
 			tenantId: { type: String, attribute: 'tenant-id' },
 			_errorMessage: { type: String, attribute: false },
@@ -162,7 +162,7 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 
 		const permissions = {
 			canAccessCreatorPlus: this.canAccessCreatorPlus ? 'true' : 'false',
-			canManageAllObjects: this.canManageAllVideos ? 'true' : 'false',
+			canManageAllObjects: this.canManageAllObjects ? 'true' : 'false',
 			canTransferOwnership: this.canTransferOwnership ? 'true' : 'false'
 		};
 
@@ -385,9 +385,9 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 
 	_renderSidebar() {
 		const sidebarItems = [ {
-			langterm: rootStore.permissionStore.getCanManageAllVideos() ? 'everyonesMedia' : 'myMedia',
+			langterm: rootStore.permissionStore.getCanManageAllObjects() ? 'everyonesMedia' : 'myMedia',
 			location: `/${pageNames.files}`,
-			icon: rootStore.permissionStore.getCanManageAllVideos() ? 'tier2:browser' : 'tier2:folder',
+			icon: rootStore.permissionStore.getCanManageAllObjects() ? 'tier2:browser' : 'tier2:folder',
 		},
 		{
 			langterm: 'recycleBin',

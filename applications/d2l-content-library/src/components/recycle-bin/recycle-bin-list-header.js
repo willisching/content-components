@@ -22,12 +22,12 @@ class RecycleBinListHeader extends InternalLocalizeMixin(LitElement) {
 			.d2l-icon-spacer {
 				height: 0;
 				width: 42px;
-				padding-left: 42px; /* total width of checkbox column */
+				padding-left: 24px; /* total width of checkbox column */
 			}
 
 			d2l-list [slot=actions] {
 				height: 0;
-				width: 90px;
+				width: 45px;
 			}
 		`];
 	}

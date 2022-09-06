@@ -14,7 +14,7 @@ export const contentSearchMixin = superClass => class extends superClass {
 			_resultSize: { type: Number },
 			_start: { type: Number },
 			_totalResults: { type: Number },
-			_videos: { type: Array },
+			_files: { type: Array },
 			_userCache: { type: Object }
 		};
 	}
@@ -25,7 +25,7 @@ export const contentSearchMixin = superClass => class extends superClass {
 		this._query = '';
 		this._resultSize = 15;
 		this._start = 0;
-		this._videos = [];
+		this._files = [];
 		this._totalResults = 0;
 		this._userCache = {};
 	}
@@ -50,7 +50,7 @@ export const contentSearchMixin = superClass => class extends superClass {
 		return this._userCache[userId];
 	}
 
-	async _handleDeletedVideoSearch({
+	async _handleDeletedFileSearch({
 		append = false,
 		query = this._query,
 		createdAt,
@@ -75,27 +75,12 @@ export const contentSearchMixin = superClass => class extends superClass {
 			timeZone: getTimeZoneOrTimeZoneOffset(),
 			updatedAt: dateFilterToSearchQuery(updatedAt)
 		});
-		this._updateVideoList(hits, append);
+		this._updateFileList(hits, append);
 		this._totalResults = total;
-		this._moreResultsAvailable = this._videos.length < total;
+		this._moreResultsAvailable = this._files.length < total;
 	}
 
-	async _handleInputVideoSearch({ detail: { value: query } }) {
-		this._start = 0;
-		this._query = query;
-		await this._handleVideoSearch();
-	}
-
-	async _handleLoadMoreVideos() {
-		await this._handleVideoSearch({ append: true });
-	}
-
-	async _handlePaginationSearch(page) {
-		this._start = (page - 1) * this._resultSize;
-		await this._handleVideoSearch();
-	}
-
-	async _handleVideoSearch({
+	async _handleFileSearch({
 		append = false,
 		query = this._query,
 		createdAt,
@@ -122,12 +107,27 @@ export const contentSearchMixin = superClass => class extends superClass {
 		if (this.canTransferOwnership && this.userBrightspaceClient) {
 			await this._addDisplayNames(hits);
 		}
-		this._updateVideoList(hits, append);
+		this._updateFileList(hits, append);
 		this._totalResults = total;
-		this._moreResultsAvailable = this._videos.length < total;
+		this._moreResultsAvailable = this._files.length < total;
 	}
 
-	_updateVideoList(hits, append = false) {
+	async _handleInputFileSearch({ detail: { value: query } }) {
+		this._start = 0;
+		this._query = query;
+		await this._handleFileSearch();
+	}
+
+	async _handleLoadMoreFiles() {
+		await this._handleFileSearch({ append: true });
+	}
+
+	async _handlePaginationSearch(page) {
+		this._start = (page - 1) * this._resultSize;
+		await this._handleFileSearch();
+	}
+
+	_updateFileList(hits, append = false) {
 		function getRandomInt(min, max) {
 			min = Math.ceil(min);
 			max = Math.floor(max);
@@ -152,6 +152,6 @@ export const contentSearchMixin = superClass => class extends superClass {
 				views: getRandomInt(0, 100000)
 			};
 		});
-		this._videos = append ? this._videos.concat(results) : results;
+		this._files = append ? this._files.concat(results) : results;
 	}
 };
