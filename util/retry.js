@@ -5,6 +5,7 @@ export async function retry(run, { tries = 0, retries, delay = () => 0, onFailed
 		return run()
 			.then(val => resolve(val))
 			.catch(async err => {
+				onFailedRetry(err);
 				if (tries >= retries) {
 					reject(err);
 					return;

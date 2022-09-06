@@ -44,7 +44,9 @@ export class S3Uploader {
 	}
 
 	async abort() {
+		this.onProgress(0);
 		if (this.isMultipart && this.uploadId) {
+			this.concurrentUploadLimit.clearQueue();
 			await retry(() => this.abortMultipartUpload({uploadId: this.uploadId}), retryOptions);
 		}
 		for (let i = 0; i < this.httprequests.length; i++) {
@@ -104,6 +106,7 @@ export class S3Uploader {
 		const lastProgress = this.lastProgress[index];
 		this.totalProgress -= lastProgress;
 		this.lastProgress[index] = 0;
+		this.onProgress(this.totalProgress / this.file.size * 100);
 	}
 
 	async _startUpload(file, signResult, progressIndex) {
@@ -112,7 +115,6 @@ export class S3Uploader {
 			xhr.addEventListener('load', (ev) => {
 				if (xhr.status >= 200 && xhr.status <= 299) {
 					this._updateProgress(this.chunks[progressIndex].size, progressIndex);
-					this.onProgress(this.totalProgress / this.file.size * 100);
 					resolve(ev.target);
 				} else {
 					reject(new Error(`Failed to upload file ${file.name}: ${xhr.status} ${xhr.statusText}`));
@@ -149,12 +151,14 @@ export class S3Uploader {
 		const progressDiff = value - this.lastProgress[index];
 		this.lastProgress[index] = value;
 		this.totalProgress += progressDiff;
+		this.onProgress(this.totalProgress / this.file.size * 100);
 	}
 
 	async _uploadChunk({chunk, signResult, retries = MAX_RETRIES, progressIndex = 0}) {
 		return retry(async() => await this._startUpload(chunk, signResult, progressIndex), {
 			...retryOptions,
-			retries
+			retries,
+			onFailedRetry: () => {this._resetProgress(progressIndex);}
 		});
 	}
 
