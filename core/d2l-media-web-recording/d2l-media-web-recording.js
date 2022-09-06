@@ -389,6 +389,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 					title="${this.localize(recordLangterm)}"
 					class="d2l-media-web-recording-source-selector d2l-media-web-recording-source-selector-${sourceSelectorRecordStatus}"
 					@click=${this._handleSourceSelectorClick(true)}
+					href="javascript://"
 					tabindex=0
 				>
 					${this.localize(recordLangterm)}
@@ -398,6 +399,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 					title="${this.localize('uploadFile')}"
 					class="d2l-media-web-recording-source-selector d2l-media-web-recording-source-selector-${sourceSelectorUploadStatus}"
 					@click=${this._handleSourceSelectorClick(false)}
+					href="javascript://"
 					tabindex=0
 				>
 					${this.localize('uploadFile')}
