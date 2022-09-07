@@ -156,6 +156,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 							?can-upload-video=${this.canCaptureVideo}
 							max-file-size=${this.maxFileSizeInBytes}
 							@file-selected=${this._handleFileSelected}
+							@file-selection-error=${this._handleFileSelectionError}
 						>
 						</d2l-media-web-recording-uploader>
 					`;
@@ -362,6 +363,10 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 		this._sourceSelectorLocked = true;
 	}
 
+	_handleFileSelectionError() {
+		this._file = null;
+	}
+
 	_handleSourceSelectorClick(isRecording) {
 		return () => {
 			if (!this._sourceSelectorLocked) {
@@ -389,6 +394,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 					title="${this.localize(recordLangterm)}"
 					class="d2l-media-web-recording-source-selector d2l-media-web-recording-source-selector-${sourceSelectorRecordStatus}"
 					@click=${this._handleSourceSelectorClick(true)}
+					href="javascript://"
 					tabindex=0
 				>
 					${this.localize(recordLangterm)}
@@ -398,6 +404,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 					title="${this.localize('uploadFile')}"
 					class="d2l-media-web-recording-source-selector d2l-media-web-recording-source-selector-${sourceSelectorUploadStatus}"
 					@click=${this._handleSourceSelectorClick(false)}
+					href="javascript://"
 					tabindex=0
 				>
 					${this.localize('uploadFile')}

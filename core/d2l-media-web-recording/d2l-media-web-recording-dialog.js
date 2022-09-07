@@ -57,7 +57,8 @@ class D2LMediaWebRecordingDialog extends InternalLocalizeMixin(LitElement) {
 							@user-media-loaded=${this._handleUserMediaLoaded}
 							@capture-clip-completed=${this._enablePrimaryButton}
 							@file-selected=${this._enablePrimaryButton}
-							@capture-started=${this._handleCaptureStartedEvent}
+							@capture-started=${this._disablePrimaryButton}
+							@file-selection-error=${this._disablePrimaryButton}
 							@metadata-input=${this._handleMetadataInputChangedEvent}
 							@upload-success=${this._handleUploadSuccess}
 							@processing-started=${this._handleProcessingStarted}
@@ -94,12 +95,12 @@ class D2LMediaWebRecordingDialog extends InternalLocalizeMixin(LitElement) {
 		this.shadowRoot.getElementById('media-web-recording-dialog').open();
 	}
 
-	_enablePrimaryButton() {
-		this._primaryButtonDisabled = false;
+	_disablePrimaryButton() {
+		this._primaryButtonDisabled = true;
 	}
 
-	_handleCaptureStartedEvent() {
-		this._primaryButtonDisabled = true;
+	_enablePrimaryButton() {
+		this._primaryButtonDisabled = false;
 	}
 
 	_handleMetadataInputChangedEvent(event) {

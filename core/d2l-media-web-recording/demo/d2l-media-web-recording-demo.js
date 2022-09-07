@@ -198,4 +198,4 @@ class DemoMediaWebRecording extends LitElement {
 
 }
 
-customElements.define('d2l-media-web-recording', DemoMediaWebRecording);
+customElements.define('d2l-media-web-recording-demo', DemoMediaWebRecording);
