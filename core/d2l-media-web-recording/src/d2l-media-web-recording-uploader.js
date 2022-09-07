@@ -107,6 +107,13 @@ class D2LMediaWebRecordingUploader extends InternalLocalizeMixin(LitElement) {
 		} else {
 			this._localizedError = this.localize('noFilesToUpload');
 		}
+
+		if (this._localizedError) {
+			this.dispatchEvent(new CustomEvent('file-selection-error', {
+				bubbles: true,
+				composed: true
+			}));
+		}
 	}
 }
 

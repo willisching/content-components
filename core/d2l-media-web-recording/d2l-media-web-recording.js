@@ -156,6 +156,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 							?can-upload-video=${this.canCaptureVideo}
 							max-file-size=${this.maxFileSizeInBytes}
 							@file-selected=${this._handleFileSelected}
+							@file-selection-error=${this._handleFileSelectionError}
 						>
 						</d2l-media-web-recording-uploader>
 					`;
@@ -360,6 +361,10 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 		this._file = event.detail.file;
 		this._contentType = event.detail.contentType;
 		this._sourceSelectorLocked = true;
+	}
+
+	_handleFileSelectionError() {
+		this._file = null;
 	}
 
 	_handleSourceSelectorClick(isRecording) {
