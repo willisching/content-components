@@ -104,6 +104,8 @@ class D2LMediaWebRecordingUploader extends InternalLocalizeMixin(LitElement) {
 					}
 				}));
 			}
+		} else {
+			this._localizedError = this.localize('noFilesToUpload');
 		}
 	}
 }

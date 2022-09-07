@@ -160,6 +160,7 @@ export default {
 	"noCaptions": "There are currently no captions for {language}.",
 	"noCaptureEncoderDownloadsAvailable": "There are currently no downloads available for Capture App.",
 	"noChapters": "There are no chapters added.",
+	"noFilesToUpload": "No files to upload.",
 	"noGradeItemCreationNote": "Note: no grade item will be created even if the SCORM/xAPI package posts the score.",
 	"noKeepToMyself": "No, keep this file only to myself",
 	"noResults": "No results.",
