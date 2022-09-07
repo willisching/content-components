@@ -1,5 +1,4 @@
 import { retry } from './retry';
-import pLimit from 'p-limit';
 
 const MAX_RETRIES = 5;
 const MB = 1024 * 1024;
@@ -16,9 +15,8 @@ export class S3Uploader {
 	constructor({
 		file,
 		key,
-		minChunkSize = 10 * MB,
+		minChunkSize = 50 * MB,
 		isMultipart = false,
-		concurrency = 5,
 		abortMultipartUpload = async() => {},
 		batchSign = async() => {},
 		completeMultipartUpload = async() => {},
@@ -40,13 +38,11 @@ export class S3Uploader {
 		this.totalProgress = 0;
 		this.httprequests = [];
 		this.uploadId = null;
-		this.concurrentUploadLimit = pLimit(concurrency);
 	}
 
 	async abort() {
 		this.onProgress(0);
 		if (this.isMultipart && this.uploadId) {
-			this.concurrentUploadLimit.clearQueue();
 			await retry(() => this.abortMultipartUpload({uploadId: this.uploadId}), retryOptions);
 		}
 		for (let i = 0; i < this.httprequests.length; i++) {
@@ -166,24 +162,21 @@ export class S3Uploader {
 		const { uploadId } = await retry(() => this.createMultipartUpload(), retryOptions);
 		this.uploadId = uploadId;
 		const signedUrls = await retry(() => this.batchSign({uploadId, numParts: this.chunks.length}), retryOptions);
-		const uploadPromises = [];
+		const uploadResponses = [];
 		for (let i = 0; i < signedUrls.length; i++) {
 			const url = signedUrls[i].value;
-			uploadPromises.push(this.concurrentUploadLimit(() =>
-				this._uploadChunk({ chunk: this.chunks[i], signResult: {signedUrl: url}, progressIndex: i})
-					.then((response) => {
-						const etag = response.getResponseHeader('ETag');
-						return {
-							ETag: etag,
-							PartNumber: i + 1
-						};
-					}).catch(async err => {
-						await this.abort();
-						throw err;
-					})));
+			uploadResponses.push(await this._uploadChunk({ chunk: this.chunks[i], signResult: {signedUrl: url}, progressIndex: i})
+				.then((response) => {
+					const etag = response.getResponseHeader('ETag');
+					return {
+						ETag: etag,
+						PartNumber: i + 1
+					};
+				}).catch(async err => {
+					await this.abort();
+					throw err;
+				}));
 		}
-
-		const uploadResponses = await Promise.all(uploadPromises);
 
 		await retry(async() => await this.completeMultipartUpload({ uploadId, parts: { parts: uploadResponses }}), retryOptions);
 	}
