@@ -16,6 +16,7 @@ class D2lContentLibrary extends DependencyProvider(LitElement) {
 			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
 			contentServiceEndpoint: { type: String, attribute: 'content-service-endpoint' },
 			captureServiceEndpoint: { type: String, attribute: 'capture-service-endpoint' },
+			isMultipart: { type: Boolean, attribute: 'is-multipart' },
 			tenantId: { type: String, attribute: 'tenant-id' },
 			canRecord: { type: Boolean, attribute: 'can-record' },
 			videoRecordingDurationLimit: { type: Number, attribute: 'video-recording-duration-limit' },
@@ -70,7 +71,8 @@ class D2lContentLibrary extends DependencyProvider(LitElement) {
 		this.provideDependency('user-brightspace-client', brightspaceClient);
 
 		const uploader = new Uploader({
-			apiClient
+			apiClient,
+			isMultipart: this.isMultipart
 		});
 
 		this.provideDependency('uploader', uploader);
@@ -83,6 +85,7 @@ class D2lContentLibrary extends DependencyProvider(LitElement) {
 				class="d2l-body-standard"
 				?can-manage-all-objects="${this.canManageAllObjects}"
 				?can-transfer-ownership="${this.canTransferOwnership}"
+				?is-multipart=${this.isMultipart}
 				tenant-id="${this.tenantId}"
 			></d2l-content-library-app>`;
 	}

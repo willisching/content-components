@@ -32,6 +32,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 			audioRecordingDurationLimit: { type: Number, attribute: 'audio-recording-duration-limit' },
 			videoRecordingDurationLimit: { type: Number, attribute: 'video-recording-duration-limit' },
 			isMediaPlatform: { type: Boolean, attribute: 'is-media-platform' },
+			isMultipart: { type: Boolean, attribute: 'is-multipart' },
 			_currentView: { type: Number, attribute: false },
 			_sourceSelectorLocked: { type: Boolean, attribute: false },
 			_isRecording: { type: Boolean, attribute: false }
@@ -142,6 +143,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 							?can-capture-audio=${this._canRecord && this.canCaptureAudio}
 							?can-capture-video=${this._canRecord && this.canCaptureVideo}
 							?is-media-platform=${this.isMediaPlatform}
+							?is-multipart=${this.isMultipart}
 							audio-recording-duration-limit=${this.audioRecordingDurationLimit}
 							video-recording-duration-limit=${this.videoRecordingDurationLimit}
 							@capture-started=${this._handleCaptureStarted}
@@ -315,15 +317,24 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 					}
 				});
 				this._revisionId = revision.id;
+
+				const contentId = this._contentId;
+				const revisionId = revision.id;
+
 				const s3Uploader = new S3Uploader({
 					file: this._file,
 					key: revision.s3Key,
+					isMultipart: this.isMultipart,
 					signRequest: ({ key }) =>
 						this.apiClient.s3Sign.sign({
 							fileName: key,
 							contentType: this._contentType,
 							contentDisposition: 'auto',
-						})
+						}),
+					abortMultipartUpload: async({uploadId}) => this.apiClient.content.abortMultipartUpload({uploadId, contentId, revisionId}),
+					batchSign: async({uploadId, numParts}) => this.apiClient.content.batchSign({uploadId, numParts, contentId, revisionId}),
+					completeMultipartUpload: async({uploadId, parts}) => this.apiClient.content.completeMultipartUpload({uploadId, parts, contentId, revisionId}),
+					createMultipartUpload: async() => this.apiClient.content.initializeMultipartUpload({contentId, revisionId})
 				});
 				await s3Uploader.upload();
 				onUploadSuccess();

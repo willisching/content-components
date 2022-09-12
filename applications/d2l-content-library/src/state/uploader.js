@@ -19,10 +19,11 @@ const sleep = async(delay = 0) => {
 };
 
 export class Uploader {
-	constructor({ apiClient }) {
+	constructor({ apiClient, isMultipart }) {
 		this.nextUploadId = 0;
 		this.uploads = [];
 		this.apiClient = apiClient;
+		this.isMultipart = isMultipart;
 		this.uploadsInProgress = 0;
 		this.uploadConcurrency = 5;
 		this.statusWindowVisible = false;
@@ -71,7 +72,6 @@ export class Uploader {
 		this.monitorNewUploadInfo = flow(function * (contentId, revisionId, extension) {
 			/* eslint-disable no-invalid-this */
 			this.uploadsInProgress += 1;
-			console.log(this.uploadsInProgress);
 
 			let content;
 			let revision;
@@ -243,10 +243,13 @@ export class Uploader {
 					extension,
 				}
 			});
+			const contentId = content.id;
+			const revisionId = revision.id;
 
 			const uploader = new S3Uploader({
 				file,
 				key: revision.s3Key,
+				isMultipart: this.isMultipart,
 				signRequest: ({ file, key }) =>
 					this.apiClient.s3Sign.sign({
 						fileName: key,
@@ -260,7 +263,11 @@ export class Uploader {
 					if (upload) {
 						upload.progress = progress / 2;
 					}
-				}
+				},
+				abortMultipartUpload: async({uploadId}) => this.apiClient.content.abortMultipartUpload({uploadId, contentId, revisionId}),
+				batchSign: async({uploadId, numParts}) => this.apiClient.content.batchSign({uploadId, numParts, contentId, revisionId}),
+				completeMultipartUpload: async({uploadId, parts}) => this.apiClient.content.completeMultipartUpload({uploadId, parts, contentId, revisionId}),
+				createMultipartUpload: async() => this.apiClient.content.initializeMultipartUpload({contentId, revisionId})
 			});
 			await uploader.upload();
 			await this.apiClient.content.startWorkflow({

@@ -15,6 +15,7 @@ class D2LMediaWebRecordingDialog extends InternalLocalizeMixin(LitElement) {
 			canCaptureAudio: { type: Boolean, attribute: 'can-capture-audio' },
 			canUpload: { type: Boolean, attribute: 'can-upload' },
 			autoCaptionsEnabled: { type: Boolean, attribute: 'auto-captions-enabled' },
+			isMultipart: { type: Boolean, attribute: 'is-multipart' },
 			maxFileSizeInBytes: { type: Number, attribute: 'max-file-size' },
 			audioRecordingDurationLimit: { type: Number, attribute: 'audio-recording-duration-limit' },
 			videoRecordingDurationLimit: { type: Number, attribute: 'video-recording-duration-limit' },
@@ -51,6 +52,7 @@ class D2LMediaWebRecordingDialog extends InternalLocalizeMixin(LitElement) {
 							?can-capture-video=${this.canCaptureVideo}
 							?can-upload=${this.canUpload}
 							?auto-captions-enabled=${this.autoCaptionsEnabled}
+							?is-multipart=${this.isMultipart}
 							max-file-size=${this.maxFileSizeInBytes}
 							audio-recording-duration-limit=${this.audioRecordingDurationLimit}
 							video-recording-duration-limit=${this.videoRecordingDurationLimit}

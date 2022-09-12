@@ -1,11 +1,8 @@
 import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/switch/switch.js';
 
-import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
-import { ContentServiceApiClient } from '@d2l/content-service-shared-utils';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { InternalLocalizeMixin } from '../../../mixins/internal-localize-mixin';
-import { Uploader } from '../../../util/uploader';
 import RecordRTC from '../util/recordrtc';
 
 class D2LMediaWebRecordingRecorder extends InternalLocalizeMixin(LitElement) {
@@ -82,13 +79,6 @@ class D2LMediaWebRecordingRecorder extends InternalLocalizeMixin(LitElement) {
 
 	async connectedCallback() {
 		super.connectedCallback();
-		const apiClient = new ContentServiceApiClient({
-			httpClient: new ContentServiceBrowserHttpClient({ serviceUrl: this.contentServiceEndpoint }),
-			tenantId: this.tenantId
-		});
-		this._uploader = new Uploader({
-			apiClient
-		});
 		this._canRecord = this.canCaptureAudio || this.canCaptureVideo;
 		if (!this.canCaptureVideo && this.canCaptureAudio) {
 			this._audioOnly = true;
