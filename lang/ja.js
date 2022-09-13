@@ -192,7 +192,6 @@ export default {
 	"preview": "プレビュー",
 	"processing": "メディアファイルはまだ処理中です",
 	"publishWarning": "続行すると、LMS 全体でこのメディアファイルへのすべての参照に変更が反映されます。",
-	"record": "Record",
 	"recordAudio": "Record Audio",
 	"recordWebcam": "Record Webcam",
 	"recordWebcamUploadErrorTryAgain": "An unexpected error was encountered while uploading your video. Please try again.",

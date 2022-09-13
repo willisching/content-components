@@ -192,7 +192,6 @@ export default {
 	"preview": "Rhagolwg",
 	"processing": "Mae’r ffeil cyfryngau yn prosesu o hyd",
 	"publishWarning": "Os byddwch yn parhau, bydd pob cyfeiriad at y ffeil gyfryngau hon drwy'r LMS yn cael eich newidiadau.",
-	"record": "Record",
 	"recordAudio": "Record Audio",
 	"recordWebcam": "Record Webcam",
 	"recordWebcamUploadErrorTryAgain": "An unexpected error was encountered while uploading your video. Please try again.",

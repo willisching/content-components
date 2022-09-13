@@ -192,7 +192,6 @@ export default {
 	"preview": "미리 보기",
 	"processing": "미디어 파일이 아직 처리 중입니다",
 	"publishWarning": "계속 진행하면 이 미디어 파일에 대한 모든 참조를 LMS를 통해 변경할 수 있습니다.",
-	"record": "Record",
 	"recordAudio": "Record Audio",
 	"recordWebcam": "Record Webcam",
 	"recordWebcamUploadErrorTryAgain": "An unexpected error was encountered while uploading your video. Please try again.",

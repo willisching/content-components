@@ -192,7 +192,6 @@ export default {
 	"preview": "Visualizar",
 	"processing": "O arquivo de mídia ainda está sendo processado",
 	"publishWarning": "Se você continuar, todas as referências a este arquivo de mídia em todo o Sistema de gestão de aprendizagem receberão as alterações.",
-	"record": "Record",
 	"recordAudio": "Record Audio",
 	"recordWebcam": "Record Webcam",
 	"recordWebcamUploadErrorTryAgain": "An unexpected error was encountered while uploading your video. Please try again.",

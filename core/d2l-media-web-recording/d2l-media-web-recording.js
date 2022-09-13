@@ -396,7 +396,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 			sourceSelectorRecordStatus += '-locked';
 			sourceSelectorUploadStatus += '-locked';
 		}
-		const recordLangterm = this.canCaptureAudio ? (this.canCaptureVideo ? 'record' : 'recordAudio') : 'recordWebcamVideo';
+		const recordLangterm = this.canCaptureAudio ? (this.canCaptureVideo ? 'recordWebcam' : 'recordAudio') : 'recordWebcamVideo';
 
 		return html`
 			<div class="d2l-media-source-selector-container">

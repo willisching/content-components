@@ -192,7 +192,6 @@ export default {
 	"preview": "Voorbeeldweergave",
 	"processing": "Mediabestand wordt nog verwerkt",
 	"publishWarning": "Als u doorgaat, ontvangen alle verwijzingen naar dit mediabestand in het LMS uw wijzigingen.",
-	"record": "Record",
 	"recordAudio": "Record Audio",
 	"recordWebcam": "Record Webcam",
 	"recordWebcamUploadErrorTryAgain": "An unexpected error was encountered while uploading your video. Please try again.",

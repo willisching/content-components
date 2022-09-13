@@ -192,7 +192,6 @@ export default {
 	"preview": "Vista previa",
 	"processing": "El archivo multimedia aún se está procesando",
 	"publishWarning": "Si continúa, todas las referencias a este archivo multimedia en todo el LMS recibirán sus cambios.",
-	"record": "Record",
 	"recordAudio": "Record Audio",
 	"recordWebcam": "Record Webcam",
 	"recordWebcamUploadErrorTryAgain": "An unexpected error was encountered while uploading your video. Please try again.",

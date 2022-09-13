@@ -192,7 +192,6 @@ export default {
 	"preview": "Prévisualiser",
 	"processing": "Le fichier multimédia est toujours en cours de traitement",
 	"publishWarning": "Si vous continuez, vos modifications seront appliquées à toutes les références à ce fichier multimédia dans le Système de gestion d’apprentissage.",
-	"record": "Record",
 	"recordAudio": "Record Audio",
 	"recordWebcam": "Record Webcam",
 	"recordWebcamUploadErrorTryAgain": "An unexpected error was encountered while uploading your video. Please try again.",

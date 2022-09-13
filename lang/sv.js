@@ -192,7 +192,6 @@ export default {
 	"preview": "Förhandsgranskning",
 	"processing": "Mediefilen bearbetas fortfarande",
 	"publishWarning": "Om du fortsätter kommer alla referenser till den här mediefilen i hela LMS att uppdateras med dina ändringar.",
-	"record": "Record",
 	"recordAudio": "Record Audio",
 	"recordWebcam": "Record Webcam",
 	"recordWebcamUploadErrorTryAgain": "An unexpected error was encountered while uploading your video. Please try again.",

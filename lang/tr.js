@@ -192,7 +192,6 @@ export default {
 	"preview": "Ön İzle",
 	"processing": "Medya dosyası hala işleniyor",
 	"publishWarning": "Devam ederseniz Öğrenme Yönetim Sistemi kapsamındaki bu ortam dosyasına yapılan tüm referanslara değişiklikleriniz uygulanacaktır.",
-	"record": "Record",
 	"recordAudio": "Record Audio",
 	"recordWebcam": "Record Webcam",
 	"recordWebcamUploadErrorTryAgain": "An unexpected error was encountered while uploading your video. Please try again.",

@@ -192,7 +192,6 @@ export default {
 	"preview": "Prévisualiser",
 	"processing": "Fichier multimédia en cours de traitement",
 	"publishWarning": "Si vous poursuivez, toutes les références à ce dossier média dans le SGF recevront vos modifications.",
-	"record": "Record",
 	"recordAudio": "Record Audio",
 	"recordWebcam": "Record Webcam",
 	"recordWebcamUploadErrorTryAgain": "An unexpected error was encountered while uploading your video. Please try again.",

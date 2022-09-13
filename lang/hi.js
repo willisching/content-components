@@ -192,7 +192,6 @@ export default {
 	"preview": "पूर्वावलोकन",
 	"processing": "मीडिया फ़ाइल अभी भी संसाधित हो रही है",
 	"publishWarning": "यदि आप आगे बढ़ते हैं, तो पूरे LMS में इस मीडिया फ़ाइल के सभी संदर्भ आपके परिवर्तन प्राप्त करेंगे।",
-	"record": "Record",
 	"recordAudio": "Record Audio",
 	"recordWebcam": "Record Webcam",
 	"recordWebcamUploadErrorTryAgain": "An unexpected error was encountered while uploading your video. Please try again.",

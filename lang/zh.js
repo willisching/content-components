@@ -192,7 +192,6 @@ export default {
 	"preview": "预览",
 	"processing": "媒体文件仍在处理中",
 	"publishWarning": "如果您继续，在 LMS 中对该媒体文件的所有引用都将获得您的更改。",
-	"record": "Record",
 	"recordAudio": "Record Audio",
 	"recordWebcam": "Record Webcam",
 	"recordWebcamUploadErrorTryAgain": "An unexpected error was encountered while uploading your video. Please try again.",

@@ -192,7 +192,6 @@ export default {
 	"preview": "معاينة",
 	"processing": "لا يزال ملف الوسائط قيد المعالجة",
 	"publishWarning": "إذا تابعت، فستتلقى كل المراجع لملف الوسائط هذا في نظام إدارة التعلّم التغييرات التي أجريتها.",
-	"record": "Record",
 	"recordAudio": "Record Audio",
 	"recordWebcam": "Record Webcam",
 	"recordWebcamUploadErrorTryAgain": "An unexpected error was encountered while uploading your video. Please try again.",
