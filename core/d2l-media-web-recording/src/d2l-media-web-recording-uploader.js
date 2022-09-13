@@ -81,7 +81,7 @@ class D2LMediaWebRecordingUploader extends InternalLocalizeMixin(LitElement) {
 			const contentType = isAudioType(file.name) ? 'Audio' : 'Video';
 			if (file.size > this.maxFileSizeInBytes) {
 				this._localizedError = this.localize(
-					'mediaCaptureFileSizeError',
+					'recordWebcamFileSizeError',
 					{ localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes) }
 				);
 			} else if (
