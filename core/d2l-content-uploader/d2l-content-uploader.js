@@ -35,6 +35,7 @@ export class Main extends InternalLocalizeMixin(MobxReactionUpdate(LitElement)) 
 			shareUploadsWith: { type: Array, attribute: 'share-uploads-with' },
 			filename: { type: String, reflect: true },
 			value: { type: String, reflect: true },
+			isMultipart: { type: Boolean, attribute: 'is-multipart'},
 
 			_currentView: { type: Number, attribute: false },
 			_errorMessage: { type: String, attribute: false },
@@ -101,6 +102,7 @@ export class Main extends InternalLocalizeMixin(MobxReactionUpdate(LitElement)) 
 						@on-uploader-error=${this.changeView}
 						@on-uploader-success=${this.reactToUploaderSuccess}
 						@on-progress=${this.onProgress}
+						?is-multipart=${this.isMultipart}
 						videoAudioDisplay>
 					</d2l-drop-uploader>
 				` : html`<d2l-loading-spinner></d2l-loading-spinner>`;

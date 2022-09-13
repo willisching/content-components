@@ -15,6 +15,7 @@ class D2LMediaWebRecordingDialog extends InternalLocalizeMixin(LitElement) {
 			canCaptureAudio: { type: Boolean, attribute: 'can-capture-audio' },
 			canUpload: { type: Boolean, attribute: 'can-upload' },
 			autoCaptionsEnabled: { type: Boolean, attribute: 'auto-captions-enabled' },
+			isMultipart: { type: Boolean, attribute: 'is-multipart' },
 			maxFileSizeInBytes: { type: Number, attribute: 'max-file-size' },
 			audioRecordingDurationLimit: { type: Number, attribute: 'audio-recording-duration-limit' },
 			videoRecordingDurationLimit: { type: Number, attribute: 'video-recording-duration-limit' },
@@ -51,13 +52,15 @@ class D2LMediaWebRecordingDialog extends InternalLocalizeMixin(LitElement) {
 							?can-capture-video=${this.canCaptureVideo}
 							?can-upload=${this.canUpload}
 							?auto-captions-enabled=${this.autoCaptionsEnabled}
+							?is-multipart=${this.isMultipart}
 							max-file-size=${this.maxFileSizeInBytes}
 							audio-recording-duration-limit=${this.audioRecordingDurationLimit}
 							video-recording-duration-limit=${this.videoRecordingDurationLimit}
 							@user-media-loaded=${this._handleUserMediaLoaded}
 							@capture-clip-completed=${this._enablePrimaryButton}
 							@file-selected=${this._enablePrimaryButton}
-							@capture-started=${this._handleCaptureStartedEvent}
+							@capture-started=${this._disablePrimaryButton}
+							@file-selection-error=${this._disablePrimaryButton}
 							@metadata-input=${this._handleMetadataInputChangedEvent}
 							@upload-success=${this._handleUploadSuccess}
 							@processing-started=${this._handleProcessingStarted}
@@ -94,12 +97,12 @@ class D2LMediaWebRecordingDialog extends InternalLocalizeMixin(LitElement) {
 		this.shadowRoot.getElementById('media-web-recording-dialog').open();
 	}
 
-	_enablePrimaryButton() {
-		this._primaryButtonDisabled = false;
+	_disablePrimaryButton() {
+		this._primaryButtonDisabled = true;
 	}
 
-	_handleCaptureStartedEvent() {
-		this._primaryButtonDisabled = true;
+	_enablePrimaryButton() {
+		this._primaryButtonDisabled = false;
 	}
 
 	_handleMetadataInputChangedEvent(event) {
@@ -143,6 +146,7 @@ class D2LMediaWebRecordingDialog extends InternalLocalizeMixin(LitElement) {
 
 	_showRecordOrUploadView() {
 		this._mediaWebRecorder.showRecordOrUploadView();
+		this._fileUploaded = false;
 		this._isRecordOrUploadView = true;
 		this._primaryButtonDisabled = true;
 	}

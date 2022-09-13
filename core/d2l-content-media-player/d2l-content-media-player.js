@@ -24,6 +24,9 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 			_poster: { type: String, attribute: false },
 			_thumbnails: { type: String, attribute: false },
 			_playbackSupported: { type: Boolean, attribute: false },
+			_transcriptViewerOn: { type: Boolean, attribute: false },
+			_currentTime: {type: Object, attribute: false},
+			_activeCue: {type: Object, attribute: false},
 			allowDownload: { type: Boolean, attribute: 'allow-download'},
 			allowDownloadOnError: { type: Boolean, attribute: 'allow-download-on-error' },
 			framed: { type: Boolean, value: false }
@@ -41,6 +44,31 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 			#player {
 				width: 100%;
 			}
+			.transcript-cue-container {
+				padding-left: 10px;
+			}
+			.transcript-cue {
+				padding-left: 5px;
+			}
+			#transcript-viewer {
+				position: absolute;
+				top: 40px;
+				right: 0px;
+				z-index: 1;
+				height: 75%;
+				overflow-y: auto;
+			}
+			#close-transcript {
+				position: absolute;
+				top: 0px;
+				right: 7px;
+				z-index: 1;
+			}
+			#transcript-download-button {
+				position: absolute;
+				top: 0px;
+				z-index: 2;
+			}
 		`;
 	}
 
@@ -55,6 +83,23 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 		this._attemptedReloadOnError = false;
 		this._playbackSupported = false;
 		this._bestFormat = null;
+		this._transcriptViewerOn = false;
+		this._mediaPlayer = null;
+		this._activeCue = null;
+		this._currentTime = null;
+		this._video = null;
+		this._media = null;
+		this._transcriptViewerMenuItem = null;
+		this._transcriptViewerEnabled = false;
+	}
+
+	async firstUpdated() {
+		this._mediaPlayer = this.shadowRoot?.querySelector('#player');
+		this._video = this._mediaPlayer?.shadowRoot?.querySelector('#d2l-labs-media-player-video');
+		if (!this._video) {
+			this._audio = this._mediaPlayer?.shadowRoot?.querySelector('#d2l-labs-media-player-audio');
+		}
+		this._media = this._video ?? this._audio;
 	}
 
 	render() {
@@ -68,6 +113,7 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 				metadata=${ifDefined(this._metadata ? this._metadata : undefined)}
 				poster=${ifDefined(this._poster ? this._poster : undefined)}
 				thumbnails=${ifDefined(this._thumbnails ? this._thumbnails : undefined)}
+				@cuechange="${this._transcriptViewerOn ? this._handleCueChange : undefined}"
 				@error=${this._onError}
 				@loadeddata=${this._onLoadedData}
 				@trackloadfailed=${this._onTrackLoadFailed}
@@ -75,7 +121,11 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 				?allow-download-on-error=${this.allowDownloadOnError}>
 				${this._mediaSources.map(mediaSource => this._renderMediaSource(mediaSource))}
 				${this._captionSignedUrls.map(captionSignedUrl => this._renderCaptionsTrack(captionSignedUrl))}
+				${this._captionSignedUrls.length > 0 && this._transcriptViewerEnabled ? html`
+				<d2l-menu-item slot='settings-menu-item' id='transcript-viewer-menu-item' text=${this._transcriptViewerOn ? this.localize('hideTranscript') : this.localize('viewTranscript')}>
+				</d2l-menu-item>` : ''}
 				${this.allowDownload ? html`<d2l-menu-item slot='settings-menu-item' id='download-menu-item' text=${this.localize('download')}></d2l-menu-item>` : ''}
+				${this._transcriptViewerOn ? this._renderTranscriptViewer() : ''}
 			</d2l-labs-media-player>
 			`;
 		}
@@ -108,6 +158,10 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 
 				this._verifyContentType(this._revision.type);
 
+				if (await this._getTranscript()) {
+					this._transcriptViewerEnabled = true;
+				}
+
 				await this._setupAfterRevisionReady();
 			}
 		}
@@ -139,6 +193,37 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 			anchor.download = '';
 			anchor.click();
 		}
+	}
+
+	async _downloadCaptions() {
+		this._downloadUrl(await this._getCaptions());
+	}
+
+	async _downloadTranscript() {
+		this._downloadUrl(await this._getTranscript());
+	}
+
+	_downloadUrl(url) {
+		const anchor = document.createElement('a');
+		anchor.href = url.value;
+		anchor.download = '';
+		anchor.target = '_blank';
+		anchor.click();
+	}
+
+	async _getCaptions() {
+		const locale = this._mediaPlayer?.locale || getDocumentLocaleSettings()._language
+			|| getDocumentLocaleSettings()._fallbackLanguage;
+		const url = await this._getResource({
+			resource: 'captions',
+			outputFormat: 'signed-url',
+			query: {
+				locale,
+				disposition: 'attachment',
+
+			}
+		});
+		return url;
 	}
 
 	async _getMediaSource(format) {
@@ -174,6 +259,29 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 		return result;
 	}
 
+	async _getTranscript() {
+		const locale = this._mediaPlayer?.locale || getDocumentLocaleSettings()._language
+			|| getDocumentLocaleSettings()._fallbackLanguage;
+		const url = await this._getResource({
+			resource: 'transcript',
+			outputFormat: 'signed-url',
+			query: {
+				locale,
+				disposition: 'attachment',
+			}
+		});
+		return url;
+	}
+
+	async _handleCueChange() {
+		await this._mediaPlayer.requestUpdate();
+		this._manageTracksVisibility();
+
+		this._activeCue = this._mediaPlayer.activeCue;
+		const cue = this._mediaPlayer?.querySelector('#transcript-viewer')?.querySelector('#transcript-viewer-active-cue');
+		cue?.scrollIntoView({behavior: 'smooth', block: 'center', inline: 'nearest'});
+	}
+
 	async _loadCaptions() {
 		clearTimeout(this._trackErrorFetchTimeoutId);
 		this._trackErrorFetchTimeoutId = null;
@@ -192,6 +300,8 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 			this._captionSignedUrls = captionSignedUrls;
 			this._captionsSignedUrlExpireTime = ((this._captionSignedUrls.length && this._captionSignedUrls[0].expireTime) || 0) * 1000;
 			this.requestUpdate();
+			await this.updateComplete;
+			this._setupTranscriptViewer();
 		}
 	}
 
@@ -239,6 +349,31 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 		if (result) this._thumbnails = result.value;
 	}
 
+	_manageAudioBarsVisibility() {
+		const mediaContainer = this._audio?.parentElement;
+		const audioBars = mediaContainer?.querySelector('#d2l-labs-media-player-audio-bars-container');
+		if (!audioBars) {
+			return;
+		}
+		if (this._transcriptViewerOn) {
+			audioBars.style.display = 'none';
+		} else {
+			audioBars.style = undefined;
+		}
+	}
+
+	_manageTracksVisibility() {
+		const trackContainer = this._mediaPlayer?.shadowRoot?.querySelector('#d2l-labs-media-player-track-container');
+		if (!trackContainer) {
+			return;
+		}
+		if (this._transcriptViewerOn) {
+			trackContainer.style.display = 'none';
+		} else {
+			trackContainer.style = undefined;
+		}
+	}
+
 	_onError() {
 		if (this._mediaSources && this._mediaSources.length > 0 && !this._attemptedReloadOnError) {
 			this._attemptedReloadOnError = true;
@@ -273,6 +408,16 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 		}
 	}
 
+	_onTranscriptButtonClick() {
+		this._transcriptViewerOn = !this._transcriptViewerOn;
+		this._scaleTranscriptViewerVideo();
+		if (!this._transcriptViewerOn) {
+			this._loadCaptions();
+		}
+		this._manageTracksVisibility();
+		if (this._audio) this._manageAudioBarsVisibility();
+	}
+
 	_renderCaptionsTrack(captionsUrl) {
 		return html`<track src="${captionsUrl.value}" kind="captions" label="${captionsUrl.locale}" srclang=${captionsUrl.locale}>`;
 	}
@@ -281,10 +426,102 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 		return html`<source src=${source.src} label=${this.localize(`format${!source.format ? 'Source' : source.format.toUpperCase()}`)} ?default=${source.format === this._bestFormat}>`;
 	}
 
+	_renderTranscriptViewer() {
+		if (!this._mediaPlayer) {
+			this.firstUpdated();
+		}
+
+		let cues = null;
+		for (let i = 0; i < this._mediaPlayer.textTracks.length; i += 1) {
+			cues = this._mediaPlayer.textTracks[i]?.cues;
+			if (cues) {
+				this._activeCue = this._mediaPlayer.textTracks[i]?.activeCues?.[0];
+				break;
+			}
+		}
+
+		if (!cues) {
+			return;
+		}
+
+		const beforeCaptions = [];
+		const afterCaptions = [];
+		for (let i = 0; i < cues.length; i += 1) {
+			const currCue = cues[i];
+			const currTime = this._media?.currentTime;
+			if (currCue.endTime < currTime) {
+				beforeCaptions.push(currCue);
+			} else if (currCue.startTime > currTime) {
+				afterCaptions.push(currCue);
+			}
+		}
+		const captionsToHtml = (item) => {
+			const updateTime = () => this._mediaPlayer.currentTime = item.startTime;
+			return html`
+			<div class="transcript-cue" @click=${updateTime}>
+				${item.text}<br>
+			</div>`;
+		};
+
+		const textColour = this._video ? 'white' : 'black';
+		return html`
+			<span id="close-transcript"
+			@click=${this._onTranscriptButtonClick}>
+			<d2l-icon class="d2l-button-icon" icon="tier1:close-small" style="color: ${textColour};"></d2l-icon>
+			</span>
+
+			<d2l-dropdown-button-subtle id="transcript-download-button" text="${this.localize('download')}"
+			style="left: ${this._video ? '35%' : '0px'};">
+				<d2l-dropdown-menu id="dropdown">
+					<d2l-menu>
+							<d2l-menu-item @click=${this._downloadTranscript} text="${this.localize('transcriptTxt')}"></d2l-menu-item>
+							<d2l-menu-item @click=${this._downloadCaptions} text="${this.localize('captionsVtt')}"></d2l-menu-item>
+					</d2l-menu>
+				</d2l-dropdown-menu>
+			</d2l-dropdown-button-subtle>
+			<div
+			id="transcript-viewer"
+			style="width: ${this._video ? '65%' : '100%'}; color: ${textColour};"
+			>
+			<div class="transcript-cue-container">
+				${beforeCaptions.map(captionsToHtml)}
+				<div class="transcript-cue"
+				style="background-color: ${this._video ? 'gray' : 'lightgray'}; box-shadow: -5px 0px 0px ${textColour};"
+				id="transcript-viewer-active-cue">
+					${this._activeCue?.text}
+				</div>
+				${afterCaptions.map(captionsToHtml)}
+			</div>
+			</div>
+		`;
+	}
+
+	async _scaleTranscriptViewerVideo() {
+		if (!this._mediaPlayer) {
+			await this.firstUpdated();
+		}
+		if (!this._video) {
+			return;
+		}
+		if (this._transcriptViewerOn) {
+			this._video.style.position = 'absolute';
+			this._video.style.height = '30%';
+			this._video.style.width = '30%';
+			this._video.style.minHeight = '30%';
+			this._video.style.top = '0px';
+			this._video.style.left = '0px';
+		} else {
+			this._video.style = undefined;
+			this.requestUpdate();
+		}
+	}
+
 	async _setupAfterRevisionReady() {
 		await this.reloadResources(false);
 		this._setupDownload();
+		this._setupTranscriptViewer();
 		this._loadLocale();
+		await this._getTranscript();
 	}
 
 	_setupDownload() {
@@ -293,6 +530,14 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 			if (downloadMenuItem) {
 				downloadMenuItem.addEventListener('d2l-menu-item-select', this._download.bind(this));
 			}
+		}
+	}
+
+	_setupTranscriptViewer() {
+		const transcriptViewerMenuItem = this.shadowRoot.querySelector('#transcript-viewer-menu-item');
+		if (transcriptViewerMenuItem && this._transcriptViewerMenuItem !== transcriptViewerMenuItem) {
+			transcriptViewerMenuItem.addEventListener('d2l-menu-item-select', this._onTranscriptButtonClick.bind(this));
+			this._transcriptViewerMenuItem = transcriptViewerMenuItem;
 		}
 	}
 

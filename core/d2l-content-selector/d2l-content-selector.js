@@ -48,6 +48,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 			canManageAllObjects: { type: Boolean, attribute: 'can-manage-all-objects' },
 			canManageSharedObjects: { type: Boolean, attribute: 'can-manage-shared-objects' },
 			userId: { type: String, attribute: 'user-id' },
+			isMultipart: { type: Boolean, attribute: 'is-multipart' },
 
 			_addButtonDisabled: { type: Boolean },
 			_contentId: { type: String },
@@ -221,6 +222,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 								?allowAsyncProcessing=${ALLOW_ASYNC}
 								existing-content-id=${this._contentId}
 								error-message=${this._errorMessage}
+								?is-multipart=${this.isMultipart}
 								max-file-size=${this.maxFileUploadSize}
 								sharing-org-unit-id=${this.context}
 								.shareUploadsWith=${this._shareUploadsWith}

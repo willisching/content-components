@@ -34,6 +34,7 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 			canAccessCreatorPlus: { type: Boolean, attribute: 'can-access-creator-plus' },
 			canManageAllObjects: { type: Boolean, attribute: 'can-manage-all-objects' },
 			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
+			isMultipart: { type: Boolean, attribute: 'is-multipart' },
 			tenantId: { type: String, attribute: 'tenant-id' },
 			_errorMessage: { type: String, attribute: false },
 			_loading: { type: Boolean, attribute: false },
@@ -211,11 +212,12 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 							id="media-web-recording-dialog"
 							tenant-id="${this.tenantId}"
 							content-service-endpoint="${this.contentServiceEndpoint}"
-							client-app="LmsCapture"
+							client-app="VideoNote"
 							audio-recording-duration-limit="${this._audioRecordingDurationLimit}"
 							video-recording-duration-limit="${this._videoRecordingDurationLimit}"
 							can-capture-video
 							can-capture-audio
+							?is-multipart=${this.isMultipart}
 							?auto-captions-enabled=${this._autoCaptionsEnabled}
 							@processing-started="${this._handleRecordingProcessingStarted}"
 						></d2l-media-web-recording-dialog>` : ''}

@@ -17,7 +17,6 @@ const VIEW = Object.freeze({
 	ERROR: 'ERROR',
 });
 const AUDIO = 'Audio';
-const VIDEO_NOTE = 'VideoNote';
 
 class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
@@ -32,6 +31,8 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 			maxFileSizeInBytes: { type: Number, attribute: 'max-file-size' },
 			audioRecordingDurationLimit: { type: Number, attribute: 'audio-recording-duration-limit' },
 			videoRecordingDurationLimit: { type: Number, attribute: 'video-recording-duration-limit' },
+			isMediaPlatform: { type: Boolean, attribute: 'is-media-platform' },
+			isMultipart: { type: Boolean, attribute: 'is-multipart' },
 			_currentView: { type: Number, attribute: false },
 			_sourceSelectorLocked: { type: Boolean, attribute: false },
 			_isRecording: { type: Boolean, attribute: false }
@@ -141,6 +142,8 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 						<d2l-media-web-recording-recorder
 							?can-capture-audio=${this._canRecord && this.canCaptureAudio}
 							?can-capture-video=${this._canRecord && this.canCaptureVideo}
+							?is-media-platform=${this.isMediaPlatform}
+							?is-multipart=${this.isMultipart}
 							audio-recording-duration-limit=${this.audioRecordingDurationLimit}
 							video-recording-duration-limit=${this.videoRecordingDurationLimit}
 							@capture-started=${this._handleCaptureStarted}
@@ -155,6 +158,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 							?can-upload-video=${this.canCaptureVideo}
 							max-file-size=${this.maxFileSizeInBytes}
 							@file-selected=${this._handleFileSelected}
+							@file-selection-error=${this._handleFileSelectionError}
 						>
 						</d2l-media-web-recording-uploader>
 					`;
@@ -168,7 +172,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 				view = html`
 					<d2l-media-web-recording-metadata
 						?is-audio=${this._contentType === AUDIO}
-						client-app=${this.clientApp}
+						?is-media-platform=${this.isMediaPlatform}
 						?auto-captions-enabled=${this.autoCaptionsEnabled}
 					>
 					</d2l-media-web-recording-metadata>
@@ -221,7 +225,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 			}));
 		};
 		try {
-			if (this.clientApp === VIDEO_NOTE) {
+			if (this.isMediaPlatform) {
 				const callback = (rpcResponse) => {
 					if (rpcResponse.GetResponseType() === D2L.Rpc.ResponseType.Success) {
 						dispatchProcessingStarted();
@@ -299,7 +303,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 		};
 
 		try {
-			if (this.clientApp === VIDEO_NOTE) {
+			if (this.isMediaPlatform) {
 				this._uploadVideoNote(1, onUploadSuccess);
 			} else {
 				this._contentId = (await this.apiClient.content.postItem({
@@ -308,19 +312,29 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 				const revision = await this.apiClient.content.createRevision({
 					id: this._contentId,
 					properties: {
-						extension: getExtension(this._file.name)
+						extension: getExtension(this._file.name),
+						...(this._contentType !== AUDIO && { formats: ['sd'] })
 					}
 				});
 				this._revisionId = revision.id;
+
+				const contentId = this._contentId;
+				const revisionId = revision.id;
+
 				const s3Uploader = new S3Uploader({
 					file: this._file,
 					key: revision.s3Key,
+					isMultipart: this.isMultipart,
 					signRequest: ({ key }) =>
 						this.apiClient.s3Sign.sign({
 							fileName: key,
 							contentType: this._contentType,
 							contentDisposition: 'auto',
-						})
+						}),
+					abortMultipartUpload: async({uploadId}) => this.apiClient.content.abortMultipartUpload({uploadId, contentId, revisionId}),
+					batchSign: async({uploadId, numParts}) => this.apiClient.content.batchSign({uploadId, numParts, contentId, revisionId}),
+					completeMultipartUpload: async({uploadId, parts}) => this.apiClient.content.completeMultipartUpload({uploadId, parts, contentId, revisionId}),
+					createMultipartUpload: async() => this.apiClient.content.initializeMultipartUpload({contentId, revisionId})
 				});
 				await s3Uploader.upload();
 				onUploadSuccess();
@@ -360,6 +374,10 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 		this._sourceSelectorLocked = true;
 	}
 
+	_handleFileSelectionError() {
+		this._file = null;
+	}
+
 	_handleSourceSelectorClick(isRecording) {
 		return () => {
 			if (!this._sourceSelectorLocked) {
@@ -387,6 +405,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 					title="${this.localize(recordLangterm)}"
 					class="d2l-media-web-recording-source-selector d2l-media-web-recording-source-selector-${sourceSelectorRecordStatus}"
 					@click=${this._handleSourceSelectorClick(true)}
+					href="javascript://"
 					tabindex=0
 				>
 					${this.localize(recordLangterm)}
@@ -396,6 +415,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 					title="${this.localize('uploadFile')}"
 					class="d2l-media-web-recording-source-selector d2l-media-web-recording-source-selector-${sourceSelectorUploadStatus}"
 					@click=${this._handleSourceSelectorClick(false)}
+					href="javascript://"
 					tabindex=0
 				>
 					${this.localize('uploadFile')}
