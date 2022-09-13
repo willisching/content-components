@@ -281,7 +281,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 	async uploadSelectedFile() {
 		if (!this._file) {
 			this._currentView = VIEW.ERROR;
-			this._error = 'mediaCaptureUploadErrorTryAgain';
+			this._error = 'recordWebcamUploadErrorTryAgain';
 			return;
 		}
 		this._currentView = VIEW.PROGRESS;
@@ -350,7 +350,7 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 		if (error && (error.cause === 503 || error.DataCapsExceeded)) {
 			this._error = 'workerErrorAVCapsExceeded';
 		} else {
-			this._error = 'mediaCaptureUploadErrorTryAgain';
+			this._error = 'recordWebcamUploadErrorTryAgain';
 		}
 	}
 
