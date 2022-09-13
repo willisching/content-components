@@ -20,6 +20,7 @@ export class Uploader {
 		this.onUploadFinish = onUploadFinish ? onUploadFinish : onSuccess;
 		this.isMultipart = isMultipart;
 		this.maxAttempts = 10;
+		this.fileTable = {};
 
 		this.uploadFile = flow((function * (file, title, fileType, totalFiles = 1) {
 			/* eslint-disable no-invalid-this */
@@ -29,9 +30,21 @@ export class Uploader {
 		}));
 	}
 
-	async cancelUpload(content, s3Uploader) {
-		await s3Uploader.abort();
-		await this.apiClient.content.deleteItem({ id: content.id });
+	async cancelUpload() {
+		for (const fileRecord in this.fileTable) {
+			const file = this.fileTable[fileRecord];
+			await file['s3Uploader'].abort();
+			// delete content if new upload, or only revision if new version upload
+			this.deleteContentOrRevision(file['content'], file['revision']);
+		}
+	}
+
+	async deleteContentOrRevision(content, revision) {
+		if (this.existingContentId) {
+			await this.apiClient.content.deleteRevision({ id: content.id, revisionTag: revision.id });
+		} else {
+			await this.apiClient.content.deleteItem({ id: content.id });
+		}
 	}
 
 	reset() {
@@ -70,15 +83,15 @@ export class Uploader {
 			}
 
 			if (progress.didFail) {
-				// undo changes to properties by deleting revision
-				await this.apiClient.content.deleteRevision({ id: content.id, revisionTag: revision.id });
+				// undo changes to properties by deleting revision or content if new upload
+				await this.deleteContentOrRevision(content, revision);
 				const workerErrorType = resolveWorkerError(JSON.parse(progress.details), content.type);
 				this._handleError(lastProgressPosition, workerErrorType, title);
 				return;
 			}
 		} catch (error) {
 			if (attempts > this.maxAttempts) {
-				await this.apiClient.content.deleteRevision({ id: content.id, revisionTag: revision.id });
+				await this.deleteContentOrRevision(content, revision);
 				this._handleError(lastProgressPosition, resolveWorkerError(error, content.type), title);
 				return;
 			}
@@ -142,6 +155,9 @@ export class Uploader {
 				completeMultipartUpload: async({uploadId, parts}) => this.apiClient.content.completeMultipartUpload({uploadId, parts, contentId, revisionId}),
 				createMultipartUpload: async() => this.apiClient.content.initializeMultipartUpload({contentId, revisionId})
 			});
+			this.fileTable[file.name] = {
+				content, revision, s3Uploader,
+			};
 			await s3Uploader.upload();
 			await this.apiClient.content.startWorkflow({
 				id: content.id,
@@ -158,6 +174,9 @@ export class Uploader {
 				// delete previous attempt if any, and try again
 				if (revision) {
 					await this.apiClient.content.deleteRevision({ id: content.id, revisionTag: revision.id });
+				}
+				if (!this.existingContentId) {
+					await this.apiClient.content.deleteItem({ id: content.id });
 				}
 				await sleep(randomizeDelay(5000, 1000));
 				await this._uploadWorkflowAsync(file, title, attempts + 1);

@@ -178,7 +178,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 								?disabled=${this._nextButtonSettingsDisabled}
 							>${this.localize('next')}</d2l-button>
 							<d2l-button
-								@click="${this._handleCancel}"
+								@click="${this._handleCancel()}"
 								description=${this.localize('cancel')}
 							>${this.localize('cancel')}</d2l-button>
 						</div>
@@ -302,7 +302,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 							>${this.localize('back')}</d2l-button>
 							<d2l-button
 								description=${this.localize('cancel')}
-								@click=${this._handleCancel}
+								@click=${this._handleCancel(true)}
 							>${this.localize('cancel')}</d2l-button>
 						</div>
 					</div>
@@ -354,6 +354,10 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		this._fileName = event.detail.fileName;
 		this._selectedView = VIEW[event.detail.view];
 		this._errorMessage = event.detail.errorMessage;
+		// keep a reference to the uploader so that can call to cancel uploads
+		if (this._dropUploader) {
+			this.uploader = this._dropUploader;
+		}
 	}
 
 	editBulkProperties() {
@@ -430,6 +434,10 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		return this.shadowRoot.querySelector('d2l-content-properties');
 	}
 
+	get _dropUploader() {
+		return this.shadowRoot.querySelector('d2l-drop-uploader');
+	}
+
 	_enableNextButton() {
 		this._nextButtonSettingsDisabled = false;
 	}
@@ -462,8 +470,13 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		this.requestUpdate();
 	}
 
-	_handleCancel() {
-		this.dispatchEvent(new CustomEvent('cancel'));
+	_handleCancel(cancelUpload = false) {
+		return () => {
+			if (cancelUpload) {
+				this.uploader.cancelUpload();
+			}
+			this.dispatchEvent(new CustomEvent('cancel'));
+		};
 	}
 
 	_handleListEditProperties({ detail: { selectedItem } }) {
@@ -565,7 +578,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 				>${this._uploadSuccessFiles === 0 ? this.localize('back') : this.localize('continue')}</d2l-button>
 				<d2l-button
 					description=${this.localize('cancel')}
-					@click=${this._handleCancel}
+					@click=${this._handleCancel()}
 				>${this.localize('cancel')}</d2l-button>
 			</div>
 		`;

@@ -189,6 +189,12 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 		}
 	}
 
+	cancelUpload() {
+		// clear pending queue before cancelling active uploads
+		this.uploadQueue = [];
+		this.uploader.cancelUpload();
+	}
+
 	onBrowseClick() {
 		this.shadowRoot.querySelector('#file-select').click();
 	}
