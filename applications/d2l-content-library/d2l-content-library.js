@@ -87,7 +87,7 @@ class D2lContentLibrary extends DependencyProvider(LitElement) {
 				class="d2l-body-standard"
 				?can-manage-all-objects="${this.canManageAllObjects}"
 				?can-transfer-ownership="${this.canTransferOwnership}"
-				?can-access-capture="${true}"
+				?can-access-capture="${this.canAccessCapture}"
 				?is-multipart=${this.isMultipart}
 				tenant-id="${this.tenantId}"
 			></d2l-content-library-app>`;
