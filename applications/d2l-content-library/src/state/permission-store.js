@@ -7,8 +7,8 @@ export class PermissionStore {
 		this.permissions = {};
 	}
 
-	getCanAccessContentLibrary() {
-		return this.permissions.canAccessContentLibrary === 'true';
+	getCanAccessCapture() {
+		return this.permissions.canAccessCapture === 'true';
 	}
 
 	getCanManageAllObjects() {

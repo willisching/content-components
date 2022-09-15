@@ -19,6 +19,7 @@ class D2lContentLibrary extends DependencyProvider(LitElement) {
 			isMultipart: { type: Boolean, attribute: 'is-multipart' },
 			tenantId: { type: String, attribute: 'tenant-id' },
 			canRecord: { type: Boolean, attribute: 'can-record' },
+			canAccessCapture: { type: Boolean, attribute: 'can-access-capture' },
 			videoRecordingDurationLimit: { type: Number, attribute: 'video-recording-duration-limit' },
 			audioRecordingDurationLimit: { type: Number, attribute: 'audio-recording-duration-limit' },
 			autoCaptionsEnabled: { type: Boolean, attribute: 'auto-captions-enabled' }
@@ -50,6 +51,7 @@ class D2lContentLibrary extends DependencyProvider(LitElement) {
 		this.provideDependency('content-service-endpoint', this.contentServiceEndpoint);
 		this.provideDependency('tenant-id', this.tenantId);
 		this.provideDependency('can-record', this.canRecord);
+		this.provideDependency('can-access-capture', this.canAccessCapture);
 		this.provideDependency('video-recording-duration-limit', this.videoRecordingDurationLimit);
 		this.provideDependency('audio-recording-duration-limit', this.audioRecordingDurationLimit);
 		this.provideDependency('auto-captions-enabled', this.autoCaptionsEnabled);
@@ -85,6 +87,7 @@ class D2lContentLibrary extends DependencyProvider(LitElement) {
 				class="d2l-body-standard"
 				?can-manage-all-objects="${this.canManageAllObjects}"
 				?can-transfer-ownership="${this.canTransferOwnership}"
+				?can-access-capture="${true}"
 				?is-multipart=${this.isMultipart}
 				tenant-id="${this.tenantId}"
 			></d2l-content-library-app>`;
