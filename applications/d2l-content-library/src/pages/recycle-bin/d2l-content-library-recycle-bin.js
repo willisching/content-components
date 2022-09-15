@@ -132,7 +132,7 @@ class D2LContentLibraryRecycleBin extends contentSearchMixin(DependencyRequester
 
 		this._navigate('/recycle-bin', {
 			...queryParams,
-			searchQuery: value
+			searchQuery: value,
 		});
 	}
 }

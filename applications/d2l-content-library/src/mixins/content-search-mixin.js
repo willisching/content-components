@@ -2,9 +2,7 @@ import { formatDate } from '@brightspace-ui/intl/lib/dateTime.js';
 
 import { dateFilterToSearchQuery } from '../util/date-filter.js';
 import { getTimeZoneOrTimeZoneOffset } from '../util/date-time.js';
-
-const CONTENT_TYPES = ['Audio', 'Video'];
-const CLIENT_APPS = ['LOR', 'Portfolio', 'LmsContent', 'LmsCourseImport', 'LmsCapture', 'Capture', 'VideoNote', 'none'];
+import { CLIENT_APPS, CONTENT_TYPES } from '../util/constants.js';
 
 export const contentSearchMixin = superClass => class extends superClass {
 	static get properties() {

@@ -13,11 +13,15 @@ import { labelStyles } from '@brightspace-ui/core/components/typography/styles.j
 import { rootStore } from '../state/root-store.js';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';
+import { CLIENT_APPS, CONTENT_TYPES } from '../util/constants.js';
 
-const CONTENT_TYPES = ['Audio', 'Video'];
-const CLIENT_APPS = ['LmsContent', 'LmsCapture', 'VideoNote', 'Capture', 'LmsCourseImport', 'LOR', 'Portfolio', 'none'];
-const CONTENT_TYPE_KEY = 'contentTypes';
-const CLIENT_APP_KEY = 'clientApps';
+const FILTER_KEYS = Object.freeze({
+	OWNERSHIP: 'ownership',
+	CONTENT_TYPES: 'contentTypes',
+	CLIENT_APPS: 'clientApps',
+	DATE_MODIFIED: 'dateModified',
+	DATE_CREATED: 'dateCreated'
+});
 
 class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
@@ -83,24 +87,24 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 			return html`
 				<d2l-filter @d2l-filter-change=${this._handleD2lFilterChange}>
 					${this._canManageAllObjects ? html`
-						<d2l-filter-dimension-set key="ownership" text=${this.localize('ownership')} search-type="none" selection-single>
-							${this._renderFilterDimensionSetValues('ownership', ['myMedia', 'everyonesMedia'])}
+						<d2l-filter-dimension-set key="${FILTER_KEYS.OWNERSHIP}" text=${this.localize(FILTER_KEYS.OWNERSHIP)} search-type="none" selection-single>
+							${this._renderFilterDimensionSetValues(FILTER_KEYS.OWNERSHIP, ['myMedia', 'everyonesMedia'])}
 						</d2l-filter-dimension-set>` : ''}
-					<d2l-filter-dimension-set key="${CONTENT_TYPE_KEY}" text="${this.localize('contentType')}" search-type="none" select-all>
-						${this._renderFilterDimensionSetValues(CONTENT_TYPE_KEY, CONTENT_TYPES)}
+					<d2l-filter-dimension-set key="${FILTER_KEYS.CONTENT_TYPES}" text="${this.localize('contentType')}" search-type="none" select-all>
+						${this._renderFilterDimensionSetValues(FILTER_KEYS.CONTENT_TYPES, CONTENT_TYPES)}
 					</d2l-filter-dimension-set>
-					<d2l-filter-dimension-set key="${CLIENT_APP_KEY}" text="${this.localize('clientApp')}" select-all>
-						${this._renderFilterDimensionSetValues(CLIENT_APP_KEY, CLIENT_APPS)}
+					<d2l-filter-dimension-set key="${FILTER_KEYS.CLIENT_APPS}" text="${this.localize('clientApp')}" select-all>
+						${this._renderFilterDimensionSetValues(FILTER_KEYS.CLIENT_APPS, CLIENT_APPS)}
 					</d2l-filter-dimension-set>
 					<d2l-filter-dimension-set
-						key="dateModified"
-						text="${this.deleted ? this.localize('dateDeleted') : this.localize('dateModified')}"
+						key="${FILTER_KEYS.DATE_MODIFIED}"
+						text="${this.deleted ? this.localize('dateDeleted') : this.localize(FILTER_KEYS.DATE_MODIFIED)}"
 						search-type="none"
 						selection-single
-					>${this._renderFilterDimensionSetValues('dateModified', dateFilters)}
+					>${this._renderFilterDimensionSetValues(FILTER_KEYS.DATE_MODIFIED, dateFilters)}
 					</d2l-filter-dimension-set>
-					<d2l-filter-dimension-set key="dateCreated" text="${this.localize('dateCreated')}" search-type="none" selection-single>
-						${this._renderFilterDimensionSetValues('dateCreated', dateFilters)}
+					<d2l-filter-dimension-set key="${FILTER_KEYS.DATE_CREATED}" text="${this.localize(FILTER_KEYS.DATE_CREATED)}" search-type="none" selection-single>
+						${this._renderFilterDimensionSetValues(FILTER_KEYS.DATE_CREATED, dateFilters)}
 					</d2l-filter-dimension-set>
 				</d2l-filter>
 			`;
@@ -223,7 +227,7 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 		} else if (dimensions.length > 0) {
 			dimensions.forEach(dimension => {
 				const { changes, cleared, dimensionKey } = dimension;
-				if (['dateModified', 'dateCreated', 'ownership'].includes(dimensionKey)) {
+				if ([FILTER_KEYS.DATE_MODIFIED, FILTER_KEYS.DATE_CREATED, FILTER_KEYS.OWNERSHIP].includes(dimensionKey)) {
 					if (cleared) {
 						this._selectedFilterParams[dimensionKey] = '';
 					} else {
@@ -267,9 +271,9 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 	_renderFilterDimensionSetValues(dimension, options) {
 		const getLangterm = (option) => {
 			switch (dimension) {
-				case CONTENT_TYPE_KEY:
+				case FILTER_KEYS.CONTENT_TYPES:
 					return option.toLowerCase();
-				case CLIENT_APP_KEY:
+				case FILTER_KEYS.CLIENT_APPS:
 					return option === 'none' ? 'sourceNone' : `source${option}`;
 				default:
 					return option;
