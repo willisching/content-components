@@ -70,6 +70,9 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 			contentTypes: this._normalizeMultiSelectFilterValues(contentTypes),
 			clientApps: this._normalizeMultiSelectFilterValues(clientApps)
 		};
+
+		// d2l-filter automatically tracks the number of selected filters, so this is only needed for
+		// the old filter
 		this.numSelectedFilters = [dateModified, dateCreated].reduce((count, filter) => {
 			return filter ? count + 1 : count;
 		}, 0);
@@ -109,6 +112,8 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 				</d2l-filter>
 			`;
 		}
+
+		// when f19379-media-library-management-filters is removed, the old dropdown filter can be removed along with the related handlers
 		return html`
 			<d2l-dropdown-button-subtle text="${this.localize('filterCount', { count: this.numSelectedFilters})}" primary>
 				<d2l-dropdown-content min-width="150" max-width="400">
