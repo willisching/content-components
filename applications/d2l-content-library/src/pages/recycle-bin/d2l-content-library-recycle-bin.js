@@ -84,6 +84,7 @@ class D2LContentLibraryRecycleBin extends contentSearchMixin(DependencyRequester
 
 	connectedCallback() {
 		super.connectedCallback();
+		this._showAdvancedFilters = this.requestDependency('show-advanced-filters');
 	}
 
 	render() {
@@ -125,10 +126,13 @@ class D2LContentLibraryRecycleBin extends contentSearchMixin(DependencyRequester
 
 	_handleSearch(event) {
 		const { value } = event.detail;
+		const queryParams = this._showAdvancedFilters ?
+			this.shadowRoot.querySelector('content-filter-dropdown').selectedFilterParams :
+			this.rootStore.routingStore.getQueryParams();
 
 		this._navigate('/recycle-bin', {
-			...this.rootStore.routingStore.getQueryParams(),
-			searchQuery: value,
+			...queryParams,
+			searchQuery: value
 		});
 	}
 }

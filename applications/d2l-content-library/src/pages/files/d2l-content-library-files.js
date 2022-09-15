@@ -82,6 +82,7 @@ class D2LContentLibraryFiles extends contentSearchMixin(DependencyRequester(Page
 
 	connectedCallback() {
 		super.connectedCallback();
+		this._showAdvancedFilters = this.requestDependency('show-advanced-filters');
 	}
 
 	render() {
@@ -124,9 +125,12 @@ class D2LContentLibraryFiles extends contentSearchMixin(DependencyRequester(Page
 
 	_handleSearch(event) {
 		const { value } = event.detail;
+		const queryParams = this._showAdvancedFilters ?
+			this.shadowRoot.querySelector('content-filter-dropdown').selectedFilterParams :
+			this.rootStore.routingStore.getQueryParams();
 
 		this._navigate('/files', {
-			...this.rootStore.routingStore.getQueryParams(),
+			...queryParams,
 			searchQuery: value
 		});
 	}

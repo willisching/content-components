@@ -3,8 +3,8 @@ import { formatDate } from '@brightspace-ui/intl/lib/dateTime.js';
 import { dateFilterToSearchQuery } from '../util/date-filter.js';
 import { getTimeZoneOrTimeZoneOffset } from '../util/date-time.js';
 
-const contentTypes = ['Audio', 'Video'];
-const clientApps = ['LmsContent', 'LmsCourseImport', 'LmsCapture', 'Capture', 'VideoNote', 'none'];
+const CONTENT_TYPES = ['Audio', 'Video'];
+const CLIENT_APPS = ['LOR', 'Portfolio', 'LmsContent', 'LmsCourseImport', 'LmsCapture', 'Capture', 'VideoNote', 'none'];
 
 export const contentSearchMixin = superClass => class extends superClass {
 	static get properties() {
@@ -55,29 +55,22 @@ export const contentSearchMixin = superClass => class extends superClass {
 		query = this._query,
 		createdAt,
 		sort = '',
-		updatedAt
+		updatedAt,
+		contentTypes,
+		clientApps,
+		ownerId
 	} = {}) {
-		if (append) {
-			this._start += this._resultSize;
-		}
-
-		const { hits: { hits, total } } = await this.apiClient.search.searchContent({
-			contentType: contentTypes.join(','),
-			clientApps: clientApps.join(','),
-			createdAt: dateFilterToSearchQuery(createdAt),
-			filter: 'DELETED',
-			includeProcessing: true,
-			includeThumbnails: true,
-			query: query,
-			size: this._resultSize,
-			sort: sort,
-			start: this._start,
-			timeZone: getTimeZoneOrTimeZoneOffset(),
-			updatedAt: dateFilterToSearchQuery(updatedAt)
+		await this._handleFileSearch({
+			append,
+			query,
+			createdAt,
+			sort,
+			updatedAt,
+			contentTypes,
+			clientApps,
+			ownerId,
+			filter: 'DELETED'
 		});
-		this._updateFileList(hits, append);
-		this._totalResults = total;
-		this._moreResultsAvailable = this._files.length < total;
 	}
 
 	async _handleFileSearch({
@@ -85,16 +78,21 @@ export const contentSearchMixin = superClass => class extends superClass {
 		query = this._query,
 		createdAt,
 		sort = '',
-		updatedAt
+		updatedAt,
+		contentTypes,
+		clientApps,
+		ownerId,
+		filter
 	} = {}) {
 		if (append) {
 			this._start += this._resultSize;
 		}
 
 		const { hits: { hits, total } } = await this.apiClient.search.searchContent({
-			contentType: contentTypes.join(','),
-			clientApps: clientApps.join(','),
+			contentType: contentTypes ? contentTypes : CONTENT_TYPES.join(','),
+			clientApps: clientApps ? clientApps : CLIENT_APPS.join(','),
 			createdAt: dateFilterToSearchQuery(createdAt),
+			filter,
 			includeProcessing: true,
 			includeThumbnails: true,
 			query,
@@ -102,9 +100,10 @@ export const contentSearchMixin = superClass => class extends superClass {
 			sort,
 			start: this._start,
 			timeZone: getTimeZoneOrTimeZoneOffset(),
-			updatedAt: dateFilterToSearchQuery(updatedAt)
+			updatedAt: dateFilterToSearchQuery(updatedAt),
+			ownerId
 		});
-		if (this.canTransferOwnership && this.userBrightspaceClient) {
+		if (!filter && this.canTransferOwnership && this.userBrightspaceClient) {
 			await this._addDisplayNames(hits);
 		}
 		this._updateFileList(hits, append);
