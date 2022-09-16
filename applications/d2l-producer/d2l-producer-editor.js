@@ -70,13 +70,27 @@ class ProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 			.d2l-producer-video-controls {
 				display: flex;
+				gap: 10px;
 				height: 580px;
 				justify-content: space-between;
 			}
 
-			.d2l-producer-editor d2l-labs-media-player {
+			.d2l-producer-media-player-container {
+				background-color: black;
+				display: flex;
+				height: 100%;
+				justify-content: center;
+				width: 67%;
+			}
+
+			.d2l-producer-editor {
 				display: flex;
 				margin-right: 20px;
+				width: 100%;
+			}
+
+			d2l-labs-media-player {
+				display: flex;
 				width: 100%;
 			}
 
@@ -131,27 +145,29 @@ class ProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		return html`
 			<div class="d2l-producer-editor">
 				<div class="d2l-producer-video-controls">
-					<!-- crossorigin needs to be set in order for <track> elements to load sources from different origins. -->
-					<d2l-labs-media-player
-						controls
-						?autoplay="${this._is_IOS}"
-						crossorigin="anonymous"
-						@cuechange="${this._handleCueChange}"
-						@durationchange="${this._handleMediaPlayerUpdate}"
-						@error="${this._handleMediaError}"
-						hide-captions-selection
-						?hide-seek-bar="${this.enableCutsAndChapters}"
-						media-type="${this.mediaType}"
-						disable-set-preferences
-						@pause="${this._pauseUpdatingVideoTime}"
-						@play="${this._startUpdatingVideoTime}"
-						@seeking="${this.updateVideoTime}"
-						@trackloaded="${this._handleTrackLoaded}"
-						@loadeddata="${this._handleLoadedData}"
-					>
-						<source src="${this.src}" label="${this.localize('closedCaptions')}">
-						${this.captionsUrl ? html`<track default-ignore-preferences src="${this.captionsUrl}" srclang="${this._formatCaptionsSrcLang()}" label="${this.selectedLanguage.name}" kind="subtitles">` : ''}
-					</d2l-labs-media-player>
+					<div class="d2l-producer-media-player-container">
+						<!-- crossorigin needs to be set in order for <track> elements to load sources from different origins. -->
+						<d2l-labs-media-player
+							controls
+							?autoplay="${this._is_IOS}"
+							crossorigin="anonymous"
+							@cuechange="${this._handleCueChange}"
+							@durationchange="${this._handleMediaPlayerUpdate}"
+							@error="${this._handleMediaError}"
+							hide-captions-selection
+							?hide-seek-bar="${this.enableCutsAndChapters}"
+							media-type="${this.mediaType}"
+							disable-set-preferences
+							@pause="${this._pauseUpdatingVideoTime}"
+							@play="${this._startUpdatingVideoTime}"
+							@seeking="${this.updateVideoTime}"
+							@trackloaded="${this._handleTrackLoaded}"
+							@loadeddata="${this._handleLoadedData}"
+						>
+							<source src="${this.src}" label="${this.localize('closedCaptions')}">
+							${this.captionsUrl ? html`<track default-ignore-preferences src="${this.captionsUrl}" srclang="${this._formatCaptionsSrcLang()}" label="${this.selectedLanguage.name}" kind="subtitles">` : ''}
+						</d2l-labs-media-player>
+					</div>
 					<div class="d2l-producer-tabs-and-language-selection">
 						${this.languages && this.selectedLanguage ? html`
 							<d2l-producer-language-selector
