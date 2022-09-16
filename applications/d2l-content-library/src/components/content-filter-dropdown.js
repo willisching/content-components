@@ -71,7 +71,7 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 			clientApps: this._normalizeMultiSelectFilterValues(clientApps)
 		};
 
-		// d2l-filter automatically tracks the number of selected filters, so this is only needed for
+		// [to be deleted] d2l-filter automatically tracks the number of selected filters, so this is only needed for
 		// the old filter
 		this.numSelectedFilters = [dateModified, dateCreated].reduce((count, filter) => {
 			return filter ? count + 1 : count;
@@ -113,7 +113,7 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 			`;
 		}
 
-		// when f19379-media-library-management-filters is removed, the old dropdown filter can be removed along with the related handlers
+		// [to be deleted] when f19379-media-library-management-filters is removed, the old dropdown filter can be removed along with the related handlers
 		return html`
 			<d2l-dropdown-button-subtle text="${this.localize('filterCount', { count: this.numSelectedFilters})}" primary>
 				<d2l-dropdown-content min-width="150" max-width="400">
@@ -140,6 +140,7 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 		`;
 	}
 
+	// [to be deleted] used by old dropdown filter
 	clearFilters() {
 		this.numSelectedFilters = 0;
 		this.filterOptions.forEach(option => {
@@ -151,6 +152,7 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 		}));
 	}
 
+	// [to be deleted] used by old dropdown filter
 	get filterOptions() {
 		return this.shadowRoot ? this.shadowRoot.querySelectorAll('select') : [];
 	}
@@ -189,6 +191,7 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 		);
 	}
 
+	// [to be deleted] used by old dropdown filter
 	renderFilterOptions(filterOptions, filterType) {
 		return filterOptions.map(filter => html`
 			<option
@@ -201,14 +204,15 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 	get selectedFilterParams() {
 		const { dateModified, dateCreated, ownership, contentTypes, clientApps } = this._selectedFilterParams;
 		return {
-			...(dateModified && { dateModified }),
-			...(dateCreated && { dateCreated }),
-			...(this._canManageAllObjects && ownership && { ownership }),
-			...(contentTypes && { contentTypes: contentTypes.join(',') }),
-			...(clientApps && { clientApps: clientApps.join(',') })
+			dateModified,
+			dateCreated,
+			...(this._canManageAllObjects && { ownership }),
+			contentTypes: contentTypes.join(','),
+			clientApps: clientApps.join(',')
 		};
 	}
 
+	// [to be deleted] used by old dropdown filter
 	updateFilters() {
 		let count = 0;
 		const detail = {};
