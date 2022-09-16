@@ -84,6 +84,7 @@ class D2LContentLibraryRecycleBin extends contentSearchMixin(DependencyRequester
 
 	connectedCallback() {
 		super.connectedCallback();
+		this._showAdvancedFilters = this.requestDependency('show-advanced-filters');
 	}
 
 	render() {
@@ -109,6 +110,7 @@ class D2LContentLibraryRecycleBin extends contentSearchMixin(DependencyRequester
 		`;
 	}
 
+	// [to be deleted] new filter does not fire change-filter event
 	_handleFilterChange({ detail = {} }) {
 		this._navigate('/recycle-bin', {
 			...this.rootStore.routingStore.getQueryParams(),
@@ -116,6 +118,7 @@ class D2LContentLibraryRecycleBin extends contentSearchMixin(DependencyRequester
 		});
 	}
 
+	// [to be deleted] new filter does not fire change-filter-cleared event
 	_handleFilterCleared() {
 		const queryParams = this.rootStore.routingStore.getQueryParams();
 		delete queryParams.dateCreated;
@@ -128,6 +131,7 @@ class D2LContentLibraryRecycleBin extends contentSearchMixin(DependencyRequester
 
 		this._navigate('/recycle-bin', {
 			...this.rootStore.routingStore.getQueryParams(),
+			...(this._showAdvancedFilters && this.shadowRoot.querySelector('content-filter-dropdown').selectedFilterParams),
 			searchQuery: value,
 		});
 	}

@@ -18,6 +18,8 @@ class D2lContentLibrary extends DependencyProvider(LitElement) {
 			captureServiceEndpoint: { type: String, attribute: 'capture-service-endpoint' },
 			isMultipart: { type: Boolean, attribute: 'is-multipart' },
 			tenantId: { type: String, attribute: 'tenant-id' },
+			userId: { type: Number, attribute: 'user-id' },
+			showAdvancedFilters: { type: Boolean, attribute: 'show-advanced-filters' },
 			canRecord: { type: Boolean, attribute: 'can-record' },
 			videoRecordingDurationLimit: { type: Number, attribute: 'video-recording-duration-limit' },
 			audioRecordingDurationLimit: { type: Number, attribute: 'audio-recording-duration-limit' },
@@ -49,6 +51,8 @@ class D2lContentLibrary extends DependencyProvider(LitElement) {
 
 		this.provideDependency('content-service-endpoint', this.contentServiceEndpoint);
 		this.provideDependency('tenant-id', this.tenantId);
+		this.provideDependency('user-id', this.userId);
+		this.provideDependency('show-advanced-filters', this.showAdvancedFilters);
 		this.provideDependency('can-record', this.canRecord);
 		this.provideDependency('video-recording-duration-limit', this.videoRecordingDurationLimit);
 		this.provideDependency('audio-recording-duration-limit', this.audioRecordingDurationLimit);

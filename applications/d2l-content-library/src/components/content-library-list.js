@@ -69,12 +69,21 @@ export class ContentLibraryList extends DependencyRequester(InternalLocalizeMixi
 			sortQuery = 'updatedAt:desc',
 			dateCreated = '',
 			dateModified = '',
+			ownership = '',
+			contentTypes = '',
+			clientApps = '',
 		} = rootStore.routingStore.getQueryParams();
 
-		this.queryParams = { ou, searchQuery, sortQuery, dateCreated, dateModified };
+		this.queryParams = { ou, searchQuery, sortQuery, dateCreated, dateModified, ownership, contentTypes, clientApps };
+		this._canManageAllObjects = rootStore.permissionStore.getCanManageAllObjects();
 
 		window.addEventListener('scroll', this.onWindowScroll.bind(this));
 		this.observeQueryParams();
+	}
+
+	connectedCallback() {
+		super.connectedCallback();
+		this._userId = this.requestDependency('user-id');
 	}
 
 	async addNewItemIntoContentItems(item) {
@@ -97,7 +106,10 @@ export class ContentLibraryList extends DependencyRequester(InternalLocalizeMixi
 	areAnyFiltersActive() {
 		return this.queryParams.searchQuery ||
 			this.queryParams.dateModified ||
-			this.queryParams.dateCreated;
+			this.queryParams.dateCreated ||
+			this.queryParams.ownership ||
+			this.queryParams.contentTypes ||
+			this.queryParams.clientApps;
 	}
 
 	changeSort({ detail = {} }) {
@@ -157,7 +169,7 @@ export class ContentLibraryList extends DependencyRequester(InternalLocalizeMixi
 
 	async loadNext({ append = true} = {}) {
 		this.loading = true;
-		const { sortQuery, searchQuery, dateModified, dateCreated } = this.queryParams;
+		const { sortQuery, searchQuery, dateModified, dateCreated, ownership, contentTypes, clientApps } = this.queryParams;
 
 		const searchFunc = this.page === recycleBinPage ? this._handleDeletedFileSearch : this._handleFileSearch;
 		await searchFunc.bind(this)({
@@ -166,6 +178,9 @@ export class ContentLibraryList extends DependencyRequester(InternalLocalizeMixi
 			query: searchQuery,
 			sort: sortQuery,
 			updatedAt: dateModified,
+			contentTypes,
+			clientApps,
+			...(this._canManageAllObjects && ownership === 'myMedia' && { ownerId: this._userId })
 		});
 
 		this.loading = false;
@@ -185,26 +200,32 @@ export class ContentLibraryList extends DependencyRequester(InternalLocalizeMixi
 					sortQuery: updatedSortQuery = 'updatedAt:desc',
 					dateCreated: updatedDateCreated = '',
 					dateModified: updatedDateModified = '',
+					ownership: updatedOwnership = '',
+					contentTypes: updatedContentTypes = '',
+					clientApps: updatedClientApps = ''
 				} = toJS(change.newValue);
 
-				const { ou, searchQuery, sortQuery, dateCreated, dateModified } =
+				const { ou, searchQuery, sortQuery, dateCreated, dateModified, ownership, contentTypes, clientApps } =
 					this.queryParams;
 
-				if (updatedSearchQuery === searchQuery && updatedSortQuery === sortQuery &&
-					updatedDateCreated === dateCreated && updatedDateModified === dateModified
-				) {
-					this.reloadPage();
-					return;
+				if (!(updatedSearchQuery === searchQuery && updatedSortQuery === sortQuery &&
+					updatedDateCreated === dateCreated && updatedDateModified === dateModified &&
+					updatedOwnership === ownership && updatedContentTypes === contentTypes &&
+					updatedClientApps === clientApps
+				)) {
+					this.queryParams = {
+						ou,
+						searchQuery: updatedSearchQuery,
+						sortQuery: updatedSortQuery,
+						dateCreated: updatedDateCreated,
+						dateModified: updatedDateModified,
+						ownership: updatedOwnership,
+						contentTypes: updatedContentTypes,
+						clientApps: updatedClientApps,
+						filter: this.page === recycleBinPage ? 'DELETED' : undefined,
+					};
 				}
 
-				this.queryParams = {
-					ou,
-					searchQuery: updatedSearchQuery,
-					sortQuery: updatedSortQuery,
-					dateCreated: updatedDateCreated,
-					dateModified: updatedDateModified,
-					filter: this.page === recycleBinPage ? 'DELETED' : undefined,
-				};
 				this.reloadPage();
 			}
 		);
