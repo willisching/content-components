@@ -43,7 +43,7 @@ class D2LMediaWebRecordingDialog extends InternalLocalizeMixin(LitElement) {
 				width="675"
 				@d2l-dialog-close=${this._handleRecorderClose}
 			>
-				<div id="media-web-recording-container">
+				<div id="media-web-recording-container" autofocus>
 					<d2l-media-web-recording
 							tenant-id="${this.tenantId}"
 							content-service-endpoint="${this.contentServiceEndpoint}"
