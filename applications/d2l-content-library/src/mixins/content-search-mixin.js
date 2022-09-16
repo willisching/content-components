@@ -4,6 +4,8 @@ import { dateFilterToSearchQuery } from '../util/date-filter.js';
 import { getTimeZoneOrTimeZoneOffset } from '../util/date-time.js';
 import { CLIENT_APPS, CONTENT_TYPES } from '../util/constants.js';
 
+const exists = val => val === (val ?? !val);
+
 export const contentSearchMixin = superClass => class extends superClass {
 	static get properties() {
 		return {
@@ -54,9 +56,9 @@ export const contentSearchMixin = superClass => class extends superClass {
 		createdAt,
 		sort = '',
 		updatedAt,
-		contentTypes,
-		clientApps,
-		ownerId
+		contentTypes = null,
+		clientApps = null,
+		ownerId = null
 	} = {}) {
 		await this._handleFileSearch({
 			append,
@@ -77,10 +79,10 @@ export const contentSearchMixin = superClass => class extends superClass {
 		createdAt,
 		sort = '',
 		updatedAt,
-		contentTypes,
-		clientApps,
-		ownerId,
-		filter
+		contentTypes = null,
+		clientApps = null,
+		ownerId = null,
+		filter = null
 	} = {}) {
 		if (append) {
 			this._start += this._resultSize;
@@ -90,7 +92,7 @@ export const contentSearchMixin = superClass => class extends superClass {
 			contentType: contentTypes ? contentTypes : CONTENT_TYPES.join(','),
 			clientApps: clientApps ? clientApps : CLIENT_APPS.join(','),
 			createdAt: dateFilterToSearchQuery(createdAt),
-			filter,
+			...exists(filter) && { filter },
 			includeProcessing: true,
 			includeThumbnails: true,
 			query,
@@ -99,7 +101,7 @@ export const contentSearchMixin = superClass => class extends superClass {
 			start: this._start,
 			timeZone: getTimeZoneOrTimeZoneOffset(),
 			updatedAt: dateFilterToSearchQuery(updatedAt),
-			ownerId
+			...exists(ownerId) && { ownerId }
 		});
 		if (!filter && this.canTransferOwnership && this.userBrightspaceClient) {
 			await this._addDisplayNames(hits);

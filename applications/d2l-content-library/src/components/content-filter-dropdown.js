@@ -207,8 +207,8 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 			dateModified,
 			dateCreated,
 			...(this._canManageAllObjects && { ownership }),
-			contentTypes: contentTypes.join(','),
-			clientApps: clientApps.join(',')
+			contentTypes: Array.isArray(contentTypes) ? contentTypes.join(',') : '',
+			clientApps: Array.isArray(clientApps) ? clientApps.join(',') : ''
 		};
 	}
 
