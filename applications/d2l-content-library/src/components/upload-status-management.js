@@ -89,7 +89,7 @@ class UploadStatusManagement extends InternalLocalizeMixin(RtlMixin(MobxReaction
 				align-items: center;
 				display: flex;
 				flex: 1 1 auto;
-				width: 100px;
+				width: 240px;
 			}
 			.upload-file-name {
 				overflow: hidden;
