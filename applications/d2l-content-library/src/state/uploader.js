@@ -40,6 +40,7 @@ export class Uploader {
 			const uploadInfo = {
 				id: this.nextUploadId,
 				file,
+				type: getType(file.name),
 				title: file.name,
 				progress: 0,
 				extension: file.name.split('.').pop(),
@@ -85,7 +86,6 @@ export class Uploader {
 
 			const uploadInfo = {
 				id: this.nextUploadId,
-				file: null,
 				title: content.title,
 				progress: 0,
 				extension,
@@ -226,8 +226,7 @@ export class Uploader {
 		}
 	}
 
-	async _uploadWorkflowAsync({ id: uploadId, file, extension }) {
-		const type = getType(file.name);
+	async _uploadWorkflowAsync({ id: uploadId, file, extension, type }) {
 		try {
 			this.runningJobs += 1;
 			const content = await this.apiClient.content.postItem({

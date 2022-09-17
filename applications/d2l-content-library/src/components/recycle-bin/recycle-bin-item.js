@@ -19,6 +19,7 @@ import { DependencyRequester } from '../../mixins/dependency-requester-mixin.js'
 import { InternalLocalizeMixin } from '../../../../../mixins/internal-localize-mixin.js';
 import { navigationMixin } from '../../mixins/navigation-mixin.js';
 import { rootStore } from '../../state/root-store.js';
+import {getIcon} from '../../../../../util/content-type-icon-mapper.js';
 
 class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
@@ -81,11 +82,10 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 	}
 
 	render() {
-		const icon = !this.type || this.type === 'Video' ? 'tier1:file-video' : 'tier1:file-audio';
 		const illustration = (this.poster && this.poster !== '') ? html`
 			<img class="d2l-content-library-deleted-poster-image" src="${this.poster}" slot="illustration">
 		` : html`
-			<d2l-icon icon="${icon}" slot="illustration"></d2l-icon>
+			<d2l-icon icon="${getIcon(this.type, 'tier1:file-video')}" slot="illustration"></d2l-icon>
 		`;
 
 		return html`

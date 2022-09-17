@@ -6,6 +6,7 @@ import { bodyStandardStyles } from '@brightspace-ui/core/components/typography/s
 import { DependencyProvider } from './src/mixins/dependency-provider-mixin.js';
 import { rootStore } from './src/state/root-store.js';
 import { Uploader } from './src/state/uploader.js';
+import ContentType from '../../util/content-type.js';
 
 class D2lContentLibrary extends DependencyProvider(LitElement) {
 	static get properties() {
@@ -59,6 +60,7 @@ class D2lContentLibrary extends DependencyProvider(LitElement) {
 		this.provideDependency('video-recording-duration-limit', this.videoRecordingDurationLimit);
 		this.provideDependency('audio-recording-duration-limit', this.audioRecordingDurationLimit);
 		this.provideDependency('auto-captions-enabled', this.autoCaptionsEnabled);
+		this.provideDependency('supported-types', [ContentType.AUDIO, ContentType.VIDEO]);
 
 		const apiClient = new ContentServiceApiClient({
 			httpClient: new ContentServiceBrowserHttpClient({ serviceUrl: this.contentServiceEndpoint }),

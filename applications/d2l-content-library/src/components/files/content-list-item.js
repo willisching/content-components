@@ -22,6 +22,7 @@ import { InternalLocalizeMixin } from '../../../../../mixins/internal-localize-m
 import { navigationMixin } from '../../mixins/navigation-mixin.js';
 import { pageNames } from '../../util/constants.js';
 import { rootStore } from '../../state/root-store.js';
+import { getIcon } from '../../../../../util/content-type-icon-mapper.js';
 const actionsDefaultZIndex = 2;
 const actionsActiveZIndex = 5;
 const dialogConfirmAction = 'confirm';
@@ -104,11 +105,10 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 	}
 
 	render() {
-		const icon = !this.type || this.type === 'Video' ? 'tier1:file-video' : 'tier1:file-audio';
 		const illustration = (this.poster && this.poster !== '' && this.processingStatus !== 'created') ? html`
 			<img class="d2l-content-library-video-poster-image" src="${this.poster}" slot="illustration">
 		` : html`
-			<d2l-icon icon="${icon}" slot="illustration"></d2l-icon>
+			<d2l-icon icon="${getIcon(this.type, 'tier1:file-video')}" slot="illustration"></d2l-icon>
 		`;
 
 		return html`
