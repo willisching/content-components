@@ -31,7 +31,7 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 	static get properties() {
 		return {
 			authServiceEndpoint: { type: String, attribute: 'auth-service-endpoint' },
-			canAccessCreatorPlus: { type: Boolean, attribute: 'can-access-creator-plus' },
+			canAccessCapture: { type: Boolean, attribute: 'can-access-capture' },
 			canManageAllObjects: { type: Boolean, attribute: 'can-manage-all-objects' },
 			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
 			isMultipart: { type: Boolean, attribute: 'is-multipart' },
@@ -162,7 +162,7 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 		}
 
 		const permissions = {
-			canAccessCreatorPlus: this.canAccessCreatorPlus ? 'true' : 'false',
+			canAccessCapture: this.canAccessCapture ? 'true' : 'false',
 			canManageAllObjects: this.canManageAllObjects ? 'true' : 'false',
 			canTransferOwnership: this.canTransferOwnership ? 'true' : 'false'
 		};
@@ -356,7 +356,7 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 				<d2l-menu label="${this.localize('add')}">
 					<d2l-menu-item text="${this.localize('uploadFile')}" @click=${this._handleUploadFileClick}></d2l-menu-item>
 					${this._canRecord ? html`<d2l-menu-item text="${this.localize('recordWebcam')}" @click=${this._openMediaWebRecordingDialog}></d2l-menu-item>` : ''}
-					<d2l-menu-item text="${this.localize('captureEncoder')}" @click=${this._openCreatePresentationDialog}></d2l-menu-item>
+					${rootStore.permissionStore.getCanAccessCapture() ? html`<d2l-menu-item text="${this.localize('captureEncoder')}" @click=${this._openCreatePresentationDialog}></d2l-menu-item>` : ''}
 				</d2l-menu>
 			</d2l-dropdown-menu>
 		`;
