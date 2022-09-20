@@ -62,7 +62,6 @@ class D2LMediaWebRecordingDialog extends InternalLocalizeMixin(LitElement) {
 							@capture-started=${this._disablePrimaryButton}
 							@file-selection-error=${this._disablePrimaryButton}
 							@metadata-input=${this._handleMetadataInputChangedEvent}
-							@upload-success=${this._handleUploadSuccess}
 							@processing-started=${this._handleProcessingStarted}
 						>
 					</d2l-media-web-recording>
@@ -110,11 +109,13 @@ class D2LMediaWebRecordingDialog extends InternalLocalizeMixin(LitElement) {
 	}
 
 	async _handlePrimaryButtonClick() {
-		this._primaryButtonDisabled = true;
 		if (this._mediaWebRecorder.fileSelected && this._mediaWebRecorder.metadataReady) {
-			await this._mediaWebRecorder.processMediaObject();
-		} else if (this._mediaWebRecorder.fileSelected && !this._fileUploaded) {
-			await this._mediaWebRecorder.uploadSelectedFile();
+			this._primaryButtonDisabled = true;
+			await this._mediaWebRecorder.uploadAndProcessFile();
+		} else if (this._mediaWebRecorder.fileSelected) {
+			this._mediaWebRecorder.showMetadataView();
+			this._primaryButtonDisabled = !this._mediaWebRecorder.metadataReady;
+			this._isRecordOrUploadView = false;
 		}
 	}
 
@@ -125,12 +126,6 @@ class D2LMediaWebRecordingDialog extends InternalLocalizeMixin(LitElement) {
 	_handleRecorderClose() {
 		this._mediaWebRecorder.reset();
 		this._fileUploaded = false;
-	}
-
-	_handleUploadSuccess() {
-		this._primaryButtonDisabled = !this._mediaWebRecorder.metadataReady;
-		this._fileUploaded = true;
-		this._isRecordOrUploadView = false;
 	}
 
 	_handleUserMediaLoaded(event) {
