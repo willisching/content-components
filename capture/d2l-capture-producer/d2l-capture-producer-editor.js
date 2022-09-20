@@ -17,6 +17,7 @@ import './src/d2l-capture-producer-timeline.js';
 import './src/d2l-video-producer-timeline-controls.js';
 
 import { css, html, LitElement } from 'lit-element/lit-element.js';
+import { styleMap } from 'lit-html/directives/style-map.js';
 import constants from './src/constants.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { bodyCompactStyles, labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
@@ -76,7 +77,6 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 			}
 
 			.d2l-video-producer-media-player-container {
-				background-color: black;
 				display: flex;
 				height: 100%;
 				justify-content: center;
@@ -142,10 +142,12 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 	}
 
 	render() {
+		const mediaPlayerContainerStyle = this.mediaType === 'video' ? { 'background-color': 'black' } : {};
+
 		return html`
 			<div class="d2l-video-producer-editor">
 				<div class="d2l-video-producer-video-controls">
-					<div class="d2l-video-producer-media-player-container">
+					<div class="d2l-video-producer-media-player-container" style="${styleMap(mediaPlayerContainerStyle)}">
 						<!-- crossorigin needs to be set in order for <track> elements to load sources from different origins. -->
 						<d2l-labs-media-player
 							controls
