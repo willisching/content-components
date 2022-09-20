@@ -18,7 +18,7 @@ import { BASE_PATH } from './state/routing-store.js';
 import { DependencyRequester } from './mixins/dependency-requester-mixin.js';
 import { formatFileSize } from '@brightspace-ui/intl/lib/fileSize';
 import { InternalLocalizeMixin } from '../../../mixins/internal-localize-mixin.js';
-import { getSupportedExtensions, isSupported } from './util/media-type-util.js';
+import { getSupportedExtensions, isSupported } from '../../../util/media-type-util.js';
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { NavigationMixin } from './mixins/navigation-mixin.js';
 import { navigationSharedStyle } from './style/d2l-navigation-shared-styles.js';
@@ -145,8 +145,6 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 		this._loading = true;
 		this._shouldRenderSidebar = null;
 		this._setupPageNavigation();
-
-		this._supportedTypes = getSupportedExtensions();
 	}
 
 	async connectedCallback() {
@@ -160,6 +158,8 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 			this._videoRecordingDurationLimit = this.requestDependency('video-recording-duration-limit');
 			this._autoCaptionsEnabled = this.requestDependency('auto-captions-enabled');
 		}
+		this._supportedTypes = this.requestDependency('supported-types');
+		this._supportedExtensions = getSupportedExtensions(this._supportedTypes);
 
 		const permissions = {
 			canAccessCapture: this.canAccessCapture ? 'true' : 'false',
@@ -308,7 +308,7 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 				event.target.value = '';
 				return;
 			}
-			if (!isSupported(file.name)) {
+			if (!isSupported(file.name, this._supportedTypes)) {
 				this._showErrorToast(this.localize('invalidFileTypeSelected'));
 				event.target.value = '';
 				return;
@@ -423,7 +423,7 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 				<input
 					type="file"
 					id="fileInput"
-					accept=${this._supportedTypes.join(',')}
+					accept=${this._supportedExtensions.join(',')}
 					@change=${this._handleFileChange}
 					style="display:none"
 					multiple

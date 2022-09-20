@@ -13,6 +13,7 @@ import { InternalLocalizeMixin } from '../../../../mixins/internal-localize-mixi
 import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { rootStore } from '../state/root-store.js';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
+import { getIcon } from '../../../../util/content-type-icon-mapper.js';
 
 class UploadStatusManagement extends InternalLocalizeMixin(RtlMixin(MobxReactionUpdate(DependencyRequester(LitElement)))) {
 	static get properties() {
@@ -73,7 +74,7 @@ class UploadStatusManagement extends InternalLocalizeMixin(RtlMixin(MobxReaction
 				overflow-x: hidden;
 				overflow-y: auto;
 			}
-			.upload-video-icon {
+			.upload-content-icon {
 				border-radius: 5px;
 				padding: 3px;
 				color: var(--d2l-color-white);
@@ -88,7 +89,7 @@ class UploadStatusManagement extends InternalLocalizeMixin(RtlMixin(MobxReaction
 				align-items: center;
 				display: flex;
 				flex: 1 1 auto;
-				width: 100px;
+				width: 240px;
 			}
 			.upload-file-name {
 				overflow: hidden;
@@ -114,7 +115,7 @@ class UploadStatusManagement extends InternalLocalizeMixin(RtlMixin(MobxReaction
 				color: var(--d2l-color-feedback-error);
 				min-width: 0;
 			}
-			.upload-video-icon-container {
+			.upload-content-icon-container {
 				flex: 0 0 auto;
 				padding: 0 0.5rem;
 			}
@@ -175,8 +176,8 @@ class UploadStatusManagement extends InternalLocalizeMixin(RtlMixin(MobxReaction
 					<d2l-list-item>
 						<d2l-list-item-content>
 							<div class="upload-item-container">
-								<div class="upload-video-icon-container">
-									<d2l-icon class="upload-video-icon" icon="tier1:file-video"></d2l-icon>
+								<div class="upload-content-icon-container">
+									<d2l-icon class="upload-content-icon" icon="${ getIcon(upload.type) }"></d2l-icon>
 								</div>
 								${upload.error ? this.renderUploadError(upload) : this.renderUploadProgress(upload)}
 							</div>
