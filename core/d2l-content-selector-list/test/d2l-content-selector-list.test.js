@@ -223,18 +223,18 @@ describe('ContentSelectorList', async() => {
 
 			const objectRadioButton = el.shadowRoot.querySelector('.d2l-input-radio');
 			await waitForStubSilent(searchStub, 1000);
-			const originalLength = el._contentItems.length;
+			const originalLength = el._contentItems.size;
 			setTimeout(() => objectRadioButton.click());
 			await oneEvent(el, 'object-selected');
 
-			const previousLength = el._contentItems.length;
+			const previousLength = el._contentItems.size;
 			assert.equal(previousLength, originalLength);
 
 			const deleteButton = el.shadowRoot.querySelector('#delete-button');
 			deleteButton.click();
 
 			Sinon.assert.calledOnce(deleteItemStub);
-			assert.equal(el._contentItems.length, previousLength - 1);
+			assert.equal(el._contentItems.size, previousLength - 1);
 		});
 
 		it('should not delete content when cancelled', async() => {
@@ -245,18 +245,18 @@ describe('ContentSelectorList', async() => {
 
 			const objectRadioButton = el.shadowRoot.querySelector('.d2l-input-radio');
 			await waitForStubSilent(searchStub, 1000);
-			const originalLength = el._contentItems.length;
+			const originalLength = el._contentItems.size;
 			setTimeout(() => objectRadioButton.click());
 			await oneEvent(el, 'object-selected');
 
-			const previousLength = el._contentItems.length;
+			const previousLength = el._contentItems.size;
 			assert.equal(previousLength, originalLength);
 
 			const cancelButton = el.shadowRoot.querySelector('#cancel-button');
 			cancelButton.click();
 
 			Sinon.assert.notCalled(deleteItemStub);
-			assert.equal(el._contentItems.length, previousLength);
+			assert.equal(el._contentItems.size, previousLength);
 		});
 
 		// This test does not work with Safari. Intersection observer is not running the callback.
