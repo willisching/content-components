@@ -376,10 +376,10 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 					<d2l-dropdown-more text=${this.localize('actionDropdown')} class=${this._skeletize(item)}>
 						<d2l-dropdown-menu align="end">
 							<d2l-menu>
-								${this.showPreviewAction ? html`<d2l-menu-item class="preview" text=${this.localize('preview')} @click=${this._handleShowPreviewAction(item)}></d2l-menu-item>` : ''}
-								${this.showEditPropertiesAction && this._canManage(item) ? html`<d2l-menu-item class="edit-properties" text=${this.localize('editProperties')} @click=${this._handleEditPropertiesAction(item)}></d2l-menu-item>` : ''}
-								${this.showRevisionUploadAction && this._canManage(item) ? html`<d2l-menu-item class="revision-upload" text=${this.localize('uploadNewVersion')} @click=${this._handleUploadNewRevisionAction(item)}></d2l-menu-item>` : ''}
-								${this.showDeleteAction && this._canDelete(item) ? html`<d2l-menu-item class="delete-item" text=${this.localize('delete')} @click=${this._openDialog(item)}></d2l-menu-item>` : ''}
+								${this.showPreviewAction ? html`<d2l-menu-item class="preview" text=${this.localize('preview')} @d2l-menu-item-select=${this._handleShowPreviewAction(item)}></d2l-menu-item>` : ''}
+								${this.showEditPropertiesAction && this._canManage(item) ? html`<d2l-menu-item class="edit-properties" text=${this.localize('editProperties')} @d2l-menu-item-select=${this._handleEditPropertiesAction(item)}></d2l-menu-item>` : ''}
+								${this.showRevisionUploadAction && this._canManage(item) ? html`<d2l-menu-item class="revision-upload" text=${this.localize('uploadNewVersion')} @d2l-menu-item-select=${this._handleUploadNewRevisionAction(item)}></d2l-menu-item>` : ''}
+								${this.showDeleteAction && this._canDelete(item) ? html`<d2l-menu-item class="delete-item" text=${this.localize('delete')} @d2l-menu-item-select=${this._openDialog(item)}></d2l-menu-item>` : ''}
 							</d2l-menu>
 						</d2l-dropdown-menu>
 					</d2l-dropdown-more>

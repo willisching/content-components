@@ -40,7 +40,7 @@ class VideoProducerLanguageSelector extends InternalLocalizeMixin(LitElement) {
 				<d2l-dropdown-menu id="dropdown">
 					<d2l-menu label="${this.localize('languages')}">
 						${this.languages.map(language => html`
-							<d2l-menu-item @click="${selectLanguage(language)}" text=${language.name}></d2l-menu-item>
+							<d2l-menu-item @d2l-menu-item-select="${selectLanguage(language)}" text=${language.name}></d2l-menu-item>
 						`)}
 					</d2l-menu>
 				</d2l-dropdown-menu>
