@@ -36,8 +36,9 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 			tenantId: { type: String },
 			userId: { type: String },
 
-			_contentItems: { type: Array, attribute: false },
+			_contentItems: { type: Object, attribute: false },
 			_hasMore: { type: Boolean, attribute: false },
+			_stillLoading: { type: Boolean, attribute: false },
 			_itemToDelete: { type: Object, attribute: false },
 			_selectedContent: { type: Object, attribute: false },
 			_isLoading: { type: Boolean, attribute: false },
@@ -173,10 +174,11 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 	constructor() {
 		super();
 
-		this._contentItems = [];
+		this._contentItems = new Map();
 		this._selectedContent = null;
 		this._itemToDelete = null;
 		this._hasMore = true;
+		this._stillLoading = true;
 		this._isLoading = true;
 		this._scrollerHeight = '0px';
 		this.skeleton = true;
@@ -274,8 +276,9 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 		return () => {
 			if (item === null) return;
 			this.client.content.deleteItem({id: item.id});
-			const itemIndex = this._contentItems.findIndex((contentItem) => item.id === contentItem.id);
-			this._contentItems.splice(itemIndex, 1);
+			this._contentItems.delete(item.id);
+			// need to request update to visually remove item
+			this.requestUpdate();
 		};
 	}
 
@@ -326,9 +329,11 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 	async _handleSearch(e) {
 		this.start = 0;
 		this.query = e.detail.value.trim();
-		this._contentItems = [];
+		this._contentItems = new Map();
 		this._hasMore = true;
-		await this._loadMore();
+		this._stillLoading = true;
+		// a new search should always start at position 0; double pressing enter quickly may cause it to not start at 0 (and miss search results) if not specified
+		await this._loadMore(e, 0);
 	}
 
 	_handleSelect(item) {
@@ -388,12 +393,12 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 		`;
 	}
 
-	async _loadMore() {
+	async _loadMore(e, start = this.start) {
 		this._isLoading = true;
 		const searchLocations = !this.canManageAllObjects && this.searchLocations?.map(l => `ou:${l.id}`).join(',');
 		const body = await this.client.search.searchContent({
 			query: this.query,
-			start: this.start,
+			start: start,
 			sort: 'updatedAt:desc',
 			size: 10,
 			contentType: this.contentTypes,
@@ -404,13 +409,22 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 		const contentCache = this.requestInstance(ContentCacheDependencyKey);
 		const newItems = body.hits.hits.map((hit) => contentCache?.get(hit._source) ?? hit._source);
 		if (newItems.length === 0) {
-			this._hasMore = false;
+			// need to seperate _hasMore and _stillLoading otherwise _hasMore will be false after search event
+			// causing it to briefly show "No results found" during load-more event if another search is made too soon
+			if (e.type === 'd2l-input-search-searched') {
+				this._stillLoading = false;
+			} else {
+				// _hasMore is set during load-more event which emits when scrolling to end with 10+ items, or when there are less than 10 items found after a search
+				this._hasMore = false;
+			}
 		} else {
+			this._stillLoading = true;
 			this._hasMore = true;
-			this.start += newItems.length;
-			this._contentItems = this._contentItems.concat(newItems);
+			this.start = start + newItems.length;
+			newItems.forEach((item) => {
+				this._contentItems.set(item.id, item);
+			});
 		}
-
 		this._isLoading = false;
 		this.dispatchEvent(new CustomEvent('content-loaded'));
 	}
@@ -457,13 +471,12 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 	}
 
 	_renderContentItems() {
-		if (this._contentItems.length === 0) {
-			return this._hasMore ?
+		if (this._contentItems.size === 0) {
+			return this._stillLoading ?
 				this._renderContentItemsSkeleton() :
 				html`<p>${this.localize('noResultsFound')}</p>`;
 		}
-
-		return this._contentItems.map(this._itemRenderer.bind(this));
+		return Array.from(this._contentItems.values()).map(this._itemRenderer.bind(this));
 	}
 
 	_renderContentItemsSkeleton() {
