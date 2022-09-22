@@ -503,17 +503,22 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 		if (!this._video) {
 			return;
 		}
-		if (this._transcriptViewerOn) {
-			this._video.style.position = 'absolute';
-			this._video.style.height = '30%';
-			this._video.style.width = '30%';
-			this._video.style.minHeight = '30%';
-			this._video.style.top = '0px';
-			this._video.style.left = '0px';
-		} else {
-			this._video.style = undefined;
-			this.requestUpdate();
+		const posterElement = this._mediaPlayer?.shadowRoot?.querySelector('#d2l-labs-media-player-video-poster');
+		const playButton = this._mediaPlayer?.shadowRoot?.querySelector('#d2l-labs-media-player-video-poster-play-button');
+
+		if (playButton) {
+			if (this._transcriptViewerOn) {
+				playButton.style.position = 'absolute';
+				playButton.style.top = '13%';
+				playButton.style.left = '15%';
+				playButton.style.height = '10%';
+			} else {
+				playButton.style = undefined;
+			}
 		}
+
+		this._shrinkVideoElement(this._video);
+		this._shrinkVideoElement(posterElement);
 	}
 
 	async _setupAfterRevisionReady() {
@@ -538,6 +543,23 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 		if (transcriptViewerMenuItem && this._transcriptViewerMenuItem !== transcriptViewerMenuItem) {
 			transcriptViewerMenuItem.addEventListener('d2l-menu-item-select', this._onTranscriptButtonClick.bind(this));
 			this._transcriptViewerMenuItem = transcriptViewerMenuItem;
+		}
+	}
+
+	_shrinkVideoElement(element) {
+		if (!element) {
+			return;
+		}
+		if (this._transcriptViewerOn) {
+			element.style.position = 'absolute';
+			element.style.height = '30%';
+			element.style.width = '30%';
+			element.style.minHeight = '30%';
+			element.style.top = '0px';
+			element.style.left = '0px';
+		} else {
+			element.style = undefined;
+			this.requestUpdate();
 		}
 	}
 
