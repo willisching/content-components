@@ -1,6 +1,11 @@
 import { sleep } from './delay';
 
-export async function retry(run, { tries = 0, retries, delay = () => 0, onFailedRetry = () => {} }) {
+export async function retry(run, {
+	tries = 0,
+	retries,
+	delay = () => 0,
+	onFailedRetry = () => {}
+}) {
 	return new Promise((resolve, reject) => {
 		return run()
 			.then(val => resolve(val))

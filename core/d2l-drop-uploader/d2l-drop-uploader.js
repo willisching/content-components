@@ -125,30 +125,6 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 		`];
 	}
 
-	preprocess = async file => {
-		if (file.size === 0) {
-			return;
-		}
-		/* eslint-disable no-invalid-this */
-		const workflow = () => {
-			// remove extention for package name in property only
-			const fileName = file.name && file.name.slice(0, file.name.lastIndexOf('.'));
-			this.dispatchEvent(new CustomEvent('bulk-upload-details', {
-				detail: {
-					fileName: file.name,
-					totalFiles: this.files.length,
-					progress: this.progress,
-				},
-			}));
-			this.uploader.uploadFile(file, fileName, file.type, this.files.length)
-				.then(() => {
-					this.progress += 1;
-				});
-		};
-		this.uploadQueue.push(workflow);
-		/* eslint-enable no-invalid-this */
-	};
-
 	constructor() {
 		super();
 		this._maxNumberOfFiles = 50;
@@ -156,10 +132,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 		this.reactToUploadingSuccess = this.reactToUploadingSuccess.bind(this);
 		this.reactToProcessingSuccess = this.reactToProcessingSuccess.bind(this);
 		this.onProgress = this.onProgress.bind(this);
-		this.uploadQueue = [];
 		this.files = [];
-		this.progress = 0;
-		this.active = 0;
 	}
 
 	async connectedCallback() {
@@ -190,8 +163,6 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 	}
 
 	cancelUpload() {
-		// clear pending queue before cancelling active uploads
-		this.uploadQueue = [];
 		this.uploader.cancelUpload();
 	}
 
@@ -225,14 +196,20 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 		}));
 	}
 
-	preupload() {
+	preupload({files}) {
 		this.reset();
 		this.dispatchEvent(new CustomEvent('preupload-reset'));
 		this.dispatchEvent(new CustomEvent('change-view', {
 			detail: {
 				view: 'PROGRESS',
-				fileName: this.files[0].name,
+				fileName: files[0].name,
 				errorMessage: null,
+			},
+		}));
+		this.dispatchEvent(new CustomEvent('bulk-upload-details', {
+			detail: {
+				fileName: files[0].name,
+				totalFiles: files.length,
 			},
 		}));
 	}
@@ -255,15 +232,7 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 			return this.onUploadError(this.localize('invalidFileSize', { localizedMaxFileSize: formatFileSize(this.maxFileSizeInBytes) }));
 		}
 
-		for (const file of this.files) {
-			this.preprocess(file);
-		}
-
-		// on file select cancel (0 files selected), should not proceed with upload steps
-		if (this.files.length !== 0) {
-			this.preupload();
-			this.startUpload();
-		}
+		this.uploader.uploadFiles(this.files);
 
 	}
 
@@ -276,8 +245,6 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 	}
 
 	reactToUploaderError(error, contentTitle) {
-		this.active -= 1;
-		this.startUpload();
 		this.dispatchEvent(new CustomEvent('on-uploader-error', {
 			detail: {
 				fileName: contentTitle,
@@ -287,8 +254,6 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 	}
 
 	reactToUploadingSuccess(value) {
-		this.active -= 1;
-		this.startUpload();
 		if (this.allowAsyncProcessing) {
 			this.dispatchEvent(new CustomEvent('on-uploader-success', {
 				detail: {
@@ -301,29 +266,22 @@ export class Upload extends RtlMixin(RequesterMixin(InternalLocalizeMixin(LitEle
 	reset() {
 		// reset uploader from any previous state before upload, if any
 		this.uploader.reset();
-		this.active = 0;
-		this.progress = 0;
 		this.errorMessage = null;
 		// reset upload progress loading bar to 0
-		this.onProgress(this.progress);
-	}
-
-	startUpload() {
-		while (this.active < 5 && this.uploadQueue.length > 0) {
-			this.active += 1;
-			this.uploadQueue.pop()();
-		}
+		this.onProgress(0);
 	}
 
 	_initUploader() {
 		this.uploader = new Uploader({
 			apiClient: this.apiClient,
+			clientApp: 'LmsContent',
 			onSuccess: this.reactToProcessingSuccess,
 			onError: this.reactToUploaderError,
 			waitForProcessing: !this.allowAsyncProcessing,
 			onProgress: this.onProgress,
 			existingContentId: this.existingContentId,
 			onUploadFinish: this.reactToUploadingSuccess,
+			preupload: this.preupload.bind(this),
 			shareUploadsWith: this.shareUploadsWith,
 			isMultipart: this.isMultipart
 		});

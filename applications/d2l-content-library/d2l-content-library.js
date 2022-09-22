@@ -5,7 +5,7 @@ import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-c
 import { bodyStandardStyles } from '@brightspace-ui/core/components/typography/styles.js';
 import { DependencyProvider } from './src/mixins/dependency-provider-mixin.js';
 import { rootStore } from './src/state/root-store.js';
-import { Uploader } from './src/state/uploader.js';
+import { Uploader } from '../../util/uploader.js';
 import ContentType from '../../util/content-type.js';
 
 class D2lContentLibrary extends DependencyProvider(LitElement) {
@@ -68,6 +68,7 @@ class D2lContentLibrary extends DependencyProvider(LitElement) {
 		});
 		this.provideDependency('content-service-client', apiClient);
 		rootStore.uploader.apiClient = apiClient;
+		rootStore.uploader.isMultipart = this.isMultipart;
 		const captureApiClient = new CaptureApiClient({
 			httpClient: new ContentServiceBrowserHttpClient({ serviceUrl: this.captureServiceEndpoint }),
 		});
@@ -80,7 +81,9 @@ class D2lContentLibrary extends DependencyProvider(LitElement) {
 
 		const uploader = new Uploader({
 			apiClient,
-			isMultipart: this.isMultipart
+			clientApp: 'LmsCapture',
+			isMultipart: this.isMultipart,
+			waitForProcessing: true,
 		});
 
 		this.provideDependency('uploader', uploader);
