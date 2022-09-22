@@ -91,6 +91,9 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 		this._media = null;
 		this._transcriptViewerMenuItem = null;
 		this._transcriptViewerEnabled = false;
+		this.addEventListener('download-captions', this._downloadCaptions);
+		this.addEventListener('download-transcript', this._downloadTranscript);
+		this.addEventListener('close-transcript', this._onTranscriptButtonClick);
 	}
 
 	async firstUpdated() {
@@ -113,6 +116,7 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 				metadata=${ifDefined(this._metadata ? this._metadata : undefined)}
 				poster=${ifDefined(this._poster ? this._poster : undefined)}
 				thumbnails=${ifDefined(this._thumbnails ? this._thumbnails : undefined)}
+				?transcript-viewer-on=${this._transcriptViewerOn}
 				@cuechange="${this._transcriptViewerOn ? this._handleCueChange : undefined}"
 				@error=${this._onError}
 				@loadeddata=${this._onLoadedData}
@@ -125,7 +129,6 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 				<d2l-menu-item slot='settings-menu-item' id='transcript-viewer-menu-item' text=${this._transcriptViewerOn ? this.localize('hideTranscript') : this.localize('viewTranscript')}>
 				</d2l-menu-item>` : ''}
 				${this.allowDownload ? html`<d2l-menu-item slot='settings-menu-item' id='download-menu-item' text=${this.localize('download')}></d2l-menu-item>` : ''}
-				${this._transcriptViewerOn ? this._renderTranscriptViewer() : ''}
 			</d2l-labs-media-player>
 			`;
 		}
@@ -424,76 +427,6 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 
 	_renderMediaSource(source) {
 		return html`<source src=${source.src} label=${this.localize(`format${!source.format ? 'Source' : source.format.toUpperCase()}`)} ?default=${source.format === this._bestFormat}>`;
-	}
-
-	_renderTranscriptViewer() {
-		if (!this._mediaPlayer) {
-			this.firstUpdated();
-		}
-
-		let cues = null;
-		for (let i = 0; i < this._mediaPlayer.textTracks.length; i += 1) {
-			cues = this._mediaPlayer.textTracks[i]?.cues;
-			if (cues) {
-				this._activeCue = this._mediaPlayer.textTracks[i]?.activeCues?.[0];
-				break;
-			}
-		}
-
-		if (!cues) {
-			return;
-		}
-
-		const beforeCaptions = [];
-		const afterCaptions = [];
-		for (let i = 0; i < cues.length; i += 1) {
-			const currCue = cues[i];
-			const currTime = this._media?.currentTime;
-			if (currCue.endTime < currTime) {
-				beforeCaptions.push(currCue);
-			} else if (currCue.startTime > currTime) {
-				afterCaptions.push(currCue);
-			}
-		}
-		const captionsToHtml = (item) => {
-			const updateTime = () => this._mediaPlayer.currentTime = item.startTime;
-			return html`
-			<div class="transcript-cue" @click=${updateTime}>
-				${item.text}<br>
-			</div>`;
-		};
-
-		const textColour = this._video ? 'white' : 'black';
-		return html`
-			<span id="close-transcript"
-			@click=${this._onTranscriptButtonClick}>
-			<d2l-icon class="d2l-button-icon" icon="tier1:close-small" style="color: ${textColour};"></d2l-icon>
-			</span>
-
-			<d2l-dropdown-button-subtle id="transcript-download-button" text="${this.localize('download')}"
-			style="left: ${this._video ? '35%' : '0px'};">
-				<d2l-dropdown-menu id="dropdown">
-					<d2l-menu>
-							<d2l-menu-item @click=${this._downloadTranscript} text="${this.localize('transcriptTxt')}"></d2l-menu-item>
-							<d2l-menu-item @click=${this._downloadCaptions} text="${this.localize('captionsVtt')}"></d2l-menu-item>
-					</d2l-menu>
-				</d2l-dropdown-menu>
-			</d2l-dropdown-button-subtle>
-			<div
-			id="transcript-viewer"
-			style="width: ${this._video ? '65%' : '100%'}; color: ${textColour};"
-			>
-			<div class="transcript-cue-container">
-				${beforeCaptions.map(captionsToHtml)}
-				<div class="transcript-cue"
-				style="background-color: ${this._video ? 'gray' : 'lightgray'}; box-shadow: -5px 0px 0px ${textColour};"
-				id="transcript-viewer-active-cue">
-					${this._activeCue?.text}
-				</div>
-				${afterCaptions.map(captionsToHtml)}
-			</div>
-			</div>
-		`;
 	}
 
 	async _scaleTranscriptViewerVideo() {
