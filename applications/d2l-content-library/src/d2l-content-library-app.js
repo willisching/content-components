@@ -207,26 +207,6 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 							<d2l-content-library-preview id="d2l-content-library-preview" active></d2l-content-library-preview>
 						</div>
 					</d2l-dialog>
-					${this._canRecord ? html`
-						<d2l-media-web-recording-dialog
-							id="media-web-recording-dialog"
-							tenant-id="${this.tenantId}"
-							content-service-endpoint="${this.contentServiceEndpoint}"
-							client-app="VideoNote"
-							audio-recording-duration-limit="${this._audioRecordingDurationLimit}"
-							video-recording-duration-limit="${this._videoRecordingDurationLimit}"
-							can-capture-video
-							can-capture-audio
-							?is-multipart=${this.isMultipart}
-							?auto-captions-enabled=${this._autoCaptionsEnabled}
-							@processing-started="${this._handleRecordingProcessingStarted}"
-						></d2l-media-web-recording-dialog>` : ''}
-					<d2l-content-library-create-presentation-dialog
-						id="create-presentation-dialog"
-						auth-service-endpoint="${this.authServiceEndpoint}"
-						tenant-id="${this.tenantId}"
-					>
-					</d2l-content-library-create-presentation-dialog>
 				`;
 			} else {
 				return html`${this._renderPrimary()}`;
@@ -354,9 +334,9 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 		const menu = html`
 			<d2l-dropdown-menu>
 				<d2l-menu label="${this.localize('add')}">
-					<d2l-menu-item text="${this.localize('uploadFile')}" @click=${this._handleUploadFileClick}></d2l-menu-item>
-					${this._canRecord ? html`<d2l-menu-item text="${this.localize('recordWebcam')}" @click=${this._openMediaWebRecordingDialog}></d2l-menu-item>` : ''}
-					${rootStore.permissionStore.getCanAccessCapture() ? html`<d2l-menu-item text="${this.localize('captureEncoder')}" @click=${this._openCreatePresentationDialog}></d2l-menu-item>` : ''}
+					<d2l-menu-item text="${this.localize('uploadFile')}" @d2l-menu-item-select=${this._handleUploadFileClick}></d2l-menu-item>
+					${this._canRecord ? html`<d2l-menu-item text="${this.localize('recordWebcam')}" @d2l-menu-item-select=${this._openMediaWebRecordingDialog}></d2l-menu-item>` : ''}
+					${rootStore.permissionStore.getCanAccessCapture() ? html`<d2l-menu-item text="${this.localize('captureEncoder')}" @d2l-menu-item-select=${this._openCreatePresentationDialog}></d2l-menu-item>` : ''}
 				</d2l-menu>
 			</d2l-dropdown-menu>
 		`;
@@ -369,6 +349,26 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 				<d2l-button-icon class="d2l-dropdown-opener" icon="tier2:add" text="${this.localize('add')}"></d2l-button-icon>
 				${menu}
 			</d2l-dropdown>
+			${this._canRecord ? html`
+				<d2l-media-web-recording-dialog
+					id="media-web-recording-dialog"
+					tenant-id="${this.tenantId}"
+					content-service-endpoint="${this.contentServiceEndpoint}"
+					client-app="VideoNote"
+					audio-recording-duration-limit="${this._audioRecordingDurationLimit}"
+					video-recording-duration-limit="${this._videoRecordingDurationLimit}"
+					can-capture-video
+					can-capture-audio
+					?is-multipart=${this.isMultipart}
+					?auto-captions-enabled=${this._autoCaptionsEnabled}
+					@processing-started="${this._handleRecordingProcessingStarted}"
+				></d2l-media-web-recording-dialog>` : ''}
+			<d2l-content-library-create-presentation-dialog
+				id="create-presentation-dialog"
+				auth-service-endpoint="${this.authServiceEndpoint}"
+				tenant-id="${this.tenantId}"
+			>
+			</d2l-content-library-create-presentation-dialog>
 		`;
 	}
 

@@ -141,14 +141,14 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 					<d2l-dropdown-more text="${this.localize('moreActions')}" @click=${this.dropdownClicked} ?disabled=${this.disabled}>
 						<d2l-dropdown-menu id="actions-dropdown-menu" align="end" boundary=${JSON.stringify(this.dropdownBoundary)}>
 							<d2l-menu label="${this.localize('moreActions')}">
-								<d2l-menu-item text="${this.localize('preview')}" @click=${this.dispatchPreviewEvent}></d2l-menu-item>
-								<d2l-menu-item text="${this.localize('download')}" @click="${this.download}"></d2l-menu-item>
-								<d2l-menu-item text="${this.localize('edit')}" @click=${this._goTo(`/${pageNames.editor}/${this.id}`)}></d2l-menu-item>
-								<d2l-menu-item id="rename-initiator" text="${this.localize('rename')}" @click="${this.openRenameDialog()}"></d2l-menu-item>
-								<d2l-menu-item id="edit-description-initiator" text="${this.localize('editDescription')}" @click="${this.openEditDescriptionDialog()}"></d2l-menu-item>
+								<d2l-menu-item text="${this.localize('preview')}" @d2l-menu-item-select=${this.dispatchPreviewEvent}></d2l-menu-item>
+								<d2l-menu-item text="${this.localize('download')}" @d2l-menu-item-select="${this.download}"></d2l-menu-item>
+								<d2l-menu-item text="${this.localize('edit')}" @d2l-menu-item-select=${this._goTo(`/${pageNames.editor}/${this.id}`)}></d2l-menu-item>
+								<d2l-menu-item id="rename-initiator" text="${this.localize('rename')}" @d2l-menu-item-select="${this.openRenameDialog()}"></d2l-menu-item>
+								<d2l-menu-item id="edit-description-initiator" text="${this.localize('editDescription')}" @d2l-menu-item-select="${this.openEditDescriptionDialog()}"></d2l-menu-item>
 								${this.canTransferOwnership ? html`
-									<d2l-menu-item text="${this.localize('transferOwnership')}" @click="${this.openTransferOwnershipDialog()}"></d2l-menu-item>` : ''}
-								<d2l-menu-item text="${this.localize('delete')}" @click="${this.openDeleteDialog()}"></d2l-menu-item>
+									<d2l-menu-item text="${this.localize('transferOwnership')}" @d2l-menu-item-select="${this.openTransferOwnershipDialog()}"></d2l-menu-item>` : ''}
+								<d2l-menu-item text="${this.localize('delete')}" @d2l-menu-item-select="${this.openDeleteDialog()}"></d2l-menu-item>
 							</d2l-menu>
 						</d2l-dropdown-menu>
 					</d2l-dropdown-more>
