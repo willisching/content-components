@@ -279,10 +279,6 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 	async _handleCueChange() {
 		await this._mediaPlayer.requestUpdate();
 		this._manageTracksVisibility();
-
-		this._activeCue = this._mediaPlayer.activeCue;
-		const cue = this._mediaPlayer?.querySelector('#transcript-viewer')?.querySelector('#transcript-viewer-active-cue');
-		cue?.scrollIntoView({behavior: 'smooth', block: 'center', inline: 'nearest'});
 	}
 
 	async _loadCaptions() {
@@ -437,18 +433,6 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 			return;
 		}
 		const posterElement = this._mediaPlayer?.shadowRoot?.querySelector('#d2l-labs-media-player-video-poster');
-		const playButton = this._mediaPlayer?.shadowRoot?.querySelector('#d2l-labs-media-player-video-poster-play-button');
-
-		if (playButton) {
-			if (this._transcriptViewerOn) {
-				playButton.style.position = 'absolute';
-				playButton.style.top = '13%';
-				playButton.style.left = '15%';
-				playButton.style.height = '10%';
-			} else {
-				playButton.style = undefined;
-			}
-		}
 
 		this._shrinkVideoElement(this._video);
 		this._shrinkVideoElement(posterElement);
