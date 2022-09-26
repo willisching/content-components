@@ -47,6 +47,9 @@ class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEleme
 				case RenderErrors.FORBIDDEN:
 					errorTerm = 'errorForbidden';
 					break;
+				case RenderErrors.INSIDE_SANDBOX_ERROR:
+					errorTerm = 'errorInSandbox';
+					break;
 				default:
 					errorTerm = 'generalErrorMessage';
 					break;

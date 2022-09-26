@@ -95,6 +95,7 @@ export default {
 	"editingOverrides": "Editing language: {language}",
 	"editProperties": "Edit Properties",
 	"errorForbidden": "You are not allowed to view this object.",
+	"errorInSandbox": "This content is disabled because the course is sandboxed.",
 	"errorRenderingContent": "Error when trying to load this content.",
 	"everyonesMedia": "Everyone's Media",
 	"export": "Export",
