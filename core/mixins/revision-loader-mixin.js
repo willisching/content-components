@@ -74,15 +74,18 @@ export const RevisionLoaderMixin = (superClass) => class extends superClass {
 		try {
 			revision = await client.content.getRevision({ id: this._contentId, revisionTag: this._revisionTag });
 		} catch (e) {
-			switch (e.cause) {
-				case 403:
-					this._renderError = RenderErrors.FORBIDDEN;
-					return;
-				case 404:
-					this._renderError = RenderErrors.REVISION_NOT_FOUND;
-					return;
-				default:
-					getRevisionFailed = true;
+			if (e.cause === 403) {
+				this._renderError = RenderErrors.FORBIDDEN;
+				return;
+			} else if (e.cause === 404) {
+				this._renderError = RenderErrors.REVISION_NOT_FOUND;
+				return;
+			} else if (/\bsandbox.*?\ballow-same-origin\b/i.test(e.message || '')) {
+				this._renderError = RenderErrors.INSIDE_SANDBOX_ERROR;
+				return;
+			} else {
+				console.error('Error loading revision', e);
+				getRevisionFailed = true;
 			}
 		}
 
