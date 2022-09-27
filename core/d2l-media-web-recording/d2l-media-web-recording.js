@@ -206,61 +206,6 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 		return this.shadowRoot?.querySelector('d2l-media-web-recording-metadata')?.ready;
 	}
 
-	async processMediaObject() {
-		const {
-			title,
-			description,
-			autoCaptions,
-			sourceLanguage
-		} = this.shadowRoot.querySelector('d2l-media-web-recording-metadata').values;
-		const dispatchProcessingStarted = () => {
-			this.dispatchEvent(new CustomEvent('processing-started', {
-				bubbles: true,
-				composed: true,
-				detail: {
-					contentId: this._contentId,
-					revisionId: this._revisionId,
-					contentType: this._contentType === AUDIO ? 'audio' : 'video'
-				}
-			}));
-		};
-		try {
-			if (this.isMediaPlatform) {
-				const callback = (rpcResponse) => {
-					if (rpcResponse.GetResponseType() === D2L.Rpc.ResponseType.Success) {
-						dispatchProcessingStarted();
-					} else {
-						this._handleError(rpcResponse.result);
-					}
-				};
-				D2L.Rpc.Create('AddMediaObject', callback, this._rpcAddress).Call(
-					`${this._contentId}:${this._revisionId}`,
-					title,
-					description,
-					this._contentType === AUDIO,
-					sourceLanguage,
-					!!autoCaptions
-				);
-			} else {
-				await this.apiClient.content.updateItem({
-					content: {
-						id: this._contentId,
-						...(title.length && { title }),
-						...(description.length && { description })
-					}
-				});
-				await this.apiClient.content.startWorkflow({
-					id: this._contentId,
-					revisionTag: this._revisionId,
-					processOptions: { ...(autoCaptions && { captionLanguages: [sourceLanguage] }) }
-				});
-				dispatchProcessingStarted();
-			}
-		} catch (error) {
-			this._handleError(error);
-		}
-	}
-
 	reset() {
 		this._currentView = VIEW.PROGRESS;
 		this._error = null;
@@ -282,24 +227,23 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 		this._currentView = VIEW.RECORD_OR_UPLOAD;
 	}
 
-	async uploadSelectedFile() {
+	async uploadAndProcessFile() {
 		if (!this._file) {
 			this._currentView = VIEW.ERROR;
 			this._error = 'recordWebcamUploadErrorTryAgain';
 			return;
 		}
+		const {
+			title,
+			description,
+			autoCaptions,
+			sourceLanguage
+		} = this.shadowRoot.querySelector('d2l-media-web-recording-metadata').values;
 		this._currentView = VIEW.PROGRESS;
 
 		const onUploadSuccess = () => {
-			this._currentView = VIEW.METADATA;
-			this.dispatchEvent(new CustomEvent('upload-success', {
-				bubbles: true,
-				composed: true,
-				detail: {
-					contentId: this._contentId
-				}
-			}));
 			this._updateAriaLog('uploadComplete');
+			this._processMediaObject(title, description, autoCaptions, sourceLanguage);
 		};
 
 		try {
@@ -384,6 +328,55 @@ class D2LMediaWebRecording extends InternalLocalizeMixin(LitElement) {
 				this._isRecording = isRecording;
 			}
 		};
+	}
+
+	async _processMediaObject(title, description, autoCaptions, sourceLanguage) {
+		const dispatchProcessingStarted = () => {
+			this.dispatchEvent(new CustomEvent('processing-started', {
+				bubbles: true,
+				composed: true,
+				detail: {
+					contentId: this._contentId,
+					revisionId: this._revisionId,
+					contentType: this._contentType === AUDIO ? 'audio' : 'video'
+				}
+			}));
+		};
+		try {
+			if (this.isMediaPlatform) {
+				const callback = (rpcResponse) => {
+					if (rpcResponse.GetResponseType() === D2L.Rpc.ResponseType.Success) {
+						dispatchProcessingStarted();
+					} else {
+						this._handleError(rpcResponse.result);
+					}
+				};
+				D2L.Rpc.Create('AddMediaObject', callback, this._rpcAddress).Call(
+					`${this._contentId}:${this._revisionId}`,
+					title,
+					description,
+					this._contentType === AUDIO,
+					sourceLanguage,
+					!!autoCaptions
+				);
+			} else {
+				await this.apiClient.content.updateItem({
+					content: {
+						id: this._contentId,
+						...(title.length && { title }),
+						...(description.length && { description })
+					}
+				});
+				await this.apiClient.content.startWorkflow({
+					id: this._contentId,
+					revisionTag: this._revisionId,
+					processOptions: { ...(autoCaptions && { captionLanguages: [sourceLanguage] }) }
+				});
+				dispatchProcessingStarted();
+			}
+		} catch (error) {
+			this._handleError(error);
+		}
 	}
 
 	_renderSourceSelector() {
