@@ -117,7 +117,6 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 				poster=${ifDefined(this._poster ? this._poster : undefined)}
 				thumbnails=${ifDefined(this._thumbnails ? this._thumbnails : undefined)}
 				?transcript-viewer-on=${this._transcriptViewerOn}
-				@cuechange="${this._transcriptViewerOn ? this._handleCueChange : undefined}"
 				@error=${this._onError}
 				@loadeddata=${this._onLoadedData}
 				@trackloadfailed=${this._onTrackLoadFailed}
@@ -276,11 +275,6 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 		return url;
 	}
 
-	async _handleCueChange() {
-		await this._mediaPlayer.requestUpdate();
-		this._manageTracksVisibility();
-	}
-
 	async _loadCaptions() {
 		clearTimeout(this._trackErrorFetchTimeoutId);
 		this._trackErrorFetchTimeoutId = null;
@@ -348,31 +342,6 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 		if (result) this._thumbnails = result.value;
 	}
 
-	_manageAudioBarsVisibility() {
-		const mediaContainer = this._audio?.parentElement;
-		const audioBars = mediaContainer?.querySelector('#d2l-labs-media-player-audio-bars-container');
-		if (!audioBars) {
-			return;
-		}
-		if (this._transcriptViewerOn) {
-			audioBars.style.display = 'none';
-		} else {
-			audioBars.style = undefined;
-		}
-	}
-
-	_manageTracksVisibility() {
-		const trackContainer = this._mediaPlayer?.shadowRoot?.querySelector('#d2l-labs-media-player-track-container');
-		if (!trackContainer) {
-			return;
-		}
-		if (this._transcriptViewerOn) {
-			trackContainer.style.display = 'none';
-		} else {
-			trackContainer.style = undefined;
-		}
-	}
-
 	_onError() {
 		if (this._mediaSources && this._mediaSources.length > 0 && !this._attemptedReloadOnError) {
 			this._attemptedReloadOnError = true;
@@ -410,11 +379,6 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 	_onTranscriptButtonClick() {
 		this._transcriptViewerOn = !this._transcriptViewerOn;
 		this._scaleTranscriptViewerVideo();
-		if (!this._transcriptViewerOn) {
-			this._loadCaptions();
-		}
-		this._manageTracksVisibility();
-		if (this._audio) this._manageAudioBarsVisibility();
 	}
 
 	_renderCaptionsTrack(captionsUrl) {
