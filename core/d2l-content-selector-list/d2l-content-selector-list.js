@@ -195,6 +195,7 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 		this.start = 0;
 		this.query = '';
 		this._loadingDelete = false;
+		this._searched = false;
 	}
 
 	async connectedCallback() {
@@ -273,12 +274,18 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 	}
 
 	_deleteItem(item) {
-		return () => {
+		return async() => {
 			if (item === null) return;
-			this.client.content.deleteItem({id: item.id});
+			this._loadingDelete = true;
+			// await delete so that item does not show again when loading more items
+			await this.client.content.deleteItem({id: item.id});
 			this._contentItems.delete(item.id);
-			// need to request update to visually remove item
-			this.requestUpdate();
+
+			// need to load more after deletion otherwise scroll doesn't work; start with same results from before (minus the deleted item, and 1 new added item)
+			this.start = Math.max(this.start - 10, 0);
+			this._loadingDelete = false;
+			this._stillLoading = false;
+			await this._loadMore();
 		};
 	}
 
@@ -328,6 +335,7 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 
 	async _handleSearch(e) {
 		this.start = 0;
+		this._searched = true;
 		this.query = e.detail.value.trim();
 		this._contentItems = new Map();
 		this._hasMore = true;
@@ -409,9 +417,13 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 		const contentCache = this.requestInstance(ContentCacheDependencyKey);
 		const newItems = body.hits.hits.map((hit) => contentCache?.get(hit._source) ?? hit._source);
 		if (newItems.length === 0) {
+			// searched flag used for displaying "no items found" initially before a search
+			if (!this._searched) {
+				this._stillLoading = false;
+			}
 			// need to seperate _hasMore and _stillLoading otherwise _hasMore will be false after search event
 			// causing it to briefly show "No results found" during load-more event if another search is made too soon
-			if (e.type === 'd2l-input-search-searched') {
+			if (e && e.type === 'd2l-input-search-searched') {
 				this._stillLoading = false;
 			} else {
 				// _hasMore is set during load-more event which emits when scrolling to end with 10+ items, or when there are less than 10 items found after a search
