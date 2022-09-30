@@ -277,15 +277,13 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 		return async() => {
 			if (item === null) return;
 			this._loadingDelete = true;
+			this._contentItems.delete(item.id);
 			// await delete so that item does not show again when loading more items
 			await this.client.content.deleteItem({id: item.id});
-			this._contentItems.delete(item.id);
-
-			// need to load more after deletion otherwise scroll doesn't work; start with same results from before (minus the deleted item, and 1 new added item)
-			this.start = Math.max(this.start - 10, 0);
 			this._loadingDelete = false;
 			this._stillLoading = false;
-			await this._loadMore();
+			// need to load more after deletion otherwise scroll doesn't continue to work; start with same number of results from before
+			await this._loadMore(null, this.start, this._contentItems.size);
 		};
 	}
 
@@ -401,14 +399,14 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 		`;
 	}
 
-	async _loadMore(e, start = this.start) {
+	async _loadMore(e = null, start = this.start, size = 10) {
 		this._isLoading = true;
 		const searchLocations = !this.canManageAllObjects && this.searchLocations?.map(l => `ou:${l.id}`).join(',');
 		const body = await this.client.search.searchContent({
 			query: this.query,
 			start: start,
 			sort: 'updatedAt:desc',
-			size: 10,
+			size,
 			contentType: this.contentTypes,
 			...searchLocations && { searchLocations },
 			...!this.canManageAllObjects && { ownerId: this.userId }
