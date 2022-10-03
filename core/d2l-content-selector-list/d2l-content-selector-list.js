@@ -195,6 +195,7 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 		this.start = 0;
 		this.query = '';
 		this._loadingDelete = false;
+		this._searched = false;
 	}
 
 	async connectedCallback() {
@@ -273,12 +274,16 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 	}
 
 	_deleteItem(item) {
-		return () => {
+		return async() => {
 			if (item === null) return;
-			this.client.content.deleteItem({id: item.id});
+			this._loadingDelete = true;
 			this._contentItems.delete(item.id);
-			// need to request update to visually remove item
-			this.requestUpdate();
+			// await delete so that item does not show again when loading more items
+			await this.client.content.deleteItem({id: item.id});
+			this._loadingDelete = false;
+			this._stillLoading = false;
+			// need to load more after deletion otherwise scroll doesn't continue to work; start with same number of results from before
+			await this._loadMore(null, this.start, this._contentItems.size);
 		};
 	}
 
@@ -328,6 +333,7 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 
 	async _handleSearch(e) {
 		this.start = 0;
+		this._searched = true;
 		this.query = e.detail.value.trim();
 		this._contentItems = new Map();
 		this._hasMore = true;
@@ -393,14 +399,14 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 		`;
 	}
 
-	async _loadMore(e, start = this.start) {
+	async _loadMore(e = null, start = this.start, size = 10) {
 		this._isLoading = true;
 		const searchLocations = !this.canManageAllObjects && this.searchLocations?.map(l => `ou:${l.id}`).join(',');
 		const body = await this.client.search.searchContent({
 			query: this.query,
 			start: start,
 			sort: 'updatedAt:desc',
-			size: 10,
+			size,
 			contentType: this.contentTypes,
 			...searchLocations && { searchLocations },
 			...!this.canManageAllObjects && { ownerId: this.userId }
@@ -409,9 +415,13 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 		const contentCache = this.requestInstance(ContentCacheDependencyKey);
 		const newItems = body.hits.hits.map((hit) => contentCache?.get(hit._source) ?? hit._source);
 		if (newItems.length === 0) {
+			// searched flag used for displaying "no items found" initially before a search
+			if (!this._searched) {
+				this._stillLoading = false;
+			}
 			// need to seperate _hasMore and _stillLoading otherwise _hasMore will be false after search event
 			// causing it to briefly show "No results found" during load-more event if another search is made too soon
-			if (e.type === 'd2l-input-search-searched') {
+			if (e && e.type === 'd2l-input-search-searched') {
 				this._stillLoading = false;
 			} else {
 				// _hasMore is set during load-more event which emits when scrolling to end with 10+ items, or when there are less than 10 items found after a search
