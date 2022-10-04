@@ -22,6 +22,8 @@ class ProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			videoLoaded: { type: Boolean },
 
 			_widthPixels: { type: Number, attribute: false },
+			_zoomHandleClicked: { type: Boolean, attribute: false },
+			_zoomHandleHovered: { type: Boolean, attribute: false },
 			_zoomMultiplier: { type: Number, attribute: false },
 			_zoomMultiplierDisplayOpacity: { type: Number, attribute: false },
 		};
@@ -94,6 +96,8 @@ class ProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 		this.timeline = null;
 
+		this._zoomHandleClicked = false;
+		this._zoomHandleHovered = false;
 		this._zoomMultiplier = 1;
 		this._zoomMultiplierDisplayOpacity = 0;
 		this._zoomMultiplierFadeIntervalId = null;
@@ -126,8 +130,16 @@ class ProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			opacity: this._zoomMultiplierDisplayOpacity
 		};
 
+		let cursor = 'auto';
+		if (this._zoomHandleClicked) {
+			cursor = 'grabbing';
+		} else if (this._zoomHandleHovered) {
+			cursor = 'grab';
+		}
+		const timelineStyleMap = { cursor };
+
 		return html`
-			<div class="d2l-producer-timeline">
+			<div class="d2l-producer-timeline" style=${styleMap(timelineStyleMap)}>
 				<div id="canvas-container">
 					<canvas height="${constants.CANVAS_HEIGHT}px" width="${this._widthPixels}px" id="timeline-canvas"></canvas>
 					<div id="zoom-multiplier" style=${styleMap(zoomMultiplierStyleMap)}>
@@ -637,6 +649,7 @@ class ProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			timelinePressMove: () => {},
 			timelinePressUp: () => {},
 			stageMouseMove: (event) => {
+				this._updateCursorOnStage();
 				if (this._isMouseOverTimeline(false)) {
 					highlightCut(event);
 				} else {
@@ -693,6 +706,7 @@ class ProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				this._draggingMark = false;
 			},
 			stageMouseMove: () => {
+				this._updateCursorOnStage();
 				if (this._isMouseOverTimeline(false)) {
 					this._setCursorOrCurrentMark(this._stage.mouseX);
 				} else {
@@ -769,6 +783,7 @@ class ProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 				}
 			},
 			stageMouseMove: () => {
+				this._updateCursorOnStage();
 				if (this._isMouseOverContentMarker() && this._activeChapterTime) {
 					this._showAndMoveTimeContainer(this._activeChapterTime);
 				} else {
@@ -1015,6 +1030,14 @@ class ProducerTimeline extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 
 	get _timelineWidth() {
 		return this._widthPixels - constants.TIMELINE_OFFSET_X * 2;
+	}
+
+	_updateCursorOnStage() {
+		const mouseIsInZoomHandleRect = (
+			(this._stage.mouseX > this._zoomHandle.x) && (this._stage.mouseX < this._zoomHandle.x + constants.ZOOM_HANDLE_WIDTH) &&
+			(this._stage.mouseY > this._zoomHandle.y) && (this._stage.mouseY < this._zoomHandle.y + constants.ZOOM_HANDLE_HEIGHT)
+		);
+		this._zoomHandleHovered = mouseIsInZoomHandleRect;
 	}
 
 	_updateCutOnStage(cut) {
