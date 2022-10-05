@@ -95,10 +95,13 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 			}
 
 			#d2l-content-library-preview {
+				align-items: center;
 				display: flex;
-				height: 100%;
-				min-height: 400px;
 				flex-direction: column;
+				height: 100%;
+				justify-content: center;
+				min-height: 400px;
+				width: 100%;
 			}
 
 			@media (max-width: 1056px) {
@@ -203,9 +206,7 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 					</two-column-layout>
 					<upload-status-management id="upload-status-management"></upload-status-management>
 					<d2l-dialog id="preview-dialog" title-text="${this.localize('preview')}">
-						<div id="d2l-preview-div">
-							<d2l-content-library-preview id="d2l-content-library-preview" active></d2l-content-library-preview>
-						</div>
+						<d2l-content-library-preview id="d2l-content-library-preview" active></d2l-content-library-preview>
 					</d2l-dialog>
 				`;
 			} else {
@@ -230,6 +231,7 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 		previewDialog.opened = true;
 		const preview = this.shadowRoot.getElementById('d2l-content-library-preview');
 		preview.contentId = event.detail.id;
+		preview.contentType = event.detail.type;
 		previewDialog.addEventListener('d2l-dialog-close', () => {
 			preview.loading = true;
 		});
