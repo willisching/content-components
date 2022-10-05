@@ -160,8 +160,8 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 							?hide-seek-bar="${this.enableCutsAndChapters}"
 							media-type="${this.mediaType}"
 							disable-set-preferences
-							@pause="${this._pauseUpdatingVideoTime}"
-							@play="${this._startUpdatingVideoTime}"
+							@pause="${this._handleMediaPlayerPause}"
+							@play="${this._handleMediaPlayerPlay}"
 							@seeking="${this.updateVideoTime}"
 							@trackloaded="${this._handleTrackLoaded}"
 							@loadeddata="${this._handleLoadedData}"
@@ -444,6 +444,19 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this.dispatchEvent(new CustomEvent('media-error', { composed: false }));
 	}
 
+	_handleMediaPlayerPause() {
+		this.mediaPlayerPaused = true;
+
+		// Pause updating video time.
+		clearInterval(this._timelineElement.updateTimelineInterval);
+	}
+
+	_handleMediaPlayerPlay() {
+		this.mediaPlayerPaused = false;
+
+		this._timelineElement.startUpdatingVideoTime();
+	}
+
 	_handleMediaPlayerTimeJumped(event) {
 		this._mediaPlayer.currentTime = event.detail.time;
 		this.updateVideoTime();
@@ -497,26 +510,16 @@ class CaptureProducerEditor extends RtlMixin(InternalLocalizeMixin(LitElement)) 
 		this._mediaPlayer.pause();
 	}
 
-	//#region Video time management
-	_pauseUpdatingVideoTime() {
-		clearInterval(this._timelineElement.updateTimelineInterval);
-	}
-
 	_playMediaPlayerHandler() {
 		this.mediaPlayer.play();
 	}
 
-	//#endregion
 	_setChapterToCurrentTime() {
 		this._chaptersComponent.setChapterToTime(this._mediaPlayer.currentTime);
 	}
 
 	_setChapterToTimeHandler({ detail: {time} }) {
 		this._chaptersComponent.setChapterToTime(time);
-	}
-
-	_startUpdatingVideoTime() {
-		this._timelineElement.startUpdatingVideoTime();
 	}
 
 	_syncCaptionsWithMediaPlayer() {
