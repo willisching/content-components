@@ -27,7 +27,8 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 	static get properties() {
 		return {
 			numSelectedFilters: { type: Number },
-			deleted: {type: Boolean} // Is this filter for the recycle bin?
+			deleted: {type: Boolean}, // Is this filter for the recycle bin?
+			_selectedFilterParams: { type: Object, attribute: false }
 		};
 	}
 
@@ -174,8 +175,8 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 				if (dateModified === this._selectedFilterParams.dateModified &&
 					dateCreated === this._selectedFilterParams.dateCreated &&
 					ownership === this._selectedFilterParams.ownership &&
-					this._isMultiSelectFilterChanged(this._selectedFilterParams.contentTypes, normalizedContentTypes) &&
-					this._isMultiSelectFilterChanged(this._selectedFilterParams.clientApps, normalizedClientApps)
+					!this._isMultiSelectFilterChanged(this._selectedFilterParams.contentTypes, normalizedContentTypes) &&
+					!this._isMultiSelectFilterChanged(this._selectedFilterParams.clientApps, normalizedClientApps)
 				) {
 					return;
 				}
@@ -234,22 +235,24 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 		if (allCleared) {
 			this._selectedFilterParams = { dateModified: '', dateCreated: '', ownership: '', contentTypes: [], clientApps: [] };
 		} else if (dimensions.length > 0) {
+			const newFilters = { ...this._selectedFilterParams };
 			dimensions.forEach(dimension => {
 				const { changes, cleared, dimensionKey } = dimension;
 				if ([FILTER_KEYS.DATE_MODIFIED, FILTER_KEYS.DATE_CREATED, FILTER_KEYS.OWNERSHIP].includes(dimensionKey)) {
 					if (cleared) {
-						this._selectedFilterParams[dimensionKey] = '';
+						newFilters[dimensionKey] = '';
 					} else {
 						const selected = changes.filter(change => change.selected)[0];
-						this._selectedFilterParams[dimensionKey] = selected ? selected.valueKey : '';
+						newFilters[dimensionKey] = selected ? selected.valueKey : '';
 					}
 				} else {
 					const selectionMap = {};
-					this._selectedFilterParams[dimensionKey].forEach(option => selectionMap[option] = true);
+					newFilters[dimensionKey].forEach(option => selectionMap[option] = true);
 					changes.forEach(({ valueKey, selected }) => selectionMap[valueKey] = selected);
-					this._selectedFilterParams[dimensionKey] = Object.entries(selectionMap).filter(([, value]) => value).map(([key]) => key);
+					newFilters[dimensionKey] = Object.entries(selectionMap).filter(([, value]) => value).map(([key]) => key);
 				}
 			});
+			this._selectedFilterParams = newFilters;
 		}
 	}
 
