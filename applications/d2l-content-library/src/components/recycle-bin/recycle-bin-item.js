@@ -123,29 +123,29 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 						</d2l-dropdown-menu>
 					</d2l-dropdown-more>
 				</div>
-				<d2l-dialog-confirm
-					id="d2l-content-library-confirm-destroy"
-					class="d2l-content-library-confirm-destroy"
-					title-text="${this.localize('confirmDeletePermanently')}"
-					text="${this.localize('confirmDeleteMessage', {fileName: this.title})}
-					${this.localize('permanentActionWarning')}"
-				>
-					<d2l-button
-						@click="${this.destroy()}"
-						data-dialog-action="yes"
-						primary
-						slot="footer"
-					>
-					${this.localize('deletePermanently')}
-					</d2l-button>
-					<d2l-button
-						data-dialog-action="no"
-						slot="footer"
-					>
-					${this.localize('cancel')}
-					</d2l-button>
-				</d2l-dialog-confirm>
 			</d2l-list-item>
+			<d2l-dialog-confirm
+				id="d2l-content-library-confirm-destroy"
+				class="d2l-content-library-confirm-destroy"
+				title-text="${this.localize('confirmDeletePermanently')}"
+				text="${this.localize('confirmDeleteMessage', {fileName: this.title})}
+				${this.localize('permanentActionWarning')}"
+			>
+				<d2l-button
+					@click="${this.destroy()}"
+					data-dialog-action="yes"
+					primary
+					slot="footer"
+				>
+				${this.localize('deletePermanently')}
+				</d2l-button>
+				<d2l-button
+					data-dialog-action="no"
+					slot="footer"
+				>
+				${this.localize('cancel')}
+				</d2l-button>
+			</d2l-dialog-confirm>
 		`;
 	}
 
