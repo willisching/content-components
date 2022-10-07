@@ -262,6 +262,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 			composed: true,
 			detail: {
 				id: this.id,
+				type: this.type,
 			}
 		}));
 	}
