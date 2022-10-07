@@ -77,11 +77,15 @@ class D2LContentLibraryPreview extends DependencyRequester(PageViewElement) {
 			//
 			// max-width allows us to satisfy both of these conditions.
 			contentRendererStyleMap = { 'max-width': '100%' };
-			// Workaround for Safari iOS. It seems that a minimum width is needed
-			// in order for the Media Player to calculate its dimensions.
+			// Workaround for Safari iOS. It seems max-width is ignored,
+			// and the Media Player's resize logic does not kick in
+			// (likely because iOS uses its own native player), so the
+			// width must be set explicitly in this case.
 			// Without this, the Media Player does not appear.
-			if (this._is_iOS()) {
-				contentRendererStyleMap['min-width'] = '90%';
+			if (/iPhone|iPod/.test(navigator.platform)) {
+				contentRendererStyleMap['width'] = '90%';
+			} else if (/iPad/.test(navigator.platform)) {
+				contentRendererStyleMap['width'] = '80%';
 			}
 		}
 
@@ -92,10 +96,6 @@ class D2LContentLibraryPreview extends DependencyRequester(PageViewElement) {
 			content-id=${this.contentId}
 			style="${styleMap(contentRendererStyleMap)}"
 		></d2l-content-renderer>`;
-	}
-
-	_is_iOS() {
-		return /iPad|iPhone|iPod/.test(navigator.platform);
 	}
 }
 customElements.define('d2l-content-library-preview', D2LContentLibraryPreview);
