@@ -174,6 +174,9 @@ class ContentScormPlayer extends InternalLocalizeMixin(LitElement) {
 
 		return html`
 			<iframe
+				allowfullscreen
+				mozallowfullscreen
+				webkitallowfullscreen
 				src=${this._url}
 				title=${this.localize('scormPlayer')}
 			></iframe>
