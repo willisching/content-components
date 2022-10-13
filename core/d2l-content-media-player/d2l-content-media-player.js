@@ -209,7 +209,7 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 		const anchor = document.createElement('a');
 		anchor.href = url.value;
 		anchor.download = '';
-		anchor.target = '_blank';
+		anchor.target = '_parent';
 		anchor.click();
 	}
 
