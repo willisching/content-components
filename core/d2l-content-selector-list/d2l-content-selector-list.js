@@ -403,6 +403,7 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 		this._isLoading = true;
 		const searchLocations = !this.canManageAllObjects && this.searchLocations?.map(l => `ou:${l.id}`).join(',');
 		const body = await this.client.search.searchContent({
+			clientApps: ['all'],
 			query: this.query,
 			start: start,
 			sort: 'updatedAt:desc',
