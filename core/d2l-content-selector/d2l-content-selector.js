@@ -30,7 +30,6 @@ const VIEW = Object.freeze({
 });
 
 const SPINNER_SIZE = 150;
-const SUPPORTED_TYPES = [ContentType.SCORM];
 const ALLOW_ASYNC = false;
 
 class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
@@ -44,6 +43,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 			searchLocations: { type: Array, attribute: 'search-locations' },
 			selectedObject: { type: String, reflect: true, attribute: 'selected-object' },
 			serviceUrl: { type: String, attribute: 'service-url' },
+			supportedTypes: { type: Array, attribute: 'supported-types' },
 			tenantId: { type: String, attribute: 'tenant-id' },
 			canManageAllObjects: { type: Boolean, attribute: 'can-manage-all-objects' },
 			canManageSharedObjects: { type: Boolean, attribute: 'can-manage-shared-objects' },
@@ -103,6 +103,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		this.editPropertiesAfterUpload = true;
 		this.editTopicPropertiesAfterSelection = false;
 		this.showPreviewAfterSelection = false;
+		this.supportedTypes = [ContentType.SCORM];
 
 		this._region = null;
 		this._client = null;
@@ -153,6 +154,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 								allowSelection
 								?canManageAllObjects=${this.canManageAllObjects}
 								?canManageSharedObjects=${this.canManageSharedObjects}
+								.contentTypes=${this.supportedTypes}
 								orgUnitId=${this.context}
 								.searchLocations=${this.searchLocations}
 								serviceUrl=${this.serviceUrl}
@@ -226,7 +228,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 								max-file-size=${this.maxFileUploadSize}
 								sharing-org-unit-id=${this.context}
 								.shareUploadsWith=${this._shareUploadsWith}
-								.supportedTypes=${SUPPORTED_TYPES}
+								.supportedTypes=${this.supportedTypes}
 								@change-view=${this.changeView}
 								@preupload-reset=${this.progressReset}
 								@on-uploader-error=${this.reactToUploadError}
