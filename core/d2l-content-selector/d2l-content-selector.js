@@ -156,6 +156,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 								?canManageSharedObjects=${this.canManageSharedObjects}
 								.contentTypes=${this.supportedTypes}
 								orgUnitId=${this.context}
+								.searchLocations=${this.searchLocations}
 								serviceUrl=${this.serviceUrl}
 								showDeleteAction
 								showRevisionUploadAction
@@ -397,7 +398,6 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	reactToUploaderSuccess(event) {
-		console.log('yay, we can change content-components');
 		const value = event.detail.d2lrn;
 		this._uploadSuccessFiles += 1;
 		this._progress += 1;
