@@ -214,7 +214,7 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 	}
 
 	async _getCaptions() {
-		const locale = this._mediaPlayer?.locale || getDocumentLocaleSettings()._language
+		const locale = this._mediaPlayer?.selectedTrackSrcLang || getDocumentLocaleSettings()._language
 			|| getDocumentLocaleSettings()._fallbackLanguage;
 		const url = await this._getResource({
 			resource: 'captions',
@@ -262,7 +262,7 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 	}
 
 	async _getTranscript() {
-		const locale = this._mediaPlayer?.locale || getDocumentLocaleSettings()._language
+		const locale = this._mediaPlayer?.selectedTrackSrcLang || getDocumentLocaleSettings()._language
 			|| getDocumentLocaleSettings()._fallbackLanguage;
 		const url = await this._getResource({
 			resource: 'transcript',
