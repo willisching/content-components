@@ -17,6 +17,7 @@
     "start:d2l-content-media-player": "es-dev-server --config ./core/d2l-content-media-player/es-dev-server.config.cjs --app-index core/d2l-content-media-player/demo/index.html --node-resolve --dedupe --open --watch",
     "start:d2l-media-web-recording": "es-dev-server --config ./core/d2l-media-web-recording/es-dev-server.config.cjs --app-index core/d2l-media-web-recording/demo/index.html --node-resolve --dedupe --open --watch",
     "start:d2l-scorm-reports": "es-dev-server --config ./applications/d2l-scorm-reports/es-dev-server.config.cjs --app-index ./applications/d2l-scorm-reports/demo/index.html --node-resolve --dedupe --open --watch",
+	"start:d2l-recycling-bin": "es-dev-server --config ./applications/d2l-recycling-bin/es-dev-server.config.cjs --app-index ./applications/d2l-recycling-bin/demo/index.html --node-resolve --dedupe --open --watch",
     "test": "npm run lint && npm run test:headless",
     "test:headless": "web-test-runner --group default",
     "test:headless:watch": "web-test-runner --group default --watch"
@@ -63,6 +64,7 @@
     "@polymer/polymer": "^3",
     "d2l-fetch": "^2",
     "d2l-fetch-auth": "^1",
+    "date-fns": "^2.29.3",
     "enum": "^3.0.4",
     "file-drop-element": "^1.0.1",
     "ismobilejs": "^1.1.1",

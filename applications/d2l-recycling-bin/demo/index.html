@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<link rel="stylesheet" href="/node_modules/@brightspace-ui/core/components/demo/styles.css" type="text/css">
+		<script type="module">
+			import '@brightspace-ui/core/components/demo/demo-page.js';
+			import '../d2l-recycling-bin.js';
+		</script>
+		<title>d2l-recycling-bin</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="X-UA-Compatible" content="ie=edge">
+		<meta charset="UTF-8">
+	</head>
+	<body>
+		<d2l-demo-page page-title="d2l-recycling-bin">
+			<h2>d2l-recycling-bin</h2>
+			<d2l-demo-snippet>
+				<div style="position:relative; height:600px;">
+					<d2l-recycling-bin
+						service-url="http://localhost:8000/contentservice"
+						tenant-id="fake-tenant-id"
+						user-id="169"
+					></d2l-recycling-bin>
+				</div>
+			</d2l-demo-snippet>
+		</d2l-demo-page>
+	</body>
+</html>

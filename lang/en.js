@@ -340,4 +340,10 @@ export default {
 	"loadingData": "Loading data...",
 	"searchUsers": "Search users",
 	"generatingReport": "Generating report",
+	"objectName": "Object Name",
+	"deletedBy": "Deleted By",
+	"deletedOn": "Deleted On",
+	"action": "Action",
+	"numItems": "{count} Items",
+	"loadMore": "Load More",
 };
