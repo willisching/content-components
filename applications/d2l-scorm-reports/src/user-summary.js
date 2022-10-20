@@ -1,6 +1,7 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { ContentServiceApiClient } from '@d2l/content-service-shared-utils';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
+import '@brightspace-ui/core/components/inputs/input-search.js';
 import '../../../util/table-renderer.js';
 
 class UserSummary extends LitElement {

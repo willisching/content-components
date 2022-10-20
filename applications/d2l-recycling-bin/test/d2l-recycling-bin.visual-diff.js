@@ -7,6 +7,10 @@ describe('d2l-recycling-bin', () => {
 
 	let browser, page;
 
+	const today = new Date();
+	const twoDaysAgo = new Date(today);
+	twoDaysAgo.setDate(today.getDate() - 2);
+
 	before(async() => {
 		browser = await puppeteer.launch({ headless: true });
 		page = await visualDiff.createPage(browser);
@@ -24,21 +28,21 @@ describe('d2l-recycling-bin', () => {
 								'_source': {
 									'ownerId': '169',
 									'deletedByUserId': '169',
-									'deletedAt': '2022-10-17T14:22:59.526Z',
+									'deletedAt': twoDaysAgo,
 									'lastRevTitle': 'quicktest',
 								},
 							}, {
 								'_source': {
 									'ownerId': '169',
 									'deletedByUserId': '169',
-									'deletedAt': '2022-10-17T14:22:37.913Z',
+									'deletedAt': twoDaysAgo,
 									'lastRevTitle': "Oh, It's a baseball",
 								},
 							}, {
 								'_source': {
 									'ownerId': '169',
 									'deletedByUserId': '169',
-									'deletedAt': '2022-10-17T14:22:28.142Z',
+									'deletedAt': twoDaysAgo,
 									'lastRevTitle': 'Golf',
 								},
 							}
