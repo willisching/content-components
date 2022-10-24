@@ -49,6 +49,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 			canManageSharedObjects: { type: Boolean, attribute: 'can-manage-shared-objects' },
 			userId: { type: String, attribute: 'user-id' },
 			isMultipart: { type: Boolean, attribute: 'is-multipart' },
+			useContentLibrary: { type: Boolean, attribute: 'use-content-library' },
 
 			_addButtonDisabled: { type: Boolean },
 			_contentId: { type: String },
@@ -566,7 +567,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		this._uploadProgress = 0;
 		this._errorMessage = null;
 		this._hasFailures = false;
-		this.changeHeader(this.localize('contentServiceTitle'));
+		this.useContentLibrary ? this.changeHeader(this.localize('contentLibraryTitle')) : this.changeHeader(this.localize('contentServiceTitle'));
 		this._selectedView = VIEW.LIST;
 	}
 
