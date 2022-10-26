@@ -126,6 +126,8 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 	}
 
 	async connectedCallback() {
+		console.log('HEEELLOOOOOOOO WORLD!');
+
 		super.connectedCallback();
 		const httpClient = new ContentServiceBrowserHttpClient({ serviceUrl: this.serviceUrl });
 		this._client = new ContentServiceApiClient({ tenantId: this.tenantId, httpClient });

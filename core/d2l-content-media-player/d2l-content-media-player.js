@@ -138,17 +138,6 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 
 		if (changedProperties.has('_revision')) {
 			if (!changedProperties._revision && this._revision) {
-				const httpClient = new ContentServiceBrowserHttpClient({
-					serviceUrl: this.contentServiceEndpoint,
-					framed: this.framed
-				});
-				this.client = new ContentServiceApiClient({
-					httpClient,
-					tenantId: this._tenantId,
-					contextType: this.contextType,
-					contextId: this.contextId
-				});
-
 				this.dispatchEvent(new CustomEvent('cs-content-loaded', {
 					bubbles: true,
 					composed: true,
@@ -240,25 +229,6 @@ class ContentMediaPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEl
 			src: mediaSource.value,
 			format
 		};
-	}
-
-	async _getResource({resource, outputFormat = 'signed-url', query = {}}) {
-		let result;
-		try {
-			result = await this.client.content.getResource({
-				id: this._contentId,
-				revisionTag: this._revisionTag,
-				resource,
-				outputFormat,
-				query
-			});
-		} catch (error) {
-			if (error.cause !== 404) {
-				throw error;
-			}
-		}
-
-		return result;
 	}
 
 	async _getTranscript() {

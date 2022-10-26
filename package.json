@@ -61,6 +61,7 @@
     "@createjs/easeljs": "^2.0.0-beta.4",
     "@d2l/content-service-browser-http-client": "^7.16.8",
     "@d2l/content-service-shared-utils": "^7.16.8",
+    "@d2l/pdf-viewer": "^4.2.1",
     "@polymer/polymer": "^3",
     "d2l-fetch": "^2",
     "d2l-fetch-auth": "^1",

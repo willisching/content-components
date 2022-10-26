@@ -4,15 +4,8 @@ export const supportedTypeExtensions = {
 	[ContentType.AUDIO]: ['.m4a', '.mp3', '.ogg', '.wav', '.wma'],
 	[ContentType.VIDEO]: ['.avi', '.f4v', '.flv', '.m4v', '.mov', '.mp4', '.webm', '.wmv'],
 	[ContentType.SCORM]: ['.zip'],
-	[ContentType.DOC]: ['.doc'],
-	[ContentType.DOCX]: ['.docx'],
-	[ContentType.JPG]: ['.jpg'],
-	[ContentType.PNG]: ['.png'],
-	[ContentType.PPT]: ['.ppt'],
-	[ContentType.PPTX]: ['.pptx'],
-	[ContentType.PDF]: ['.pdf'],
-	[ContentType.XLS]: ['.xls'],
-	[ContentType.XLSX]: ['.xlsx']
+	[ContentType.DOCUMENT]: ['.doc', '.docx', '.ppt', '.pptx', '.xls', '.xlsx', '.pdf'],
+	[ContentType.IMAGE]: ['.jpg', '.png'],
 };
 
 export function getExtension(filePath) {
