@@ -9,6 +9,7 @@ import '../d2l-content-scorm-player.js';
 import '../d2l-renderer-status-message.js';
 import { RevisionLoaderMixin } from '../mixins/revision-loader-mixin.js';
 import RenderErrors from '../../util/render-errors';
+import ContentType from '../../util/content-type';
 
 class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
@@ -75,8 +76,8 @@ class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEleme
 		const type = this._revision.type;
 
 		switch (type) {
-			case 'Video':
-			case 'Audio':
+			case ContentType.VIDEO:
+			case ContentType.AUDIO:
 				return html`
 					<d2l-content-media-player
 						id="player"
@@ -94,7 +95,7 @@ class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEleme
 						tenant-id=${ifDefined(this._tenantId)}
 					></d2l-content-media-player>
 				`;
-			case 'Scorm':
+			case ContentType.SCORM:
 				return html`
 					<d2l-content-scorm-player
 						id="player"
@@ -107,7 +108,7 @@ class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEleme
 						?preview=${this.preview}
 					></d2l-content-scorm-player>
 				`;
-			case 'Document':
+			case ContentType.DOCUMENT:
 				return html`
 					<d2l-content-pdf-player
 						id="player"
@@ -118,7 +119,7 @@ class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEleme
 						?framed=${this.framed}
 					></d2l-content-pdf-player>
 				`;
-			case 'Image':
+			case ContentType.IMAGE:
 				return html`
 					<d2l-content-image-player
 						id="player"
