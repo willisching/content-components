@@ -3,8 +3,6 @@ import '@brightspace-ui-labs/media-player/media-player.js';
 import { getDocumentLocaleSettings } from '@brightspace-ui/intl/lib/common.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
-import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
-import { ContentServiceApiClient } from '@d2l/content-service-shared-utils';
 
 import '../d2l-renderer-status-message.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
