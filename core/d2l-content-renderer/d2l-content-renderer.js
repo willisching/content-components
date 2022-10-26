@@ -3,10 +3,13 @@ import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { ifDefined } from 'lit-html/directives/if-defined.js';
 
 import '../d2l-content-media-player.js';
+import '../d2l-content-pdf-player.js';
+import '../d2l-content-image-player.js';
 import '../d2l-content-scorm-player.js';
 import '../d2l-renderer-status-message.js';
 import { RevisionLoaderMixin } from '../mixins/revision-loader-mixin.js';
 import RenderErrors from '../../util/render-errors';
+import ContentType from '../../util/content-type';
 
 class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
@@ -71,41 +74,65 @@ class ContentRenderer extends RevisionLoaderMixin(InternalLocalizeMixin(LitEleme
 		}
 
 		const type = this._revision.type;
-		if (type === 'Video' || type === 'Audio') {
-			return html`
-			<d2l-content-media-player
-				id="player"
-				?allow-download=${this.allowDownload}
-				?allow-download-on-error=${this.allowDownloadOnError}
-				content-service-endpoint=${ifDefined(this.contentServiceEndpoint)}
-				content-id=${ifDefined(this._contentId)}
-				context-id=${ifDefined(this.contextId)}
-				context-type=${ifDefined(this.contextType)}
-				d2lrn=${ifDefined(this.d2lrn)}
-				?framed=${this.framed}
-				?full-page-view=${this.fullPageView}
-				?inserting=${this.inserting}
-				revision-tag=${ifDefined(this._revisionTag)}
-				tenant-id=${ifDefined(this._tenantId)}
-			></d2l-content-media-player>
-		`;
-		}
 
-		if (type === 'Scorm') {
-			return html`
-			<d2l-content-scorm-player
-				id="player"
-				content-service-endpoint=${this.contentServiceEndpoint}
-				context-type=${ifDefined(this.contextType)}
-				context-id=${ifDefined(this.contextId)}
-				d2lrn=${this.d2lrn}
-				?framed=${this.framed}
-				?full-page-view=${this.fullPageView}
-				?preview=${this.preview}
-			></d2l-content-scorm-player>
-			`;
+		switch (type) {
+			case ContentType.VIDEO:
+			case ContentType.AUDIO:
+				return html`
+					<d2l-content-media-player
+						id="player"
+						?allow-download=${this.allowDownload}
+						?allow-download-on-error=${this.allowDownloadOnError}
+						content-service-endpoint=${ifDefined(this.contentServiceEndpoint)}
+						content-id=${ifDefined(this._contentId)}
+						context-id=${ifDefined(this.contextId)}
+						context-type=${ifDefined(this.contextType)}
+						d2lrn=${ifDefined(this.d2lrn)}
+						?framed=${this.framed}
+						?full-page-view=${this.fullPageView}
+						?inserting=${this.inserting}
+						revision-tag=${ifDefined(this._revisionTag)}
+						tenant-id=${ifDefined(this._tenantId)}
+					></d2l-content-media-player>
+				`;
+			case ContentType.SCORM:
+				return html`
+					<d2l-content-scorm-player
+						id="player"
+						content-service-endpoint=${this.contentServiceEndpoint}
+						context-type=${ifDefined(this.contextType)}
+						context-id=${ifDefined(this.contextId)}
+						d2lrn=${this.d2lrn}
+						?framed=${this.framed}
+						?full-page-view=${this.fullPageView}
+						?preview=${this.preview}
+					></d2l-content-scorm-player>
+				`;
+			case ContentType.DOCUMENT:
+				return html`
+					<d2l-content-pdf-player
+						id="player"
+						content-service-endpoint=${this.contentServiceEndpoint}
+						context-type=${ifDefined(this.contextType)}
+						context-id=${ifDefined(this.contextId)}
+						d2lrn=${this.d2lrn}
+						?framed=${this.framed}
+					></d2l-content-pdf-player>
+				`;
+			case ContentType.IMAGE:
+				return html`
+					<d2l-content-image-player
+						id="player"
+						content-service-endpoint=${this.contentServiceEndpoint}
+						context-type=${ifDefined(this.contextType)}
+						context-id=${ifDefined(this.contextId)}
+						d2lrn=${this.d2lrn}
+						?framed=${this.framed}
+					></d2l-content-image-player>
+				`;
+			default:
+				return html`<h1>${this.localize('unsupportedType')}</h1>`;
 		}
-		return html`<h1>${this.localize('unsupportedType')}</h1>`;
 	}
 
 	get player() {

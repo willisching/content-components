@@ -56,23 +56,42 @@ export const RevisionLoaderMixin = (superClass) => class extends superClass {
 				}
 			}
 
+			const httpClient = new ContentServiceBrowserHttpClient({ serviceUrl: this.contentServiceEndpoint, framed: this.framed });
+			this._client = new ContentServiceApiClient({
+				contextId: this.contextId,
+				contextType: this.contextType,
+				httpClient,
+				tenantId: this._tenantId
+			});
+
 			this._loadRevision();
 		}
 	}
 
-	async _loadRevision() {
-		const httpClient = new ContentServiceBrowserHttpClient({ serviceUrl: this.contentServiceEndpoint, framed: this.framed });
-		const client = new ContentServiceApiClient({
-			contextId: this.contextId,
-			contextType: this.contextType,
-			httpClient,
-			tenantId: this._tenantId
-		});
+	async _getResource({resource, outputFormat = 'signed-url', query = {}}) {
+		let result;
+		try {
+			result = await this._client.content.getResource({
+				id: this._contentId,
+				revisionTag: this._revisionTag,
+				resource,
+				outputFormat,
+				query
+			});
+		} catch (error) {
+			if (error.cause !== 404) {
+				throw error;
+			}
+		}
 
+		return result;
+	}
+
+	async _loadRevision() {
 		let revision;
 		let getRevisionFailed = false;
 		try {
-			revision = await client.content.getRevision({ id: this._contentId, revisionTag: this._revisionTag });
+			revision = await this._client.content.getRevision({ id: this._contentId, revisionTag: this._revisionTag });
 		} catch (e) {
 			if (e.cause === 403) {
 				this._renderError = RenderErrors.FORBIDDEN;
