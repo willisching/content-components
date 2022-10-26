@@ -119,5 +119,4 @@ export const RevisionLoaderMixin = (superClass) => class extends superClass {
 
 		this._revision = revision;
 	}
-
 };
