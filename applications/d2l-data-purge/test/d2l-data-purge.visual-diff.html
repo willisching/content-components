@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>d2l-data-purge</title>
+  <script type="module">
+    import '@brightspace-ui/core/components/typography/typography.js';
+    import '../d2l-data-purge.js';
+  </script>
+  <style>
+    .visual-diff {
+		margin-bottom: 30px;
+	}
+	.relative {
+		position: relative;
+	}
+  </style>
+</head>
+<body class="d2l-typography">
+  <div class="visual-diff">
+	<div id="data-purge-search-container" class="relative">
+		<d2l-data-purge
+			id="data-purge-search"
+			service-url="http://localhost:8000/contentservice"
+			tenant-id="fake-tenant-id"
+		></d2l-data-purge>
+	</div>
+  </div>
+  <div class="visual-diff">
+	<div id="data-purge-search-result-container" class="relative">
+		<d2l-data-purge
+			id="data-purge-search-result"
+			service-url="http://localhost:8000/contentservice"
+			tenant-id="fake-tenant-id"
+		></d2l-data-purge>
+	</div>
+  </div>
+  <div class="visual-diff">
+	<div id="data-purge-options-container" class="relative">
+		<d2l-data-purge
+			id="data-purge-options"
+			service-url="http://localhost:8000/contentservice"
+			tenant-id="fake-tenant-id"
+		></d2l-data-purge>
+	</div>
+  </div>
+  <div class="visual-diff">
+	<div id="data-purge-options-result-container" class="relative">
+		<d2l-data-purge
+			id="data-purge-options-result"
+			service-url="http://localhost:8000/contentservice"
+			tenant-id="fake-tenant-id"
+		></d2l-data-purge>
+	</div>
+  </div>
+</body>
+</html>

@@ -347,4 +347,12 @@ export default {
 	"action": "Action",
 	"numItems": "{count} Items",
 	"loadMore": "Load More",
+	"downloadPackage": "Download Package",
+	"emptyFilter": "Enter a userId",
+	"filter": "Filter",
+	"filterPlaceholder": "Filter ...",
+	"noKnownTopics": "No known topics",
+	"noTopics": "No associated topics",
+	"selectRevision": "Select Revision",
+	"topicList": "Topic List"
 };

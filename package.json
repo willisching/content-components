@@ -18,6 +18,7 @@
     "start:d2l-media-web-recording": "es-dev-server --config ./core/d2l-media-web-recording/es-dev-server.config.cjs --app-index core/d2l-media-web-recording/demo/index.html --node-resolve --dedupe --open --watch",
     "start:d2l-scorm-reports": "es-dev-server --config ./applications/d2l-scorm-reports/es-dev-server.config.cjs --app-index ./applications/d2l-scorm-reports/demo/index.html --node-resolve --dedupe --open --watch",
     "start:d2l-recycling-bin": "es-dev-server --config ./applications/d2l-recycling-bin/es-dev-server.config.cjs --app-index ./applications/d2l-recycling-bin/demo/index.html --node-resolve --dedupe --open --watch",
+    "start:d2l-data-purge": "es-dev-server --config ./applications/d2l-data-purge/es-dev-server.config.cjs --app-index ./applications/d2l-data-purge/demo/index.html --node-resolve --dedupe --open --watch",
     "test": "npm run lint && npm run test:headless",
     "test:headless": "web-test-runner --group default",
     "test:headless:watch": "web-test-runner --group default --watch"
