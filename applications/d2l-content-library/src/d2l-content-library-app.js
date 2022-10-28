@@ -23,7 +23,7 @@ import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { NavigationMixin } from './mixins/navigation-mixin.js';
 import { navigationSharedStyle } from './style/d2l-navigation-shared-styles.js';
 import page from 'page/page.mjs';
-import { maxFileSizeInBytes, pageNames } from './util/constants.js';
+import { maxFileSizeInBytes as defaultMaxFileUploadSizeInBytes, pageNames } from './util/constants.js';
 import { ResizeObserver } from '@brightspace-ui/resize-aware/resize-observer-module.js';
 import { rootStore } from './state/root-store.js';
 
@@ -35,6 +35,7 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 			canManageAllObjects: { type: Boolean, attribute: 'can-manage-all-objects' },
 			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
 			isMultipart: { type: Boolean, attribute: 'is-multipart' },
+			maxFileUploadSizeInBytes: { type: Number, attribute: 'max-file-upload-size-in-bytes' },
 			tenantId: { type: String, attribute: 'tenant-id' },
 			_errorMessage: { type: String, attribute: false },
 			_loading: { type: Boolean, attribute: false },
@@ -281,11 +282,12 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 
 	_handleFileChange(event) {
 		const { files } = event.target;
+		const fileSizeLimit = this.maxFileUploadSizeInBytes ?? defaultMaxFileUploadSizeInBytes;
 		for (const file of files) {
-			if (file.size > maxFileSizeInBytes) {
+			if (file.size > fileSizeLimit) {
 				this._showErrorToast(this.localize(
 					'fileTooLarge',
-					{ localizedMaxFileSize: formatFileSize(maxFileSizeInBytes) }
+					{ localizedMaxFileSize: formatFileSize(fileSizeLimit) }
 				));
 				event.target.value = '';
 				return;
