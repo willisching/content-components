@@ -43,19 +43,11 @@ class ContentFileDrop extends InternalLocalizeMixin(DependencyRequester(LitEleme
 
 	onFileDrop(event) {
 		const { files } = event;
-		for (const file of files) {
-			if (file.size > maxFileSizeInBytes) {
-				this._dispatchFileDropErrorEvent(this.localize(
-					'fileTooLarge',
-					{ localizedMaxFileSize: formatFileSize(maxFileSizeInBytes) }
-				));
-				return;
-			} else if (!isSupported(file.name, this._supportedTypes)) {
-				this._dispatchFileDropErrorEvent(this.localize('invalidFileTypeSelected'));
-				return;
-			}
-		}
-		this._uploader.uploadFiles(files);
+		this.dispatchEvent(new CustomEvent('file-drop', {
+			detail: { files },
+			bubbles: true,
+			composed: true
+		}));
 	}
 
 	_dispatchFileDropErrorEvent(message) {
