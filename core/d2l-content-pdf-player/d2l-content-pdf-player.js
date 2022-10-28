@@ -1,4 +1,4 @@
-import { css, html, LitElement } from 'lit-element/lit-element.js';
+import { html, LitElement } from 'lit-element/lit-element.js';
 import '@d2l/pdf-viewer';
 
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
@@ -14,15 +14,6 @@ class ContentPdfPlayer extends RevisionLoaderMixin(InternalLocalizeMixin(LitElem
 			framed: { type: Boolean, value: false },
 			_url: { type: String, attribute: false }
 		};
-	}
-
-	static get styles() {
-		return css`
-			.pdf-viewer {
-				display: block;
-				height: 800px;
-			}
-		`;
 	}
 
 	constructor() {
