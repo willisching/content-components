@@ -335,13 +335,12 @@ export class Uploader {
 						extension,
 					}
 				};
-				const defaultOptions = {
-					playerShowNavBar: false,
-					reviewRetake: false,
-					recommendedPlayer: playerOption.EMBEDDED
-				};
 				if (type === ContentType.SCORM) {
-					revisionContent.properties.options = defaultOptions;
+					revisionContent.properties.options = {
+						playerShowNavBar: false,
+						reviewRetake: false,
+						recommendedPlayer: playerOption.EMBEDDED
+					};
 				}
 				revision = await this.apiClient.content.createRevision(revisionContent);
 
