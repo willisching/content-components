@@ -5,7 +5,7 @@ export const supportedTypeExtensions = {
 	[ContentType.VIDEO]: ['.avi', '.f4v', '.flv', '.m4v', '.mov', '.mp4', '.webm', '.wmv'],
 	[ContentType.SCORM]: ['.zip'],
 	[ContentType.DOCUMENT]: ['.doc', '.docx', '.ppt', '.pptx', '.xls', '.xlsx', '.pdf'],
-	[ContentType.IMAGE]: ['.jpg', '.png'],
+	[ContentType.IMAGE]: ['.jpg', '.jpeg', '.png'],
 };
 
 export function getExtension(filePath) {
