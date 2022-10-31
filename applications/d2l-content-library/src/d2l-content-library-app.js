@@ -23,7 +23,7 @@ import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { NavigationMixin } from './mixins/navigation-mixin.js';
 import { navigationSharedStyle } from './style/d2l-navigation-shared-styles.js';
 import page from 'page/page.mjs';
-import { maxFileSizeInBytes as defaultMaxFileUploadSizeInBytes, pageNames } from './util/constants.js';
+import { pageNames } from './util/constants.js';
 import { ResizeObserver } from '@brightspace-ui/resize-aware/resize-observer-module.js';
 import { rootStore } from './state/root-store.js';
 
@@ -448,9 +448,11 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 	}
 
 	_uploadFiles(files) {
-		const fileSizeLimit = this.maxFileUploadSizeInBytes ?? defaultMaxFileUploadSizeInBytes;
+		const fileSizeLimit = this.maxFileUploadSizeInBytes ?? 0;
 		for (const file of files) {
-			if (file.size > fileSizeLimit) {
+			// We treat a file size limit of 0 bytes to be unlimited.
+			// If the size limit is unset, it is also treated as unlimited.
+			if ((fileSizeLimit > 0) && (file.size > fileSizeLimit)) {
 				this._showErrorToast(this.localize(
 					'fileTooLarge',
 					{ localizedMaxFileSize: formatFileSize(fileSizeLimit) }
