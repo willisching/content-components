@@ -23,7 +23,7 @@ import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { NavigationMixin } from './mixins/navigation-mixin.js';
 import { navigationSharedStyle } from './style/d2l-navigation-shared-styles.js';
 import page from 'page/page.mjs';
-import { maxFileSizeInBytes, pageNames } from './util/constants.js';
+import { maxFileSizeInBytes as defaultMaxFileUploadSizeInBytes, pageNames } from './util/constants.js';
 import { ResizeObserver } from '@brightspace-ui/resize-aware/resize-observer-module.js';
 import { rootStore } from './state/root-store.js';
 
@@ -35,6 +35,7 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 			canManageAllObjects: { type: Boolean, attribute: 'can-manage-all-objects' },
 			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
 			isMultipart: { type: Boolean, attribute: 'is-multipart' },
+			maxFileUploadSizeInBytes: { type: Number, attribute: 'max-file-upload-size-in-bytes' },
 			tenantId: { type: String, attribute: 'tenant-id' },
 			_errorMessage: { type: String, attribute: false },
 			_loading: { type: Boolean, attribute: false },
@@ -281,29 +282,13 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 
 	_handleFileChange(event) {
 		const { files } = event.target;
-		for (const file of files) {
-			if (file.size > maxFileSizeInBytes) {
-				this._showErrorToast(this.localize(
-					'fileTooLarge',
-					{ localizedMaxFileSize: formatFileSize(maxFileSizeInBytes) }
-				));
-				event.target.value = '';
-				return;
-			}
-			if (!isSupported(file.name, this._supportedTypes)) {
-				this._showErrorToast(this.localize('invalidFileTypeSelected'));
-				event.target.value = '';
-				return;
-			}
-		}
-		this.uploader.uploadFiles(files);
-
-		const { page: currentPage } = rootStore.routingStore;
-		if (currentPage !== pageNames.files) {
-			this._navigate(`/${pageNames.files}`);
-		}
-
+		this._uploadFiles(files);
 		event.target.value = '';
+	}
+
+	_handleFileDrop(event) {
+		const { files } = event.detail;
+		this._uploadFiles(files);
 	}
 
 	_handleRecordingProcessingStarted(event) {
@@ -379,7 +364,7 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 		return html`
 			<div class="d2l-content-library-primary d2l-navigation-gutters ${this._shouldRenderSidebar ? 'sidebar' : ''}">
 				<d2l-content-library-landing class="page" ?active=${currentPage === pageNames.landing}></d2l-content-library-landing>
-				<d2l-content-library-files class="page" ?active=${currentPage === pageNames.files}></d2l-content-library-files>
+				<d2l-content-library-files class="page" ?active=${currentPage === pageNames.files} @file-drop=${this._handleFileDrop}></d2l-content-library-files>
 				<d2l-content-library-recycle-bin class="page" ?active=${currentPage === pageNames.recycleBin}></d2l-content-library-recycle-bin>
 				<d2l-content-library-editor class="page" ?active=${currentPage === pageNames.editor && !!subView}></d2l-content-library-editor>
 				<d2l-content-library-404 class="page" ?active=${currentPage === pageNames.page404}></d2l-content-library-404>
@@ -459,6 +444,31 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 			this._errorMessage = errorMessage;
 			this.requestUpdate();
 			errorToastElement.setAttribute('open', true);
+		}
+	}
+
+	_uploadFiles(files) {
+		const fileSizeLimit = this.maxFileUploadSizeInBytes ?? defaultMaxFileUploadSizeInBytes;
+		for (const file of files) {
+			if (file.size > fileSizeLimit) {
+				this._showErrorToast(this.localize(
+					'fileTooLarge',
+					{ localizedMaxFileSize: formatFileSize(fileSizeLimit) }
+				));
+				event.target.value = '';
+				return;
+			}
+			if (!isSupported(file.name, this._supportedTypes)) {
+				this._showErrorToast(this.localize('invalidFileTypeSelected'));
+				event.target.value = '';
+				return;
+			}
+		}
+		this.uploader.uploadFiles(files);
+
+		const { page: currentPage } = rootStore.routingStore;
+		if (currentPage !== pageNames.files) {
+			this._navigate(`/${pageNames.files}`);
 		}
 	}
 }

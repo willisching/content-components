@@ -17,6 +17,7 @@ class D2lContentLibrary extends DependencyProvider(LitElement) {
 			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
 			contentServiceEndpoint: { type: String, attribute: 'content-service-endpoint' },
 			captureServiceEndpoint: { type: String, attribute: 'capture-service-endpoint' },
+			maxFileUploadSizeInBytes: { type: Number, attribute: 'max-file-upload-size-in-bytes' },
 			isMultipart: { type: Boolean, attribute: 'is-multipart' },
 			tenantId: { type: String, attribute: 'tenant-id' },
 			userId: { type: Number, attribute: 'user-id' },
@@ -98,6 +99,7 @@ class D2lContentLibrary extends DependencyProvider(LitElement) {
 				?can-transfer-ownership="${this.canTransferOwnership}"
 				?can-access-capture="${this.canAccessCapture}"
 				?is-multipart=${this.isMultipart}
+				max-file-upload-size-in-bytes="${this.maxFileUploadSizeInBytes}"
 				tenant-id="${this.tenantId}"
 			></d2l-content-library-app>`;
 	}
