@@ -46,14 +46,6 @@ class ContentFileDrop extends InternalLocalizeMixin(DependencyRequester(LitEleme
 			composed: true
 		}));
 	}
-
-	_dispatchFileDropErrorEvent(message) {
-		this.dispatchEvent(new CustomEvent('file-drop-error', {
-			detail: { message },
-			bubbles: true,
-			composed: true
-		}));
-	}
 }
 
 window.customElements.define('content-file-drop', ContentFileDrop);

@@ -289,7 +289,6 @@ class D2lContentLibraryApp extends DependencyRequester(NavigationMixin(InternalL
 	_handleFileDrop(event) {
 		const { files } = event.detail;
 		this._uploadFiles(files);
-		event.target.value = '';
 	}
 
 	_handleRecordingProcessingStarted(event) {
