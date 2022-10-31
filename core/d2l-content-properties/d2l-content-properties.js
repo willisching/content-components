@@ -313,7 +313,6 @@ class ContentProperties extends RtlMixin(RequesterMixin(SkeletonMixin(InternalLo
 		this.content = content;
 
 		const revision = this.revisionTag === 'latest' ? content.revisions[content.revisions.length - 1] : content.revisions.find(rev => rev.id === this.revisionTag);
-
 		this._resourceType = revision.type;
 
 		this._title = content.title;
@@ -338,7 +337,7 @@ class ContentProperties extends RtlMixin(RequesterMixin(SkeletonMixin(InternalLo
 				this._isSharingToAllAllowedShareLocations();
 		}
 
-		this._playerShowNavBar = revision.options ? revision.options.playerShowNavBar : null;
+		this._playerShowNavBar = revision.options?.playerShowNavBar ?? false;
 
 		this._reviewRetake = revision.options?.reviewRetake ?? false;
 		this._recommendedPlayer = revision?.options?.recommendedPlayer;

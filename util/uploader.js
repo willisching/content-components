@@ -5,7 +5,8 @@ import { S3Uploader } from './s3-uploader.js';
 import { isAudioType, isVideoType, getType } from './media-type-util.js';
 import { randomizeDelay, sleep } from './delay';
 import { retry } from './retry.js';
-
+import ContentType from './content-type.js';
+import playerOption from './player-option.js';
 const MAX_ATTEMPTS = 10;
 
 export class Uploader {
@@ -328,12 +329,21 @@ export class Uploader {
 				content = this.existingContentId ?
 					await this.apiClient.content.getItem({ id: this.existingContentId }) :
 					await this.apiClient.content.postItem({ content: createContentBody });
-				revision = await this.apiClient.content.createRevision({
+				const revisionContent = {
 					id: content.id,
 					properties: {
 						extension,
 					}
-				});
+				};
+				if (type === ContentType.SCORM) {
+					revisionContent.properties.options = {
+						playerShowNavBar: false,
+						reviewRetake: false,
+						recommendedPlayer: playerOption.EMBEDDED
+					};
+				}
+				revision = await this.apiClient.content.createRevision(revisionContent);
+
 				const contentId = content.id;
 				const revisionId = revision.id;
 
