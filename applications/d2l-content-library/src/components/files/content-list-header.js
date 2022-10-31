@@ -12,6 +12,9 @@ class ContentListHeader extends InternalLocalizeMixin(LitElement) {
 	static get properties() {
 		return {
 			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
+			allSelected: { type: Boolean, attribute: 'all-selected' },
+			anySelected: { type: Boolean, attribute: 'any-selected' },
+			disableSelectAll: { type: Boolean, attribute: 'disable-select-all' }
 		};
 	}
 
@@ -36,13 +39,31 @@ class ContentListHeader extends InternalLocalizeMixin(LitElement) {
 				height: 0;
 				width: 45px;
 			}
+
+			d2l-selection-input {
+				position: relative;
+				left: 3px;
+			}
 		`];
+	}
+
+	constructor() {
+		super();
+		this.allSelected = false;
+		this.anySelected = false;
 	}
 
 	render() {
 		return html`
 		<d2l-list separators="none">
 			<d2l-list-item class="d2l-label-text">
+				<d2l-selection-input slot="illustration"
+				id="d2l-content-list-select-all"
+				@d2l-selection-change="${this._selectAllChange}"
+				?selected=${this.allSelected}
+				?disabled=${this.disableSelectAll}
+				label="select-all">
+				</d2l-selection-input>
 				<div class="d2l-icon-spacer" slot="illustration"></div>
 				<content-list-columns>
 					<column-header slot="detail" group="content-list">
@@ -68,11 +89,58 @@ class ContentListHeader extends InternalLocalizeMixin(LitElement) {
 						></column-header-choice>
 					</column-header>
 				</content-list-columns>
-				<div slot="actions"></div>
+				<div slot="actions" id="actions" class="actions">
+					<d2l-dropdown-more id="more-actions-header" text="${this.localize('moreActions')}" ?disabled=${!this.anySelected}>
+						<d2l-dropdown-menu id="actions-dropdown-menu-header" align="end" boundary=${JSON.stringify(this.dropdownBoundary)}  ?disabled=${!this.anySelected}>
+							<d2l-menu label="${this.localize('moreActions')}">
+								<d2l-menu-item text="${this.localize('download')}" @d2l-menu-item-select="${this.dispatchDownloadedEvent}"></d2l-menu-item>
+								${this.canTransferOwnership ? html`
+									<d2l-menu-item text="${this.localize('transferOwnership')}" @d2l-menu-item-select="${this.dispatchTransferOwnershipEvent}"></d2l-menu-item>` : ''}
+								<d2l-menu-item text="${this.localize('delete')}" @d2l-menu-item-select="${this.dispatchDeletedEvent}"></d2l-menu-item>
+							</d2l-menu>
+						</d2l-dropdown-menu>
+					</d2l-dropdown-more>
+				</div>
 			</d2l-list-item>
 		</d2l-list>
 		`;
 	}
+
+	dispatchDeletedEvent() {
+		this.dispatchEvent(new CustomEvent('content-list-items-deleted', {
+			bubbles: true,
+			composed: true,
+		}));
+		this.requestUpdate();
+	}
+
+	dispatchDownloadedEvent() {
+		this.dispatchEvent(new CustomEvent('content-list-items-downloaded', {
+			bubbles: true,
+			composed: true,
+		}));
+	}
+
+	dispatchTransferOwnershipEvent({ userId, displayName }) {
+		this.dispatchEvent(new CustomEvent('content-list-items-owner-changed', {
+			bubbles: true,
+			composed: true,
+			detail: {
+				userId,
+				displayName
+			}
+		}));
+	}
+
+	_selectAllChange(e) {
+		const detail = e.detail;
+		if (this.allSelected === e.detail.selected) {
+			return;
+		}
+		this.allSelected = e.detail.selected;
+		this.dispatchEvent(new CustomEvent('select-all-change', { detail, bubbles: true, composed: true }));
+	}
+
 }
 
 window.customElements.define('content-list-header', ContentListHeader);

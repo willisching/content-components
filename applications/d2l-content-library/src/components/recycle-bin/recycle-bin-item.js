@@ -32,6 +32,7 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 			poster: { type: String },
 			revisionId: { type: String, attribute: 'revision-id' },
 			selectable: { type: Boolean },
+			selected: { type: Boolean },
 			title: { type: String },
 			type: { type: String },
 			deleted: {type: Boolean},
@@ -63,11 +64,12 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 
 	constructor() {
 		super();
-		this.selectable = false; // Hide checkboxes until bulk actions are implemented
+		this.selectable = true;
 		this.dropdownBoundary = {};
 		this.content = null;
 		this.confirmDisabled = false;
 		this.deleted = false;
+		this.selected = false;
 	}
 
 	connectedCallback() {
@@ -94,6 +96,7 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 				label="${this.title}"
 				padding-type='slim'
 				?selectable=${this.selectable}
+				?selected=${this.selectable && this.selected}
 				key=${this.id}
 			>
 				<div class="d2l-content-library-deleted-item-illustration" slot="illustration">
@@ -115,7 +118,7 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 					<d2l-dropdown-more text="${this.localize('moreActions')}" @click=${this.dropdownClicked} ?disabled=${this.disabled}>
 						<d2l-dropdown-menu id="actions-dropdown-menu" align="end" boundary=${JSON.stringify(this.dropdownBoundary)}>
 							<d2l-menu label="${this.localize('moreActions')}">
-								<d2l-menu-item text="${this.localize('restore')}" @d2l-menu-item-select="${this.restore()}"></d2l-menu-item>
+								<d2l-menu-item text="${this.localize('restore')}" @d2l-menu-item-select="${this.restoreAndNotify}"></d2l-menu-item>
 								${rootStore.permissionStore.getCanManageAllObjects() ? html`
 									<d2l-menu-item text="${this.localize('deletePermanently')}" @d2l-menu-item-select="${this.destroyHandler()}"></d2l-menu-item>
 								` : ''}
@@ -196,14 +199,17 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 		}));
 	}
 
-	restore() {
-		return async() => {
-			await this.apiClient.content.updateItem({
-				content: { id: this.id, deletedAt: null }
-			});
-			this.dispatchRestoreEvent();
-		};
+	async restore() {
+		await this.apiClient.content.updateItem({
+			content: { id: this.id, deletedAt: null }
+		});
 	}
+
+	async restoreAndNotify() {
+		await this.restore();
+		this.dispatchRestoreEvent();
+	}
+
 }
 
 window.customElements.define('recycle-bin-item', RecycleBinItem);

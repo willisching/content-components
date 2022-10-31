@@ -39,6 +39,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 			poster: { type: String },
 			revisionId: { type: String, attribute: 'revision-id' },
 			selectable: { type: Boolean },
+			selected: { type: Boolean },
 			title: { type: String },
 			ownerId: { type: String, attribute: 'owner-id' },
 			canTransferOwnership: { type: Boolean, attribute: 'can-transfer-ownership' },
@@ -81,12 +82,13 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 
 	constructor() {
 		super();
-		this.selectable = false; // Hide checkboxes until bulk actions are implemented
+		this.selectable = true;
 		this.dropdownBoundary = {};
 		this.content = null;
 		this.confirmEditDescriptionDisabled = false;
 		this.confirmRenameDisabled = false;
 		this.connectionToken = null;
+		this.selected = false;
 	}
 
 	connectedCallback() {
@@ -118,6 +120,7 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 				label="${this.title}"
 				padding-type='slim'
 				?selectable=${this.selectable}
+				?selected=${this.selectable && this.selected}
 				key=${this.id}
 			>
 				<div class="d2l-content-library-video-item-illustration" slot="illustration">
@@ -201,6 +204,18 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 					@transfer-ownership-dialog-transfer=${this.transferOwnershipHandler}
 				></d2l-transfer-ownership-dialog>` : ''}
 		`;
+	}
+
+	updated(changedProperties) {
+		super.updated(changedProperties);
+		if (changedProperties.has('processingStatus')) {
+			if (this.processingStatus === 'deleting' || this.processingStatus === 'transferring') {
+				this.disabled = true;
+			}
+			if (this.processingStatus === 'ready') {
+				this.disabled = false;
+			}
+		}
 	}
 
 	adjustDropdownBoundary() {

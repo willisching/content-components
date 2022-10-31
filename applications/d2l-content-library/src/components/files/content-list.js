@@ -17,9 +17,25 @@ import { observe, toJS } from 'mobx';
 import { rootStore } from '../../state/root-store.js';
 
 class ContentList extends ContentLibraryList {
+	static get properties() {
+		return {
+			allSelected: { type: Boolean, attribute: false},
+			selectedItems: { type: Object, attribute: false },
+			inProgress: { type: Boolean, attribute: false }
+		};
+	}
+
 	constructor() {
 		super();
 		this.page = filesPage;
+		this.addEventListener('select-all-change', this._onSelectAllChange);
+		this.addEventListener('d2l-list-item-selected', this._onSelectChange);
+		this.addEventListener('content-list-items-deleted', this.openDeleteDialog);
+		this.addEventListener('content-list-items-downloaded', this.bulkDownloadHandler);
+		this.addEventListener('content-list-items-owner-changed', this.openTransferOwnershipDialog);
+		this.selectedItems = new Set();
+		this.allSelected = false;
+		this.undoDeleteObjects = new Set();
 	}
 
 	connectedCallback() {
@@ -45,6 +61,9 @@ class ContentList extends ContentLibraryList {
 			<content-list-header
 				@change-sort=${this.changeSort}
 				?can-transfer-ownership=${this.canTransferOwnership}
+				?any-selected=${this.selectedItems.size > 0}
+				?all-selected=${this.allSelected}
+				?disable-select-all=${!(this._files?.length > 0) || this.inProgress}
 			></content-list-header>
 			<content-file-drop @file-drop-error=${this.fileDropErrorHandler}>
 			<d2l-list>
@@ -69,23 +88,92 @@ class ContentList extends ContentLibraryList {
 				type="error">
 				${this.fileDropErrorMessage}
 			</d2l-alert-toast>
+
+			<d2l-dialog-confirm
+				id="bulk-delete-dialog"
+				title-text="${this.localize('confirmDelete')}"
+				text="${this.localize('confirmBulkDeleteMessage', {count: this.selectedItems.size})}"
+				>
+				<d2l-button @click="${this.bulkDeleteHandler}" data-dialog-action="yes" primary slot="footer">${this.localize('delete')}</d2l-button>
+				<d2l-button data-dialog-action="no" slot="footer">${this.localize('cancel')}</d2l-button>
+			</d2l-dialog-confirm>
+
+			${this.canTransferOwnership ? html`
+				<d2l-transfer-ownership-dialog
+					id="bulk-transfer-ownership"
+					owner-id=${this.ownerId}
+					bulk-count=${this.selectedItems.size}
+					@transfer-ownership-dialog-transfer=${this.bulkTransferOwnershipHandler}
+				></d2l-transfer-ownership-dialog>` : ''}
 		`;
 	}
 
+	async bulkDeleteHandler() {
+		this.inProgress = true;
+		this.undoDeleteObjects.clear();
+		for (const item of this.selectedItems) {
+			const index = this._files.findIndex(c => c.id === item.id);
+			this._files[index].processingStatus = 'deleting';
+		}
+		this.requestUpdate();
+		for (const item of this.selectedItems) {
+			try {
+				await this.apiClient.content.deleteItem({
+					id: item.id
+				});
+			} catch (error) {
+				console.warn(`Error while deleting item ${item.id}`, error);
+				this.selectedItems.delete(item);
+			}
+		}
+		this.removeItemsFromContentList(this.selectedItems);
+
+		this.updateAfterDeleted(this.selectedItems.size);
+
+		this.allSelected = false;
+		this.selectedItems.clear();
+		this.inProgress = false;
+		this.requestUpdate();
+	}
+
+	async bulkDownloadHandler() {
+		for (const item of this.selectedItems) {
+			try {
+				await item.download();
+			} catch (error) {
+				console.warn(`Error while downloading item ${item.id}`, error);
+			}
+		}
+	}
+
+	async bulkTransferOwnershipHandler(event) {
+		this.inProgress = true;
+		for (const item of this.selectedItems) {
+			const index = this._files.findIndex(c => c.id === item.id);
+			this._files[index].processingStatus = 'transferring';
+		}
+		this.requestUpdate();
+		for (const item of this.selectedItems) {
+			event.detail.id = item.id;
+			try {
+				await item.transferOwnershipHandler(event);
+			} catch (error) {
+				console.warn(`Error while transferring ownership of item ${item.id}`, error);
+			}
+			item.processingStatus = 'ready';
+		}
+		this.requestUpdate();
+		this.inProgress = false;
+	}
+
 	contentListItemDeletedHandler(e) {
+		e.detail.bulk ? {} : this.undoDeleteObjects.clear();
 		if (e && e.detail && e.detail.id) {
 			const { id } = e.detail;
 			const index = this._files.findIndex(c => c.id === id);
 
 			if (index >= 0 && index < this._files.length) {
-				this.undoDeleteObject = this._files[index];
-				this._files.splice(index, 1);
-				this.requestUpdate();
-				this.showUndoDeleteToast();
-
-				if (this._files.length < this._resultSize && this._moreResultsAvailable && !this.loading) {
-					this.loadNext();
-				}
+				this.removeItemsFromContentList([this._files[index]]);
 			}
 		}
 	}
@@ -124,7 +212,7 @@ class ContentList extends ContentLibraryList {
 				this._files[index].ownerId = userId;
 				this._files[index].ownerDisplayName = displayName;
 				this._files[index][this.dateField] = (new Date()).toISOString();
-				this.requestUpdate();
+				e.detail.bulk ? {} : this.requestUpdate();
 			}
 		}
 	}
@@ -175,8 +263,28 @@ class ContentList extends ContentLibraryList {
 		);
 	}
 
+	async openDeleteDialog() {
+		await this.shadowRoot.querySelector('#bulk-delete-dialog').open();
+	}
+
+	async openTransferOwnershipDialog() {
+		this.shadowRoot.querySelector('#bulk-transfer-ownership').open();
+	}
+
+	removeItemsFromContentList(items) {
+		this.undoDeleteObjects.clear();
+		for (const item of items) {
+			const index = this._files.findIndex(c => c.id === item.id);
+			if (this._files[index].processingStatus === 'deleting') this._files[index].processingStatus = 'ready';
+			this._files[index].selected = false;
+			this.undoDeleteObjects.add(this._files[index]);
+		}
+		this._files = this._files.filter((f) => { return ![...items].some((i) => i.id === f.id); });
+		this.updateAfterDeleted(items.size || items.length);
+	}
+
 	renderContentItem(item) {
-		const processing = item.processingStatus === 'created';
+		const processing = item.processingStatus === 'created' || item.processingStatus === 'deleting' || item.processingStatus === 'transferring';
 		return html`
 		<content-list-item
 			id=${item.id}
@@ -187,7 +295,8 @@ class ContentList extends ContentLibraryList {
 			description=${item.description}
 			?can-transfer-ownership=${this.canTransferOwnership}
 			processing-status=${item.processingStatus}
-			?disabled=${item.processingStatus === 'created'}
+			?disabled=${processing}
+			?selected=${item.selected}
 			type=${item.type}
 			@content-list-item-renamed=${this.contentListItemRenamedHandler}
 			@content-list-item-edit-description=${this.contentListItemEditDescriptionHandler}
@@ -198,13 +307,16 @@ class ContentList extends ContentLibraryList {
 			<div slot="description">${item.description}</div>
 			<div slot="owner">${item.ownerDisplayName}</div>
 			${processing ?
-		html`<div slot="date">${this.localize('processing')}</div>` :
+		(item.processingStatus === 'created' ? html`<div slot="date">${this.localize('processing')}</div>` :
+			html`<div slot="date">${this.localize(item.processingStatus)}</div>`) :
 		html`<relative-date slot="date" value=${item[this.dateField]}></relative-date>`}
 		</content-list-item>
 		`;
 	}
 
 	renderGhosts() {
+		this.allSelected = false;
+		this.requestUpdate();
 		return new Array(5).fill().map(() => html`
 			<d2l-list>
 				<content-list-item-ghost ?hidden=${!this.loading}></content-list-item-ghost>
@@ -212,35 +324,52 @@ class ContentList extends ContentLibraryList {
 		`);
 	}
 
-	showUndoDeleteToast() {
+	showUndoDeleteToast(numDeleted) {
 		const deleteToastElement = this.shadowRoot.querySelector('#delete-toast');
 
 		if (deleteToastElement) {
 			deleteToastElement.removeAttribute('open');
-			this.alertToastMessage = this.localize('removedFile');
+			this.alertToastMessage = this.localize('removedFiles', { count: numDeleted });
 			this.alertToastButtonText = this.localize('undo');
 			deleteToastElement.setAttribute('open', true);
 		}
 	}
 
 	async undoDeleteHandler() {
+		this.inProgress = true;
 		const deleteToastElement = this.shadowRoot.querySelector('#delete-toast');
 
-		if (deleteToastElement && this.undoDeleteObject && this.undoDeleteObject.id) {
+		if (deleteToastElement && this.undoDeleteObjects.size > 0) {
 			deleteToastElement.removeAttribute('open');
-			await this.apiClient.content.updateItem({
-				content: { id: this.undoDeleteObject.id, deletedAt: null }
-			});
+			for (const item of this.undoDeleteObjects) {
+				if (!item.id) {
+					continue;
+				}
+				await this.apiClient.content.updateItem({
+					content: { id: item.id, deletedAt: null }
+				});
 
-			if (!this.areAnyFiltersActive()) {
-				await this.insertIntoContentItemsBasedOnSort(this.undoDeleteObject);
+				if (!this.areAnyFiltersActive()) {
+					await this.insertIntoContentItemsBasedOnSort(item);
+				}
 			}
 
-			this.undoDeleteObject = {};
-			this.alertToastMessage = this.localize('restoredFile');
+			this.alertToastMessage = this.localize('restoredFiles', { count: this.undoDeleteObjects.size });
+			this.undoDeleteObjects.clear();
 			this.alertToastButtonText = '';
 			this.requestUpdate();
 			deleteToastElement.setAttribute('open', true);
+		}
+		this.inProgress = false;
+	}
+
+	updateAfterDeleted(numDeleted = 1) {
+		this.requestUpdate();
+		this.showUndoDeleteToast(numDeleted);
+
+		if (this._files.length < this._resultSize && this._moreResultsAvailable && !this.loading) {
+			this.loadNext();
+			this.allSelected = false;
 		}
 	}
 
@@ -267,6 +396,41 @@ class ContentList extends ContentLibraryList {
 
 		return this.userDisplayName;
 	}
+
+	_onSelectAllChange(event) {
+		const { selected } = event.detail;
+		const items = this.shadowRoot.querySelectorAll('content-list-item');
+		if (selected) {
+			for (const item of items) {
+				if (item.processingStatus === 'ready') this.selectedItems.add(item);
+			}
+		} else {
+			this.selectedItems.clear();
+		}
+		for (let i = 0; i < this._files.length; i++) {
+			if (this._files[i].processingStatus === 'ready') {
+				this._files[i].selected = selected;
+			}
+		}
+		this.allSelected = selected;
+		this.requestUpdate();
+	}
+
+	_onSelectChange(event) {
+		const { key, selected } = event.detail;
+		const item = this.shadowRoot.getElementById(key);
+		if (!item) return;
+		if (selected) {
+			this.selectedItems.add(item);
+		} else {
+			this.selectedItems.delete(item);
+			this.allSelected = false;
+		}
+		const index = this._files.findIndex(c => c.id === key);
+		this._files[index].selected = selected;
+		this.requestUpdate();
+	}
+
 }
 
 window.customElements.define('content-list', ContentList);

@@ -24,6 +24,7 @@ class D2LTransferOwnerShipDialog extends DependencyRequester(InternalLocalizeMix
 			contentId: { type: String, attribute: 'content-id' },
 			ownerId: { type: String, attribute: 'owner-id' },
 			title: { type: String },
+			bulkCount: { type: Number, attribute: 'bulk-count'},
 			_users: { type: Array, attribute: false },
 			_selectedUser: { type: Number, attribute: false },
 			_confirmDisabled: { type: Boolean, attribute: false },
@@ -71,7 +72,8 @@ class D2LTransferOwnerShipDialog extends DependencyRequester(InternalLocalizeMix
 			<d2l-dialog-confirm
 				id="transfer-ownership-confirm"
 				title-text="${this.localize('transferOwnership')}"
-				text=${this.localize('transferOwnershipWarning', { fileName: this.title, user: this._selectedUserDisplayname })}
+				text=${this.bulkCount ? this.localize('bulkTransferOwnershipWarning', { count: this.bulkCount, user: this._selectedUserDisplayname }) :
+		this.localize('transferOwnershipWarning', { fileName: this.title, user: this._selectedUserDisplayname })}
 			>
 				<d2l-button slot="footer" primary dialog-action="${dialogConfirmAction}">${this.localize('yes')}</d2l-button>
 				<d2l-button slot="footer" dialog-action>${this.localize('no')}</d2l-button>
