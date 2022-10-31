@@ -23,7 +23,7 @@ import { MobxReactionUpdate } from '@adobe/lit-mobx';
 import { NavigationMixin } from './mixins/navigation-mixin.js';
 import { navigationSharedStyle } from './style/d2l-navigation-shared-styles.js';
 import page from 'page/page.mjs';
-import { maxFileSizeInBytes as defaultMaxFileUploadSizeInBytes, pageNames } from './util/constants.js';
+import { pageNames } from './util/constants.js';
 import { ResizeObserver } from '@brightspace-ui/resize-aware/resize-observer-module.js';
 import { rootStore } from './state/root-store.js';
 
