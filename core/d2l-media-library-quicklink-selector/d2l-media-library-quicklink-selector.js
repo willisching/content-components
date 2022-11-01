@@ -2,7 +2,7 @@ import '../d2l-content-selector-list.js';
 import '@brightspace-ui/core/components/button/button.js';
 import { heading4Styles } from '@brightspace-ui/core/components/typography/styles.js';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin';
-import { css, html, LitElement } from 'lit';
+import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin';
 
 import ContentType from '../../util/content-type.js';

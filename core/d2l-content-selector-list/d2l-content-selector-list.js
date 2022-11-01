@@ -10,6 +10,7 @@ import '@brightspace-ui/core/components/dropdown/dropdown-more.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-menu.js';
 import '@brightspace-ui/core/components/menu/menu-item.js';
 import '@brightspace-ui/core/components/menu/menu.js';
+import '@brightspace-ui/core/components/menu/menu-item-radio.js';
 import '@brightspace-ui/core/components/list/list.js';
 import '@brightspace-ui/core/components/list/list-item';
 import '@brightspace-ui/core/components/list/list-item-content';
@@ -416,10 +417,6 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 		}));
 	}
 
-	_handleSortSelect() {
-		this._selectedSortOption = this.shadowRoot.getElementById('sort-options-list').getSelectedListItems()[0].key;
-	}
-
 	_handleUploadNewRevisionAction(item) {
 		return () => this.dispatchEvent(new CustomEvent('revision-upload-requested', {
 			detail: {
@@ -635,28 +632,30 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 			<d2l-dropdown-button-subtle
 				text=${this.localize('sortBy')}
 			>
-				<d2l-dropdown-content no-padding>
-					<d2l-list
-						id="sort-options-list"
-						selection-single
+				<d2l-dropdown-menu no-padding>
+					<d2l-menu
+						id="sort-options-menu"
 						extend-separators
-						@d2l-list-selection-changes=${this._handleSortSelect}
 					>
-						${sortOptions.map(sortOption => html`
-							<d2l-list-item
-								?selected=${sortOption.key === this._selectedSortOption}
-								selectable
-								key=${sortOption.key}
-								label=${sortOption.langterm}
-							>
-								<d2l-list-item-content>
-									<div>${sortOption.langterm}</div>
-								</d2l-list-item-content>
-							</d2l-list-item>
-						`)}
-					</d2l-list>
-				</d2l-dropdown-content>
+						${sortOptions.map(this._renderSortOption.bind(this))}
+					</d2l-menu>
+				</d2l-dropdown-menu>
 			</d2l-dropdown-button-subtle>
+		`;
+	}
+
+	_renderSortOption(sortOption) {
+		const handleSortOptionSelect = () => {
+			this._selectedSortOption = sortOption.key;
+		};
+		return html`
+			<d2l-menu-item-radio
+				?selected=${sortOption.key === this._selectedSortOption}
+				value=${sortOption.key}
+				text=${sortOption.langterm}
+				@d2l-menu-item-select=${handleSortOptionSelect}
+			>
+			</d2l-menu-item-radio>
 		`;
 	}
 

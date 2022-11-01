@@ -3,7 +3,7 @@ import '@brightspace-ui/core/components/filter/filter-dimension-set.js';
 import '@brightspace-ui/core/components/filter/filter-dimension-set-value.js';
 
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin';
-import { html, LitElement } from 'lit';
+import { html, LitElement } from 'lit-element/lit-element.js';
 import { dateFilters } from '../../util/date-filter.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin';
 
