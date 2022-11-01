@@ -43,7 +43,7 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 			showRevisionUploadAction: { type: Boolean },
 			showEditPropertiesAction: { type: Boolean },
 			showPreviewAction: { type: Boolean },
-			showThumbnails: { type: Boolean },
+			showThumbnail: { type: Boolean },
 			showDescription: { type: Boolean },
 			tenantId: { type: String },
 			userId: { type: String },
@@ -429,7 +429,7 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 		return html`
 			<div class="search-result ${this._skeletize(item, 'container', false)}">
 				${this.allowSelection ? this._renderRadioInput(item) : ''}
-				${this.showThumbnails ? this._renderItemThumbnail(item) : ''}
+				${this.showThumbnail ? this._renderItemThumbnail(item) : ''}
 				<div class="heading">
 					<div class="title-wrapper ${this._skeletize(item, '50')}">
 						<a class="title">
@@ -475,7 +475,7 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 			sort: this._selectedSortOption,
 			size,
 			...searchLocations && { searchLocations },
-			includeThumbnails: this.showThumbnails,
+			includeThumbnails: this.showThumbnail,
 			...filterOptions
 		});
 
@@ -609,7 +609,7 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 
 	_renderRadioInput(item) {
 		return html`
-			<div class="input-button ${this._skeletize(item)} ${this.showThumbnails ? 'thumbnail-aligned' : ''}">
+			<div class="input-button ${this._skeletize(item)} ${this.showThumbnail ? 'thumbnail-aligned' : ''}">
 				<input
 					class="d2l-input-radio"
 					name="selected-result"

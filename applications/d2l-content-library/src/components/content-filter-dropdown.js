@@ -222,7 +222,7 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 	}
 
 	_handleD2lFilterChange(event) {
-		this._selectedFilterParams = event.target.selectedFilterParams;
+		this._selectedFilterParams = event.detail.selectedFilterParams;
 	}
 
 	_isMultiSelectFilterChanged(oldFilter, newFilter) {
