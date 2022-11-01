@@ -6,7 +6,7 @@ import '@brightspace-ui/core/components/filter/filter-dimension-set-value.js';
 
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { observe, toJS } from 'mobx';
-import { dateFilters } from '../util/date-filter.js';
+import { dateFilters } from '../../../../util/date-filter.js';
 import { DependencyRequester } from '../mixins/dependency-requester-mixin.js';
 import { InternalLocalizeMixin } from '../../../../mixins/internal-localize-mixin.js';
 import { labelStyles } from '@brightspace-ui/core/components/typography/styles.js';

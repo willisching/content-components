@@ -10,19 +10,27 @@ import '@brightspace-ui/core/components/dropdown/dropdown-more.js';
 import '@brightspace-ui/core/components/dropdown/dropdown-menu.js';
 import '@brightspace-ui/core/components/menu/menu-item.js';
 import '@brightspace-ui/core/components/menu/menu.js';
+import '@brightspace-ui/core/components/list/list.js';
+import '@brightspace-ui/core/components/list/list-item';
+import '@brightspace-ui/core/components/list/list-item-content';
 import { ContentServiceApiClient } from '@d2l/content-service-shared-utils';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 
 import './src/scroller.js';
+import '../d2l-content-library-filter.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { formatDate } from '@brightspace-ui/intl/lib/dateTime.js';
 import { ContentCacheDependencyKey } from '../../models/content-cache.js';
+import { dateFilterToSearchQuery } from '../../util/date-filter.js';
+import { getIcon } from '../../util/content-type-icon-mapper.js';
 
 class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(InternalLocalizeMixin(LitElement)))) {
 	static get properties() {
 		return {
+			allowFilter: { type: Boolean },
 			allowUpload: { type: Boolean },
 			allowSelection: { type: Boolean },
+			allowSort: { type: Boolean },
 			canManageAllObjects: { type: Boolean },
 			canManageSharedObjects: { type: Boolean },
 			contentTypes: { type: Array },
@@ -34,6 +42,8 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 			showRevisionUploadAction: { type: Boolean },
 			showEditPropertiesAction: { type: Boolean },
 			showPreviewAction: { type: Boolean },
+			showThumbnails: { type: Boolean },
+			showDescription: { type: Boolean },
 			tenantId: { type: String },
 			userId: { type: String },
 
@@ -56,6 +66,15 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 				justify-content: space-between;
 			}
 
+			.search-options-container {
+				display: flex;
+				margin-left: auto;
+			}
+
+			.search-options-container > * {
+				padding-right: 5px;
+			}
+
 			.heading .title-wrapper {
 				align-items: center;
 				display: flex;
@@ -71,6 +90,10 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 				font-size: 19px;
 				text-decoration: none;
 				color: var(--d2l-color-tungsten);
+			}
+
+			.description {
+				margin-bottom: 5px;
 			}
 
 			.heading .info-wrapper {
@@ -104,8 +127,7 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 			}
 
 			.search-result input[type="radio"] {
-				margin-top: -6px;
-
+				margin-top: -4px;
 			}
 
 			.container {
@@ -154,6 +176,24 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 				padding: 0.5rem 0.8rem;
 			}
 
+			.d2l-thumbnail-image {
+				height: 100%;
+				object-fit: cover;
+				width: 100%;
+				border-radius: 6px;
+			}
+
+			.d2l-list-item-illustration {
+				align-items: center;
+				display: flex;
+				height: 64px;
+				justify-content: center;
+				width: 64px;
+				margin-right: 1rem;
+				flex-grow: 0;
+				flex-shrink: 0;
+			}
+
 			@media (max-width: 640px) {
 				d2l-button {
 					padding-left: 1em;
@@ -198,6 +238,7 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 		this.query = '';
 		this._loadingDelete = false;
 		this._searched = false;
+		this._selectedSortOption = 'updatedAt:desc';
 	}
 
 	async connectedCallback() {
@@ -219,6 +260,12 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 		return html`
 			<div class='container'>
 				<div class="input-container">
+					${this.allowFilter || this.allowSort ? html`
+						<div class="search-options-container">
+							${this.allowFilter ? this._renderFilters() : ''}
+							${this.allowSort ? this._renderSortDropdown() : ''}
+						</div>
+					` : ''}
 					<d2l-input-search
 						label=${this.localize('searchEllipsis')}
 						@d2l-input-search-searched=${this._handleSearch}
@@ -365,6 +412,10 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 		}));
 	}
 
+	_handleSortSelect() {
+		this._selectedSortOption = this.shadowRoot.getElementById('sort-options-list').getSelectedListItems()[0].key;
+	}
+
 	_handleUploadNewRevisionAction(item) {
 		return () => this.dispatchEvent(new CustomEvent('revision-upload-requested', {
 			detail: {
@@ -377,6 +428,7 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 		return html`
 			<div class="search-result ${this._skeletize(item, 'container', false)}">
 				${this.allowSelection ? this._renderRadioInput(item) : ''}
+				${this.showThumbnails ? this._renderItemThumbnail(item) : ''}
 				<div class="heading">
 					<div class="title-wrapper ${this._skeletize(item, '50')}">
 						<a class="title">
@@ -384,11 +436,14 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 						</a>
 					</div>
 					<div class="info-wrapper ${this._skeletize(item, '30')}">
-						${item?.ownerId !== this.userId ? html`${this.localize('sharedWithMe')} <d2l-icon class="dot" icon="tier1:dot"></d2l-icon>` : ''}
-						${this.localize('lastEditedOn', {lastEdited: formatDate(new Date(item?.updatedAt), {format: 'medium'})})}
+						${this.showDescription ? html`<div class="description">${item?.lastRevDescription}</div>` : ''}
+						<div>
+							${item?.ownerId !== this.userId ? html`${this.localize('sharedWithMe')} <d2l-icon class="dot" icon="tier1:dot"></d2l-icon>` : ''}
+							${this.localize('lastEditedOn', {lastEdited: formatDate(new Date(item?.updatedAt), {format: 'medium'})})}
+						</div>
 					</div>
 				</div>
-				${this._showContextMenu ? this._renderContentItems(item) : ''}
+				${this._showContextMenu ? this._renderContextMenu(item) : ''}
 			</div>
 		`;
 	}
@@ -396,15 +451,31 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 	async _loadMore(e = null, start = this.start, size = 10) {
 		this._isLoading = true;
 		const searchLocations = !this.canManageAllObjects && this.searchLocations?.map(l => `ou:${l.id}`).join(',');
+		let filterOptions;
+		if (this.allowFilter) {
+			const selectedFilters = this.shadowRoot.querySelector('d2l-content-library-filter').selectedFilterParams;
+			filterOptions = {
+				contentType: selectedFilters.contentTypes.length > 0 ? selectedFilters.contentTypes : this.contentTypes,
+				clientApps: selectedFilters.clientApps.length > 0 ? selectedFilters.clientApps : this.clientApps,
+				...(this.canManageAllObjects && selectedFilters.ownership === 'myMedia' && { ownerId: this.userId }),
+				updatedAt: dateFilterToSearchQuery(selectedFilters.dateModified),
+				createdAt: dateFilterToSearchQuery(selectedFilters.dateCreated),
+			};
+		} else {
+			filterOptions = {
+				contentType: this.contentTypes,
+				clientApps: this.clientApps,
+				...!this.canManageAllObjects && { ownerId: this.userId }
+			};
+		}
 		const body = await this.client.search.searchContent({
 			query: this.query,
 			start: start,
-			sort: 'updatedAt:desc',
+			sort: this._selectedSortOption,
 			size,
-			contentType: this.contentTypes,
-			clientApps: this.clientApps,
 			...searchLocations && { searchLocations },
-			...!this.canManageAllObjects && { ownerId: this.userId }
+			includeThumbnails: this.showThumbnails,
+			...filterOptions
 		});
 
 		const contentCache = this.requestInstance(ContentCacheDependencyKey);
@@ -511,6 +582,30 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 			</div>`;
 	}
 
+	_renderFilters() {
+		return html`
+			<d2l-content-library-filter
+				?can-manage-all-objects=${this.canManageAllObjects}
+				.contentTypes=${this.contentTypes}
+				.clientApps=${this.clientApps}
+			>
+			</d2l-content-library-filter>
+		`;
+	}
+
+	_renderItemThumbnail(item) {
+		const illustration = (item?.thumbnail && item.thumbnail !== '' && this.processingStatus !== 'created') ? html`
+			<img class="d2l-thumbnail-image" src="${item.thumbnail}" slot="illustration">
+		` : html`
+			<d2l-icon icon="${getIcon(item?.lastRevType, 'tier1:file-video')}" slot="illustration"></d2l-icon>
+		`;
+
+		return html`
+			<div class="d2l-list-item-illustration ${this._skeletize(item, 'container')}">
+				${illustration}
+			</div>`;
+	}
+
 	_renderRadioInput(item) {
 		return html`
 			<div class="input-button ${this._skeletize(item)}">
@@ -523,6 +618,42 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 					@change=${this._handleSelect(item)}
 				/>
 			</div>`;
+	}
+
+	_renderSortDropdown() {
+		const sortOptions = [
+			{ key: 'updatedAt:desc', langterm: this.localize('dateModifiedDesc') },
+			{ key: 'lastRevTitle.keyword:desc', langterm: this.localize('titleDesc') },
+			{ key: 'updatedAt:asc', langterm: this.localize('dateModifiedAsc') },
+			{ key: 'lastRevTitle.keyword:asc', langterm: this.localize('titleAsc') }
+		];
+		return html`
+			<d2l-dropdown-button-subtle
+				text=${this.localize('sortBy')}
+			>
+				<d2l-dropdown-content no-padding>
+					<d2l-list
+						id="sort-options-list"
+						selection-single
+						extend-separators
+						@d2l-list-selection-changes=${this._handleSortSelect}
+					>
+						${sortOptions.map(sortOption => html`
+							<d2l-list-item
+								?selected=${sortOption.key === this._selectedSortOption}
+								selectable
+								key=${sortOption.key}
+								label=${sortOption.langterm}
+							>
+								<d2l-list-item-content>
+									<div>${sortOption.langterm}</div>
+								</d2l-list-item-content>
+							</d2l-list-item>
+						`)}
+					</d2l-list>
+				</d2l-dropdown-content>
+			</d2l-dropdown-button-subtle>
+		`;
 	}
 
 	_renderUploadButton() {
