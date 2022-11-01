@@ -198,7 +198,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 								tenantId=${this.tenantId}
 								serviceUrl=${this.serviceUrl}
 								context=${this.context}
-								.gradesDisabled=${this.gradesDisabled}
+								?gradesDisabled=${this.gradesDisabled}
 								@topic-settings-loaded=${this._handleTopicSettingsLoaded}
 							></d2l-content-topic-settings>
 						</div>
