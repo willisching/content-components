@@ -50,6 +50,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 			userId: { type: String, attribute: 'user-id' },
 			isMultipart: { type: Boolean, attribute: 'is-multipart' },
 			useContentLibrary: { type: Boolean, attribute: 'use-content-library' },
+			gradesDisabled: { type: Boolean, attribute: 'grades-disabled' },
 
 			_addButtonDisabled: { type: Boolean },
 			_contentId: { type: String },
@@ -105,6 +106,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 		this.editTopicPropertiesAfterSelection = false;
 		this.showPreviewAfterSelection = false;
 		this.supportedTypes = [ContentType.SCORM];
+		this.gradesDisabled = false;
 
 		this._region = null;
 		this._client = null;
@@ -196,6 +198,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 								tenantId=${this.tenantId}
 								serviceUrl=${this.serviceUrl}
 								context=${this.context}
+								?gradesDisabled=${this.gradesDisabled}
 								@topic-settings-loaded=${this._handleTopicSettingsLoaded}
 							></d2l-content-topic-settings>
 						</div>

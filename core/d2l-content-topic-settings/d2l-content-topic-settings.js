@@ -21,6 +21,7 @@ class ContentTopicSettings extends SkeletonMixin(InternalLocalizeMixin(LitElemen
 			context: { type: String },
 			contentId: { type: String },
 			tenantId: { type: String },
+			gradesDisabled: { type: Boolean },
 
 			_resourceType: { type: String, attribute: false },
 			_displayLatestVersion: { type: Boolean, attribute: false },
@@ -136,6 +137,10 @@ class ContentTopicSettings extends SkeletonMixin(InternalLocalizeMixin(LitElemen
 			this.contentId = parsedD2lrn.contentId;
 		}
 
+		if (this.gradesDisabled) {
+			this._gradeObjectAssociation = false;
+		}
+
 		const httpClient = new ContentServiceBrowserHttpClient({serviceUrl: this.serviceUrl});
 		this.client = new ContentServiceApiClient({
 			tenantId: this.tenantId,
@@ -162,7 +167,7 @@ class ContentTopicSettings extends SkeletonMixin(InternalLocalizeMixin(LitElemen
 				<h3 class="package-title d2l-skeletize d2l-skeletize-50">
 					${this._title}
 				</h3>
-				${ this.skeleton || (this._resourceType && this._resourceType === 'scorm') ? this._renderGradeAssociationSection() : '' }
+				${ this.skeleton || (this._resourceType && this._resourceType === 'scorm' && !this.gradesDisabled) ? this._renderGradeAssociationSection() : '' }
 				${ this._renderVersionControlSection() }
 				${ this.skeleton || (this._resourceType && this._resourceType === 'scorm') ? this._renderPlayerOptionsSection() : '' }
 			</div>
