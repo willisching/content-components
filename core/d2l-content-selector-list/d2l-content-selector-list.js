@@ -111,6 +111,10 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 				width: 26px;
 			}
 
+			.input-button.thumbnail-aligned {
+				margin-top: 20px;
+			}
+
 			.heading {
 				display: flex;
 				flex-direction: column;
@@ -608,7 +612,7 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 
 	_renderRadioInput(item) {
 		return html`
-			<div class="input-button ${this._skeletize(item)}">
+			<div class="input-button ${this._skeletize(item)} ${this.showThumbnails ? 'thumbnail-aligned' : ''}">
 				<input
 					class="d2l-input-radio"
 					name="selected-result"
