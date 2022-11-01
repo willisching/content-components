@@ -19,21 +19,25 @@ class ContentLibraryFilter extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	static get properties() {
 		return {
 			canManageAllObjects: { type: Boolean, attribute: 'can-manage-all-objects' },
-			contentTypes: { type: Array, attribute: 'content-types' },
-			clientApps: { type: Array, attribute: 'client-apps' }
+			contentTypes: { type: Array },
+			clientApps: { type: Array },
+			deleted: { type: Boolean }, // Is this filter for deleted items
+			_selectedFilterParams: { type: Object, attribute: false }
 		};
 	}
 
 	constructor() {
 		super();
+		this._resetFilters();
+	}
 
-		this._selectedFilterParams = {
-			dateModified: '',
-			dateCreated: '',
-			ownership: '',
-			contentTypes: [],
-			clientApps: []
-		};
+	get selectedFilterParams() {
+		return this._selectedFilterParams;
+	}
+
+	set selectedFilterParams(selectedFilters) {
+		this._resetFilters();
+		Object.keys(selectedFilters).forEach(key => this._selectedFilterParams[key] = selectedFilters[key]);
 	}
 
 	render() {
@@ -63,10 +67,6 @@ class ContentLibraryFilter extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 		`;
 	}
 
-	get selectedFilterParams() {
-		return this._selectedFilterParams;
-	}
-
 	_handleD2lFilterChange(event) {
 		const { allCleared, dimensions } = event.detail;
 		if (allCleared) {
@@ -91,6 +91,13 @@ class ContentLibraryFilter extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			});
 			this._selectedFilterParams = newFilters;
 		}
+		this.dispatchEvent(new CustomEvent('d2l-filter-change', {
+			bubbles: true,
+			composed: true,
+			detail: {
+				selectedFilterParams: this._selectedFilterParams
+			}
+		}));
 	}
 
 	_renderFilterDimensionSetValues(dimension, options) {
@@ -114,6 +121,17 @@ class ContentLibraryFilter extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			`;
 		});
 	}
+
+	_resetFilters() {
+		this._selectedFilterParams = {
+			dateModified: '',
+			dateCreated: '',
+			ownership: '',
+			contentTypes: [],
+			clientApps: []
+		};
+	}
+
 }
 
 customElements.define('d2l-content-library-filter', ContentLibraryFilter);
