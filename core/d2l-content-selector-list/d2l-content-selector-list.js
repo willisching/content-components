@@ -108,12 +108,12 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 			.input-button {
 				margin-right: 10px;
 				margin-top: 6px;
-				height: 26px;
-				width: 26px;
+				height: 27px;
+				width: 27px;
 			}
 
 			.input-button.thumbnail-aligned {
-				margin-top: 20px;
+				margin-top: 18px;
 			}
 
 			.heading {
@@ -132,7 +132,7 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 			}
 
 			.search-result input[type="radio"] {
-				margin-top: -4px;
+				margin-top: -3px;
 			}
 
 			.container {
@@ -181,14 +181,14 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 				padding: 0.5rem 0.8rem;
 			}
 
-			.d2l-thumbnail-image {
+			.thumbnail-image {
 				height: 100%;
 				object-fit: cover;
 				width: 100%;
 				border-radius: 6px;
 			}
 
-			.d2l-list-item-illustration {
+			.list-item-illustration {
 				align-items: center;
 				display: flex;
 				height: 64px;
@@ -596,13 +596,13 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 
 	_renderItemThumbnail(item) {
 		const illustration = (item?.thumbnail && item.thumbnail !== '' && this.processingStatus !== 'created') ? html`
-			<img class="d2l-thumbnail-image" src="${item.thumbnail}" slot="illustration">
+			<img class="thumbnail-image" src="${item.thumbnail}" slot="illustration">
 		` : html`
 			<d2l-icon icon="${getIcon(item?.lastRevType, 'tier1:file-video')}" slot="illustration"></d2l-icon>
 		`;
 
 		return html`
-			<div class="d2l-list-item-illustration ${this._skeletize(item, 'container')}">
+			<div class="list-item-illustration ${this._skeletize(item, 'container')}">
 				${illustration}
 			</div>`;
 	}
