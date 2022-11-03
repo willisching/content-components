@@ -11,14 +11,12 @@ import '@brightspace-ui/core/components/dropdown/dropdown-menu.js';
 import '@brightspace-ui/core/components/menu/menu-item.js';
 import '@brightspace-ui/core/components/menu/menu.js';
 import '@brightspace-ui/core/components/menu/menu-item-radio.js';
-import '@brightspace-ui/core/components/list/list.js';
-import '@brightspace-ui/core/components/list/list-item';
-import '@brightspace-ui/core/components/list/list-item-content';
 import { ContentServiceApiClient } from '@d2l/content-service-shared-utils';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 
 import './src/scroller.js';
 import '../d2l-content-library-filter.js';
+import ClientApp from '../../util/client-app.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin.js';
 import { formatDate } from '@brightspace-ui/intl/lib/dateTime.js';
 import { ContentCacheDependencyKey } from '../../models/content-cache.js';
@@ -258,7 +256,7 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 		});
 
 		this._showContextMenu = this.showDeleteAction || this.showRevisionUploadAction || this.showEditPropertiesAction || this.showPreviewAction;
-		this.clientApps = this.clientApps.length > 0 ? this.clientApps : ['all'];
+		this.clientApps = this.clientApps.length > 0 ? this.clientApps : [ClientApp.ALL];
 	}
 
 	render() {

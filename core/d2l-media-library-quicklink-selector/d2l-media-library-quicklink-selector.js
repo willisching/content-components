@@ -2,11 +2,13 @@ import '../d2l-content-selector-list.js';
 import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/breadcrumbs/breadcrumbs.js';
 import '@brightspace-ui/core/components/breadcrumbs/breadcrumb-current-page.js';
+import '@brightspace-ui/core/components/inputs/input-text.js';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin';
 
 import ContentType from '../../util/content-type.js';
+import ClientApp from '../../util/client-app.js';
 import ContentServiceBrowserHttpClient from '@d2l/content-service-browser-http-client';
 import { BrightspaceApiClient } from '@d2l/content-service-shared-utils';
 
@@ -62,7 +64,14 @@ class MediaLibraryQuicklinkSelector extends RtlMixin(InternalLocalizeMixin(LitEl
 		super();
 		this._primaryButtonDisabled = true;
 		this._supportedTypes = [ContentType.AUDIO, ContentType.VIDEO];
-		this._clientApps = ['LmsContent', 'LmsCapture', 'VideoNote', 'Capture', 'LmsCourseImport', 'none'];
+		this._clientApps = [
+			ClientApp.LMS_CONTENT,
+			ClientApp.LMS_CAPTURE,
+			ClientApp.VIDEO_NOTE,
+			ClientApp.CAPTURE,
+			ClientApp.LMS_COURSE_IMPORT,
+			ClientApp.NONE
+		];
 		this._currentView = VIEW.LIST;
 	}
 
