@@ -2,7 +2,6 @@ import '../d2l-content-selector-list.js';
 import '@brightspace-ui/core/components/button/button.js';
 import '@brightspace-ui/core/components/breadcrumbs/breadcrumbs.js';
 import '@brightspace-ui/core/components/breadcrumbs/breadcrumb-current-page.js';
-import { heading4Styles } from '@brightspace-ui/core/components/typography/styles.js';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { InternalLocalizeMixin } from '../../mixins/internal-localize-mixin';
@@ -32,7 +31,7 @@ class MediaLibraryQuicklinkSelector extends RtlMixin(InternalLocalizeMixin(LitEl
 	}
 
 	static get styles() {
-		return [heading4Styles, css`
+		return [css`
 			.quicklink-selector-container {
 				height: 100%;
 			}
@@ -98,7 +97,7 @@ class MediaLibraryQuicklinkSelector extends RtlMixin(InternalLocalizeMixin(LitEl
 						serviceUrl=${this.contentServiceEndpoint}
 						tenantId=${this.tenantId}
 						userId=${this.userId}
-						@object-selected=${this._enableAddButton}
+						@object-selected=${this._enablePrimaryButton}
 					>
 					</d2l-content-selector-list>
 				`;
@@ -115,7 +114,7 @@ class MediaLibraryQuicklinkSelector extends RtlMixin(InternalLocalizeMixin(LitEl
 				breadcrumbs = html`
 				<d2l-breadcrumb
 					text="${this.localize('mediaLibrary')}"
-					@click=${this._handleBackButton}
+					@click=${this._showListView}
 					href="javascript:void(0)"
 				></d2l-breadcrumb>
 				<d2l-breadcrumb-current-page text="${this.localize('properties')}"></d2l-breadcrumb-current-page>
@@ -127,6 +126,7 @@ class MediaLibraryQuicklinkSelector extends RtlMixin(InternalLocalizeMixin(LitEl
 						label="${this.localize('title')}"
 						placeholder="${this.localize('titlePlaceholder')}"
 						value="${this._itemTitle}"
+						required
 						@input=${this._titleInputChangedHandler}
 					>
 					</d2l-input-text>
@@ -199,13 +199,8 @@ class MediaLibraryQuicklinkSelector extends RtlMixin(InternalLocalizeMixin(LitEl
 		this.dispatchEvent(new CustomEvent('cancel'));
 	}
 
-	_enableAddButton() {
+	_enablePrimaryButton() {
 		this._primaryButtonDisabled = false;
-	}
-
-	_handleBackButton() {
-		this._currentView = VIEW.LIST;
-		this._primaryButtonDisabled = true;
 	}
 
 	_handleNextButton() {
@@ -213,6 +208,11 @@ class MediaLibraryQuicklinkSelector extends RtlMixin(InternalLocalizeMixin(LitEl
 		this._itemId = `${TYPE_KEY}-${selectedObject.id}`;
 		this._itemTitle = selectedObject.lastRevTitle;
 		this._currentView = VIEW.PROPERTIES;
+	}
+
+	_showListView() {
+		this._currentView = VIEW.LIST;
+		this._primaryButtonDisabled = true;
 	}
 
 	_titleInputChangedHandler(event) {

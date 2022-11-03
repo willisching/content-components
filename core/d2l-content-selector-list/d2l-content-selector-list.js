@@ -595,7 +595,7 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 	}
 
 	_renderItemThumbnail(item) {
-		const illustration = (item?.thumbnail && item.thumbnail !== '' && this.processingStatus !== 'created') ? html`
+		const illustration = (item?.thumbnail && item.thumbnail !== '') ? html`
 			<img class="thumbnail-image" src="${item.thumbnail}" slot="illustration">
 		` : html`
 			<d2l-icon icon="${getIcon(item?.lastRevType, 'tier1:file-video')}" slot="illustration"></d2l-icon>
