@@ -85,6 +85,7 @@ class D2LContentLibraryRecycleBin extends contentSearchMixin(DependencyRequester
 	connectedCallback() {
 		super.connectedCallback();
 		this._showAdvancedFilters = this.requestDependency('show-advanced-filters');
+		this._showBulkActions = this.requestDependency('show-bulk-actions');
 	}
 
 	render() {
@@ -105,7 +106,9 @@ class D2LContentLibraryRecycleBin extends contentSearchMixin(DependencyRequester
 						@d2l-input-search-searched=${this._handleSearch}
 					></d2l-input-search>
 				</div>
-				<recycle-bin-list></recycle-bin-list>
+				<recycle-bin-list
+				?show-bulk-actions=${this._showBulkActions}
+				></recycle-bin-list>
 			</div>
 		`;
 	}

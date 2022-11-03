@@ -4,6 +4,12 @@ import '../ghost-box.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 
 class ContentListItemGhost extends LitElement {
+	static get properties() {
+		return {
+			selectable: { type: Boolean },
+		};
+	}
+
 	static get styles() {
 		return [css`
 			.ghost [slot=icon] {

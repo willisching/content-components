@@ -64,7 +64,6 @@ class RecycleBinItem extends DependencyRequester(navigationMixin(InternalLocaliz
 
 	constructor() {
 		super();
-		this.selectable = true;
 		this.dropdownBoundary = {};
 		this.content = null;
 		this.confirmDisabled = false;

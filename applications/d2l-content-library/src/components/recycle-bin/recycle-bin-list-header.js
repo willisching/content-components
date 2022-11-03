@@ -13,7 +13,8 @@ class RecycleBinListHeader extends InternalLocalizeMixin(LitElement) {
 		return {
 			allSelected: { type: Boolean, attribute: 'all-selected' },
 			anySelected: { type: Boolean, attribute: 'any-selected' },
-			disableSelectAll: { type: Boolean, attribute: 'disable-select-all' }
+			disableSelectAll: { type: Boolean, attribute: 'disable-select-all' },
+			showBulkActions: { type: Boolean, attribute: 'show-bulk-actions' }
 		};
 	}
 
@@ -37,6 +38,12 @@ class RecycleBinListHeader extends InternalLocalizeMixin(LitElement) {
 				height: 0;
 				width: 45px;
 			}
+
+			d2l-dropdown-more {
+				position: relative;
+				bottom: 8px;
+				left: 3px;
+			}
 		`];
 	}
 
@@ -50,12 +57,15 @@ class RecycleBinListHeader extends InternalLocalizeMixin(LitElement) {
 		return html`
 		<d2l-list separators="none">
 			<d2l-list-item class="d2l-label-text">
+			${this.showBulkActions ? html`
 			<d2l-selection-input slot="illustration"
+			id="d2l-content-list-select-all"
 			@d2l-selection-change="${this._selectAllChange}"
 			?selected=${this.allSelected}
 			?disabled=${this.disableSelectAll}
 			label="select-all">
-			</d2l-selection-input>
+			</d2l-selection-input>` : html`
+			<div class="d2l-icon-spacer" slot="illustration"></div>`}
 				<div class="d2l-icon-spacer" slot="illustration"></div>
 				<recycle-bin-list-columns>
 					<column-header slot="detail" group="recycle-bin-list">
@@ -78,7 +88,7 @@ class RecycleBinListHeader extends InternalLocalizeMixin(LitElement) {
 						></column-header-choice>
 					</column-header>
 				</recycle-bin-list-columns>
-				<div slot="actions" id="actions" class="actions">
+				${this.showBulkActions ? html `<div slot="actions" id="actions" class="actions">
 				<d2l-dropdown-more id="more-actions-header" text="${this.localize('moreActions')}" ?disabled=${!this.anySelected}>
 					<d2l-dropdown-menu id="actions-dropdown-menu-header" align="end" boundary=${JSON.stringify(this.dropdownBoundary)}  ?disabled=${!this.anySelected}>
 						<d2l-menu label="${this.localize('moreActions')}">
@@ -86,7 +96,7 @@ class RecycleBinListHeader extends InternalLocalizeMixin(LitElement) {
 						</d2l-menu>
 					</d2l-dropdown-menu>
 				</d2l-dropdown-more>
-			</div>
+			</div>` : ''}
 			</d2l-list-item>
 		</d2l-list>
 		`;

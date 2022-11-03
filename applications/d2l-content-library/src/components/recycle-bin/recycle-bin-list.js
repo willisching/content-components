@@ -16,7 +16,8 @@ class RecycleBinList extends ContentLibraryList {
 	static get properties() {
 		return {
 			allSelected: { type: Boolean, attribute: false },
-			selectedItems: { type: Object, attribute: false }
+			selectedItems: { type: Object, attribute: false },
+			showBulkActions: { type: Boolean, attribute: 'show-bulk-actions' }
 		};
 	}
 
@@ -42,7 +43,8 @@ class RecycleBinList extends ContentLibraryList {
 				@change-sort=${this.changeSort}
 				?any-selected=${this.selectedItems.size > 0}
 				?all-selected=${this.allSelected}
-				?disable-select-all=${!(this._files?.length > 0)}></recycle-bin-list-header>
+				?disable-select-all=${!(this._files?.length > 0)}
+				?show-bulk-actions=${this.showBulkActions}></recycle-bin-list-header>
 			<d2l-list>
 				<div id="d2l-content-library-list">
 					${this.renderNotFound()}
@@ -133,7 +135,10 @@ class RecycleBinList extends ContentLibraryList {
 		this.allSelected = false;
 		return new Array(5).fill().map(() => html`
 			<d2l-list>
-				<recycle-bin-item-ghost ?hidden=${!this.loading}></recycle-bin-item-ghost>
+				<recycle-bin-item-ghost
+				?hidden=${!this.loading}
+				?selectable=${this.showBulkActions}
+				></recycle-bin-item-ghost>
 			</d2l-list>
 		`);
 	}
@@ -149,6 +154,7 @@ class RecycleBinList extends ContentLibraryList {
 			description=${item.description}
 			type=${item.type}
 			?selected=${item.selected}
+			?selectable=${this.showBulkActions}
 			@recycle-bin-item-restored=${this.recycleBinItemRestoredHandler}
 			@recycle-bin-item-destroyed=${this.recycleBinItemDestroyHandler}
 		>

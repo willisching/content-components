@@ -4,6 +4,12 @@ import '../ghost-box.js';
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 
 class RecycleBinItemGhost extends LitElement {
+	static get properties() {
+		return {
+			selectable: { type: Boolean },
+		};
+	}
+
 	static get styles() {
 		return [css`
 			.ghost [slot=icon] {
@@ -32,7 +38,7 @@ class RecycleBinItemGhost extends LitElement {
 
 	render() {
 		return html`
-			<recycle-bin-item class="ghost" disabled>
+			<recycle-bin-item class="ghost" disabled ?selectable=${this.selectable}>
 				<ghost-box slot="icon"></ghost-box>
 				<ghost-box slot="title"></ghost-box>
 				<ghost-box slot="type"></ghost-box>

@@ -21,7 +21,8 @@ class ContentList extends ContentLibraryList {
 		return {
 			allSelected: { type: Boolean, attribute: false},
 			selectedItems: { type: Object, attribute: false },
-			inProgress: { type: Boolean, attribute: false }
+			inProgress: { type: Boolean, attribute: false },
+			showBulkActions: { type: Boolean, attribute: 'show-bulk-actions' }
 		};
 	}
 
@@ -31,7 +32,6 @@ class ContentList extends ContentLibraryList {
 		this.addEventListener('select-all-change', this._onSelectAllChange);
 		this.addEventListener('d2l-list-item-selected', this._onSelectChange);
 		this.addEventListener('content-list-items-deleted', this.openDeleteDialog);
-		this.addEventListener('content-list-items-downloaded', this.bulkDownloadHandler);
 		this.addEventListener('content-list-items-owner-changed', this.openTransferOwnershipDialog);
 		this.selectedItems = new Set();
 		this.allSelected = false;
@@ -64,6 +64,7 @@ class ContentList extends ContentLibraryList {
 				?any-selected=${this.selectedItems.size > 0}
 				?all-selected=${this.allSelected}
 				?disable-select-all=${!(this._files?.length > 0) || this.inProgress}
+				?show-bulk-actions=${this.showBulkActions}
 			></content-list-header>
 			<content-file-drop @file-drop-error=${this.fileDropErrorHandler}>
 			<d2l-list>
@@ -136,16 +137,6 @@ class ContentList extends ContentLibraryList {
 		this.requestUpdate();
 	}
 
-	async bulkDownloadHandler() {
-		for (const item of this.selectedItems) {
-			try {
-				await item.download();
-			} catch (error) {
-				console.warn(`Error while downloading item ${item.id}`, error);
-			}
-		}
-	}
-
 	async bulkTransferOwnershipHandler(event) {
 		this.inProgress = true;
 		for (const item of this.selectedItems) {
@@ -160,9 +151,10 @@ class ContentList extends ContentLibraryList {
 			} catch (error) {
 				console.warn(`Error while transferring ownership of item ${item.id}`, error);
 			}
-			item.processingStatus = 'ready';
+			const index = this._files.findIndex(c => c.id === item.id);
+			this._files[index].processingStatus = 'ready';
+			this.requestUpdate();
 		}
-		this.requestUpdate();
 		this.inProgress = false;
 	}
 
@@ -297,6 +289,7 @@ class ContentList extends ContentLibraryList {
 			processing-status=${item.processingStatus}
 			?disabled=${processing}
 			?selected=${item.selected}
+			?selectable=${this.showBulkActions}
 			type=${item.type}
 			@content-list-item-renamed=${this.contentListItemRenamedHandler}
 			@content-list-item-edit-description=${this.contentListItemEditDescriptionHandler}
@@ -319,7 +312,10 @@ class ContentList extends ContentLibraryList {
 		this.requestUpdate();
 		return new Array(5).fill().map(() => html`
 			<d2l-list>
-				<content-list-item-ghost ?hidden=${!this.loading}></content-list-item-ghost>
+				<content-list-item-ghost
+				?hidden=${!this.loading}
+				?selectable=${this.showBulkActions}
+				></content-list-item-ghost>
 			</d2l-list>
 		`);
 	}

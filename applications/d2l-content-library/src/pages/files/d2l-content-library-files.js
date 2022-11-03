@@ -83,6 +83,7 @@ class D2LContentLibraryFiles extends contentSearchMixin(DependencyRequester(Page
 	connectedCallback() {
 		super.connectedCallback();
 		this._showAdvancedFilters = this.requestDependency('show-advanced-filters');
+		this._showBulkActions = this.requestDependency('show-bulk-actions');
 	}
 
 	render() {
@@ -104,7 +105,9 @@ class D2LContentLibraryFiles extends contentSearchMixin(DependencyRequester(Page
 						@d2l-input-search-searched=${this._handleSearch}
 					></d2l-input-search>
 				</div>
-				<content-list></content-list>
+				<content-list
+				?show-bulk-actions=${this._showBulkActions}
+				></content-list>
 			</div>
 		`;
 	}

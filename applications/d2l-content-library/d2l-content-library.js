@@ -26,7 +26,8 @@ class D2lContentLibrary extends DependencyProvider(LitElement) {
 			canAccessCapture: { type: Boolean, attribute: 'can-access-capture' },
 			videoRecordingDurationLimit: { type: Number, attribute: 'video-recording-duration-limit' },
 			audioRecordingDurationLimit: { type: Number, attribute: 'audio-recording-duration-limit' },
-			autoCaptionsEnabled: { type: Boolean, attribute: 'auto-captions-enabled' }
+			autoCaptionsEnabled: { type: Boolean, attribute: 'auto-captions-enabled' },
+			showBulkActions: { type: Boolean, attribute: 'show-bulk-actions' }
 		};
 	}
 
@@ -61,6 +62,7 @@ class D2lContentLibrary extends DependencyProvider(LitElement) {
 		this.provideDependency('video-recording-duration-limit', this.videoRecordingDurationLimit);
 		this.provideDependency('audio-recording-duration-limit', this.audioRecordingDurationLimit);
 		this.provideDependency('auto-captions-enabled', this.autoCaptionsEnabled);
+		this.provideDependency('show-bulk-actions', this.showBulkActions);
 		this.provideDependency('supported-types', [ContentType.AUDIO, ContentType.VIDEO]);
 
 		const apiClient = new ContentServiceApiClient({

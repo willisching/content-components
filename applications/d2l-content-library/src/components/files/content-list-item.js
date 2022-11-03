@@ -82,7 +82,6 @@ class ContentListItem extends DependencyRequester(navigationMixin(InternalLocali
 
 	constructor() {
 		super();
-		this.selectable = true;
 		this.dropdownBoundary = {};
 		this.content = null;
 		this.confirmEditDescriptionDisabled = false;
