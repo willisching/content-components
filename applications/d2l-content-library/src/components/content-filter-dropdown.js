@@ -3,10 +3,11 @@ import '@brightspace-ui/core/components/dropdown/dropdown-content.js';
 import '@brightspace-ui/core/components/filter/filter.js';
 import '@brightspace-ui/core/components/filter/filter-dimension-set.js';
 import '@brightspace-ui/core/components/filter/filter-dimension-set-value.js';
+import '../../../../core/d2l-content-library-filter.js';
 
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { observe, toJS } from 'mobx';
-import { dateFilters } from '../util/date-filter.js';
+import { dateFilters } from '../../../../util/date-filter.js';
 import { DependencyRequester } from '../mixins/dependency-requester-mixin.js';
 import { InternalLocalizeMixin } from '../../../../mixins/internal-localize-mixin.js';
 import { labelStyles } from '@brightspace-ui/core/components/typography/styles.js';
@@ -14,14 +15,6 @@ import { rootStore } from '../state/root-store.js';
 import { RtlMixin } from '@brightspace-ui/core/mixins/rtl-mixin.js';
 import { selectStyles } from '@brightspace-ui/core/components/inputs/input-select-styles.js';
 import { CLIENT_APPS, CONTENT_TYPES } from '../util/constants.js';
-
-const FILTER_KEYS = Object.freeze({
-	OWNERSHIP: 'ownership',
-	CONTENT_TYPES: 'contentTypes',
-	CLIENT_APPS: 'clientApps',
-	DATE_MODIFIED: 'dateModified',
-	DATE_CREATED: 'dateCreated'
-});
 
 class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocalizeMixin(LitElement))) {
 	static get properties() {
@@ -86,31 +79,25 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 		this._showAdvancedFilters = this.requestDependency('show-advanced-filters');
 	}
 
+	firstUpdated() {
+		super.firstUpdated();
+		if (this._showAdvancedFilters) {
+			this._advancedFilter = this.shadowRoot.querySelector('d2l-content-library-filter');
+			this._advancedFilter.selectedFilterParams = this._selectedFilterParams;
+		}
+	}
+
 	render() {
 		if (this._showAdvancedFilters) {
 			return html`
-				<d2l-filter @d2l-filter-change=${this._handleD2lFilterChange}>
-					${this._canManageAllObjects ? html`
-						<d2l-filter-dimension-set key="${FILTER_KEYS.OWNERSHIP}" text=${this.localize(FILTER_KEYS.OWNERSHIP)} search-type="none" selection-single>
-							${this._renderFilterDimensionSetValues(FILTER_KEYS.OWNERSHIP, ['myMedia', 'everyonesMedia'])}
-						</d2l-filter-dimension-set>` : ''}
-					<d2l-filter-dimension-set key="${FILTER_KEYS.CONTENT_TYPES}" text="${this.localize('contentType')}" search-type="none" select-all>
-						${this._renderFilterDimensionSetValues(FILTER_KEYS.CONTENT_TYPES, CONTENT_TYPES)}
-					</d2l-filter-dimension-set>
-					<d2l-filter-dimension-set key="${FILTER_KEYS.CLIENT_APPS}" text="${this.localize('clientApp')}" select-all>
-						${this._renderFilterDimensionSetValues(FILTER_KEYS.CLIENT_APPS, CLIENT_APPS)}
-					</d2l-filter-dimension-set>
-					<d2l-filter-dimension-set
-						key="${FILTER_KEYS.DATE_MODIFIED}"
-						text="${this.deleted ? this.localize('dateDeleted') : this.localize(FILTER_KEYS.DATE_MODIFIED)}"
-						search-type="none"
-						selection-single
-					>${this._renderFilterDimensionSetValues(FILTER_KEYS.DATE_MODIFIED, dateFilters)}
-					</d2l-filter-dimension-set>
-					<d2l-filter-dimension-set key="${FILTER_KEYS.DATE_CREATED}" text="${this.localize(FILTER_KEYS.DATE_CREATED)}" search-type="none" selection-single>
-						${this._renderFilterDimensionSetValues(FILTER_KEYS.DATE_CREATED, dateFilters)}
-					</d2l-filter-dimension-set>
-				</d2l-filter>
+				<d2l-content-library-filter
+					?can-manage-all-objects=${this._canManageAllObjects}
+					?deleted=${this.deleted}
+					.contentTypes=${CONTENT_TYPES}
+					.clientApps=${CLIENT_APPS}
+					@d2l-filter-change=${this._handleD2lFilterChange}
+				>
+				</d2l-content-library-filter>
 			`;
 		}
 
@@ -188,6 +175,10 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 					contentTypes: normalizedContentTypes,
 					clientApps: normalizedClientApps
 				};
+
+				if (this._showAdvancedFilters) {
+					this._advancedFilter.selectedFilterParams = this._selectedFilterParams;
+				}
 			}
 		);
 	}
@@ -231,29 +222,7 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 	}
 
 	_handleD2lFilterChange(event) {
-		const { allCleared, dimensions } = event.detail;
-		if (allCleared) {
-			this._selectedFilterParams = { dateModified: '', dateCreated: '', ownership: '', contentTypes: [], clientApps: [] };
-		} else if (dimensions.length > 0) {
-			const newFilters = { ...this._selectedFilterParams };
-			dimensions.forEach(dimension => {
-				const { changes, cleared, dimensionKey } = dimension;
-				if ([FILTER_KEYS.DATE_MODIFIED, FILTER_KEYS.DATE_CREATED, FILTER_KEYS.OWNERSHIP].includes(dimensionKey)) {
-					if (cleared) {
-						newFilters[dimensionKey] = '';
-					} else {
-						const selected = changes.filter(change => change.selected)[0];
-						newFilters[dimensionKey] = selected ? selected.valueKey : '';
-					}
-				} else {
-					const selectionMap = {};
-					newFilters[dimensionKey].forEach(option => selectionMap[option] = true);
-					changes.forEach(({ valueKey, selected }) => selectionMap[valueKey] = selected);
-					newFilters[dimensionKey] = Object.entries(selectionMap).filter(([, value]) => value).map(([key]) => key);
-				}
-			});
-			this._selectedFilterParams = newFilters;
-		}
+		this._selectedFilterParams = event.detail.selectedFilterParams;
 	}
 
 	_isMultiSelectFilterChanged(oldFilter, newFilter) {
@@ -278,28 +247,6 @@ class ContentFilterDropdown extends DependencyRequester(RtlMixin(InternalLocaliz
 			return filterValues.length > 0 ? filterValues.split(',') : [];
 		}
 		return filterValues;
-	}
-
-	_renderFilterDimensionSetValues(dimension, options) {
-		const getLangterm = (option) => {
-			switch (dimension) {
-				case FILTER_KEYS.CONTENT_TYPES:
-					return option.toLowerCase();
-				case FILTER_KEYS.CLIENT_APPS:
-					return option === 'none' ? 'sourceNone' : `source${option}`;
-				default:
-					return option;
-			}
-		};
-		return options.map(option => {
-			return html`
-				<d2l-filter-dimension-set-value
-					key="${option}"
-					text="${this.localize(getLangterm(option))}"
-					?selected=${this._selectedFilterParams[dimension].includes(option)}
-				></d2l-filter-dimension-set-value>
-			`;
-		});
 	}
 }
 

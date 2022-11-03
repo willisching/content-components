@@ -1,6 +1,6 @@
 import { formatDate } from '@brightspace-ui/intl/lib/dateTime.js';
 
-import { dateFilterToSearchQuery } from '../util/date-filter.js';
+import { dateFilterToSearchQuery } from '../../../../util/date-filter.js';
 import { getTimeZoneOrTimeZoneOffset } from '../util/date-time.js';
 import { CLIENT_APPS, CONTENT_TYPES } from '../util/constants.js';
 
