@@ -22,7 +22,9 @@ class ContentLibraryFilter extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 			contentTypes: { type: Array },
 			clientApps: { type: Array },
 			deleted: { type: Boolean }, // Is this filter for deleted items
-			_selectedFilterParams: { type: Object, attribute: false }
+			_selectedFilterParams: { type: Object, attribute: false },
+			hideClientApps: { type: Boolean, attribute: 'hide-client-apps' },
+			hideOwnership: { type: Boolean, attribute: 'hide-ownership' },
 		};
 	}
 
@@ -43,16 +45,17 @@ class ContentLibraryFilter extends RtlMixin(InternalLocalizeMixin(LitElement)) {
 	render() {
 		return html`
 			<d2l-filter @d2l-filter-change=${this._handleD2lFilterChange}>
-				${this.canManageAllObjects ? html`
+				${this.canManageAllObjects && !this.hideOwnership ? html`
 					<d2l-filter-dimension-set key="${FILTER_KEYS.OWNERSHIP}" text=${this.localize(FILTER_KEYS.OWNERSHIP)} search-type="none" selection-single>
 						${this._renderFilterDimensionSetValues(FILTER_KEYS.OWNERSHIP, ['myMedia', 'everyonesMedia'])}
 					</d2l-filter-dimension-set>` : ''}
 				<d2l-filter-dimension-set key="${FILTER_KEYS.CONTENT_TYPES}" text="${this.localize('contentType')}" search-type="none" select-all>
 					${this._renderFilterDimensionSetValues(FILTER_KEYS.CONTENT_TYPES, this.contentTypes)}
 				</d2l-filter-dimension-set>
-				<d2l-filter-dimension-set key="${FILTER_KEYS.CLIENT_APPS}" text="${this.localize('clientApp')}" select-all>
-					${this._renderFilterDimensionSetValues(FILTER_KEYS.CLIENT_APPS, this.clientApps)}
-				</d2l-filter-dimension-set>
+				${!this.hideClientApps ? html`
+					<d2l-filter-dimension-set key="${FILTER_KEYS.CLIENT_APPS}" text="${this.localize('clientApp')}" select-all>
+						${this._renderFilterDimensionSetValues(FILTER_KEYS.CLIENT_APPS, this.clientApps)}
+					</d2l-filter-dimension-set>` : ''}
 				<d2l-filter-dimension-set
 					key="${FILTER_KEYS.DATE_MODIFIED}"
 					text="${this.deleted ? this.localize('dateDeleted') : this.localize(FILTER_KEYS.DATE_MODIFIED)}"

@@ -22,6 +22,7 @@ import { formatDate } from '@brightspace-ui/intl/lib/dateTime.js';
 import { ContentCacheDependencyKey } from '../../models/content-cache.js';
 import { dateFilterToSearchQuery } from '../../util/date-filter.js';
 import { getIcon } from '../../util/content-type-icon-mapper.js';
+import { getSupportedExtensions } from '../../util/media-type-util';
 
 class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(InternalLocalizeMixin(LitElement)))) {
 	static get properties() {
@@ -44,6 +45,7 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 			showThumbnail: { type: Boolean },
 			showDescription: { type: Boolean },
 			tenantId: { type: String },
+			useContentLibrary: { type: Boolean },
 			userId: { type: String },
 
 			_contentItems: { type: Object, attribute: false },
@@ -257,23 +259,27 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 
 		this._showContextMenu = this.showDeleteAction || this.showRevisionUploadAction || this.showEditPropertiesAction || this.showPreviewAction;
 		this.clientApps = this.clientApps.length > 0 ? this.clientApps : [ClientApp.ALL];
+		if (this.useContentLibrary) {
+			this.allowFilter = true;
+			this.allowSort = true;
+		}
 	}
 
 	render() {
 		return html`
 			<div class='container'>
 				<div class="input-container">
+				<d2l-input-search
+						label=${this.localize('searchEllipsis')}
+						@d2l-input-search-searched=${this._handleSearch}
+						maxlength="200"
+					></d2l-input-search>
 					${this.allowFilter || this.allowSort ? html`
 						<div class="search-options-container">
 							${this.allowFilter ? this._renderFilters() : ''}
 							${this.allowSort ? this._renderSortDropdown() : ''}
 						</div>
 					` : ''}
-					<d2l-input-search
-						label=${this.localize('searchEllipsis')}
-						@d2l-input-search-searched=${this._handleSearch}
-						maxlength="200"
-					></d2l-input-search>
 					${this.allowUpload ? this._renderUploadButton() : ''}
 				</div>
 				<d2l-scroller
@@ -471,6 +477,7 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 			query: this.query,
 			start: start,
 			sort: this._selectedSortOption,
+			extensions: getSupportedExtensions(this.contentTypes),
 			size,
 			...searchLocations && { searchLocations },
 			includeThumbnails: this.showThumbnail,
@@ -585,6 +592,8 @@ class ContentSelectorList extends RtlMixin(RequesterMixin(SkeletonMixin(Internal
 		return html`
 			<d2l-content-library-filter
 				?can-manage-all-objects=${this.canManageAllObjects}
+				?hide-client-apps=${this.useContentLibrary}
+				?hide-ownership=${this.useContentLibrary}
 				.contentTypes=${this.contentTypes}
 				.clientApps=${this.clientApps}
 			>

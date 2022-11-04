@@ -157,6 +157,7 @@ class ContentSelector extends ProviderMixin(InternalLocalizeMixin(LitElement)) {
 								allowSelection
 								?canManageAllObjects=${this.canManageAllObjects}
 								?canManageSharedObjects=${this.canManageSharedObjects}
+								?useContentLibrary=${this.useContentLibrary}
 								.contentTypes=${this.supportedTypes}
 								orgUnitId=${this.context}
 								.searchLocations=${this.searchLocations}
